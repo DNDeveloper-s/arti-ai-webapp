@@ -2,10 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .cta-button {
+    @apply px-8 py-4 rounded-xl bg-primary;
+  }
+  .landing-page-section {
+    @apply max-w-[70vw] mx-auto py-10 font-diatype;
+  }
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  scroll-behavior: smooth;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,6 +24,46 @@
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
   }
+}
+
+@font-face {
+  font-display: swap;
+  font-family: ABC Diatype;
+  font-style: normal;
+  font-weight: 400;
+  src: url(../assets/fonts/ABCDiatype-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: swap;
+  font-family: ABC Diatype;
+  font-style: normal;
+  font-weight: 500;
+  src: url(../assets/fonts/ABCDiatype-Medium.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: swap;
+  font-family: ABC Diatype;
+  font-style: normal;
+  font-weight: 700;
+  src: url(../assets/fonts/ABCDiatype-Bold.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: swap;
+  font-family: ABC Diatype Mono;
+  font-style: normal;
+  font-weight: 400;
+  src: url(../assets/fonts/ABCDiatypeMono-Medium.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: swap;
+  font-family: ABC Gaisyr;
+  font-style: normal;
+  font-weight: 400;
+  src: url(../assets/fonts/ABCGaisyr-Regular.woff2) format("woff2")
 }
 
 body {
