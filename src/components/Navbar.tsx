@@ -2,18 +2,28 @@ import React from 'react';
 import Image from 'next/image';
 import Logo from '@/components/Logo';
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
+import CTAButton from '@/components/CTAButton';
 
 export default function Navbar() {
+	const router = useRouter();
 
 	return (
 
-		<nav className="font-diatype fixed w-full z-20 top-0 left-0">
+		<nav className="font-diatype fixed w-full top-0 left-0 bg-background z-30">
 			<div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-				<Logo asLink={true} />
+				<Logo style={{opacity: 0}} asLink={true} />
 				<div className="flex md:order-2">
-					<button type="button"
-					        className="text-white bg-primary hover:opacity-75 transition-all focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 text-center mr-3 md:mr-0 dark:bg-primary ">Register
-					</button>
+					{/*<button type="button"*/}
+					{/*        className="text-white bg-primary hover:opacity-75 transition-all focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 text-center mr-3 md:mr-0 dark:bg-primary "*/}
+					{/*	onClick={() => {*/}
+					{/*		router.push('#contact');*/}
+					{/*	}}*/}
+					{/*>Register*/}
+					{/*</button>*/}
+					<CTAButton onClick={() => router.push('#contact')} className="px-4 py-2 text-sm rounded-lg">
+						<span>Register</span>
+					</CTAButton>
 					<button data-collapse-toggle="navbar-sticky" type="button"
 					        className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
 					        aria-controls="navbar-sticky" aria-expanded="false">
@@ -34,7 +44,7 @@ export default function Navbar() {
 							   aria-current="page">Home</a>
 						</li>
 						<li>
-							<Link href="#product-overview"
+							<Link href="#why-us"
 							   className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Services</Link>
 						</li>
 						<li>
