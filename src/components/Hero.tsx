@@ -29,7 +29,7 @@ export default function Hero() {
 				{/*<button className="my-4 cta-button" onClick={() => {*/}
 				{/*	router.push('#arti-bot')*/}
 				{/*}}>Try for Free Now</button>*/}
-				<CTAButton onClick={() => router.push('#contact')} className="my-4">
+				<CTAButton onClick={() => router.push('#arti-bot')} className="my-4">
 					<span>Try for Free Now</span>
 				</CTAButton>
 			</motion.div>

@@ -7,7 +7,7 @@
     @apply px-8 py-4 rounded-xl bg-primary;
   }
   .landing-page-section {
-    @apply max-w-[70vw] mx-auto py-10 font-diatype;
+    @apply w-[100vw] px-10 max-w-[1100px] mx-auto py-10 font-diatype;
   }
 }
 

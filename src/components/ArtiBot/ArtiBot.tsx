@@ -13,26 +13,61 @@ import tickAnimation from '@/assets/lottie/tick_animation.json';
 import typingAnimation from '@/assets/lottie/typing.json';
 import {IoIosCopy} from 'react-icons/io';
 import {motion} from 'framer-motion'
-import {render} from 'react-dom';
 import {humanFileSize} from '@/helpers';
 import {threshold} from '@/config/thresholds';
 import Logo from '@/components/Logo';
 import {framerContainer, framerItem} from '@/config/framer-motion';
 import {useRouter} from 'next/navigation';
 import {LuDownload} from 'react-icons/lu';
-import CTAButton from '@/components/CTAButton';
 import {MdDelete} from 'react-icons/md';
+import dummyImage from '@/assets/images/dummy2.webp'
+import exampleJSON from '@/database/exampleJSON';
+import Link from 'next/link';
+import MessageContainer from '@/components/ArtiBot/MessageContainer';
 
-interface MessageObj {
+interface AdVariant {
+	'Variant': number;
+	'Ad Type': "Instagram Story Ad" | "LinkedIn Sponsored Content" | "Google Display Ad" | "YouTube Pre-roll Ad";
+	'Image Url': string;
+	'Text': string;
+	'One Liner': string;
+	'Image Description': string;
+	'Ad orientation': string;
+	'Rationale': string;
+}
+
+interface JSONInput {
+	Confidence: string;
+	'Token Count': number;
+	'Disclaimer': string;
+	'Company Name': string;
+	'Date_Time': string;
+	'Ad Objective': string;
+	'Summary': string;
+	'Ads': AdVariant[]
+}
+
+type MessageType = 'text' | 'attachment' | 'ad-json';
+
+export interface MessageObj {
 	id: string;
 	is_ai_response: boolean;
 	message: string;
 	timestamp: string;
-	type: 'text' | 'attachment';
+	type: MessageType;
 	attachments?: FileObject[];
+	json?: string;
 }
 
 const dummyMessages: MessageObj[] = [
+	{
+		id: '5',
+		is_ai_response: true,
+		message: 'Hello there, Tell me something more about it.',
+		timestamp: new Date().toISOString(),
+		type: 'ad-json',
+		json: exampleJSON
+	},
 	{
 		id: '3',
 		is_ai_response: false,
@@ -136,26 +171,14 @@ function AttachmentItem({messageItem}: {messageItem: MessageObj}) {
 	}
 
 	return (
-		<div key={messageItem.id} className={'w-full ' + (messageItem.is_ai_response ? '' : 'bg-background')}>
-			<div className="flex items-start px-5 py-4 w-full max-w-[800px] mx-auto">
-				<Image className="rounded-lg mr-1" width={45} height={45} src={messageItem.is_ai_response ? botData.image : dummyUser.image} alt=""/>
-				<div className="ml-3 flex-1">
-					{/*<div className="flex items-center mb-2">*/}
-					{/*	<h4 className="text-lg mr-5">{messageItem.is_ai_response ? botData.name : dummyUser.name}</h4>*/}
-					{/*	<span className="flex-1 text-xs text-secondaryText">10/06/2023 6:25 PM</span>*/}
-					{/*	<div className="w-9 h-9 mx-5 flex items-center justify-center relative">*/}
-
-					{/*	</div>*/}
-					{/*</div>*/}
-					{renderImage()}
-					{renderFile()}
-				</div>
-			</div>
-		</div>
+		<>
+			{renderImage()}
+			{renderFile()}
+		</>
 	)
 }
 
-function MessageItem({messageItem}: {messageItem: MessageObj}) {
+export function MessageItem({messageItem}: {messageItem: MessageObj}) {
 	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
 
 	async function copyTextToClipboard(text: string) {
@@ -171,44 +194,121 @@ function MessageItem({messageItem}: {messageItem: MessageObj}) {
 		return;
 	}
 
+	let item;
+
 	if(messageItem.type === 'attachment') {
-		return <AttachmentItem messageItem={messageItem} />
+		item = <AttachmentItem messageItem={messageItem} />
+	}
+	if(messageItem.type === 'text') {
+		item = (
+			<div className="flex items-start">
+				<p className="whitespace-pre-wrap text-md text-primaryText opacity-60 flex-1">
+					{messageItem.message}
+				</p>
+				<div className="w-9 h-9 mx-5 flex items-center justify-center relative">
+					{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary" onClick={() => copyTextToClipboard(messageItem.message)}/> :
+						<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
+						        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
+						        animationData={tickAnimation}
+						        loop={false}
+						/>
+					}
+				</div>
+			</div>
+		)
+	}
+	if(messageItem.type === 'ad-json') {
+		item = <AdItem messageItem={messageItem} />
 	}
 
 	return (
-		<div key={messageItem.id} className={'w-full ' + (messageItem.is_ai_response ? '' : 'bg-background')}>
+		<div key={messageItem.id} className={'w-full ' + (messageItem.is_ai_response ? '' : 'bg-background bg-opacity-30')}>
 			<div className="flex items-start px-5 py-4 w-full max-w-[800px] mx-auto">
 				<Image className="rounded-lg mr-1" width={45} height={45} src={messageItem.is_ai_response ? botData.image : dummyUser.image} alt=""/>
 				<div className="ml-3 flex-1">
-					{/*	<div className="flex items-center mb-2">*/}
-					{/*		<h4 className="text-lg mr-5">{messageItem.is_ai_response ? botData.name : dummyUser.name}</h4>*/}
-					{/*		<span className="flex-1 text-xs text-secondaryText">10/06/2023 6:25 PM</span>*/}
-					{/*		<div className="w-9 h-9 mx-5 flex items-center justify-center relative">*/}
-					{/*			{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary" onClick={() => copyTextToClipboard(messageItem.message)}/> :*/}
-					{/*				<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}*/}
-					{/*				        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"*/}
-					{/*				        animationData={tickAnimation}*/}
-					{/*				        loop={false}*/}
-					{/*				/>*/}
-					{/*			}*/}
-					{/*		</div>*/}
-					{/*	</div>*/}
-					<div className="flex items-start">
-						<p className="whitespace-pre-wrap text-md text-primaryText opacity-60 flex-1">
-							{messageItem.message}
-						</p>
-						<div className="w-9 h-9 mx-5 flex items-center justify-center relative">
-							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary" onClick={() => copyTextToClipboard(messageItem.message)}/> :
-								<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
-								        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
-								        animationData={tickAnimation}
-								        loop={false}
-								/>
-							}
-						</div>
-					</div>
+					{item}
 				</div>
 			</div>
+		</div>
+	)
+}
+
+function AdItem({messageItem}: {messageItem: MessageObj}) {
+
+	const json = messageItem.json && JSON.parse(messageItem.json) as JSONInput;
+
+	if(!json) return null;
+
+	return (
+		<div className="divide-y [&>*]:pt-10 [&>*]:mb-10 [&>*:first-child]:pt-0 [&>*:last-child]:mb-0 divide-gray-700">
+			{json.Ads.map(adVariant => (
+				<div key={adVariant['One Liner']} className="ad-variant">
+					<h2 className="font-bold font-diatype text-xl mb-3 flex items-center">{adVariant['One Liner']}
+						{adVariant['Ad Type'] && <span className="text-xs py-1 px-2 ml-3 font-regular bg-white bg-opacity-10 text-primary rounded-lg upper">{adVariant['Ad Type'].split(' ')[0]}</span>}
+					</h2>
+					<div className="px-5">
+						<ol className="list-decimal">
+							<li className="pl-1">
+								<span className="text-base font-medium"><strong>Ad Orientation</strong></span>
+								<p className="mt-1 text-base font-diatype opacity-60">{adVariant['Ad orientation']}</p>
+							</li>
+							<div className="my-5 bg-background bg-opacity-50 p-5 rounded-lg">
+								<Image width={500} height={100} className="mb-3 w-full max-w-[500px]" src={dummyImage} alt="Ad Image" />
+								<p className="leading-5 text-sm font-diatype opacity-60">{adVariant.Text}</p>
+							</div>
+							<li className="pl-1">
+								<p className="text-base font-medium"><strong>Image Description</strong></p>
+								<p className="mt-1 mb-3 opacity-60">{adVariant['Image Description']}</p>
+							</li>
+							<li className="pl-1">
+								<p className="text-base font-medium"><strong>Rationale</strong></p>
+								<p className="mt-1 mb-3 opacity-60">{adVariant.Rationale}</p>
+							</li>
+						</ol>
+					</div>
+				</div>
+			))}
+			{/*<div className="ad-variant">*/}
+			{/*	<h2 className="font-bold font-diatype text-xl mb-3 flex items-center">Luxury Living Re-Defined At GLS Infra Project <span className="text-xs py-1 px-2 ml-3 bg-primary rounded-lg">Facebook</span></h2>*/}
+			{/*	<div className="px-5">*/}
+			{/*		<ol className="list-decimal">*/}
+			{/*			<li className="pl-1">*/}
+			{/*				<span className="text-base font-medium"><strong>Ad Orientation</strong></span>*/}
+			{/*				<p className="mt-1 text-base font-diatype opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
+			{/*			</li>*/}
+			{/*			<Image width={500} height={100} className="my-5 w-full max-w-[500px]" src={dummyImage} alt="Ad Image" />*/}
+			{/*			<li className="pl-1">*/}
+			{/*				<p className="text-base font-medium"><strong>Image Description</strong></p>*/}
+			{/*				<p className="mt-1 mb-3 opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
+			{/*			</li>*/}
+			{/*			<li className="pl-1">*/}
+			{/*				<p className="text-base font-medium"><strong>Rationale</strong></p>*/}
+			{/*				<p className="mt-1 mb-3 opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
+			{/*			</li>*/}
+			{/*		</ol>*/}
+			{/*	</div>*/}
+			{/*</div>*/}
+			
+			{/*<div className="ad-variant">*/}
+			{/*	<h2 className="font-bold font-diatype text-xl mb-3 flex items-center">Luxury Living Re-Defined At GLS Infra Project <span className="text-xs py-1 px-2 ml-3 bg-primary rounded-lg">Linkedin</span></h2>*/}
+			{/*	<div className="px-5">*/}
+			{/*		<ol className="list-decimal">*/}
+			{/*			<li className="pl-1">*/}
+			{/*				<span className="text-base font-medium"><strong>Ad Orientation</strong></span>*/}
+			{/*				<p className="mt-1 text-base font-diatype opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
+			{/*			</li>*/}
+			{/*			<Image width={500} height={100} className="my-5 w-full max-w-[500px]" src={dummyImage} alt="Ad Image" />*/}
+			{/*			<li className="pl-1">*/}
+			{/*				<p className="text-base font-medium"><strong>Image Description</strong></p>*/}
+			{/*				<p className="mt-1 mb-3 opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
+			{/*			</li>*/}
+			{/*			<li className="pl-1">*/}
+			{/*				<p className="text-base font-medium"><strong>Rationale</strong></p>*/}
+			{/*				<p className="mt-1 mb-3 opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
+			{/*			</li>*/}
+			{/*		</ol>*/}
+			{/*	</div>*/}
+			{/*</div>*/}
 		</div>
 	)
 }
@@ -337,35 +437,42 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 		}, 500)
 	}
 
+	const showGetAdNowButton = messages.length >= threshold.getAdNowButtonAfter;
+
 	return (
 		<div className={'bg-secondaryBackground border-2 border-primary relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
 			<>
 				<div className="flex justify-center h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
 					{/*<div className="flex items-center">*/}
 					{/*	<Image width={40} height={40} className="rounded-full mr-4" src="https://ui-avatars.com/api/?name=Arti+Bot&size=64&background=random&rounded=true" alt=""/>*/}
-					<h3 className="text-lg">Arti AI</h3>
+					<Link href="/" className="flex justify-center items-center">
+						<Logo width={35} className="mr-2" height={35} />
+						<h3 className="text-lg">Arti AI</h3>
+					</Link>
 					{/*</div>*/}
 					{/*<div>*/}
 					{/*	<SlOptionsVertical />*/}
 					{/*</div>*/}
 				</div>
-				<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? 'min-h-[20em] max-h-[40em]' : '')}>
-					{isGenerating && <div className="w-14 h-16 mx-5 flex flex-end">
-            <Lottie animationData={typingAnimation} loop={true} />
-          </div>}
-					{
-						messages.map(messageItem => (
-							<MessageItem key={messageItem.id} messageItem={messageItem} />
-						))
-					}
-				</div>
+				<MessageContainer messages={messages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
 				<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
-					{messages.length >= threshold.getAdNowButtonAfter && <motion.button whileHover={{
+					{showGetAdNowButton && <motion.button whileHover={{
 						scale: 1.05,
 						transition: { duration: 0.2 },
 					}} whileTap={{scale: 0.98}} initial={{y: -10, opacity: 0}} animate={{y: 0, opacity: 1}}
 					                transition={{type: 'spring', damping: 10}}
-					                className="cta-button absolute flex items-center text-lg font-diatype -top-20 right-20">
+					                className="cta-button absolute flex items-center text-lg font-diatype -top-20 right-20"
+						onClick={() => {
+							setMessages(c => ([{
+								id: '5',
+								is_ai_response: true,
+								message: 'Hello there, Tell me something more about it.',
+								timestamp: new Date().toISOString(),
+								type: 'ad-json',
+								json: exampleJSON
+							}, ...c]))
+						}}
+					>
 						<LuDownload style={{fontSize: '22px'}}/>
 						<span className="ml-5">Get Ad Now</span>
 					</motion.button>}

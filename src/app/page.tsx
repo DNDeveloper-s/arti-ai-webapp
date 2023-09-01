@@ -8,17 +8,23 @@ import WhyUs from '@/components/WhyUs';
 import Navbar from '@/components/Navbar';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
-import ArtiBot from '@/components/ArtiBot';
-import React, {useState} from 'react';
+import ArtiBot from '@/components/ArtiBot/ArtiBot';
+import React, {useEffect, useState} from 'react';
 import {AnimatePresence, useScroll, motion, useMotionValueEvent} from 'framer-motion';
 
 export default function Home() {
+
+  useEffect(() => {
+    const a = React.createElement('p', {}, React.createElement('strong', {}, 'This is my strong text'))
+  }, [])
 
   return (
     <AnimatePresence mode={'wait'}>
       <motion.div className="fixed top-0 left-0 bg-background z-40 w-screen h-screen" initial={{'--tw-bg-opacity': 1, pointerEvents: 'all'}} animate={{'--tw-bg-opacity': 0, pointerEvents: 'none'}} transition={{delay: 0.35, type: 'tween', pointerEvents: {delay: 0.45} }}>
         <motion.div initial={{x: '-50%', y: '-50%', top: '50%', left: '50%'}} animate={{x: 0, y: 0, top: 15, left: 15}} transition={{type: 'spring', damping: 15, bounce: 0.15, delay: 0.2}} className="inline-block absolute">
-          <Logo width={40} height={40} />
+          <div style={{width: 40, height: 40}}>
+            <Logo width={'100%'} height={'100%'} />
+          </div>
         </motion.div>
       </motion.div>
       <Navbar />

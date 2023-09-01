@@ -1,4 +1,4 @@
-import ArtiBot from '@/components/ArtiBot';
+import ArtiBot from '@/components/ArtiBot/ArtiBot';
 
 
 export default function Home() {
