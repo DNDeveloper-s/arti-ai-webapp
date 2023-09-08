@@ -1,6 +1,8 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import Navbar from '@/components/Navbar';
+import SnackbarContextProvider from '@/context/SnackbarContext';
+import React from 'react';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -15,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <SnackbarContextProvider>
+          {children}
+        </SnackbarContextProvider>
       </body>
     </html>
   )

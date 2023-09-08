@@ -1,16 +1,14 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
-import {SlOptionsVertical} from 'react-icons/sl';
-import {AiFillCloseCircle, AiFillFileExclamation, AiFillFileText, AiFillPlusCircle} from 'react-icons/ai';
-import {BsCloudDownloadFill, BsFillFileEarmarkPdfFill} from 'react-icons/bs';
+import {AiFillCloseCircle, AiFillFileExclamation, AiFillFileText} from 'react-icons/ai';
+import {BsFillFileEarmarkPdfFill} from 'react-icons/bs';
 import {colors} from '@/config/theme';
 import TextareaAutosize from 'react-textarea-autosize';
 import {botData, dummyUser} from '@/constants/images';
 import Lottie from 'lottie-react';
 import tickAnimation from '@/assets/lottie/tick_animation.json';
-import typingAnimation from '@/assets/lottie/typing.json';
 import {IoIosCopy} from 'react-icons/io';
 import {motion} from 'framer-motion'
 import {humanFileSize} from '@/helpers';
@@ -20,105 +18,92 @@ import {framerContainer, framerItem} from '@/config/framer-motion';
 import {useRouter} from 'next/navigation';
 import {LuDownload} from 'react-icons/lu';
 import {MdDelete} from 'react-icons/md';
-import dummyImage from '@/assets/images/dummy2.webp'
-import exampleJSON from '@/database/exampleJSON';
 import Link from 'next/link';
 import MessageContainer from '@/components/ArtiBot/MessageContainer';
+import {ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, JSONInput, MessageObj} from '@/constants/artibotData';
+import AdVariant from '@/components/ArtiBot/AdVariant';
+import RightPane from '@/components/ArtiBot/RIghtPane';
+import {MessageService} from '@/services/Message';
+import {SnackbarContext} from '@/context/SnackbarContext';
+import {freeTierLimit} from '@/constants';
+// import OpenAI from 'openai';
 
-interface AdVariant {
-	'Variant': number;
-	'Ad Type': "Instagram Story Ad" | "LinkedIn Sponsored Content" | "Google Display Ad" | "YouTube Pre-roll Ad";
-	'Image Url': string;
-	'Text': string;
-	'One Liner': string;
-	'Image Description': string;
-	'Ad orientation': string;
-	'Rationale': string;
-}
+// const openai = new OpenAI({
+// 	apiKey: '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',
+// 	dangerouslyAllowBrowser: true
+// })
 
-interface JSONInput {
-	Confidence: string;
-	'Token Count': number;
-	'Disclaimer': string;
-	'Company Name': string;
-	'Date_Time': string;
-	'Ad Objective': string;
-	'Summary': string;
-	'Ads': AdVariant[]
-}
 
-type MessageType = 'text' | 'attachment' | 'ad-json';
-
-export interface MessageObj {
-	id: string;
-	is_ai_response: boolean;
-	message: string;
-	timestamp: string;
-	type: MessageType;
-	attachments?: FileObject[];
-	json?: string;
-}
-
-const dummyMessages: MessageObj[] = [
-	{
-		id: '5',
-		is_ai_response: true,
-		message: 'Hello there, Tell me something more about it.',
-		timestamp: new Date().toISOString(),
-		type: 'ad-json',
-		json: exampleJSON
-	},
-	{
-		id: '3',
-		is_ai_response: false,
-		message: '',
-		type: 'attachment',
-		timestamp: new Date().toISOString(),
-		attachments: [
-			{
-				id: 23,
-				name: 'TJk12sdjf',
-				size: 2344,
-				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-				type: 'image/jpg'
-			},
-			{
-				id: 24,
-				name: 'TJks45djf',
-				size: 23144,
-				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-				type: 'image/jpg'
-			},
-			{
-				id: 25,
-				name: 'TJk31sdjf',
-				size: 23244,
-				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-				type: 'image/jpg'
-			},
-			{
-				id: 26,
-				name: 'T2Jksdjf',
-				size: 23344,
-				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-				type: 'image/jpg'
-			}
-		]
-	},
-	{
-		id: '1',
-		is_ai_response: true,
-		message: 'The chat will support a conversation between a user and an AI powered chatbot. For each user message sent, we make an API call to the chatbot to generate the response. At a high level, the chat should support following functionalities:',
-		timestamp: new Date().toISOString(),
-		type: 'text'
-	},
-	{
-		id: '2',
-		is_ai_response: false,
-		message: 'Hello there, Tell me something more about it.',
-		timestamp: new Date().toISOString(),
-		type: 'text'
-	}
+export const dummyMessages: ChatGPTMessageObj[] = [
+	// {
+	// 	id: Date.now().toString(),
+	// 	role: ChatGPTRole.ASSISTANT,
+	// 	content: 'Hello there, How can we help you?'
+	// },
+	// {
+	// 	id: (Date.now() + 122).toString(),
+	// 	role: ChatGPTRole.USER,
+	// 	content: 'What are the offerings?'
+	// }
+	// {
+	// 	id: '5',
+	// 	is_ai_response: true,
+	// 	message: 'Hello there, Tell me something more about it.',
+	// 	timestamp: new Date().toISOString(),
+	// 	type: 'ad-json',
+	// 	json: exampleJSON
+	// },
+	// {
+	// 	id: '3',
+	// 	is_ai_response: false,
+	// 	message: '',
+	// 	type: 'attachment',
+	// 	timestamp: new Date().toISOString(),
+	// 	attachments: [
+	// 		{
+	// 			id: 23,
+	// 			name: 'TJk12sdjf',
+	// 			size: 2344,
+	// 			url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
+	// 			type: 'image/jpg'
+	// 		},
+	// 		{
+	// 			id: 24,
+	// 			name: 'TJks45djf',
+	// 			size: 23144,
+	// 			url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
+	// 			type: 'image/jpg'
+	// 		},
+	// 		{
+	// 			id: 25,
+	// 			name: 'TJk31sdjf',
+	// 			size: 23244,
+	// 			url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
+	// 			type: 'image/jpg'
+	// 		},
+	// 		{
+	// 			id: 26,
+	// 			name: 'T2Jksdjf',
+	// 			size: 23344,
+	// 			url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
+	// 			type: 'image/jpg'
+	// 		}
+	// 	]
+	// },
+	// {
+	// 	id: '1',
+	// 	is_ai_response: true,
+	// 	message: 'The chat will support a conversation between a user and an AI powered chatbot. For each user message sent, we make an API call to the chatbot to generate the response. At a high level, the chat should support following functionalities:',
+	// 	timestamp: new Date().toISOString(),
+	// 	type: 'text'
+	// },
+	// {
+	// 	id: '2',
+	// 	is_ai_response: false,
+	// 	message: 'Hello there, Tell me something more about it.',
+	// 	timestamp: new Date().toISOString(),
+	// 	type: 'text'
+	// }
 ];
 
 function AttachmentItem({messageItem}: {messageItem: MessageObj}) {
@@ -126,13 +111,13 @@ function AttachmentItem({messageItem}: {messageItem: MessageObj}) {
 	const renderImage = () => {
 		const imagesAttachments = messageItem.attachments?.filter(item => item.type.includes('image/'))
 			.map(image => (
-				<Image width={1000} height={1000} className="w-full h-64 object-cover" key={image.name + image.size} src={image.url} alt={image.name} />
+				<Image width={1000} height={1000} className="w-full h-32 md:h-64 object-cover" key={image.name + image.size} src={image.url} alt={image.name} />
 			))
 
 		if(!imagesAttachments || imagesAttachments.length === 0) return null;
 
 		return (
-			<div className="grid grid-cols-3 rounded-xl overflow-hidden gap-1">
+			<div className="grid grid-col-2 md:grid-cols-3 rounded-xl overflow-hidden gap-1">
 				{imagesAttachments}
 			</div>
 		)
@@ -222,7 +207,7 @@ export function MessageItem({messageItem}: {messageItem: MessageObj}) {
 	}
 
 	return (
-		<div key={messageItem.id} className={'w-full ' + (messageItem.is_ai_response ? '' : 'bg-background bg-opacity-30')}>
+		<div key={messageItem.content} className={'w-full ' + (messageItem.is_ai_response ? '' : 'bg-background bg-opacity-30')}>
 			<div className="flex items-start px-5 py-4 w-full max-w-[800px] mx-auto">
 				<Image className="rounded-lg mr-1" width={45} height={45} src={messageItem.is_ai_response ? botData.image : dummyUser.image} alt=""/>
 				<div className="ml-3 flex-1">
@@ -233,6 +218,48 @@ export function MessageItem({messageItem}: {messageItem: MessageObj}) {
 	)
 }
 
+export function ChatGPTMessageItem({messageItem}: {messageItem: ChatGPTMessageObj}) {
+	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
+
+	async function copyTextToClipboard(text: string) {
+		if ('clipboard' in navigator) {
+			await navigator.clipboard.writeText(text);
+		} else {
+			document.execCommand('copy', true, text);
+		}
+		setShowCopyAnimation(true);
+		setTimeout(() => {
+			setShowCopyAnimation(false);
+		}, 2000)
+		return;
+	}
+
+	return (
+		<div key={messageItem.content} className={'w-full ' + (messageItem.role === ChatGPTRole.ASSISTANT ? '' : 'bg-background bg-opacity-30')}>
+			<div className="flex items-start px-5 py-4 w-full max-w-[800px] mx-auto">
+				<Image className="rounded-lg mr-1" width={45} height={45} src={messageItem.role === ChatGPTRole.ASSISTANT ? botData.image : dummyUser.image} alt=""/>
+				<div className="ml-3 flex-1">
+					<div className="flex items-start">
+						<p className="whitespace-pre-wrap text-md text-primaryText opacity-60 flex-1">
+							{messageItem.content}
+						</p>
+						<div className="w-9 h-9 mx-5 flex items-center justify-center relative">
+							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary" onClick={() => copyTextToClipboard(messageItem.content)}/> :
+								<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
+								        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
+								        animationData={tickAnimation}
+								        loop={false}
+								/>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+
 function AdItem({messageItem}: {messageItem: MessageObj}) {
 
 	const json = messageItem.json && JSON.parse(messageItem.json) as JSONInput;
@@ -240,86 +267,15 @@ function AdItem({messageItem}: {messageItem: MessageObj}) {
 	if(!json) return null;
 
 	return (
-		<div className="divide-y [&>*]:pt-10 [&>*]:mb-10 [&>*:first-child]:pt-0 [&>*:last-child]:mb-0 divide-gray-700">
+		<div className="divide-y [&>*]:pt-10 [&>*]:mb-2 md:[&>*]:mb-10 [&>*:first-child]:pt-0 [&>*:last-child]:mb-0 divide-gray-700">
 			{json.Ads.map(adVariant => (
-				<div key={adVariant['One Liner']} className="ad-variant">
-					<h2 className="font-bold font-diatype text-xl mb-3 flex items-center">{adVariant['One Liner']}
-						{adVariant['Ad Type'] && <span className="text-xs py-1 px-2 ml-3 font-regular bg-white bg-opacity-10 text-primary rounded-lg upper">{adVariant['Ad Type'].split(' ')[0]}</span>}
-					</h2>
-					<div className="px-5">
-						<ol className="list-decimal">
-							<li className="pl-1">
-								<span className="text-base font-medium"><strong>Ad Orientation</strong></span>
-								<p className="mt-1 text-base font-diatype opacity-60">{adVariant['Ad orientation']}</p>
-							</li>
-							<div className="my-5 bg-background bg-opacity-50 p-5 rounded-lg">
-								<Image width={500} height={100} className="mb-3 w-full max-w-[500px]" src={dummyImage} alt="Ad Image" />
-								<p className="leading-5 text-sm font-diatype opacity-60">{adVariant.Text}</p>
-							</div>
-							<li className="pl-1">
-								<p className="text-base font-medium"><strong>Image Description</strong></p>
-								<p className="mt-1 mb-3 opacity-60">{adVariant['Image Description']}</p>
-							</li>
-							<li className="pl-1">
-								<p className="text-base font-medium"><strong>Rationale</strong></p>
-								<p className="mt-1 mb-3 opacity-60">{adVariant.Rationale}</p>
-							</li>
-						</ol>
-					</div>
-				</div>
+				<AdVariant key={adVariant['One Liner']} adVariant={adVariant} />
 			))}
-			{/*<div className="ad-variant">*/}
-			{/*	<h2 className="font-bold font-diatype text-xl mb-3 flex items-center">Luxury Living Re-Defined At GLS Infra Project <span className="text-xs py-1 px-2 ml-3 bg-primary rounded-lg">Facebook</span></h2>*/}
-			{/*	<div className="px-5">*/}
-			{/*		<ol className="list-decimal">*/}
-			{/*			<li className="pl-1">*/}
-			{/*				<span className="text-base font-medium"><strong>Ad Orientation</strong></span>*/}
-			{/*				<p className="mt-1 text-base font-diatype opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
-			{/*			</li>*/}
-			{/*			<Image width={500} height={100} className="my-5 w-full max-w-[500px]" src={dummyImage} alt="Ad Image" />*/}
-			{/*			<li className="pl-1">*/}
-			{/*				<p className="text-base font-medium"><strong>Image Description</strong></p>*/}
-			{/*				<p className="mt-1 mb-3 opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
-			{/*			</li>*/}
-			{/*			<li className="pl-1">*/}
-			{/*				<p className="text-base font-medium"><strong>Rationale</strong></p>*/}
-			{/*				<p className="mt-1 mb-3 opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
-			{/*			</li>*/}
-			{/*		</ol>*/}
-			{/*	</div>*/}
-			{/*</div>*/}
-			
-			{/*<div className="ad-variant">*/}
-			{/*	<h2 className="font-bold font-diatype text-xl mb-3 flex items-center">Luxury Living Re-Defined At GLS Infra Project <span className="text-xs py-1 px-2 ml-3 bg-primary rounded-lg">Linkedin</span></h2>*/}
-			{/*	<div className="px-5">*/}
-			{/*		<ol className="list-decimal">*/}
-			{/*			<li className="pl-1">*/}
-			{/*				<span className="text-base font-medium"><strong>Ad Orientation</strong></span>*/}
-			{/*				<p className="mt-1 text-base font-diatype opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
-			{/*			</li>*/}
-			{/*			<Image width={500} height={100} className="my-5 w-full max-w-[500px]" src={dummyImage} alt="Ad Image" />*/}
-			{/*			<li className="pl-1">*/}
-			{/*				<p className="text-base font-medium"><strong>Image Description</strong></p>*/}
-			{/*				<p className="mt-1 mb-3 opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
-			{/*			</li>*/}
-			{/*			<li className="pl-1">*/}
-			{/*				<p className="text-base font-medium"><strong>Rationale</strong></p>*/}
-			{/*				<p className="mt-1 mb-3 opacity-60">The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.</p>*/}
-			{/*			</li>*/}
-			{/*		</ol>*/}
-			{/*	</div>*/}
-			{/*</div>*/}
 		</div>
 	)
 }
 
-interface FileObject {
-	id: number;
-	url: string;
-	type: string;
-	name: string;
-	size: number;
-}
+
 interface FileItemProps {
 	fileObj: FileObject;
 	setFiles: React.Dispatch<React.SetStateAction<File[] | null>>;
@@ -365,22 +321,44 @@ const FileItem: React.FC<FileItemProps> = ({fileObj, setFiles}) => {
 	)
 }
 
+const d: IAdVariant = {
+	"Variant": 1,
+	"Ad Type": "Facebook Ad",
+	"Image Url": "https://i.ibb.co/Z1TK2kM/sean-pollock-Ph-Yq704ffd-A-unsplash.jpg",
+	"Text": "Discover the epitome of luxury at GLS Infra Project in Sector 67A, Gurugram. With 106 plots of various sizes, this is where your dream home comes to life. Enjoy state-of-the-art amenities, including a fully-equipped gym. Don't miss this opportunity! #GLSInfraProject #LuxuryLiving",
+	"One Liner": "Luxury living re-defined at GLS Infra Project!",
+	"Image Description": "The image shows a luxurious residential complex with modern architecture and lush green surroundings. The gym is highlighted in the image, showcasing the state-of-the-art facilities.",
+	"Ad orientation": "The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.",
+	"Rationale": "This ad is effective because it highlights the luxury and exclusivity of the GLS Infra Project, targeting high-ranking professionals. The one-liner captures attention, and the image showcases the modern architecture and amenities, creating curiosity and desire."
+}
+
+
 export default function ArtiBot({containerClassName = '', miniVersion = false}) {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
-	const [messages, setMessages] = useState<MessageObj[]>(dummyMessages);
+	const [messages, setMessages] = useState<ChatGPTMessageObj[]>([]);
 	const [areaHeight, setAreaHeight] = useState(0);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [files, setFiles] = useState<File[] | null>(null);
 	const [selectedFiles, setSelectedFiles] = useState<FileObject[] | null>(null);
 	const [exhausted, setExhausted] = useState(false);
 	const router = useRouter();
+	const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
 	useEffect(() => {
-		if(messages.length === threshold.freeTierMessageLimit && miniVersion) {
+		console.log('freeTierLimit - ', freeTierLimit);
+		if(messages.length >= freeTierLimit && miniVersion) {
 			setExhausted(true);
 		}
-	}, [messages, miniVersion])
+	}, [messages, miniVersion]);
+
+	useEffect(() => {
+		setMessages(JSON.parse(localStorage.getItem('messages') ?? '[]'));
+	}, [])
+
+	useEffect(() => {
+		localStorage.setItem('messages', JSON.stringify(messages));
+	} , [messages]);
 
 	useEffect(() => {
 		if(!files) return setSelectedFiles(null);
@@ -392,159 +370,159 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 		})
 		setSelectedFiles(_fs.length > 0 ? _fs : null);
 	}, [files]);
-	function handleSubmitMessage() {
+
+	async function handleSubmitMessage() {
 		if(exhausted || (!selectedFiles && inputValue.trim().length === 0)) return;
-
-		let messageObj: MessageObj = {
-			is_ai_response: false,
-			id: Date.now().toString(),
-			message: inputValue,
-			timestamp: new Date().toISOString(),
-			type: 'text'
-		}
-
-		if(selectedFiles) {
-			messageObj = {
-				is_ai_response: false,
-				id: Date.now().toString(),
-				message: '',
-				timestamp: new Date().toISOString(),
-				type: 'attachment',
-				attachments: selectedFiles
-			}
-		}
-
 		setInputValue('');
-		setFiles(null);
+		setIsGenerating(true);
+		const _messages: ChatGPTMessageObj[] = [
+			...messages,
+			{
+				id: Date.now().toString(),
+				role: ChatGPTRole.USER,
+				content: inputValue.trim()
+			}
+		]
 
-		setMessages(c => ([messageObj, ...c]));
+		const messageService = new MessageService();
 
-		// Simulating the AI response
-		setTimeout(() => {
-			setIsGenerating(true);
-			setTimeout(() => {
-				setIsGenerating(false);
-				const messageObj: MessageObj = {
-					is_ai_response: true,
-					id: Date.now().toString(),
-					message: 'This is a dummy response generated by the Arti Robot. Subscribe for more.',
-					timestamp: new Date().toISOString(),
-					type: 'text'
-				}
+		setMessages(_messages);
 
-				setMessages(c => ([messageObj, ...c]));
-			}, 3000)
-		}, 500)
+		const transformedMessages = _messages.map(c => ({role: c.role, content: c.content}));
+		const response = await messageService.send(transformedMessages);
+
+		if(!response.ok) setSnackBarData({message: 'We are unable to process the request right now!', status: 'error'});
+		setIsGenerating(false);
+
+		console.log('!(response.limitLeft > 0) - ', !(response.limitLeft > 0));
+		if(!(response.limitLeft > 0)) return setExhausted(true);
+
+		const responseMessage = response.data.choices[0].message;
+		setMessages(c => [...c, {...responseMessage, id: Date.now().toString()}])
+
+
+		return;
 	}
 
 	const showGetAdNowButton = messages.length >= threshold.getAdNowButtonAfter;
 
+	// const adGenerated = useMemo(() => {
+	// 	return messages.find(c => Boolean(c.json));
+	// }, [messages])
+
 	return (
-		<div className={'bg-secondaryBackground border-2 border-primary relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
-			<>
-				<div className="flex justify-center h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
-					{/*<div className="flex items-center">*/}
-					{/*	<Image width={40} height={40} className="rounded-full mr-4" src="https://ui-avatars.com/api/?name=Arti+Bot&size=64&background=random&rounded=true" alt=""/>*/}
-					<Link href="/" className="flex justify-center items-center">
-						<Logo width={35} className="mr-2" height={35} />
-						<h3 className="text-lg">Arti AI</h3>
-					</Link>
-					{/*</div>*/}
-					{/*<div>*/}
-					{/*	<SlOptionsVertical />*/}
-					{/*</div>*/}
-				</div>
-				<MessageContainer messages={messages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
-				<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
-					{showGetAdNowButton && <motion.button whileHover={{
-						scale: 1.05,
-						transition: { duration: 0.2 },
-					}} whileTap={{scale: 0.98}} initial={{y: -10, opacity: 0}} animate={{y: 0, opacity: 1}}
-					                transition={{type: 'spring', damping: 10}}
-					                className="cta-button absolute flex items-center text-lg font-diatype -top-20 right-20"
-						onClick={() => {
-							setMessages(c => ([{
-								id: '5',
-								is_ai_response: true,
-								message: 'Hello there, Tell me something more about it.',
-								timestamp: new Date().toISOString(),
-								type: 'ad-json',
-								json: exampleJSON
-							}, ...c]))
-						}}
-					>
-						<LuDownload style={{fontSize: '22px'}}/>
-						<span className="ml-5">Get Ad Now</span>
-					</motion.button>}
-					<label htmlFor="file" className="cursor-pointer mr-2 mb-[1.15rem]">
-						<input onChange={e => {
-							const files = e.currentTarget.files;
-							setFiles(c => {
-								if(!files) return c;
-								console.log('Array.from(e.currentTarget.files) - ', Array.from(files));
-								const filesArr = Array.from(files);
-								if(!c) return filesArr;
-								// @ts-ignore
-								return [...c, ...filesArr];
-							});
-						}} type="file" multiple accept="image/*, .pdf, .docx, .doc, .txt" id="file" className="hidden"/>
-						<AiFillPlusCircle className="text-primary text-2xl" />
-					</label>
-					{/*<div className="relative mb-[1.25rem]">*/}
-					{/*	<input type="file" className="absolute w-full h-full z-10 cursor-pointer" hidden/>*/}
-					{/*	<BsFillFileEarmarkFill className="text-xl" />*/}
-					{/*</div>*/}
-					<div className="flex-1 relative rounded-xl bg-background h-[70%] mb-1 mx-3">
-						{selectedFiles ? <div className="w-full h-[200px] p-3 px-6 flex absolute bottom-0 bg-background rounded-xl overflow-x-auto">
-								{selectedFiles.map(fileObj => (
-									<FileItem key={fileObj.id} setFiles={setFiles} fileObj={fileObj} />
-								))}
-							</div> :
-							<TextareaAutosize
-								ref={areaRef}
-								value={inputValue}
-								onChange={(e) => {
-									areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
-									setInputValue(e.target.value);
-								}}
-								onKeyDown={e => {
-									if(e.key === 'Enter') {
-										areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
-									}
-								}}
-								onHeightChange={e => {
-									// 48 is default height of textarea
-									setAreaHeight(e - 48);
-								}}
-								minRows={1}
-								maxRows={3}
-								placeholder="Type here..."
-								className="outline-none resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-6 absolute bottom-0"
-							/>
-							// <input type="text" className="outline-none active:outline-none bg-transparent w-full h-full p-3 px-6" placeholder="Type here..."/>
-						}
+		<div className={`flex h-full overflow-hidden`}>
+			{/*<div className="w-full h-full flex flex-col bg-black">*/}
+
+			{/*</div>*/}
+			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
+				<>
+					<div className="flex justify-center h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
+						{/*<div className="flex items-center">*/}
+						{/*	<Image width={40} height={40} className="rounded-full mr-4" src="https://ui-avatars.com/api/?name=Arti+Bot&size=64&background=random&rounded=true" alt=""/>*/}
+						<Link href="/" className="flex justify-center items-center">
+							<Logo width={35} className="mr-2" height={35} />
+							<h3 className="text-lg">Arti AI</h3>
+						</Link>
+						{/*</div>*/}
+						{/*<div>*/}
+						{/*	<SlOptionsVertical />*/}
+						{/*</div>*/}
 					</div>
-					<svg
-						onClick={handleSubmitMessage}
-						xmlns="http://www.w3.org/2000/svg"
-						width={19}
-						height={19}
-						fill={colors.primary}
-						className="mb-[1.25rem] cursor-pointer"
-					>
-						<path
-							d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
-						/>
-					</svg>
-				</div>
-			</>
-			{exhausted && <motion.div variants={framerContainer} initial={'hidden'} animate={'show'} className="flex z-10 w-full absolute h-full flex-col items-center justify-center bg-background bg-opacity-75">
-				<Logo width={60} height={60} fill={colors.primaryText}/>
-				<motion.p variants={framerItem()} className="text-3xl font-medium text-white font-giasyr">Arti</motion.p>
-				<motion.p variants={framerItem(.5)} className="text-md my-4">Discover the Arti Difference</motion.p>
-        <motion.p variants={framerItem()} className="text-sm max-w-lg text-yellow-500 text-center">You have exhausted the free tier limit. Please register to get the full access</motion.p>
-				<motion.button variants={framerItem()} className="my-4 cta-button" onClick={() => router.push('#contact')}>Register</motion.button>
-			</motion.div>}
+					<MessageContainer messages={messages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
+					<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
+						{showGetAdNowButton && <motion.button whileHover={{
+							scale: 1.05,
+							transition: { duration: 0.2 },
+						}} whileTap={{scale: 0.98}} initial={{y: -10, opacity: 0}} animate={{y: 0, opacity: 1}}
+                                                  transition={{type: 'spring', damping: 10}}
+                                                  className="cta-button px-4 py-2 md:py-4 md:px-8 absolute flex items-center text-lg font-diatype -top-14 md:-top-20 right-10 md:right-20"
+                                                  onClick={() => {
+							                                      // setMessages(c => ([{
+								                                    //   id: '5',
+								                                    //   is_ai_response: true,
+								                                    //   message: 'Hello there, Tell me something more about it.',
+								                                    //   timestamp: new Date().toISOString(),
+								                                    //   type: 'ad-json',
+								                                    //   json: exampleJSON
+							                                      // }, ...c]))
+						                                      }}
+            >
+              <LuDownload style={{fontSize: '22px'}}/>
+              <span className="ml-3 md:ml-5">Get Ad Now</span>
+            </motion.button>}
+						{/*<label htmlFor="file" className="cursor-pointer mr-2 mb-[1.15rem]">*/}
+						{/*	<input onChange={e => {*/}
+						{/*		const files = e.currentTarget.files;*/}
+						{/*		setFiles(c => {*/}
+						{/*			if(!files) return c;*/}
+						{/*			console.log('Array.from(e.currentTarget.files) - ', Array.from(files));*/}
+						{/*			const filesArr = Array.from(files);*/}
+						{/*			if(!c) return filesArr;*/}
+						{/*			// @ts-ignore*/}
+						{/*			return [...c, ...filesArr];*/}
+						{/*		});*/}
+						{/*	}} type="file" multiple accept="image/*, .pdf, .docx, .doc, .txt" id="file" className="hidden"/>*/}
+						{/*	<AiFillPlusCircle className="text-primary text-2xl" />*/}
+						{/*</label>*/}
+						{/*<div className="relative mb-[1.25rem]">*/}
+						{/*	<input type="file" className="absolute w-full h-full z-10 cursor-pointer" hidden/>*/}
+						{/*	<BsFillFileEarmarkFill className="text-xl" />*/}
+						{/*</div>*/}
+						<div className="flex-1 relative rounded-xl bg-background h-[70%] mb-1 mx-3">
+							{selectedFiles ? <div className="w-full h-[200px] p-3 px-6 flex absolute bottom-0 bg-background rounded-xl overflow-x-auto">
+									{selectedFiles.map(fileObj => (
+										<FileItem key={fileObj.id} setFiles={setFiles} fileObj={fileObj} />
+									))}
+								</div> :
+								<TextareaAutosize
+									ref={areaRef}
+									value={inputValue}
+									onChange={(e) => {
+										areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
+										setInputValue(e.target.value);
+									}}
+									onKeyDown={e => {
+										if(e.key === 'Enter') {
+											areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
+										}
+									}}
+									onHeightChange={e => {
+										// 48 is default height of textarea
+										setAreaHeight(e - 48);
+									}}
+									minRows={1}
+									maxRows={3}
+									placeholder="Type here..."
+									className="outline-none resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-6 absolute bottom-0"
+								/>
+								// <input type="text" className="outline-none active:outline-none bg-transparent w-full h-full p-3 px-6" placeholder="Type here..."/>
+							}
+						</div>
+						<svg
+							onClick={handleSubmitMessage}
+							xmlns="http://www.w3.org/2000/svg"
+							width={19}
+							height={19}
+							fill={colors.primary}
+							className="mb-[1.25rem] cursor-pointer"
+						>
+							<path
+								d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
+							/>
+						</svg>
+					</div>
+				</>
+				{exhausted && <motion.div variants={framerContainer} initial={'hidden'} animate={'show'} className="flex z-10 px-4 w-full absolute h-full flex-col items-center justify-center bg-background bg-opacity-80">
+          <Logo width={60} height={60} fill={colors.primaryText}/>
+          <motion.p variants={framerItem()} className="text-3xl font-medium text-white font-giasyr">Arti</motion.p>
+          <motion.p variants={framerItem(.5)} className="text-md my-4">Discover the Arti Difference</motion.p>
+          <motion.p variants={framerItem()} className="text-sm max-w-lg text-yellow-500 text-center">You have exhausted the free tier limit. Please register to get the full access</motion.p>
+          <motion.button variants={framerItem()} className="my-4 cta-button" onClick={() => router.push('#contact')}>Register</motion.button>
+        </motion.div>}
+			</div>
+
+			{!miniVersion && adGenerated && <RightPane adGenerated={adGenerated} />}
 		</div>
 	)
 }

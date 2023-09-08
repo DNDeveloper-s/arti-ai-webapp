@@ -1,7 +1,7 @@
 export const whyUsData = {
 	title: 'Why Arti?',
 	description: 'Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI.',
-	cta: 'Generate Ad Creatives',
+	// cta: 'Generate Ad Creatives',
 	bottomLine: 'Try 100% free for 7 days. Cancel Anytime',
 	items: [
 		{

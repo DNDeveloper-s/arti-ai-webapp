@@ -1,12 +1,41 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Image from 'next/image';
 import Logo from '@/components/Logo';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import CTAButton from '@/components/CTAButton';
+import {motion} from 'framer-motion';
 
 export default function Navbar() {
 	const router = useRouter();
+	const [expand, setExpand] = useState(false);
+
+	const listItems = (
+		<ul
+			className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
+			<li
+				onClick={() => setExpand(false)}>
+				<Link href="#"
+				   className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
+				   aria-current="page">Home</Link>
+			</li>
+			<li
+				onClick={() => setExpand(false)}>
+				<Link href="#product-overview"
+				      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Services</Link>
+			</li>
+			<li
+				onClick={() => setExpand(false)}>
+				<Link href="#why-us"
+				      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Why Us</Link>
+			</li>
+			<li
+				onClick={() => setExpand(false)}>
+				<Link href="#contact"
+				      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Contact Us</Link>
+			</li>
+		</ul>
+	)
 
 	return (
 
@@ -24,8 +53,8 @@ export default function Navbar() {
 					<CTAButton onClick={() => router.push('#contact')} className="px-4 py-2 text-sm rounded-lg">
 						<span>Register</span>
 					</CTAButton>
-					<button data-collapse-toggle="navbar-sticky" type="button"
-					        className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+					<button onClick={() => setExpand(c => !c)} data-collapse-toggle="navbar-sticky" type="button"
+					        className="ml-4 inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
 					        aria-controls="navbar-sticky" aria-expanded="false">
 						<span className="sr-only">Open main menu</span>
 						<svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -36,27 +65,11 @@ export default function Navbar() {
 					</button>
 				</div>
 				<div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
-					<ul
-						className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
-						<li>
-							<a href="#"
-							   className="transition-all block py-2 pl-3 pr-4 text-primaryText bg-blue-700 rounded md:bg-transparent md:text-primary md:p-0 md:dark:text-primary"
-							   aria-current="page">Home</a>
-						</li>
-						<li>
-							<Link href="#why-us"
-							   className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Services</Link>
-						</li>
-						<li>
-							<Link href="#product-overview"
-							   className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Product Overview</Link>
-						</li>
-						<li>
-							<Link href="#contact"
-							   className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Contact Us</Link>
-						</li>
-					</ul>
+					{listItems}
 				</div>
+				<motion.div animate={{x: expand ? '100%' : 0}} className="md:hidden visible w-full h-full bg-background overflow-hidden fixed top-[72px] left-0">
+					{listItems}
+				</motion.div>
 			</div>
 		</nav>
 

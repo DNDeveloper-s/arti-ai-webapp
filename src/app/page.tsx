@@ -11,12 +11,10 @@ import Footer from '@/components/Footer';
 import ArtiBot from '@/components/ArtiBot/ArtiBot';
 import React, {useEffect, useState} from 'react';
 import {AnimatePresence, useScroll, motion, useMotionValueEvent} from 'framer-motion';
+import Snackbar from '@/components/Snackbar';
 
 export default function Home() {
 
-  useEffect(() => {
-    const a = React.createElement('p', {}, React.createElement('strong', {}, 'This is my strong text'))
-  }, [])
 
   return (
     <AnimatePresence mode={'wait'}>
@@ -34,9 +32,9 @@ export default function Home() {
         <Services />
         <WhyUs />
         <div id="arti-bot" className="bg-black py-20">
-          <div className="landing-page-section">
-            <h2 className="text-3xl mb-10">Try Arti AI for free</h2>
-            <ArtiBot miniVersion={true} containerClassName="rounded-xl" />
+          <div className="landing-page-section px-0 md:px-10">
+            <h2 className="text-3xl mb-10 px-10">Try Arti AI for free</h2>
+            <ArtiBot miniVersion={true} containerClassName="rounded-xl border-2 border-primary" />
           </div>
         </div>
         <Contact />

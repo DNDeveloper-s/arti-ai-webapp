@@ -4,7 +4,7 @@
 
 @layer components {
   .cta-button {
-    @apply px-8 py-4 rounded-xl bg-primary;
+    @apply px-8 py-4 rounded-xl bg-primary cursor-pointer disabled:cursor-not-allowed;
   }
   .landing-page-section {
     @apply w-[100vw] px-10 max-w-[1100px] mx-auto py-10 font-diatype;
