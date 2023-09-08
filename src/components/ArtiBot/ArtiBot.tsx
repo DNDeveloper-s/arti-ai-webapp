@@ -522,7 +522,7 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
         </motion.div>}
 			</div>
 
-			{!miniVersion && adGenerated && <RightPane adGenerated={adGenerated} />}
+			{/*{!miniVersion && adGenerated && <RightPane adGenerated={adGenerated} />}*/}
 		</div>
 	)
 }
