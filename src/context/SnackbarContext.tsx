@@ -3,7 +3,7 @@
 import React, {createContext, FC, useState} from 'react';
 
 interface ISnackbarData {
-	status: 'warning' | 'error' | 'success',
+	status: 'warning' | 'error' | 'success' | 'info',
 	message: string;
 }
 
@@ -13,7 +13,7 @@ interface ISnackbarContext {
 	snackBarData: [snackBarData: SnackbarData, setSnackBarData: React.Dispatch<React.SetStateAction<SnackbarData>>]
 }
 
-export const SnackbarContext = createContext<ISnackbarContext>({});
+export const SnackbarContext = createContext<ISnackbarContext>({} as ISnackbarContext);
 
 const SnackbarContextProvider: FC<{children: React.ReactElement}> = (props) => {
 	const [snackBarData, setSnackBarData] = useState<SnackbarData>(null);

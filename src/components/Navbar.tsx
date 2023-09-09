@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import Logo from '@/components/Logo';
 import Link from 'next/link';
@@ -10,32 +10,29 @@ export default function Navbar() {
 	const router = useRouter();
 	const [expand, setExpand] = useState(false);
 
-	const listItems = (
-		<ul
-			className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
-			<li
-				onClick={() => setExpand(false)}>
-				<Link href="#"
-				   className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
-				   aria-current="page">Home</Link>
-			</li>
-			<li
-				onClick={() => setExpand(false)}>
-				<Link href="#product-overview"
-				      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Services</Link>
-			</li>
-			<li
-				onClick={() => setExpand(false)}>
-				<Link href="#why-us"
-				      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Why Us</Link>
-			</li>
-			<li
-				onClick={() => setExpand(false)}>
-				<Link href="#contact"
-				      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700">Contact Us</Link>
-			</li>
-		</ul>
-	)
+	useEffect(() => {
+		console.log('expand - ', expand);
+	}, [expand]);
+
+	const navBarItems = [
+		{
+			id: '1',
+			href: '#',
+			label: 'Home'
+		},{
+			id: '2',
+			href: '#product-overview',
+			label: 'Services'
+		},{
+			id: '3',
+			href: '#why-us',
+			label: 'Why Us'
+		},{
+			id: '4',
+			href: '#contact',
+			label: 'Contact'
+		},
+	]
 
 	return (
 
@@ -43,17 +40,13 @@ export default function Navbar() {
 			<div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
 				<Logo style={{opacity: 0}} asLink={true} />
 				<div className="flex md:order-2">
-					{/*<button type="button"*/}
-					{/*        className="text-white bg-primary hover:opacity-75 transition-all focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 text-center mr-3 md:mr-0 dark:bg-primary "*/}
-					{/*	onClick={() => {*/}
-					{/*		router.push('#contact');*/}
-					{/*	}}*/}
-					{/*>Register*/}
-					{/*</button>*/}
 					<CTAButton onClick={() => router.push('#contact')} className="px-4 py-2 text-sm rounded-lg">
-						<span>Register</span>
+						<span>Contact us for a Demo</span>
 					</CTAButton>
-					<button onClick={() => setExpand(c => !c)} data-collapse-toggle="navbar-sticky" type="button"
+					<button onClick={() => {
+						setExpand(c => !c)
+						console.log('clicked -- ');
+					}} data-collapse-toggle="navbar-sticky" type="button"
 					        className="ml-4 inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
 					        aria-controls="navbar-sticky" aria-expanded="false">
 						<span className="sr-only">Open main menu</span>
@@ -65,10 +58,31 @@ export default function Navbar() {
 					</button>
 				</div>
 				<div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
-					{listItems}
+					<ul
+						className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
+					{navBarItems.map(item => (
+							<li
+								key={item.id}>
+								<Link href={item.href}
+								      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
+								      aria-current="page">{item.label}</Link>
+							</li>
+					))}
+					</ul>
 				</div>
-				<motion.div animate={{x: expand ? '100%' : 0}} className="md:hidden visible w-full h-full bg-background overflow-hidden fixed top-[72px] left-0">
-					{listItems}
+				{/*Mobile Menu Items*/}
+				<motion.div animate={{x: expand ? '100%' : 0}} transition={{type: 'linear'}} className="md:hidden visible w-full h-full bg-background overflow-hidden fixed top-[72px] left-0">
+					<ul
+						className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
+						{navBarItems.map(item => (
+							<li
+								key={item.id} onClick={() => setExpand(c => !c)}>
+								<Link href={item.href}
+								      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
+								      aria-current="page">{item.label}</Link>
+							</li>
+						))}
+					</ul>
 				</motion.div>
 			</div>
 		</nav>

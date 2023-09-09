@@ -4,7 +4,7 @@ import {FormObject} from '@/interfaces/Iform';
 type TextAreaProps = React.DetailedHTMLProps<React.TextareaHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>;
 type InputProps = React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 
-export type ContactFormFieldKey = 'full_name' | 'email' | 'company' | 'profession' | 'idea'
+export type ContactFormFieldKey = 'full_name' | 'email' | 'company' | 'profession' | 'message'
 export interface ContactFormField {
 	label: string;
 	name: ContactFormFieldKey;
@@ -47,8 +47,8 @@ const formFields: ContactFormField[] = [
 		Input: (props: ContactInputProps) => <input {...props} type="text" className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (props.hasError ? 'border-opacity-100' : '')} />
 	},
 	{
-		label: 'Idea',
-		name: 'idea',
+		label: 'Message',
+		name: 'message',
 		Input: (props: ContactTextAreaProps) => <textarea {...props} className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (props.hasError ? 'border-opacity-100' : '')} />,
 	}
 ];

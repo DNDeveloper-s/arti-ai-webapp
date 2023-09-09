@@ -207,7 +207,7 @@ export function MessageItem({messageItem}: {messageItem: MessageObj}) {
 	}
 
 	return (
-		<div key={messageItem.content} className={'w-full ' + (messageItem.is_ai_response ? '' : 'bg-background bg-opacity-30')}>
+		<div key={messageItem.id} className={'w-full ' + (messageItem.is_ai_response ? '' : 'bg-background bg-opacity-30')}>
 			<div className="flex items-start px-5 py-4 w-full max-w-[800px] mx-auto">
 				<Image className="rounded-lg mr-1" width={45} height={45} src={messageItem.is_ai_response ? botData.image : dummyUser.image} alt=""/>
 				<div className="ml-3 flex-1">
@@ -394,11 +394,13 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 		if(!response.ok) setSnackBarData({message: 'We are unable to process the request right now!', status: 'error'});
 		setIsGenerating(false);
 
+		if(response.data && response.data.choices) {
+			const responseMessage = response.data.choices[0].message;
+			setMessages(c => [...c, {...responseMessage, id: Date.now().toString()}])
+		}
+
 		console.log('!(response.limitLeft > 0) - ', !(response.limitLeft > 0));
 		if(!(response.limitLeft > 0)) return setExhausted(true);
-
-		const responseMessage = response.data.choices[0].message;
-		setMessages(c => [...c, {...responseMessage, id: Date.now().toString()}])
 
 
 		return;
@@ -518,7 +520,7 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
           <motion.p variants={framerItem()} className="text-3xl font-medium text-white font-giasyr">Arti</motion.p>
           <motion.p variants={framerItem(.5)} className="text-md my-4">Discover the Arti Difference</motion.p>
           <motion.p variants={framerItem()} className="text-sm max-w-lg text-yellow-500 text-center">You have exhausted the free tier limit. Please register to get the full access</motion.p>
-          <motion.button variants={framerItem()} className="my-4 cta-button" onClick={() => router.push('#contact')}>Register</motion.button>
+          <motion.button variants={framerItem()} className="my-4 cta-button" onClick={() => router.push('#contact')}>Contact us for a Demo</motion.button>
         </motion.div>}
 			</div>
 

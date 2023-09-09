@@ -18,15 +18,15 @@ export default function Snackbar() {
 	}, [setSnackBarData, snackBarData])
 
 	const statusClasses = {
-		success: 'text-green-400 bg-green-800',
-		error: 'text-red-800 bg-red-50',
-		warning: 'text-yellow-800 bg-yellow-50',
-		info: 'text-blue-800 bg-blue-50'
+		success: 'text-white border-2 border-green-500 bg-green-700 shadow-[0_0_10px_#7feda9]',
+		error: 'text-white border-2 border-red-500 bg-red-700 shadow-[0_0_10px_#ff0f0fab]',
+		warning: 'text-white border-2 border-yellow-500 bg-yellow-700 shadow-[0_0_10px_#c4995e]',
+		info: 'text-white border-2 border-blue-500 bg-blue-700 shadow-[0_0_10px_#95acec]'
 	}
 
 	const props = {
 		container: {
-			className: 'fixed top-20 z-50 right-5 flex items-center p-4 mb-4 shadow-4xl text-sm rounded-lg dark:bg-gray-800 ' + (snackBarData ? statusClasses[snackBarData.status] : '')
+			className: 'fixed top-20 z-50 right-5 flex items-center p-4 mb-4 text-sm rounded-lg ' + (snackBarData ? statusClasses[snackBarData.status] : '')
 		}
 	}
 

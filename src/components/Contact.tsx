@@ -16,7 +16,7 @@ export default function Contact() {
 		company: {value: '', validators: [Validators.isRequired]},
 		email: {value: '', validators: [Validators.isRequired, Validators.isEmail]},
 		full_name: {value: '', validators: [Validators.isRequired]},
-		idea: {value: '', validators: [Validators.isRequired]},
+		message: {value: '', validators: [Validators.isRequired]},
 		profession: {value: '', validators: [Validators.isRequired]}
 	});
 	const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;

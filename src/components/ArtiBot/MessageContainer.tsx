@@ -34,7 +34,7 @@ const MessageContainer: FC<MessageContainerProps> = ({miniVersion, showGetAdNowB
 	}, [messages])
 
 	return (
-		<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[20em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-14 md:pb-24' : '')} ref={containerRef}>
+		<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[25em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-14 md:pb-24' : '')} ref={containerRef}>
 			{isGenerating && <div className="w-full max-w-[900px] h-16 px-3 mx-auto flex flex-end">
         <Lottie animationData={typingAnimation} loop={true} />
       </div>}
