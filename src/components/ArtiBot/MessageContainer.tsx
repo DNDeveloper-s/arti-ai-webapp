@@ -12,9 +12,10 @@ interface MessageContainerProps {
 	// messages: MessageObj[];
 	messages: ChatGPTMessageObj[];
 	isGenerating: boolean;
+	msg: string;
 }
 
-const MessageContainer: FC<MessageContainerProps> = ({miniVersion, showGetAdNowButton, messages, isGenerating}) => {
+const MessageContainer: FC<MessageContainerProps> = ({msg, miniVersion, showGetAdNowButton, messages, isGenerating}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -34,8 +35,11 @@ const MessageContainer: FC<MessageContainerProps> = ({miniVersion, showGetAdNowB
 	}, [messages])
 
 	return (
-		<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[25em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-14 md:pb-24' : '')} ref={containerRef}>
-			{isGenerating && <div className="w-full max-w-[900px] h-16 px-3 mx-auto flex flex-end">
+		<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[35em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-14 md:pb-24' : '')} ref={containerRef}>
+			<div className="text-white whitespace-pre-wrap">
+				{msg}
+			</div>
+			{isGenerating && <div className="w-full max-w-[900px] h-10 px-3 mx-auto flex flex-end">
         <Lottie animationData={typingAnimation} loop={true} />
       </div>}
 			{

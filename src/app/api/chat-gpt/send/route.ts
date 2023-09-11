@@ -2,19 +2,34 @@ import {NextRequest, NextResponse} from 'next/server';
 import OpenAI from 'openai';
 import {ChatGPTMessageObj} from '@/constants/artibotData';
 import {freeTierLimit} from '@/constants';
-import { ServerResponse } from 'http';
+import {NextApiResponse} from 'next';
+import {OpenAIStream, StreamingTextResponse} from 'ai';
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 })
 
-export async function POST(req: Request, res: NextResponse) {
+export const runtime = 'edge';
+
+export async function POST(req: Request, res: NextApiResponse) {
 	try {
 		// const is = ServerResponse.isPrototypeOf(res)
+		// const response = new Response(res.);
+		// res.write()
+
+		// const resp = NextResponse.next();
+
+		// resp.headers.
+
 		// const resp = new ServerResponse(req);
 		//
+
+		// response.headers.set('Content-Encoding', 'none');
+		// response.headers.set('Content-Type', 'text/event-stream');
+		// response.headers.set('Connection', 'keep-alive');
 		// resp.setHeader('Content-Type', 'text/event-stream');
 		// resp.setHeader('Cache-Control', 'no-cache');
+		// resp.setHeader('Connection', 'keep-alive');
 		// resp.setHeader('Connection', 'keep-alive');
 		//
 		// resp.write('data: Connection Established\n\n');
@@ -32,23 +47,56 @@ export async function POST(req: Request, res: NextResponse) {
 		const completion = await openai.chat.completions.create({
 			messages: messagesArr ?? [{ role: 'user', content: 'Say this is a test' }],
 			model: 'gpt-3.5-turbo',
-			// stream: true
+			stream: true
 		});
 
+
+		const stream = OpenAIStream(completion);
+
+		return new StreamingTextResponse(stream);
+
+		// let responseStream = new TransformStream();
+		// const writer = responseStream.writable.getWriter();
+		// const encoder = new TextEncoder();
+		//
 		// for await(const chunk of completion) {
 		// 	console.log('chunk - ', chunk);
 		// 	if(chunk.choices.at(-1) && chunk.choices.at(-1)?.finish_reason)  {
-		// 		resp.write(JSON.stringify(chunk));
-		// 		resp.end();
-		// 		return resp;
+		// 		// writer.write(JSON.stringify(chunk))
+		// 		// writer.close();
+		// 		res.write(JSON.stringify(chunk));
+		// 		res.end();
+		// 		return new Response(responseStream.readable, {
+		// 			headers: {
+		// 				"Access-Control-Allow-Origin": "*",
+		// 				"Content-Type": "text/event-stream; charset=utf-8",
+		// 				Connection: "keep-alive",
+		// 				"Cache-Control": "no-cache, no-transform",
+		// 				"X-Accel-Buffering": "no",
+		// 				"Content-Encoding": "none",
+		// 			},
+		// 		});
 		// 	}
-		// 	resp.write(JSON.stringify(chunk));
+		// 	res.write(JSON.stringify(chunk))
+		// 	// resp.write(JSON.stringify(chunk));
+		// 	// writer.write(JSON.stringify(chunk))
 		// }
-		// return;
-
-		// console.log('completion.choices - ', completion.choices);
-
-		return NextResponse.json({ok: true, data: completion, message: 'Response received successfully!', limitLeft: freeTierLimit - messagesArr.length - 1})
+		//
+		// // console.log('completion.choices - ', completion.choices);
+		//
+		// // return new Response(responseStream.readable, {
+		// // 	headers: {
+		// // 		"Access-Control-Allow-Origin": "*",
+		// // 		"Content-Type": "text/event-stream; charset=utf-8",
+		// // 		Connection: "keep-alive",
+		// // 		"Cache-Control": "no-cache, no-transform",
+		// // 		"X-Accel-Buffering": "no",
+		// // 		"Content-Encoding": "none",
+		// // 	},
+		// // });
+		//
+		//
+		// return NextResponse.json({ok: true, data: completion, message: 'Response received successfully!', limitLeft: freeTierLimit - messagesArr.length - 1})
 	} catch(e: unknown) {
 		console.log('e - ', e);
 		return NextResponse.json({ok: false, error: e})

@@ -71,7 +71,7 @@ export default function Navbar() {
 					</ul>
 				</div>
 				{/*Mobile Menu Items*/}
-				<motion.div animate={{x: expand ? '100%' : 0}} transition={{type: 'linear'}} className="md:hidden visible w-full h-full bg-background overflow-hidden fixed top-[72px] left-0">
+				<motion.div animate={{x: expand ? 0 : '100%'}} transition={{type: 'linear'}} className="md:hidden visible w-full h-full bg-background overflow-hidden fixed top-[72px] left-0">
 					<ul
 						className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
 						{navBarItems.map(item => (

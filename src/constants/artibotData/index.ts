@@ -44,6 +44,7 @@ export interface ChatGPTMessageObj {
 	id?: string;
 	role: ChatGPTRole;
 	content: string;
+	generating?: boolean;
 }
 
 export interface ArtiBotData {

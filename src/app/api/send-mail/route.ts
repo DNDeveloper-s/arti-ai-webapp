@@ -38,8 +38,8 @@ export async function POST(req: Request) {
 						<td>${formValues.profession}</td>
 					</tr>
 					<tr>
-						<td>Idea: </td>
-						<td>${formValues.idea}</td>
+						<td>Message: </td>
+						<td>${formValues.message}</td>
 					</tr>
 				</table>
 			`

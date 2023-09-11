@@ -9,42 +9,25 @@ interface Props {
 	title: string;
 	description: string;
 	learnMore: string;
-	colSpan: number;
-	style: any;
+	style?: any;
 }
-const ServiceCard: React.FC<Props> = ({imageSrc, title, description, learnMore, colSpan, style = {} }) => {
+const ServiceCard: React.FC<Props> = ({imageSrc, title, description, learnMore, style = {} }) => {
 	const [expand, setExpand] = useState(false);
 
-	if(colSpan) return (
-		<div className={'shadow shadow-blueGray-800 flex items-center rounded-xl transition-all overflow-hidden bg-opacity-20 bg-secondaryText ' + (colSpan ? ' col-span-2' : 'col-span-1')}>
-			<motion.div animate={{height: expand ? '100%' : '16rem' }} className={'w-96 min-h-64 flex-shrink-0 overflow-hidden'}>
-				<Image src={imageSrc} className="object-cover w-full h-full" alt={'Service'} />
-			</motion.div>
-			<div className="px-10 py-10">
-				<h2 className="font-medium text-lg mb-1 font-diatype">{title}</h2>
-				<p className="font-diatype text-sm opacity-50 leading-[1.5em]">{description}</p>
-				<motion.div animate={{height: expand ? 'auto' : 0, marginTop: expand ? '20px' : 0}} className="mt-4 overflow-hidden">
-					<p className="font-diatype text-sm opacity-50 leading-[1.5em]">{learnMore}</p>
-				</motion.div>
-				<p onClick={() => setExpand(c => !c)} className="text-xs mt-4 text-blue-500 cursor-pointer font-diatype">{expand ? 'See Less' : 'Read more'}</p>
-			</div>
-		</div>
-	)
-
 	return (
-		<div>
-			<div className="shadow shadow-blueGray-800 rounded-xl overflow-hidden bg-opacity-20 bg-secondaryText" style={style}>
-				<div className="h-48 overflow-hidden">
-					<Image src={imageSrc} className="object-cover w-full h-full" alt={'Service'} />
-				</div>
-				<div className="px-6 py-4">
-					<h2 className="font-medium text-lg mb-1 font-diatype">{title}</h2>
-					<p className="font-diatype text-sm opacity-50 leading-[1.5em]">{description}</p>
-					<motion.div animate={{height: expand ? 'auto' : 0, marginTop: expand ? '20px' : 0}} className="mt-4 overflow-hidden">
-						<p className="font-diatype text-sm opacity-50 leading-[1.5em]">{learnMore}</p>
-					</motion.div>
-					<p onClick={() => setExpand(c => !c)} className="text-xs mt-4 text-blue-500 cursor-pointer font-diatype">{expand ? 'See Less' : 'Read more'}</p>
-				</div>
+		<div className={"relative shadow shadow-blueGray-800 rounded-md md:rounded-lg flex min-h-[20rem] md:min-h-[30rem] h-auto flex-col overflow-hidden bg-opacity-20 bg-secondaryText"} style={style}>
+			<div className="absolute h-full w-full overflow-hidden rounded-lg">
+				<Image src={imageSrc} className="object-cover w-full h-full" alt={'Service'} />
+			</div>
+			<div className="absolute bottom-0 h-full w-full bg-[linear-gradient(178deg,_rgba(0,0,0,0.00)_1.54%,_#0C0C0C_87.27%)]" />
+			<div className="z-20 h-full min-h-[10rem] md:min-h-[20rem]" />
+			<div className="px-4 md:px-6 py-3 md:py-4 w-full z-10">
+				<h2 className="font-bold text-lg md:text-xl mb-1 md:mb-2 font-diatype">{title}</h2>
+				<p className="font-diatype text-sm md:text-base opacity-80 leading-[1.5em]">{description}</p>
+				<motion.div animate={{height: expand ? 'auto' : 0, marginTop: expand ? '20px' : 0}} className="mt-4 overflow-hidden">
+					<p className="font-diatype text-sm md:text-base opacity-80 leading-[1.5em]">{learnMore}</p>
+				</motion.div>
+				<p onClick={() => setExpand(c => !c)} className="text-xs mt-2 md:mt-4 text-blue-500 cursor-pointer font-diatype">{expand ? 'See Less' : 'Read more'}</p>
 			</div>
 		</div>
 	)
@@ -55,16 +38,7 @@ export default function Services() {
 		<div id="product-overview" className="landing-page-section">
 			<h2 className="text-3xl mb-10">Product Overview</h2>
 			{/*<div className="grid grid-cols-1 md:grid-cols-3 gap-10">*/}
-			<div className="flex justify-center items-center">
-				<ServiceCard
-					key={servicesData.item.id}
-					imageSrc={servicesData.item.image}
-					title={servicesData.item.title}
-					learnMore={servicesData.item.learnMore}
-					description={servicesData.item.overview}
-				/>
-			</div>
-			<div className="grid grid-cols-2 gap-10">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-20">
 				{servicesData.cards.map(serviceItem => <ServiceCard
 					key={serviceItem.id}
 					imageSrc={serviceItem.image}

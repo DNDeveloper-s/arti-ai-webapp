@@ -1,4 +1,21 @@
-export const whyUsData = {
+
+interface WhyUsData {
+	title: string;
+	description: string;
+	cta?: string;
+	bottomLine: string;
+	items: WhyUsItem[];
+}
+
+export interface WhyUsItem {
+	id?: number;
+	title: string;
+	overview: string;
+	readMore?: string | WhyUsItem[];
+}
+
+
+export const whyUsData: WhyUsData = {
 	title: 'Why Arti?',
 	description: 'Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI.',
 	// cta: 'Generate Ad Creatives',

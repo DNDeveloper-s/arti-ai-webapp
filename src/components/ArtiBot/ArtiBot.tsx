@@ -22,7 +22,6 @@ import Link from 'next/link';
 import MessageContainer from '@/components/ArtiBot/MessageContainer';
 import {ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, JSONInput, MessageObj} from '@/constants/artibotData';
 import AdVariant from '@/components/ArtiBot/AdVariant';
-import RightPane from '@/components/ArtiBot/RIghtPane';
 import {MessageService} from '@/services/Message';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import {freeTierLimit} from '@/constants';
@@ -241,7 +240,7 @@ export function ChatGPTMessageItem({messageItem}: {messageItem: ChatGPTMessageOb
 				<div className="ml-3 flex-1">
 					<div className="flex items-start">
 						<p className="whitespace-pre-wrap text-md text-primaryText opacity-60 flex-1">
-							{messageItem.content}
+							{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}
 						</p>
 						<div className="w-9 h-9 mx-5 flex items-center justify-center relative">
 							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary" onClick={() => copyTextToClipboard(messageItem.content)}/> :
@@ -344,9 +343,12 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 	const [exhausted, setExhausted] = useState(false);
 	const router = useRouter();
 	const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+	const chunksRef = useRef('');
+	const doneRef = useRef('');
+	const [msg, setMsg] = useState('');
 
 	useEffect(() => {
-		console.log('freeTierLimit - ', freeTierLimit);
+		// console.log('freeTierLimit - ', freeTierLimit);
 		if(messages.length >= freeTierLimit && miniVersion) {
 			setExhausted(true);
 		}
@@ -371,6 +373,56 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 		setSelectedFiles(_fs.length > 0 ? _fs : null);
 	}, [files]);
 
+	// useEffect(() => {
+	//
+	// }, [])
+	// console.log('msg - ', msg);
+
+	function handleChunk(chunk: string, done: boolean, index: number) {
+		console.log('chunk - ', chunk)
+		if(index === 0) {
+			const id = Date.now().toString();
+			chunksRef.current = '';
+			setMessages(c => [...c, {content: chunksRef.current, role: ChatGPTRole.ASSISTANT, id}]);
+			let i = 0;
+			const intervalId = setInterval(() => {
+				setMessages((c) => {
+					return c.map(a => {
+						if(a.id === id) {
+							return {
+								...a,
+								generating: !(doneRef.current && i > chunksRef.current.length),
+								content: chunksRef.current.slice(0, i)
+							}
+						}
+						return a;
+					});
+				})
+				// setMsg(chunksRef.current.slice(0, i));
+				i++;
+
+				console.log('done, chunksRef.current.length, i - ', doneRef.current, chunksRef.current.length, i);
+				if(doneRef.current && i > chunksRef.current.length) {
+					clearInterval(intervalId);
+					setMessages((c) => {
+						return c.map(a => {
+							if(a.id === id) {
+								return {
+									...a,
+									generating: false
+								}
+							}
+							return a;
+						});
+					})
+				}
+			}, 10)
+		}
+
+		if(chunk) chunksRef.current = chunksRef.current + chunk;
+		doneRef.current = done;
+	}
+
 	async function handleSubmitMessage() {
 		if(exhausted || (!selectedFiles && inputValue.trim().length === 0)) return;
 		setInputValue('');
@@ -389,19 +441,21 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 		setMessages(_messages);
 
 		const transformedMessages = _messages.map(c => ({role: c.role, content: c.content}));
-		const response = await messageService.send(transformedMessages);
+		const response = await messageService.send(transformedMessages, handleChunk);
 
-		if(!response.ok) setSnackBarData({message: 'We are unable to process the request right now!', status: 'error'});
+		console.log('response - ', response);
+
+		if(response && !response.ok) setSnackBarData({message: 'We are unable to process the request right now!', status: 'error'});
 		setIsGenerating(false);
 
-		if(response.data && response.data.choices) {
-			const responseMessage = response.data.choices[0].message;
-			setMessages(c => [...c, {...responseMessage, id: Date.now().toString()}])
-		}
+		// if(response.data && response.data.choices) {
+		// 	const responseMessage = response.data.choices[0].message;
+		// 	setMessages(c => [...c, {...responseMessage, id: Date.now().toString()}])
+		// }
 
-		console.log('!(response.limitLeft > 0) - ', !(response.limitLeft > 0));
-		if(!(response.limitLeft > 0)) return setExhausted(true);
-
+		// console.log('!(response.limitLeft > 0) - ', !(response.limitLeft > 0));
+		// if(!(response.limitLeft > 0)) return setExhausted(true);
+		//
 
 		return;
 	}
@@ -431,7 +485,7 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 						{/*	<SlOptionsVertical />*/}
 						{/*</div>*/}
 					</div>
-					<MessageContainer messages={messages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
+					<MessageContainer msg={msg} messages={messages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
 					<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
 						{showGetAdNowButton && <motion.button whileHover={{
 							scale: 1.05,
@@ -496,7 +550,7 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 									minRows={1}
 									maxRows={3}
 									placeholder="Type here..."
-									className="outline-none resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-6 absolute bottom-0"
+									className="outline-none caret-primary placeholder-gray-500 resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-6 absolute bottom-0"
 								/>
 								// <input type="text" className="outline-none active:outline-none bg-transparent w-full h-full p-3 px-6" placeholder="Type here..."/>
 							}
