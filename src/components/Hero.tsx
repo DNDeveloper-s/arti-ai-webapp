@@ -21,7 +21,8 @@ export default function Hero() {
 	return (
 		<div className="text-primaryText h-screen flex items-center flex-col mt-20 md:mt-40">
 			<motion.div style={{opacity: opacity}} className="flex flex-col items-center sticky top-[10rem] h-min px-4">
-				<Logo width={60} height={60} fill={colors.primaryText} />
+				{/*<Logo width={60} height={60} fill={colors.primaryText} />*/}
+				<Logo width={40} height={40} />
 				<p className="text-2xl md:text-3xl font-medium text-white font-giasyr">Arti</p>
 				<h2 className="text-3xl md:text-5xl max-w-3xl text-center leading-9 md:leading-tight">Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI</h2>
 				<p className="text-md my-2 md:my-4 opacity-50">Discover the Arti Difference</p>

@@ -385,6 +385,7 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 			chunksRef.current = '';
 			setMessages(c => [...c, {content: chunksRef.current, role: ChatGPTRole.ASSISTANT, id}]);
 			let i = 0;
+			let lastChunk = chunksRef.current.slice(0, i);
 			const intervalId = setInterval(() => {
 				setMessages((c) => {
 					return c.map(a => {
@@ -398,11 +399,12 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 						return a;
 					});
 				})
+				lastChunk = chunksRef.current.slice(0, i + 1);
 				// setMsg(chunksRef.current.slice(0, i));
-				i++;
+				if(lastChunk !== chunksRef.current) i++;
 
 				console.log('done, chunksRef.current.length, i - ', doneRef.current, chunksRef.current.length, i);
-				if(doneRef.current && i > chunksRef.current.length) {
+				if(doneRef.current && i + 1 >= chunksRef.current.length) {
 					clearInterval(intervalId);
 					setMessages((c) => {
 						return c.map(a => {
@@ -570,7 +572,8 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 					</div>
 				</>
 				{exhausted && <motion.div variants={framerContainer} initial={'hidden'} animate={'show'} className="flex z-10 px-4 w-full absolute h-full flex-col items-center justify-center bg-background bg-opacity-80">
-          <Logo width={60} height={60} fill={colors.primaryText}/>
+          {/*<Logo width={60} height={60} fill={colors.primaryText}/>*/}
+          <Logo width={60} height={60}/>
           <motion.p variants={framerItem()} className="text-3xl font-medium text-white font-giasyr">Arti</motion.p>
           <motion.p variants={framerItem(.5)} className="text-md my-4">Discover the Arti Difference</motion.p>
           <motion.p variants={framerItem()} className="text-sm max-w-lg text-yellow-500 text-center">You have exhausted the free tier limit. Please register to get the full access</motion.p>

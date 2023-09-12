@@ -1,7 +1,8 @@
 
 import StrategicProductImage from '@/assets/images/image1.webp';
 import DynamicAdImage from '@/assets/images/image13.webp';
-import Dummy from '@/assets/images/dummy2.webp';
+import MultiMediaImage from '@/assets/images/image10.webp';
+import RetainImage from '@/assets/images/image4.webp';
 
 export const servicesData = {
 	cards: [
@@ -22,17 +23,17 @@ export const servicesData = {
 		},
 		{
 			id: 3,
-			image: Dummy,
+			image: MultiMediaImage,
 			title: 'Multi-Media Ad Creatives',
 			overview: 'Transform your online presence with Digital Content Alchemy. Drawing from AI and design expertise, we conjure up captivating text and imagery tailored for optimal engagement on your social channels and banners.',
 			learnMore: 'Digital content isn\'t just about visuals; it\'s about crafting stories that resonate. With Digital Content Alchemy, experience the synthesis of art and technology as we curate content that\'s not only visually stunning but also strategically aligned with your brand ethos and audience preferences. Illuminate your digital platforms with unparalleled vibrancy and intent.'
 		},
 		{
 			id: 4,
-			image: Dummy,
-			title: 'Multi-Media Ad Creatives',
-			overview: 'Transform your online presence with Digital Content Alchemy. Drawing from AI and design expertise, we conjure up captivating text and imagery tailored for optimal engagement on your social channels and banners.',
-			learnMore: 'Digital content isn\'t just about visuals; it\'s about crafting stories that resonate. With Digital Content Alchemy, experience the synthesis of art and technology as we curate content that\'s not only visually stunning but also strategically aligned with your brand ethos and audience preferences. Illuminate your digital platforms with unparalleled vibrancy and intent.'
+			image: RetainImage,
+			title: 'Retain Your Brand Identity',
+			overview: 'Maintain the essence of your brand while scaling new heights. Utilizing AI, we ensure that your brand\'s core values and unique selling propositions are consistently represented across all platforms and campaigns.',
+			learnMore: 'Scaling your business doesn\'t mean losing your brand\'s soul. Our AI-powered tool analyzes your brand\'s key elements and integrates them into every strategic plan and creative output. From color schemes to tone of voice, experience seamless brand consistency like never before with Retain Your Brand Identity.'
 		}
 	]
 }

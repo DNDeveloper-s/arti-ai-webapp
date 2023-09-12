@@ -92,8 +92,8 @@ export default function WhyUs() {
 			<div className="text-left relative md:sticky h-min top-1/2" style={{transform: 'translateY(-50%)'}}>
 				<h2 className="text-5xl">{whyUsData.title}</h2>
 				<p className="opacity-60 text-md my-6">{whyUsData.description}</p>
-				{/*<button className="cta-button">{whyUsData.cta}</button>*/}
-				<p className="mt-5 text-sm opacity-60">{whyUsData.bottomLine}</p>
+				{whyUsData.cta && <button className="cta-button">{whyUsData.cta}</button>}
+				{whyUsData.bottomLine && <p className="mt-5 text-sm opacity-60">{whyUsData.bottomLine}</p>}
 			</div>
 			<div>
 				{whyUsData.items.map((whyUsItem) => (
