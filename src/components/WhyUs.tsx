@@ -88,7 +88,7 @@ export default function WhyUs() {
 	const shouldVisible = (index: number) => (index === 0 || scrollPos > index * offset) && (index === whyUsData.items.length - 1 || scrollPos < (index + 1) * offset)
 
 	return (
-		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr_30px] gap-20 mt-40" id={'why-us'} ref={ref}>
+		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-20 mt-40" id={'why-us'} ref={ref}>
 			<div className="text-left relative md:sticky h-min top-1/2" style={{transform: 'translateY(-50%)'}}>
 				<h2 className="text-5xl">{whyUsData.title}</h2>
 				<p className="opacity-60 text-md my-6">{whyUsData.description}</p>

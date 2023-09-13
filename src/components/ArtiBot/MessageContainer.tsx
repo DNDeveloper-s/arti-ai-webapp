@@ -3,7 +3,7 @@ import Lottie from 'lottie-react';
 import typingAnimation from '@/assets/lottie/typing.json';
 import {ChatGPTMessageItem, MessageItem} from '@/components/ArtiBot/ArtiBot';
 import {ChatGPTMessageObj} from '@/constants/artibotData';
-import WavingHand from '@/assets/images/waving-hand.png';
+import WavingHand from '@/assets/images/waving-hand.webp';
 import Image from 'next/image';
 
 interface MessageContainerProps {

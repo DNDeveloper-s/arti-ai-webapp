@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import LogoImage from '../assets/images/Logo2.png';
+import LogoImage from '../assets/images/Logo.png';
 import Link from 'next/link';
 
 export default function Logo({asLink = false, width = 40, height = 40, ...props}) {

@@ -25,6 +25,8 @@ import AdVariant from '@/components/ArtiBot/AdVariant';
 import {MessageService} from '@/services/Message';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import {freeTierLimit} from '@/constants';
+import RightPane from '@/components/ArtiBot/RIghtPane';
+import exampleJSON from '@/database/exampleJSON';
 // import OpenAI from 'openai';
 
 // const openai = new OpenAI({
@@ -33,77 +35,76 @@ import {freeTierLimit} from '@/constants';
 // })
 
 
-export const dummyMessages: ChatGPTMessageObj[] = [
-	// {
-	// 	id: Date.now().toString(),
-	// 	role: ChatGPTRole.ASSISTANT,
-	// 	content: 'Hello there, How can we help you?'
-	// },
-	// {
-	// 	id: (Date.now() + 122).toString(),
-	// 	role: ChatGPTRole.USER,
-	// 	content: 'What are the offerings?'
-	// }
-	// {
-	// 	id: '5',
-	// 	is_ai_response: true,
-	// 	message: 'Hello there, Tell me something more about it.',
-	// 	timestamp: new Date().toISOString(),
-	// 	type: 'ad-json',
-	// 	json: exampleJSON
-	// },
-	// {
-	// 	id: '3',
-	// 	is_ai_response: false,
-	// 	message: '',
-	// 	type: 'attachment',
-	// 	timestamp: new Date().toISOString(),
-	// 	attachments: [
-	// 		{
-	// 			id: 23,
-	// 			name: 'TJk12sdjf',
-	// 			size: 2344,
-	// 			url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-	// 			type: 'image/jpg'
-	// 		},
-	// 		{
-	// 			id: 24,
-	// 			name: 'TJks45djf',
-	// 			size: 23144,
-	// 			url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-	// 			type: 'image/jpg'
-	// 		},
-	// 		{
-	// 			id: 25,
-	// 			name: 'TJk31sdjf',
-	// 			size: 23244,
-	// 			url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-	// 			type: 'image/jpg'
-	// 		},
-	// 		{
-	// 			id: 26,
-	// 			name: 'T2Jksdjf',
-	// 			size: 23344,
-	// 			url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-	// 			type: 'image/jpg'
-	// 		}
-	// 	]
-	// },
-	// {
-	// 	id: '1',
-	// 	is_ai_response: true,
-	// 	message: 'The chat will support a conversation between a user and an AI powered chatbot. For each user message sent, we make an API call to the chatbot to generate the response. At a high level, the chat should support following functionalities:',
-	// 	timestamp: new Date().toISOString(),
-	// 	type: 'text'
-	// },
-	// {
-	// 	id: '2',
-	// 	is_ai_response: false,
-	// 	message: 'Hello there, Tell me something more about it.',
-	// 	timestamp: new Date().toISOString(),
-	// 	type: 'text'
-	// }
-];
+const dummyJSONMessage: MessageObj = {
+	id: '5',
+	is_ai_response: true,
+	message: 'Hello there, Tell me something more about it.',
+	timestamp: new Date().toISOString(),
+	type: 'ad-json',
+	json: exampleJSON
+}
+
+// export const dummyMessages: ChatGPTMessageObj[] = [
+// 	{
+// 		id: '5',
+// 		is_ai_response: true,
+// 		message: 'Hello there, Tell me something more about it.',
+// 		timestamp: new Date().toISOString(),
+// 		type: 'ad-json',
+// 		json: exampleJSON
+// 	},
+// 	{
+// 		id: '3',
+// 		is_ai_response: false,
+// 		message: '',
+// 		type: 'attachment',
+// 		timestamp: new Date().toISOString(),
+// 		attachments: [
+// 			{
+// 				id: 23,
+// 				name: 'TJk12sdjf',
+// 				size: 2344,
+// 				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
+// 				type: 'image/jpg'
+// 			},
+// 			{
+// 				id: 24,
+// 				name: 'TJks45djf',
+// 				size: 23144,
+// 				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
+// 				type: 'image/jpg'
+// 			},
+// 			{
+// 				id: 25,
+// 				name: 'TJk31sdjf',
+// 				size: 23244,
+// 				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
+// 				type: 'image/jpg'
+// 			},
+// 			{
+// 				id: 26,
+// 				name: 'T2Jksdjf',
+// 				size: 23344,
+// 				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
+// 				type: 'image/jpg'
+// 			}
+// 		]
+// 	},
+// 	{
+// 		id: '1',
+// 		is_ai_response: true,
+// 		message: 'The chat will support a conversation between a user and an AI powered chatbot. For each user message sent, we make an API call to the chatbot to generate the response. At a high level, the chat should support following functionalities:',
+// 		timestamp: new Date().toISOString(),
+// 		type: 'text'
+// 	},
+// 	{
+// 		id: '2',
+// 		is_ai_response: false,
+// 		message: 'Hello there, Tell me something more about it.',
+// 		timestamp: new Date().toISOString(),
+// 		type: 'text'
+// 	}
+// ];
 
 function AttachmentItem({messageItem}: {messageItem: MessageObj}) {
 
@@ -208,7 +209,7 @@ export function MessageItem({messageItem}: {messageItem: MessageObj}) {
 	return (
 		<div key={messageItem.id} className={'w-full ' + (messageItem.is_ai_response ? '' : 'bg-background bg-opacity-30')}>
 			<div className="flex items-start px-5 py-4 w-full max-w-[800px] mx-auto">
-				<Image className="rounded-lg mr-1" width={45} height={45} src={messageItem.is_ai_response ? botData.image : dummyUser.image} alt=""/>
+				<Image className="rounded-lg mr-1 bg-primary" width={45} height={45} src={messageItem.is_ai_response ? botData.image : dummyUser.image} alt=""/>
 				<div className="ml-3 flex-1">
 					{item}
 				</div>
@@ -464,10 +465,6 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 
 	const showGetAdNowButton = messages.length >= threshold.getAdNowButtonAfter;
 
-	// const adGenerated = useMemo(() => {
-	// 	return messages.find(c => Boolean(c.json));
-	// }, [messages])
-
 	return (
 		<div className={`flex h-full overflow-hidden`}>
 			{/*<div className="w-full h-full flex flex-col bg-black">*/}
@@ -581,7 +578,7 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
         </motion.div>}
 			</div>
 
-			{/*{!miniVersion && adGenerated && <RightPane adGenerated={adGenerated} />}*/}
+			{!miniVersion && <RightPane adGenerated={dummyJSONMessage} />}
 		</div>
 	)
 }
