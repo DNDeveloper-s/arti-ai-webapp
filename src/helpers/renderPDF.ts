@@ -51,7 +51,25 @@ interface AdVariantParams {
 	imageDescription: string;
 }
 
-const baseUrl =  window.location.origin + "/assets/CAMELLIAS";
+export const IS_SERVER = typeof window === "undefined";
+export function getProtocol() {
+	const isProd = process.env.VERCEL_ENV === "production";
+	if (isProd) return "https://";
+	return "http://";
+}
+export function getAbsoluteUrl() {
+	//get absolute url in client/browser
+	if (!IS_SERVER) {
+		return location.origin;
+	}
+	//get absolute url in server.
+	const protocol = getProtocol();
+	if (process.env.VERCEL_URL) {
+		return `${protocol}${process.env.VERCEL_URL}`;
+	}
+}
+
+const baseUrl =  getAbsoluteUrl() + "/assets/CAMELLIAS";
 
 const config = {
 	font: {
@@ -178,7 +196,7 @@ export class PDF {
 		if(!this.pdfDoc) throw new Error('Make sure to call init method first')
 		const page = this.pdfDoc.addPage([this.pageSize.width, this.pageSize.height]);
 		// const pngUrl = 'https://i.ibb.co/ft4JHH3/pngwing-5.png';
-		const url = window.location.origin + '/assets/images/background-pattern-2.jpg';
+		const url = getAbsoluteUrl() + '/assets/images/background-pattern-2.jpg';
 		console.log('url 0 ', url);
 		const image = await this.loadJpg(url);
 		const dims = image.scale(1);
