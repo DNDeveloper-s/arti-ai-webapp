@@ -1,3 +1,5 @@
+'use client'
+
 import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
 import TabView from '@/components/ArtiBot/RIghtPane/TabView';
 import FeedBackView from '@/components/ArtiBot/RIghtPane/FeedBackView';
@@ -5,6 +7,13 @@ import AdVariant from '@/components/ArtiBot/AdVariant';
 import {dummyMessages} from '@/components/ArtiBot/ArtiBot';
 import {JSONInput, MessageObj, TabId} from '@/constants/artibotData';
 import {intTime} from 'yaml/dist/schema/yaml-1.1/timestamp';
+import {FiDownload} from 'react-icons/fi';
+import {PDF} from '@/helpers/renderPDF';
+import {motion} from 'framer-motion';
+import _JSON from '@/database/exampleJSON';
+import Lottie from 'lottie-react';
+import typingAnimation from '@/assets/lottie/typing.json';
+import generatingAnimation from '@/assets/lottie/generating.json';
 
 interface RightPaneProps {
 	adGenerated: MessageObj;
@@ -16,6 +25,7 @@ const RightPane: FC<RightPaneProps> = ({adGenerated}) => {
 	const [activeAdTab, setActiveAdTab] = useState<TabId>('Facebook');
 	const resizeHandleRef = useRef<HTMLDivElement>(null);
 	const resizeContainerRef = useRef<HTMLDivElement>(null);
+	const [docUrl, setDocUrl] = useState<string | null>(null);
 	const [width, setWidth] = useState(MIN_WIDTH);
 
 	const json = (adGenerated.json && JSON.parse(adGenerated.json)) as JSONInput;
@@ -65,7 +75,15 @@ const RightPane: FC<RightPaneProps> = ({adGenerated}) => {
 			if(!handleRef) return;
 			handleRef.removeEventListener('mousedown', mouseDownHandler)
 		}
-	}, [])
+	}, []);
+
+	useEffect(() => {
+		const pdf = new PDF(adGenerated.json);
+		pdf.render()
+			.then(_docUrl => {
+				setDocUrl(_docUrl);
+			})
+	}, [adGenerated])
 
 	return (
 		<div className="w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative" style={{width}} ref={resizeContainerRef}>
@@ -73,8 +91,17 @@ const RightPane: FC<RightPaneProps> = ({adGenerated}) => {
 				console.log('e', e, e.currentTarget)
 			}} />
 			<div className="pb-10 overflow-y-auto overflow-x-visible h-full flex flex-col relative items-center bg-black">
-				<div className="px-4 py-4">
+				<div className="px-4 w-full py-4 flex justify-between items-center">
 					<h2 className="text-xl font-medium font-diatype">Rendered View</h2>
+					{docUrl ? <motion.a initial={{opacity: 0}} download="Arti Ai Generated PDF.pdf" animate={{opacity: 1}} href={docUrl} className="py-2 px-4 rounded bg-primary text-sm flex items-center justify-center">
+						<FiDownload/>
+						<span className="ml-2">Download</span>
+					</motion.a> : <motion.button initial={{opacity: 0}} animate={{opacity: 1}} className="py-2 px-4 rounded bg-primary text-sm flex items-center justify-center">
+						<div className="w-5 h-5 relative mr-2">
+							<Lottie animationData={generatingAnimation} loop={true} className="absolute w-7 h-7 top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" />
+						</div>
+						<span>Generating PDF</span>
+					</motion.button>}
 				</div>
 				<TabView activeAdTab={activeAdTab} setActiveAdTab={setActiveAdTab} />
 

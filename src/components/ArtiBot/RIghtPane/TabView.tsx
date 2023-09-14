@@ -12,11 +12,11 @@ const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab}) => {
 		const isActive = tabItem.id === activeAdTab;
 		return ({
 			container: {
-				className: 'flex py-3 rounded-xl cursor-pointer hover:scale-[1.04] transition-all flex-col-reverse items-center ' + (isActive ? ' scale-[1.04] bg-primary ' : ' bg-secondaryBackground '),
+				className: 'flex py-3 rounded-xl px-4 cursor-pointer hover:scale-[1.04] transition-all flex-col-reverse items-center ' + (isActive ? ' scale-[1.04] bg-primary ' : ' bg-secondaryBackground '),
 				onClick: () => setActiveAdTab(tabItem.id)
 			},
 			label: {
-				className: 'text-xs text-white mt-2' + (isActive ? ' text-opacity-100' : ' text-opacity-60')
+				className: 'text-xs text-white whitespace-nowrap' + (isActive ? ' text-opacity-100' : ' text-opacity-60')
 			},
 			icon: {
 				style: {fontSize: '1.7em', color: isActive ? 'white' : tabItem.color}
@@ -25,14 +25,14 @@ const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab}) => {
 	}
 
 	return (
-		<div className="w-full flex-shrink-0 overflow-hidden h-[100px] relative">
-			<div className="grid grid-cols-[repeat(5,_75px)] gap-2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+		<div className="w-full flex-shrink-0 overflow-hidden h-auto relative">
+			<div className="flex w-full gap-4 px-4 flex-wrap">
 				{artiBotData.tabItems.map(tabItem => {
 					const props = tabItemProps(tabItem);
 					return (
 						<div {...props.container} key={tabItem.id}>
 							<span {...props.label}>{tabItem.label}</span>
-							<tabItem.icon {...props.icon} />
+							{tabItem.icon && <tabItem.icon {...props.icon} />}
 						</div>
 					)
 				})}

@@ -5,7 +5,7 @@ import {IconType} from 'react-icons';
 export interface TabItem {
 	id: TabId,
 	label: string,
-	icon: IconType,
+	icon?: IconType,
 	color: string
 }
 
@@ -82,27 +82,42 @@ export const artiBotData: ArtiBotData = {
 	tabItems: [{
 		id: 'Facebook',
 		label: 'Facebook',
-		icon: FaFacebookF,
+		// icon: FaFacebookF,
 		color: '#1877F2'
 	}, {
 		id: 'Instagram',
 		label: 'Instagram',
-		icon: AiOutlineInstagram,
+		// icon: AiOutlineInstagram,
 		color: '#fa7e1e'
 	}, {
 		id: 'LinkedIn',
 		label: 'LinkedIn',
-		icon: AiOutlineLinkedin,
+		// icon: AiOutlineLinkedin,
 		color: '#0072b1'
 	}, {
 		id: 'Google',
 		label: 'Google',
-		icon: AiOutlineGoogle,
+		// icon: AiOutlineGoogle,
 		color: '#3369E8'
 	}, {
 		id: 'YouTube',
 		label: 'Youtube',
-		icon: FaYoutube,
+		// icon: FaYoutube,
+		color: '#CD201F'
+	}, {
+		id: 'Ad Variant #1',
+		label: 'Ad Variant #1',
+		// icon: FaYoutube,
+		color: '#CD201F'
+	}, {
+		id: 'Ad Variant #2',
+		label: 'Ad Variant #2',
+		// icon: FaYoutube,
+		color: '#CD201F'
+	}, {
+		id: 'Ad Variant #3',
+		label: 'Ad Variant #3',
+		// icon: FaYoutube,
 		color: '#CD201F'
 	}],
 	feedBackKeys: [{
