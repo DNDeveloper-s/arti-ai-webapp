@@ -23,7 +23,7 @@ export default function Footer() {
 					{/*		<a href="#" className="mr-4 hover:underline md:mr-6 ">Contact</a>*/}
 					{/*	</li>*/}
 					{/*</ul>*/}
-					<p className="text-xs text-gray-500 mt-2 md:mt-0">Reach out to us at: <a href={"mailto:" + personalData.email} className="text-blue-500 font-bold hover:underline cursor-pointer">{personalData.email}</a></p>
+					<p className="text-sm text-gray-500 mt-2 md:mt-0">Reach out to us at: <a href={"mailto:" + personalData.email} className="text-blue-500 font-bold hover:underline cursor-pointer">{personalData.email}</a></p>
 					{/*<ul className="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">*/}
 					{/*	<li className="items-center flex">*/}
 					{/*		<a href="#" className="mr-2 hover:underline md:mr-4"><AiFillFacebook className="text-2xl" /></a>*/}

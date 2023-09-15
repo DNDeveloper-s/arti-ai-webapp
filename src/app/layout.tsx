@@ -1,25 +1,33 @@
+'use client'
+
 import './globals.css'
 import type { Metadata } from 'next'
 import Navbar from '@/components/Navbar';
 import SnackbarContextProvider from '@/context/SnackbarContext';
 import React from 'react';
+import {getServerSession} from 'next-auth';
+import {authOptions} from "@/app/api/auth/[...nextauth]/route";
+import {SessionProvider} from 'next-auth/react';
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Arti AI',
   description: 'Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+
   return (
     <html lang="en">
       <body>
-        <SnackbarContextProvider>
-          {children}
-        </SnackbarContextProvider>
+        <SessionProvider>
+          <SnackbarContextProvider>
+            {children}
+          </SnackbarContextProvider>
+        </SessionProvider>
       </body>
     </html>
   )

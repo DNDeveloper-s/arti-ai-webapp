@@ -81,42 +81,27 @@ export type TabId = 'Facebook' | 'YouTube' | 'Google' | 'LinkedIn' | 'Instagram'
 export const artiBotData: ArtiBotData = {
 	tabItems: [{
 		id: 'Facebook',
-		label: 'Facebook',
-		// icon: FaFacebookF,
-		color: '#1877F2'
-	}, {
-		id: 'Instagram',
-		label: 'Instagram',
-		// icon: AiOutlineInstagram,
-		color: '#fa7e1e'
-	}, {
-		id: 'LinkedIn',
-		label: 'LinkedIn',
-		// icon: AiOutlineLinkedin,
-		color: '#0072b1'
-	}, {
-		id: 'Google',
-		label: 'Google',
-		// icon: AiOutlineGoogle,
-		color: '#3369E8'
-	}, {
-		id: 'YouTube',
-		label: 'Youtube',
-		// icon: FaYoutube,
-		color: '#CD201F'
-	}, {
-		id: 'Ad Variant #1',
 		label: 'Ad Variant #1',
 		// icon: FaYoutube,
 		color: '#CD201F'
 	}, {
-		id: 'Ad Variant #2',
+		id: 'YouTube',
 		label: 'Ad Variant #2',
 		// icon: FaYoutube,
 		color: '#CD201F'
 	}, {
-		id: 'Ad Variant #3',
+		id: 'Google',
 		label: 'Ad Variant #3',
+		// icon: FaYoutube,
+		color: '#CD201F'
+	}, {
+		id: 'LinkedIn',
+		label: 'Ad Variant #4',
+		// icon: FaYoutube,
+		color: '#CD201F'
+	}, {
+		id: 'Instagram',
+		label: 'Ad Variant #5',
 		// icon: FaYoutube,
 		color: '#CD201F'
 	}],

@@ -5,10 +5,17 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import CTAButton from '@/components/CTAButton';
 import {motion} from 'framer-motion';
+import {signIn, useSession} from 'next-auth/react';
+import GoogleProvider from 'next-auth/providers/google';
 
 export default function Navbar() {
 	const router = useRouter();
 	const [expand, setExpand] = useState(false);
+	const data = useSession();
+
+	useEffect(() => {
+		console.log('data - ', data);
+	}, [data])
 
 	useEffect(() => {
 		console.log('expand - ', expand);
@@ -40,8 +47,8 @@ export default function Navbar() {
 			<div className="max-w-screen-xl flex flex-wrap items-center justify-center mx-auto p-4">
 				<Logo style={{opacity: 0}} asLink={true} />
 				<div className="absolute right-4 flex md:order-2">
-					<CTAButton onClick={() => router.push('#contact')} className="px-4 py-2 text-sm rounded-lg">
-						<span>Contact us for a Demo</span>
+					<CTAButton onClick={() => router.push('/auth')} className="px-4 py-2 text-sm rounded-lg">
+						<span>Register</span>
 					</CTAButton>
 					<button onClick={() => {
 						setExpand(c => !c)

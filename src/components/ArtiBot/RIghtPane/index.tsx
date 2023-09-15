@@ -92,10 +92,10 @@ const RightPane: FC<RightPaneProps> = ({adGenerated}) => {
 			}} />
 			<div className="pb-10 overflow-y-auto overflow-x-visible h-full flex flex-col relative items-center bg-black">
 				<div className="px-4 w-full py-4 flex justify-between items-center">
-					<h2 className="text-xl font-medium font-diatype">Rendered View</h2>
-					{docUrl ? <motion.a initial={{opacity: 0}} download="Arti Ai Generated PDF.pdf" animate={{opacity: 1}} href={docUrl} className="py-2 px-4 rounded bg-primary text-sm flex items-center justify-center">
+					<h2 className="text-xl font-medium font-diatype">Ad Creative</h2>
+					{docUrl ? <motion.a title="Arti AI Generated Ad Creative PDF.pdf" initial={{opacity: 0}} download="Arti AI Generated Ad Creative PDF.pdf" animate={{opacity: 1}} href={docUrl} className="py-2 px-4 rounded bg-blue-500 text-sm flex items-center justify-center">
 						<FiDownload/>
-						<span className="ml-2">Download</span>
+						<span className="ml-2">Download PDF</span>
 					</motion.a> : <motion.button initial={{opacity: 0}} animate={{opacity: 1}} className="py-2 px-4 rounded bg-primary text-sm flex items-center justify-center">
 						<div className="w-5 h-5 relative mr-2">
 							<Lottie animationData={generatingAnimation} loop={true} className="absolute w-7 h-7 top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" />
@@ -105,7 +105,7 @@ const RightPane: FC<RightPaneProps> = ({adGenerated}) => {
 				</div>
 				<TabView activeAdTab={activeAdTab} setActiveAdTab={setActiveAdTab} />
 
-				{currentAdVariant && <AdVariant noExpand={true} adVariant={currentAdVariant} className="mt-10 p-3 border border-gray-800 bg-secondaryBackground rounded-lg max-w-[80%]" style={{fontSize: '8.5px'}}/>}
+				{currentAdVariant && <AdVariant noExpand={true} adVariant={currentAdVariant} className="mt-4 p-3 border border-gray-800 bg-secondaryBackground rounded-lg max-w-[80%]" style={{fontSize: '8.5px'}}/>}
 
 				<FeedBackView />
 
