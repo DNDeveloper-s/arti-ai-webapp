@@ -8,7 +8,8 @@ export const authOptions: AuthOptions = {
 			clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
 			checks: 'none',
 		}),
-	]
+	],
+	secret: process.env.NEXTAUTH_SECRET || 'dndeveloper-saurabh'
 }
 
 const handler = NextAuth(authOptions)
