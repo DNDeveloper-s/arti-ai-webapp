@@ -1,13 +1,26 @@
+'use client';
+
 import React, {useRef, useState} from 'react';
-import {AiFillDislike, AiFillLike} from 'react-icons/ai';
 import {motion} from 'framer-motion';
 import Image from 'next/image';
 import dummyImage from '@/assets/images/dummy2.webp';
 import {IAdVariant} from '@/constants/artibotData';
+import ReactionIcon from '@/components/ArtiBot/ReactionIcon';
+import {REACTION} from '@/components/ArtiBot/RIghtPane/FeedBackView';
 
 export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: IAdVariant, [key: string]: any}) {
 	const [expand, setExpand] = useState<boolean>(noExpand || false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
+	const [reactionState, setReactionState] = useState<REACTION>();
+
+	function handleLike() {
+		setReactionState(c => c === REACTION.LIKED ? REACTION.NONE : REACTION.LIKED);
+	}
+
+	function handleDislike() {
+		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NONE : REACTION.DISLIKED);
+	}
+
 
 	// useEffect(() => {
 	// 	if(!headingRef.current) return;
@@ -25,8 +38,10 @@ export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: I
 
 				</h2>
 				<div className="flex items-center ml-2">
-					<AiFillLike className="mr-[0.8em] cursor-pointer text-[1.2em] text-secondaryText" />
-					<AiFillDislike className="text-[1.2em] cursor-pointer text-secondaryText" />
+					<ReactionIcon reacted={reactionState === REACTION.LIKED} onClick={handleLike} />
+					<ReactionIcon reacted={reactionState === REACTION.DISLIKED} onClick={handleDislike} isDislike />
+					{/*<AiFillLike className="mr-[0.8em] cursor-pointer text-[1.2em] text-secondaryText" />*/}
+					{/*<AiFillDislike className="text-[1.2em] cursor-pointer text-secondaryText" />*/}
 				</div>
 			</div>
 			<motion.div className="px-[1.75em] overflow-hidden" initial={{height: noExpand ? 'auto' : 0}} onAnimationEnd={() => {

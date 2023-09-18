@@ -30,6 +30,7 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --color-primary: #ed02eb;
   scroll-behavior: smooth;
 }
 
@@ -103,6 +104,6 @@ body {
 }
 
 .like-animation path, .like-animation * {
-  fill: #e10257;
-  stroke: #e10257;
+  fill: var(--color-primary);
+  stroke: var(--color-primary);
 }

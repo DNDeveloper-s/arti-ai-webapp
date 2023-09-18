@@ -19,3 +19,33 @@ export function humanFileSize(bytes: number, si=false, dp=1) {
 
 	return bytes.toFixed(dp) + ' ' + units[u];
 }
+
+export const wait = (duration: number) => new Promise(res => setTimeout(res, duration));
+
+export function timeSince(date: number | Date) {
+
+	const seconds = Math.floor((new Date() - date) / 1000);
+
+	let interval = seconds / 31536000;
+
+	if (interval > 1) {
+		return Math.floor(interval) + " year" + (Math.floor(interval) > 1 ? 's' : '');
+	}
+	interval = seconds / 2592000;
+	if (interval > 1) {
+		return Math.floor(interval) + " month" + (Math.floor(interval) > 1 ? 's' : '');
+	}
+	interval = seconds / 86400;
+	if (interval > 1) {
+		return Math.floor(interval) + " d";
+	}
+	interval = seconds / 3600;
+	if (interval > 1) {
+		return Math.floor(interval) + " h";
+	}
+	interval = seconds / 60;
+	if (interval > 1) {
+		return Math.floor(interval) + " min" + (Math.floor(interval) > 1 ? 's' : '');
+	}
+	return Math.floor(seconds) + " sec" + (Math.floor(seconds) > 1 ? 's' : '');
+}
