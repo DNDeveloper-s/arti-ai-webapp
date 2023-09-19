@@ -74,7 +74,7 @@ export default function FeedBackView() {
 				</div>
 				{/*<label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your*/}
 				{/*	feedback</label>*/}
-				<TextArea handleSave={handleSave} rows={5} />
+				<TextArea placeholder="Write your overall feedback here..." handleSave={handleSave} rows={5} />
 			</div>
 		</>
 	)

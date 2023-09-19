@@ -6,7 +6,8 @@ import {timeSince, wait} from '@/helpers';
 interface TextAreaProps {
 	handleSave: () => Promise<void>;
 	className?: string;
-	rows?: number
+	rows?: number;
+	placeholder?: string;
 }
 
 enum SAVE_STATE {
@@ -15,7 +16,7 @@ enum SAVE_STATE {
 	'WAITING' = ''
 }
 
-const TextArea: FC<TextAreaProps> = ({handleSave, className, rows = 3}) => {
+const TextArea: FC<TextAreaProps> = ({handleSave, className, placeholder, rows = 3}) => {
 	const changeTimeOutRef = useRef<NodeJS.Timeout>();
 	const [saveState, setSaveState] = useState<SAVE_STATE>(SAVE_STATE.WAITING)
 	const saveTimeStampRef = useRef<number>();
@@ -58,7 +59,7 @@ const TextArea: FC<TextAreaProps> = ({handleSave, className, rows = 3}) => {
 					rows={rows}
 					onChange={handleChange}
 					className={'w-full h-full outline-none bg-transparent resize-none'}
-					placeholder="Write your feedback here..."
+					placeholder={placeholder ?? 'Write your feedback here...'}
 				/>
 			<span className="absolute bottom-2 right-3 text-xs text-white text-opacity-20">{saveState} {Boolean(saveTimeStampRef.current) && saveState === SAVE_STATE.SAVED && (timeSince(saveTimeStampRef.current) + ' ago')}</span>
 		</div>

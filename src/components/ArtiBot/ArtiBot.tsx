@@ -17,7 +17,7 @@ import Logo from '@/components/Logo';
 import {framerContainer, framerItem} from '@/config/framer-motion';
 import {useRouter} from 'next/navigation';
 import {LuDownload} from 'react-icons/lu';
-import {MdDelete} from 'react-icons/md';
+import {MdArrowBackIos, MdDelete} from 'react-icons/md';
 import Link from 'next/link';
 import MessageContainer from '@/components/ArtiBot/MessageContainer';
 import {ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, JSONInput, MessageObj} from '@/constants/artibotData';
@@ -27,6 +27,7 @@ import {SnackbarContext} from '@/context/SnackbarContext';
 import {freeTierLimit} from '@/constants';
 import RightPane from '@/components/ArtiBot/RIghtPane';
 import exampleJSON from '@/database/exampleJSON';
+import {BiArrowBack} from 'react-icons/bi';
 // import OpenAI from 'openai';
 
 // const openai = new OpenAI({
@@ -35,7 +36,7 @@ import exampleJSON from '@/database/exampleJSON';
 // })
 
 
-const dummyJSONMessage: MessageObj = {
+export const dummyJSONMessage: MessageObj = {
 	id: '5',
 	is_ai_response: true,
 	message: 'Hello there, Tell me something more about it.',
@@ -218,7 +219,7 @@ export function MessageItem({messageItem}: {messageItem: MessageObj}) {
 	)
 }
 
-export function ChatGPTMessageItem({messageItem}: {messageItem: ChatGPTMessageObj}) {
+export function ChatGPTMessageItem({messageItem, size = 45}: {messageItem: ChatGPTMessageObj, size?: number}) {
 	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
 
 	async function copyTextToClipboard(text: string) {
@@ -236,14 +237,14 @@ export function ChatGPTMessageItem({messageItem}: {messageItem: ChatGPTMessageOb
 
 	return (
 		<div key={messageItem.content} className={'w-full ' + (messageItem.role === ChatGPTRole.ASSISTANT ? '' : 'bg-background bg-opacity-30')}>
-			<div className="flex items-start px-5 py-4 w-full max-w-[800px] mx-auto">
-				<Image className="rounded-lg mr-1" width={45} height={45} src={messageItem.role === ChatGPTRole.ASSISTANT ? botData.image : dummyUser.image} alt=""/>
-				<div className="ml-3 flex-1">
+			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+				<Image className="rounded-lg mr-[0.3em]" width={size} height={size} src={messageItem.role === ChatGPTRole.ASSISTANT ? botData.image : dummyUser.image} alt=""/>
+				<div className="ml-[0.8em] flex-1">
 					<div className="flex items-start">
-						<p className="whitespace-pre-wrap text-md text-primaryText opacity-60 flex-1">
+						<p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
 							{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}
 						</p>
-						<div className="w-9 h-9 mx-5 flex items-center justify-center relative">
+						<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
 							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary" onClick={() => copyTextToClipboard(messageItem.content)}/> :
 								<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
 								        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
@@ -347,6 +348,7 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 	const chunksRef = useRef('');
 	const doneRef = useRef('');
 	const [msg, setMsg] = useState('');
+
 
 	useEffect(() => {
 		// console.log('freeTierLimit - ', freeTierLimit);
@@ -472,17 +474,19 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 			{/*</div>*/}
 			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
 				<>
-					<div className="flex justify-center h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
-						{/*<div className="flex items-center">*/}
-						{/*	<Image width={40} height={40} className="rounded-full mr-4" src="https://ui-avatars.com/api/?name=Arti+Bot&size=64&background=random&rounded=true" alt=""/>*/}
+					<div className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
+						{!miniVersion && <div className="flex items-center cursor-pointer" onClick={() => router.push('/')}>
+							<MdArrowBackIos style={{fontSize: '21px'}}/>
+							<span className="ml-0.5 -mb-0.5 text-white text-opacity-60">Dashboard</span>
+						</div>}
 						<Link href="/" className="flex justify-center items-center">
 							<Logo width={35} className="mr-2" height={35} />
 							<h3 className="text-lg">Arti AI</h3>
 						</Link>
-						{/*</div>*/}
-						{/*<div>*/}
-						{/*	<SlOptionsVertical />*/}
-						{/*</div>*/}
+						{!miniVersion && <div className="flex items-center opacity-0 pointer-events-none">
+							<MdArrowBackIos/>
+							<span className="text-white text-opacity-50">Dashboard</span>
+						</div>}
 					</div>
 					<MessageContainer msg={msg} messages={messages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
 					<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>

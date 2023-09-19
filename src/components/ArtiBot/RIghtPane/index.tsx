@@ -97,7 +97,7 @@ const RightPane: FC<RightPaneProps> = ({adGenerated}) => {
 					<h2 className="text-xl font-medium font-diatype">Ad Creatives</h2>
 					{docUrl && <motion.a title="Arti AI Generated Ad Creative PDF.pdf" initial={{opacity: 0}} download="Arti AI Generated Ad Creative PDF.pdf" animate={{opacity: 1}} href={docUrl} className="py-2 px-4 rounded-lg text-primaryText border-2 border-primary bg-transparent text-sm flex items-center justify-center">
 						<FiDownload/>
-						<span className="ml-2">Download PDF</span>
+						<span className="ml-2">Download as PDF</span>
 					</motion.a>}
 
 				{/*	: <motion.button initial={{opacity: 0}} animate={{opacity: 1}} className="py-2 px-4 rounded bg-primary text-sm flex items-center justify-center">*/}

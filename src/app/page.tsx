@@ -13,7 +13,7 @@ import {AnimatePresence, useScroll, motion, useMotionValueEvent} from 'framer-mo
 import LandingPage from '@/components/LandingPage';
 import {useSession} from 'next-auth/react';
 import AppLoader from '@/components/AppLoader';
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/Dashboard/Dashboard';
 
 export default function Home() {
   const {data, status} = useSession();

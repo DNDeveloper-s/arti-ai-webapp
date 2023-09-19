@@ -25,9 +25,13 @@ export default async function RootLayout({
       <body>
         <SessionProvider>
           <SnackbarContextProvider>
-            {children}
+            <>
+              {children}
+              <div id='myportal' className="z-[999] fixed top-0 left-0" />
+            </>
           </SnackbarContextProvider>
         </SessionProvider>
+
       </body>
     </html>
   )

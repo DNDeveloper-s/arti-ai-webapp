@@ -47,9 +47,11 @@ export default function Navbar() {
 			<div className="max-w-screen-xl flex flex-wrap items-center justify-center mx-auto p-4">
 				<Logo style={{opacity: 0}} asLink={true} />
 				<div className="absolute right-4 flex md:order-2">
-					<CTAButton className="px-4 py-2 text-sm rounded-lg">
-						<Link href='/auth'>Register</Link>
-					</CTAButton>
+					<Link href='/auth'>
+						<CTAButton className="px-4 py-2 text-sm rounded-lg">
+							Register
+						</CTAButton>
+					</Link>
 					<button onClick={() => {
 						setExpand(c => !c)
 						console.log('clicked -- ');
