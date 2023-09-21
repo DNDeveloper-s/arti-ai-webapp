@@ -23,11 +23,11 @@ interface DrawerProps {
 	children?: ReactElement;
 	PaperProps?: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 	BackdropProps?: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
-	setOpen: React.Dispatch<boolean>;
+	handelClose: () => any;
 	open: boolean;
 }
 
-const Drawer: FC<DrawerProps> = ({BackdropProps, open, setOpen, children, PaperProps, position = Position.RIGHT}) => {
+const Drawer: FC<DrawerProps> = ({BackdropProps, open, handelClose, children, PaperProps, position = Position.RIGHT}) => {
 
 	const props: any = {
 		BackdropProps: {
@@ -43,7 +43,7 @@ const Drawer: FC<DrawerProps> = ({BackdropProps, open, setOpen, children, PaperP
 	return (
 			<Portal>
 				<AnimatePresence mode="wait">
-					{open && <motion.div key={1} onClick={() => setOpen(false)} initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}} {...props.BackdropProps} />}
+					{open && <motion.div key={1} onClick={() => handelClose()} initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}} {...props.BackdropProps} />}
 				</AnimatePresence>
 				<AnimatePresence mode="wait">
 					{open && <motion.div transition={{ease: 'linear', duration: 0.2}} key={2} initial={{opacity: 0, ...animateKeys[position].from}} animate={{opacity: 1, ...animateKeys[position].to}} exit={{opacity: 0, ...animateKeys[position].from}} {...props.PaperProps}>

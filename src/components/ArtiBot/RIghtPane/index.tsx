@@ -5,7 +5,7 @@ import TabView from '@/components/ArtiBot/RIghtPane/TabView';
 import FeedBackView from '@/components/ArtiBot/RIghtPane/FeedBackView';
 import AdVariant from '@/components/ArtiBot/AdVariant';
 import {dummyMessages} from '@/components/ArtiBot/ArtiBot';
-import {JSONInput, MessageObj, TabId} from '@/constants/artibotData';
+import {AdJSONInput, MessageObj, TabId} from '@/constants/artibotData';
 import {intTime} from 'yaml/dist/schema/yaml-1.1/timestamp';
 import {FiDownload} from 'react-icons/fi';
 import {PDF} from '@/helpers/renderPDF';
@@ -14,26 +14,21 @@ import _JSON from '@/database/exampleJSON';
 import Lottie from 'lottie-react';
 import typingAnimation from '@/assets/lottie/typing.json';
 import generatingAnimation from '@/assets/lottie/generating.json';
+import {AdCreative, AdCreativeVariant} from '@/interfaces/AdCreative';
 
 interface RightPaneProps {
-	adGenerated: MessageObj;
+	adCreative: AdCreative;
 }
 
 const MIN_WIDTH = 450;
 
-const RightPane: FC<RightPaneProps> = ({adGenerated}) => {
-	const [activeAdTab, setActiveAdTab] = useState<TabId>('Facebook');
+const RightPane: FC<RightPaneProps> = ({adCreative}) => {
+	const [activeVariant, setActiveVariant] = useState<AdCreativeVariant>(adCreative.variants[0]);
 	const resizeHandleRef = useRef<HTMLDivElement>(null);
 	const resizeContainerRef = useRef<HTMLDivElement>(null);
 	const [docUrl, setDocUrl] = useState<string | null>(null);
 	const [width, setWidth] = useState(MIN_WIDTH);
 
-	const json = (adGenerated.json && JSON.parse(adGenerated.json)) as JSONInput;
-
-	const currentAdVariant = useMemo(() => {
-		if(!json) return null;
-		return json.Ads.find(c => c['Ad Type'].includes(activeAdTab));
-	}, [activeAdTab, json])
 
 	useEffect(() => {
 		if(!resizeHandleRef.current || !resizeContainerRef.current) return;
@@ -80,12 +75,12 @@ const RightPane: FC<RightPaneProps> = ({adGenerated}) => {
 	}, []);
 
 	useEffect(() => {
-		const pdf = new PDF(adGenerated.json);
+		const pdf = new PDF(adCreative.json);
 		pdf.render()
 			.then(_docUrl => {
 				setDocUrl(_docUrl);
 			})
-	}, [adGenerated])
+	}, [adCreative])
 
 	return (
 		<div className="w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative" style={{width}} ref={resizeContainerRef}>
@@ -107,11 +102,11 @@ const RightPane: FC<RightPaneProps> = ({adGenerated}) => {
 				{/*	<span>Generating PDF</span>*/}
 				{/*</motion.button>*/}
 				</div>
-				<TabView activeAdTab={activeAdTab} setActiveAdTab={setActiveAdTab} />
+				<TabView items={adCreative.variants} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant} />
 
-				{currentAdVariant && <AdVariant noExpand={true} adVariant={currentAdVariant} className="mt-4 p-3 border border-gray-800 bg-secondaryBackground rounded-lg max-w-[80%]" style={{fontSize: '8.5px'}}/>}
+				{activeVariant && <AdVariant noExpand={true} adVariant={activeVariant} className="mt-4 p-3 border border-gray-800 bg-secondaryBackground rounded-lg max-w-[80%]" style={{fontSize: '8.5px'}}/>}
 
-				<FeedBackView />
+				<FeedBackView feedbackData={activeVariant.feedback} />
 
 			</div>
 		</div>

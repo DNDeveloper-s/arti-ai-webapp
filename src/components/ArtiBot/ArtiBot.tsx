@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {FC, useContext, useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import {AiFillCloseCircle, AiFillFileExclamation, AiFillFileText} from 'react-icons/ai';
 import {BsFillFileEarmarkPdfFill} from 'react-icons/bs';
@@ -20,7 +20,7 @@ import {LuDownload} from 'react-icons/lu';
 import {MdArrowBackIos, MdDelete} from 'react-icons/md';
 import Link from 'next/link';
 import MessageContainer from '@/components/ArtiBot/MessageContainer';
-import {ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, JSONInput, MessageObj} from '@/constants/artibotData';
+import {ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, AdJSONInput, MessageObj} from '@/constants/artibotData';
 import AdVariant from '@/components/ArtiBot/AdVariant';
 import {MessageService} from '@/services/Message';
 import {SnackbarContext} from '@/context/SnackbarContext';
@@ -28,6 +28,7 @@ import {freeTierLimit} from '@/constants';
 import RightPane from '@/components/ArtiBot/RIghtPane';
 import exampleJSON from '@/database/exampleJSON';
 import {BiArrowBack} from 'react-icons/bi';
+import {Conversation} from '@/interfaces/Conversation';
 // import OpenAI from 'openai';
 
 // const openai = new OpenAI({
@@ -263,7 +264,7 @@ export function ChatGPTMessageItem({messageItem, size = 45}: {messageItem: ChatG
 
 function AdItem({messageItem}: {messageItem: MessageObj}) {
 
-	const json = messageItem.json && JSON.parse(messageItem.json) as JSONInput;
+	const json = messageItem.json && JSON.parse(messageItem.json) as AdJSONInput;
 
 	if(!json) return null;
 
@@ -333,8 +334,13 @@ const d: IAdVariant = {
 	"Rationale": "This ad is effective because it highlights the luxury and exclusivity of the GLS Infra Project, targeting high-ranking professionals. The one-liner captures attention, and the image showcases the modern architecture and amenities, creating curiosity and desire."
 }
 
+interface ArtiBotProps {
+	containerClassName?: string;
+	miniVersion?: boolean;
+	conversation?: Conversation;
+}
 
-export default function ArtiBot({containerClassName = '', miniVersion = false}) {
+const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false, conversation}) => {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<ChatGPTMessageObj[]>([]);
@@ -346,9 +352,8 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 	const router = useRouter();
 	const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 	const chunksRef = useRef('');
-	const doneRef = useRef('');
+	const doneRef = useRef(false);
 	const [msg, setMsg] = useState('');
-
 
 	useEffect(() => {
 		// console.log('freeTierLimit - ', freeTierLimit);
@@ -358,12 +363,16 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
 	}, [messages, miniVersion]);
 
 	useEffect(() => {
-		setMessages(JSON.parse(localStorage.getItem('messages') ?? '[]'));
-	}, [])
+		setMessages(conversation?.messages ?? []);
+	}, [conversation])
 
 	useEffect(() => {
-		localStorage.setItem('messages', JSON.stringify(messages));
-	} , [messages]);
+		miniVersion && setMessages(JSON.parse(localStorage.getItem('messages') ?? '[]'));
+	}, [miniVersion])
+
+	useEffect(() => {
+		miniVersion && localStorage.setItem('messages', JSON.stringify(messages));
+	} , [messages, miniVersion]);
 
 	useEffect(() => {
 		if(!files) return setSelectedFiles(null);
@@ -582,7 +591,9 @@ export default function ArtiBot({containerClassName = '', miniVersion = false}) 
         </motion.div>}
 			</div>
 
-			{!miniVersion && <RightPane adGenerated={dummyJSONMessage} />}
+			{!miniVersion && conversation?.ad_creative && <RightPane adCreative={conversation.ad_creative} />}
 		</div>
 	)
 }
+
+export default ArtiBot;

@@ -29,7 +29,7 @@ const MessageContainer: FC<MessageContainerProps> = ({msg, miniVersion, showGetA
 
 	const reversedMessages = useMemo(() => {
 		if(!messages) return [];
-		const sorted = messages.sort((a, b) => +a?.id - +b?.id);
+		const sorted = messages.sort((a, b) => +(a?.id ?? 0) - +(b?.id ?? 0));
 		// console.log('sorted - ', sorted);
 		return sorted.reverse();
 	}, [messages])

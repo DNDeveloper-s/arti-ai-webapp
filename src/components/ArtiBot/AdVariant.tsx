@@ -6,7 +6,7 @@ import Image from 'next/image';
 import dummyImage from '@/assets/images/dummy2.webp';
 import {IAdVariant} from '@/constants/artibotData';
 import ReactionIcon from '@/components/ArtiBot/ReactionIcon';
-import {REACTION} from '@/components/ArtiBot/RIghtPane/FeedBackView';
+import {REACTION} from '@/interfaces';
 
 export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: IAdVariant, [key: string]: any}) {
 	const [expand, setExpand] = useState<boolean>(noExpand || false);
@@ -14,11 +14,11 @@ export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: I
 	const [reactionState, setReactionState] = useState<REACTION>();
 
 	function handleLike() {
-		setReactionState(c => c === REACTION.LIKED ? REACTION.NONE : REACTION.LIKED);
+		setReactionState(c => c === REACTION.LIKED ? REACTION.NEUTRAL : REACTION.LIKED);
 	}
 
 	function handleDislike() {
-		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NONE : REACTION.DISLIKED);
+		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NEUTRAL : REACTION.DISLIKED);
 	}
 
 

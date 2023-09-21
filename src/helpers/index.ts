@@ -22,9 +22,9 @@ export function humanFileSize(bytes: number, si=false, dp=1) {
 
 export const wait = (duration: number) => new Promise(res => setTimeout(res, duration));
 
-export function timeSince(date: number | Date) {
+export function timeSince(date: number | Date | string) {
 
-	const seconds = Math.floor((new Date() - date) / 1000);
+	const seconds = Math.floor((new Date() - new Date(date)) / 1000);
 
 	let interval = seconds / 31536000;
 

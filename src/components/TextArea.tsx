@@ -1,13 +1,14 @@
 'use client';
 
-import React, {FC, useRef, useState} from 'react';
+import React, {FC, useEffect, useRef, useState} from 'react';
 import {timeSince, wait} from '@/helpers';
 
 interface TextAreaProps {
-	handleSave: () => Promise<void>;
+	handleSave: (val: string) => Promise<void>;
 	className?: string;
 	rows?: number;
 	placeholder?: string;
+	value?: string;
 }
 
 enum SAVE_STATE {
@@ -16,13 +17,19 @@ enum SAVE_STATE {
 	'WAITING' = ''
 }
 
-const TextArea: FC<TextAreaProps> = ({handleSave, className, placeholder, rows = 3}) => {
+const TextArea: FC<TextAreaProps> = ({handleSave, value = '', className, placeholder, rows = 3}) => {
 	const changeTimeOutRef = useRef<NodeJS.Timeout>();
 	const [saveState, setSaveState] = useState<SAVE_STATE>(SAVE_STATE.WAITING)
 	const saveTimeStampRef = useRef<number>();
 	const prevValueRef = useRef<string>('');
+	const [val, setVal] = useState<string>(value);
 
-	function handleChange(e) {
+	useEffect(() => {
+		setVal(value);
+	}, [value])
+
+	function handleChange(e: any) {
+		setVal(e.target.value);
 		clearTimeout(changeTimeOutRef.current);
 		if(prevValueRef.current.trim() === e.target.value.trim()) {
 			setSaveState(SAVE_STATE.SAVED)
@@ -42,7 +49,7 @@ const TextArea: FC<TextAreaProps> = ({handleSave, className, placeholder, rows =
 		setSaveState(SAVE_STATE.SAVING)
 
 		// await wait(2000);
-		await handleSave();
+		await handleSave(prevValueRef.current);
 		// 1. Saved
 		// 2. Saving
 		// 3. Waiting
@@ -57,6 +64,7 @@ const TextArea: FC<TextAreaProps> = ({handleSave, className, placeholder, rows =
 				<textarea
 					id="message"
 					rows={rows}
+					value={val}
 					onChange={handleChange}
 					className={'w-full h-full outline-none bg-transparent resize-none'}
 					placeholder={placeholder ?? 'Write your feedback here...'}

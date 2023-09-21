@@ -1,6 +1,5 @@
-import {FaFacebookF, FaFacebookSquare, FaInstagramSquare, FaLinkedin, FaYoutube, FaYoutubeSquare} from 'react-icons/fa';
-import {AiFillGoogleSquare, AiOutlineGoogle, AiOutlineInstagram, AiOutlineLinkedin} from 'react-icons/ai';
 import {IconType} from 'react-icons';
+import {FEEDBACK, FeedBackKeyProperty} from '@/interfaces/AdCreative';
 
 export interface TabItem {
 	id: TabId,
@@ -10,7 +9,7 @@ export interface TabItem {
 }
 
 export interface FeedBackKey {
-	id: number;
+	id: FeedBackKeyProperty;
 	label: string;
 }
 
@@ -65,7 +64,7 @@ export interface IAdVariant {
 	'Rationale': string;
 }
 
-export interface JSONInput {
+export interface AdJSONInput {
 	Confidence: string;
 	'Token Count': number;
 	'Disclaimer': string;
@@ -106,22 +105,22 @@ export const artiBotData: ArtiBotData = {
 		color: '#CD201F'
 	}],
 	feedBackKeys: [{
-		id: 0,
+		id: FEEDBACK.ONE_LINER,
 		label: 'One Liner'
 	},{
-		id: 1,
+		id: FEEDBACK.AD_ORIENTATION,
 		label: 'Ad Orientation'
 	}, {
-		id: 2,
+		id: FEEDBACK.IMAGE_DESCRIPTION,
 		label: 'Image Description'
 	}, {
-		id: 3,
+		id: FEEDBACK.RATIONALE,
 		label: 'Rationale'
 	}, {
-		id: 4,
+		id: FEEDBACK.AD_VARIANT_IMAGE,
 		label: 'Ad Variant Image'
 	}, {
-		id: 5,
+		id: FEEDBACK.IMAGE_TEXT,
 		label: 'Image text'
 	}]
 }

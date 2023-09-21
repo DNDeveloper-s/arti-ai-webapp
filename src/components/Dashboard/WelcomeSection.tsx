@@ -1,6 +1,6 @@
 import React from 'react';
 import {ChatGPTMessageItem} from '@/components/ArtiBot/ArtiBot';
-import {ChatGPTMessageObj, ChatGPTRole, JSONInput} from '@/constants/artibotData';
+import {ChatGPTMessageObj, ChatGPTRole, AdJSONInput} from '@/constants/artibotData';
 import exampleJSON from '@/database/exampleJSON';
 import AdVariant from '@/components/ArtiBot/AdVariant';
 
