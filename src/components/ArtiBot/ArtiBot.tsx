@@ -25,7 +25,7 @@ import AdVariant from '@/components/ArtiBot/AdVariant';
 import {MessageService} from '@/services/Message';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import {freeTierLimit} from '@/constants';
-import RightPane from '@/components/ArtiBot/RIghtPane';
+import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import exampleJSON from '@/database/exampleJSON';
 import {BiArrowBack} from 'react-icons/bi';
 import {Conversation} from '@/interfaces/Conversation';
@@ -220,7 +220,7 @@ export function MessageItem({messageItem}: {messageItem: MessageObj}) {
 	)
 }
 
-export function ChatGPTMessageItem({messageItem, size = 45}: {messageItem: ChatGPTMessageObj, size?: number}) {
+export function ChatGPTMessageItem({messageItem, disableCopy, size = 45}: {messageItem: ChatGPTMessageObj, disableCopy?: boolean, size?: number}) {
 	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
 
 	async function copyTextToClipboard(text: string) {
@@ -245,15 +245,16 @@ export function ChatGPTMessageItem({messageItem, size = 45}: {messageItem: ChatG
 						<p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
 							{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}
 						</p>
-						<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
-							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary" onClick={() => copyTextToClipboard(messageItem.content)}/> :
+						{!disableCopy && <div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
+							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary"
+							                                 onClick={() => copyTextToClipboard(messageItem.content)}/> :
 								<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
 								        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
 								        animationData={tickAnimation}
 								        loop={false}
 								/>
 							}
-						</div>
+						</div>}
 					</div>
 				</div>
 			</div>

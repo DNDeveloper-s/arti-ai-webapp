@@ -7,7 +7,7 @@ interface ISnackbarData {
 	message: string;
 }
 
-type SnackbarData = ISnackbarData | null | false;
+export type SnackbarData = ISnackbarData | null | false;
 
 interface ISnackbarContext {
 	snackBarData: [snackBarData: SnackbarData, setSnackBarData: React.Dispatch<React.SetStateAction<SnackbarData>>]

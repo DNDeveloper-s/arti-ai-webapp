@@ -23,11 +23,15 @@ interface FormFieldObject<T> {
 type FormField<T> = FormFieldObject<T> | FormFieldObject<T>[];
 
 enum AUTH_FIELD_NAME {
+	'FIRST_NAME' = 'first_name',
+	'LAST_NAME' = 'last_name',
 	'EMAIL' = 'email',
 	'PASSWORD' = 'password',
 }
 const initValues = {
 	email: '',
+	first_name: '',
+	last_name: '',
 	password: '',
 };
 
@@ -36,7 +40,18 @@ type FormValues = Record<Partial<AUTH_FIELD_NAME>, string>;
 export default function Auth() {
 	const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
-	const formFields: FormField<AUTH_FIELD_NAME>[] = [{
+	const formFields: FormField<AUTH_FIELD_NAME>[] = [[
+		{
+			id: '21',
+			label: 'First Name',
+			name: AUTH_FIELD_NAME.FIRST_NAME,
+		},{
+			id: '22',
+			label: 'Last Name',
+			name: AUTH_FIELD_NAME.LAST_NAME,
+			not_required: true
+		}
+	],{
 		id: '4',
 		label: 'Email',
 		type: 'email',
@@ -48,58 +63,69 @@ export default function Auth() {
 		name: AUTH_FIELD_NAME.PASSWORD
 	}]
 
-	async function signIn(formValues: FormValues) {
+	async function isEmailAlreadyRegistered(email: string) {
 		const usersString = localStorage.getItem('users');
 		await wait(2000);
 		if(!usersString) return false;
 		try {
 			const users = JSON.parse(usersString);
+			console.log('users - ', users);
 			if(!(users instanceof Array)) return false;
-			return users.some(c => c.email === formValues.email && c.password === formValues.password);
+			return users.some(c => c.email === email);
 		} catch(e) {
 			return false;
 		}
 	}
 
-	async function handleSignIn(formValues: FormValues, e: FormEvent): Promise<boolean> {
-		// Check for the email if it already registered or not
-		// const doesExist = await isEmailAlreadyRegistered(formValues.email);
-		// console.log('doesExist - ', doesExist);
-		const isSuccess = await signIn(formValues);
+	async function postNewUser(formValues: FormValues) {
+		const usersString = localStorage.getItem('users');
+		let users = []
+		try {
+			if(usersString) {
+				const _users = JSON.parse(usersString);
+				if(!(_users instanceof Array)) users = [];
+				else users = _users;
+			}
+		} catch(e) {
+			users = [];
+		}
 
-		//
-		// // If it is already registered, show them the message
-		if(!isSuccess) {
+		users.push(formValues);
+		localStorage.setItem('users', JSON.stringify(users));
+		await wait(2000);
+		return true;
+	}
+
+	async function handleRegister(formValues: FormField<AUTH_FIELD_NAME>[], e: FormEvent) {
+		// Check for the email if it already registered or not
+		const doesExist = await isEmailAlreadyRegistered(formValues.email);
+		console.log('doesExist - ', doesExist);
+
+		// If it is already registered, show them the message
+		if(doesExist) {
 			setSnackBarData({
-				message: 'Credentials are incorrect. Please try again!',
+				message: 'Email is already registered with us. Try logging in.',
 				status: 'error'
 			})
 			return false;
 		}
-		//
-		// // Else, make the call to the backend with all the form fields
-		// await postNewUser(formValues);
+
+		// Else, make the call to the backend with all the form fields
+		await postNewUser(formValues);
 		return true;
 	}
 
 	return (
-		<AuthForm
+		<AuthForm<AUTH_FIELD_NAME>
 			formFields={formFields}
-			formHeading={"Sign In to Arti AI"}
+			formHeading={"Sign Up to Arti AI"}
 			initValues={initValues}
-			submitButtonLabel={"Sign In"}
-			googleLabel={"Sign In with Google"}
-			handleFormSubmit={handleSignIn}
+			submitButtonLabel={"Sign Up"}
+			googleLabel={"Sign Up with Google"}
+			handleFormSubmit={handleRegister}
 			snackBarData={snackBarData}
-			successMessage={'Signed in successfully!'}
-			leftSwitch={{
-				label: 'Sign Up',
-				to: '/auth/register'
-			}}
-			rightSwitch={{
-				label: 'Forgot Password?',
-				to: '#'
-			}}
+			successMessage={'Registered successfully!'}
+			showSignInToButton={true}
 		/>
 	)
 }

@@ -22,7 +22,7 @@ const ConversationCard:React.FC<ConversationCardProps> = (props) => {
 			</span>
 			</div>
 			<div>
-				{props.conversation.messages.map(messageItem => <ChatGPTMessageItem size={20} key={messageItem.id} messageItem={messageItem} />)}
+				{props.conversation.messages.map(messageItem => <ChatGPTMessageItem disableCopy size={20} key={messageItem.id} messageItem={messageItem} />)}
 			</div>
 		</div>
 	</Link>

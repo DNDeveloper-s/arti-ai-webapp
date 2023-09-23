@@ -15,6 +15,7 @@ import Lottie from 'lottie-react';
 import typingAnimation from '@/assets/lottie/typing.json';
 import generatingAnimation from '@/assets/lottie/generating.json';
 import {AdCreative, AdCreativeVariant} from '@/interfaces/AdCreative';
+import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
 
 interface RightPaneProps {
 	adCreative: AdCreative;
@@ -104,7 +105,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 				</div>
 				<TabView items={adCreative.variants} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant} />
 
-				{activeVariant && <AdVariant noExpand={true} adVariant={activeVariant} className="mt-4 p-3 border border-gray-800 bg-secondaryBackground rounded-lg max-w-[80%]" style={{fontSize: '8.5px'}}/>}
+				{activeVariant && <FacebookAdVariant adVariant={activeVariant} className="mt-4 p-3 border border-gray-800 bg-secondaryBackground rounded-lg max-w-[80%]" style={{fontSize: '8.5px'}}/>}
 
 				<FeedBackView feedbackData={activeVariant.feedback} />
 

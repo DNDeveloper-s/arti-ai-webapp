@@ -7,7 +7,7 @@ import UploadItemCard from '@/components/Dashboard/UploadItemCard';
 import WelcomeSection from '@/components/Dashboard/WelcomeSection';
 import Drawer, {Position} from '@/components/Drawer';
 import React, {useState} from 'react';
-import RightPane from '@/components/ArtiBot/RIghtPane';
+import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import {dummyJSONMessage} from '@/components/ArtiBot/ArtiBot';
 import AttachmentModal from '@/components/Dashboard/AttachmentModal';
 import webImage from '@/assets/images/image1.webp'
