@@ -30,7 +30,7 @@ export default function FacebookAdVariant({adVariant, noExpand, className, ...pr
 	// }, [expand])
 
 	return (
-		<div key={adVariant['One Liner']} className={'ad-variant text-xs md:text-base !max-w-[40em] !p-0 ' + (className ?? '')} {...props}>
+		<div key={adVariant['One Liner']} className={'ad-variant text-xs md:text-base !p-0 ' + (className ?? '')} {...props}>
 			<div className={"flex justify-between items-center mb-[.3em] px-[1em] pt-[1em]"}>
 				<div className="flex items-center gap-[0.5em]">
 					<div className="w-[2em] h-[2em] rounded-full bg-gray-700" />
