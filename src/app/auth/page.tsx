@@ -48,38 +48,42 @@ export default function Auth() {
 		name: AUTH_FIELD_NAME.PASSWORD
 	}]
 
-	async function signIn(formValues: FormValues) {
-		const usersString = localStorage.getItem('users');
-		await wait(2000);
-		if(!usersString) return false;
-		try {
-			const users = JSON.parse(usersString);
-			if(!(users instanceof Array)) return false;
-			return users.some(c => c.email === formValues.email && c.password === formValues.password);
-		} catch(e) {
-			return false;
-		}
-	}
+	// async function signIn(formValues: FormValues) {
+	// 	const usersString = localStorage.getItem('users');
+	// 	await wait(2000);
+	// 	if(!usersString) return false;
+	// 	try {
+	// 		const users = JSON.parse(usersString);
+	// 		if(!(users instanceof Array)) return false;
+	// 		return users.some(c => c.email === formValues.email && c.password === formValues.password);
+	// 	} catch(e) {
+	// 		return false;
+	// 	}
+	// }
 
 	async function handleSignIn(formValues: FormValues, e: FormEvent): Promise<boolean> {
 		// Check for the email if it already registered or not
 		// const doesExist = await isEmailAlreadyRegistered(formValues.email);
 		// console.log('doesExist - ', doesExist);
-		const isSuccess = await signIn(formValues);
+		await signIn('credentials', {
+			...formValues,
+			callbackUrl: '/',
+			redirect: true,
+		})
 
 		//
 		// // If it is already registered, show them the message
-		if(!isSuccess) {
-			setSnackBarData({
-				message: 'Credentials are incorrect. Please try again!',
-				status: 'error'
-			})
-			return false;
-		}
-		//
-		// // Else, make the call to the backend with all the form fields
-		// await postNewUser(formValues);
-		return true;
+		// if(!isSuccess) {
+		// 	setSnackBarData({
+		// 		message: 'Credentials are incorrect. Please try again!',
+		// 		status: 'error'
+		// 	})
+		// 	return false;
+		// }
+		// //
+		// // // Else, make the call to the backend with all the form fields
+		// // await postNewUser(formValues);
+		// return true;
 	}
 
 	return (
@@ -92,6 +96,7 @@ export default function Auth() {
 			handleFormSubmit={handleSignIn}
 			snackBarData={snackBarData}
 			successMessage={'Signed in successfully!'}
+			showSignUpButton
 			leftSwitch={{
 				label: 'Sign Up',
 				to: '/auth/register'

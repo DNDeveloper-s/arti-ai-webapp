@@ -34,10 +34,14 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 
 	useEffect(() => {
 		if(!variantRef.current) return;
-		const newHeight = (356 * width) / 340;
-		variantRef.current.style.height = newHeight + 'px';
+		let newHeight = (356 * width) / 340;
+		//
+		const maxWidth = 340 * (innerHeight / 1.5) / 356;
+		variantRef.current.style.maxWidth = maxWidth + 'px';
+		if(newHeight > (innerHeight / 1.5)) return;
 
-		console.log('newHeight - ', newHeight / 57);
+
+		// console.log('newHeight - ', newHeight / 57);
 		setFontSize(newHeight / 57);
 	}, [width])
 
@@ -116,9 +120,12 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 				<TabView items={adCreative.variants} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant} />
 
 				{activeVariant && (
-					<div ref={variantRef} className={"mt-4 w-[80%]"}>
-						<FacebookAdVariant adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: fontSize + 'px'}}/>
-					</div>
+					<>
+						<label htmlFor="message" className="block text-sm font-light text-white text-opacity-50 w-[80%] mt-4 text-left">Ad Preview</label>
+						<div ref={variantRef} className={"mt-2 w-[80%]"}>
+							<FacebookAdVariant adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: fontSize + 'px'}}/>
+						</div>
+					</>
 				)}
 
 				<FeedBackView feedbackData={activeVariant.feedback} />

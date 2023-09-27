@@ -11,7 +11,7 @@ import Lottie from 'lottie-react';
 import tickAnimation from '@/assets/lottie/tick_animation.json';
 import {IoIosCopy} from 'react-icons/io';
 import {motion} from 'framer-motion'
-import {humanFileSize} from '@/helpers';
+import {humanFileSize, isValidJsonWithAdsArray} from '@/helpers';
 import {threshold} from '@/config/thresholds';
 import Logo from '@/components/Logo';
 import {framerContainer, framerItem} from '@/config/framer-motion';
@@ -29,6 +29,8 @@ import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import exampleJSON from '@/database/exampleJSON';
 import {BiArrowBack} from 'react-icons/bi';
 import {Conversation} from '@/interfaces/Conversation';
+import {dummy} from '@/constants/dummy';
+import ObjectId from 'bson-objectid';
 // import OpenAI from 'openai';
 
 // const openai = new OpenAI({
@@ -344,7 +346,7 @@ interface ArtiBotProps {
 const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false, conversation}) => {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
-	const [messages, setMessages] = useState<ChatGPTMessageObj[]>([]);
+	const [messages, setMessages] = useState<ChatGPTMessageObj[]>(conversation?.messages ?? []);
 	const [areaHeight, setAreaHeight] = useState(0);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [files, setFiles] = useState<File[] | null>(null);
@@ -372,12 +374,50 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	}, [miniVersion])
 
 	useEffect(() => {
+		// Check if the messages array contains generating key as true
+		const isGenerating = messages.find(m => m.generating);
+		if(isGenerating) return;
+
 		miniVersion && localStorage.setItem('messages', JSON.stringify(messages));
-	} , [messages, miniVersion]);
+
+		// Update conversation messages
+		const currentConversation = dummy.Conversations.find(c => c.id === conversation?.id);
+		// Also check if the messages does not contain generating key as true
+		console.log('messages - ', messages);
+		if(currentConversation && !messages.find(m => m.generating)) {
+			currentConversation.messages = messages;
+		}
+
+		// Check if the messages contain the message as our ad type json with the helper isValidJSON
+		const isJson = messages.find(c => isValidJsonWithAdsArray(c.content));
+		if(isJson) {
+			// Update the AdCreative in Conversation
+			const currentConversation = dummy.Conversations.find(c => c.id === conversation?.id);
+			if(currentConversation) {
+				const variants = JSON.parse(isJson.content).Ads.map((c: IAdVariant) => ({...c, feedback: {}}))
+				// Push to the AdCreative
+				const ad_creative = {
+					id: ObjectId(),
+					variants: variants,
+					json: isJson.content
+				};
+				currentConversation.ad_creative = ad_creative;
+				// if the Ad_Creatives array contains the ad_creative, update it
+				const exist = dummy.Ad_Creatives.find(c => c.id === ad_creative.id);
+				if(exist) {
+					exist.variants = variants;
+					exist.json = isJson.content;
+				} else {
+					dummy.Ad_Creatives.push(ad_creative);
+				}
+			}
+		}
+
+
+	} , [conversation?.id, messages, miniVersion]);
 
 	useEffect(() => {
 		if(!files) return setSelectedFiles(null);
-		console.log('files - ', files);
 		const _fs: FileObject[] = [];
 		files.map((file, index) => {
 			const url = URL.createObjectURL(file);
@@ -386,13 +426,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		setSelectedFiles(_fs.length > 0 ? _fs : null);
 	}, [files]);
 
-	// useEffect(() => {
-	//
-	// }, [])
-	// console.log('msg - ', msg);
-
 	function handleChunk(chunk: string, done: boolean, index: number) {
-		console.log('chunk - ', chunk)
 		if(index === 0) {
 			const id = Date.now().toString();
 			chunksRef.current = '';
@@ -400,6 +434,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 			let i = 0;
 			let lastChunk = chunksRef.current.slice(0, i);
 			const intervalId = setInterval(() => {
+
 				setMessages((c) => {
 					return c.map(a => {
 						if(a.id === id) {
@@ -412,12 +447,12 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 						return a;
 					});
 				})
+
 				lastChunk = chunksRef.current.slice(0, i + 1);
 				// setMsg(chunksRef.current.slice(0, i));
-				if(lastChunk !== chunksRef.current) i++;
+				if(lastChunk !== chunksRef.current || i < chunksRef.current.length) i++;
 
-				console.log('done, chunksRef.current.length, i - ', doneRef.current, chunksRef.current.length, i);
-				if(doneRef.current && i + 1 >= chunksRef.current.length) {
+				if(doneRef.current && i >= chunksRef.current.length) {
 					clearInterval(intervalId);
 					setMessages((c) => {
 						return c.map(a => {
@@ -431,6 +466,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 						});
 					})
 				}
+
 			}, 10)
 		}
 
@@ -440,6 +476,11 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 
 	async function handleSubmitMessage() {
 		if(exhausted || (!selectedFiles && inputValue.trim().length === 0)) return;
+		const currentConversation = dummy.Conversations.find(c => c.id === conversation?.id);
+		if(currentConversation) {
+			// set conversation has_activity to true
+			currentConversation.has_activity = true;
+		}
 		setInputValue('');
 		setIsGenerating(true);
 		const _messages: ChatGPTMessageObj[] = [

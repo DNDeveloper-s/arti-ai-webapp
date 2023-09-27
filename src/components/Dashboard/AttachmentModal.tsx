@@ -1,3 +1,5 @@
+'use client'
+
 import {IoCloseSharp} from 'react-icons/io5';
 import Modal from '@/components/Modal';
 import React, {FC, ReactElement} from 'react';

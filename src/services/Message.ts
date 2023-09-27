@@ -24,7 +24,7 @@ export class MessageService {
 			let i = 0;
 			while (true) {
 				const {value, done} = await reader.read();
-				console.log('Received = ', value, done);
+				// console.log('Received = ', value, done);
 				handleChunk(value, done, i);
 				i++;
 				if (done) break;

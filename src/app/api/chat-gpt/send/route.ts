@@ -4,6 +4,9 @@ import {ChatGPTMessageObj} from '@/constants/artibotData';
 import {freeTierLimit} from '@/constants';
 import {NextApiResponse} from 'next';
 import {OpenAIStream, StreamingTextResponse} from 'ai';
+// import {getServerSession} from 'next-auth/next';
+// import {authOptions} from '@/app/api/auth/[...nextauth]/route';
+import { getToken } from "next-auth/jwt"
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
@@ -13,35 +16,15 @@ export const runtime = 'edge';
 
 export async function POST(req: Request, res: NextApiResponse) {
 	try {
-		// const is = ServerResponse.isPrototypeOf(res)
-		// const response = new Response(res.);
-		// res.write()
-
-		// const resp = NextResponse.next();
-
-		// resp.headers.
-
-		// const resp = new ServerResponse(req);
-		//
-
-		// response.headers.set('Content-Encoding', 'none');
-		// response.headers.set('Content-Type', 'text/event-stream');
-		// response.headers.set('Connection', 'keep-alive');
-		// resp.setHeader('Content-Type', 'text/event-stream');
-		// resp.setHeader('Cache-Control', 'no-cache');
-		// resp.setHeader('Connection', 'keep-alive');
-		// resp.setHeader('Connection', 'keep-alive');
-		//
-		// resp.write('data: Connection Established\n\n');
+		// Get the user's session based on the request and check if the user is authenticated
+		// And if the user is authenticated, then check if the user has exhausted the free tier limit
+		const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || 'dndeveloper-saurabh' })
 
 		const body = await req.json();
 		const messagesArr = body.messages as ChatGPTMessageObj[];
-		// const messagesArr = [{ role: 'user', content: 'Say this is a test' }]
-
-		// console.log('body - ', body);
 
 		// Right now, assuming the user is not registered
-		const isDataExhausted = messagesArr.length >= freeTierLimit;
+		const isDataExhausted = !token && messagesArr.length >= freeTierLimit;
 		if(isDataExhausted) return NextResponse.json({ok: false, error: 'You have exhausted the free tier limit. i.e, ' + freeTierLimit, limitLeft: 0});
 
 		const completion = await openai.chat.completions.create({

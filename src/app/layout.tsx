@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import './globals.css'
 import type { Metadata } from 'next'
@@ -14,7 +14,7 @@ const metadata: Metadata = {
   description: 'Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI',
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode

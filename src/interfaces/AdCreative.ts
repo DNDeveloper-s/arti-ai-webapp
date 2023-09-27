@@ -1,5 +1,6 @@
 import {IAdVariant} from '@/constants/artibotData';
 import {Reaction} from '@/interfaces/index';
+import ObjectId from 'bson-objectid';
 
 export interface Feedback {
 	feedback_message: string;
@@ -23,6 +24,7 @@ export interface AdCreativeVariant extends IAdVariant{
 }
 
 export interface AdCreative {
+	id: ObjectId | string;
 	variants: AdCreativeVariant[];
 	json: string;
 }

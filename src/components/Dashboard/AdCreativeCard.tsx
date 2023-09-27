@@ -1,3 +1,5 @@
+'use client'
+
 import React, {MouseEventHandler} from 'react';
 import {ChatGPTMessageItem} from '@/components/ArtiBot/ArtiBot';
 import {ChatGPTMessageObj, ChatGPTRole, AdJSONInput} from '@/constants/artibotData';

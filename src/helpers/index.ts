@@ -49,3 +49,17 @@ export function timeSince(date: number | Date | string) {
 	}
 	return Math.floor(seconds) + " sec" + (Math.floor(seconds) > 1 ? 's' : '');
 }
+
+export function isValidJsonWithAdsArray(inputString: string): boolean {
+	try {
+		const jsonObject = JSON.parse(inputString);
+		return (
+			typeof jsonObject === 'object' &&
+			jsonObject !== null &&
+			jsonObject.hasOwnProperty('Ads') &&
+			Array.isArray(jsonObject.Ads)
+		);
+	} catch (error) {
+		return false; // JSON parsing error
+	}
+}

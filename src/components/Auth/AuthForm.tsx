@@ -40,6 +40,7 @@ interface AuthFormProps<T = string> {
 	leftSwitch?: Switch;
 	rightSwitch?: Switch;
 	showSignInToButton?: boolean;
+	showSignUpButton?: boolean;
 }
 
 const AuthForm: FC<AuthFormProps> = (props) => {
@@ -70,16 +71,15 @@ const AuthForm: FC<AuthFormProps> = (props) => {
 		// Show something to the UI that the background process is in progress
 		setIsSubmitting(true);
 
-		const isSuccess = await props.handleFormSubmit(formValues, e);
+		const isSuccess = await props.handleFormSubmit(formValues, e, reset);
 
 		// Adjust the UI as the progress is done
-		if(isSuccess) {
-			setSnackBarData({
-				message: props.successMessage,
-				status: 'success'
-			})
-			reset();
-		}
+		// if(isSuccess) {
+		// 	setSnackBarData({
+		// 		message: props.successMessage,
+		// 		status: 'success'
+		// 	})
+		// }
 		setIsSubmitting(false);
 
 	}
@@ -121,14 +121,18 @@ const AuthForm: FC<AuthFormProps> = (props) => {
 						{isSubmitting ? <Loader style={{scale: 0.7}} /> : <span className="ml-3">{props.submitButtonLabel}</span>}
 					</button>
 				</form>
-				{props.showSignInToButton && <div className="w-full max-w-[900px] mx-auto text-sm px-3 flex justify-between items-center my-8">
-					<span>Already have an account? <Link href="/auth" className="text-primary">Log In</Link></span>
+				{props.showSignInToButton && <div className="w-full max-w-[900px] mx-auto text-xs px-3 flex justify-between items-center my-8">
+					<span className="text-white text-opacity-40">Already have an account? <Link href="/auth" className="text-primary">Log In</Link></span>
 				</div>}
-				{(props.leftSwitch || props.rightSwitch) && <div className="w-full max-w-[900px] mx-auto text-sm px-3 flex justify-between items-center my-8">
-					{props.leftSwitch?.label ? <Link href={props.leftSwitch.to} className="text-primary">{props.leftSwitch.label}</Link>: <div />}
+				{props.showSignUpButton && <div className="w-full max-w-[900px] mx-auto text-xs px-1 flex justify-between items-center my-8">
+          <span className="text-white text-opacity-40">No account? <Link href="/auth/register" className="text-primary">Sign Up</Link></span>
+          <Link href={props.rightSwitch.to} className="text-white text-opacity-60">{props.rightSwitch.label}</Link>
+        </div>}
+				{/*{(props.leftSwitch || props.rightSwitch) && <div className="w-full max-w-[900px] mx-auto text-sm px-3 flex justify-between items-center my-8">*/}
+				{/*	{props.leftSwitch?.label ? <Link href={props.leftSwitch.to} className="text-primary">{props.leftSwitch.label}</Link>: <div />}*/}
 
-					{props.rightSwitch?.label ? <Link href={props.rightSwitch.to} className="text-white text-opacity-30">{props.rightSwitch.label}</Link>: <div />}
-				</div>}
+				{/*	{props.rightSwitch?.label ? <Link href={props.rightSwitch.to} className="text-white text-opacity-30">{props.rightSwitch.label}</Link>: <div />}*/}
+				{/*</div>}*/}
 				<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-8">
 					<div className="h-0.5 mr-5 flex-1 bg-gray-800" />
 					<div className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">

@@ -10,6 +10,8 @@ import {wait} from '@/helpers';
 import Snackbar from '@/components/Snackbar';
 import GoogleSignInButton from '@/components/Auth/GoogleSigninButton';
 import AuthForm from '@/components/Auth/AuthForm';
+import axios from 'axios';
+import {useRouter} from 'next/navigation';
 
 
 interface FormFieldObject<T> {
@@ -22,7 +24,7 @@ interface FormFieldObject<T> {
 
 type FormField<T> = FormFieldObject<T> | FormFieldObject<T>[];
 
-enum AUTH_FIELD_NAME {
+export enum REGISTER_FIELD_NAME {
 	'FIRST_NAME' = 'first_name',
 	'LAST_NAME' = 'last_name',
 	'EMAIL' = 'email',
@@ -35,32 +37,33 @@ const initValues = {
 	password: '',
 };
 
-type FormValues = Record<Partial<AUTH_FIELD_NAME>, string>;
+type FormValues = Record<Partial<REGISTER_FIELD_NAME>, string>;
 
 export default function Auth() {
+	const router = useRouter();
 	const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
-	const formFields: FormField<AUTH_FIELD_NAME>[] = [[
+	const formFields: FormField<REGISTER_FIELD_NAME>[] = [[
 		{
 			id: '21',
 			label: 'First Name',
-			name: AUTH_FIELD_NAME.FIRST_NAME,
+			name: REGISTER_FIELD_NAME.FIRST_NAME,
 		},{
 			id: '22',
 			label: 'Last Name',
-			name: AUTH_FIELD_NAME.LAST_NAME,
+			name: REGISTER_FIELD_NAME.LAST_NAME,
 			not_required: true
 		}
 	],{
 		id: '4',
 		label: 'Email',
 		type: 'email',
-		name: AUTH_FIELD_NAME.EMAIL
+		name: REGISTER_FIELD_NAME.EMAIL
 	}, {
 		id: '5',
 		label: 'Password',
 		type: 'password',
-		name: AUTH_FIELD_NAME.PASSWORD
+		name: REGISTER_FIELD_NAME.PASSWORD
 	}]
 
 	async function isEmailAlreadyRegistered(email: string) {
@@ -96,27 +99,43 @@ export default function Auth() {
 		return true;
 	}
 
-	async function handleRegister(formValues: FormField<AUTH_FIELD_NAME>[], e: FormEvent) {
-		// Check for the email if it already registered or not
-		const doesExist = await isEmailAlreadyRegistered(formValues.email);
-		console.log('doesExist - ', doesExist);
+	async function handleRegister(formValues: FormField<REGISTER_FIELD_NAME>[], e: FormEvent, reset) {
+		try {
+			const response = await axios.post('/api/auth/register', {values: formValues});
 
-		// If it is already registered, show them the message
-		if(doesExist) {
-			setSnackBarData({
-				message: 'Email is already registered with us. Try logging in.',
-				status: 'error'
+			console.log('response - ', response)
+			// Check for the email if it already registered or not
+			// const doesExist = await isEmailAlreadyRegistered(formValues.email);
+			// console.log('doesExist - ', doesExist);
+			//
+			// // If it is already registered, show them the message
+			// if(doesExist) {
+			// 	setSnackBarData({
+			// 		message: 'Email is already registered with us. Try logging in.',
+			// 		status: 'error'
+			// 	})
+			// 	return false;
+			// }
+			//
+			// // Else, make the call to the backend with all the form fields
+			// await postNewUser(formValues);
+			if(response.data.ok) reset();
+
+			await signIn('credentials', {
+				...formValues,
+				callbackUrl: '/',
+				redirect: true,
 			})
-			return false;
+		} catch (e) {
+
 		}
 
-		// Else, make the call to the backend with all the form fields
-		await postNewUser(formValues);
-		return true;
+
+		return response.data.ok;
 	}
 
 	return (
-		<AuthForm<AUTH_FIELD_NAME>
+		<AuthForm<REGISTER_FIELD_NAME>
 			formFields={formFields}
 			formHeading={"Sign Up to Arti AI"}
 			initValues={initValues}

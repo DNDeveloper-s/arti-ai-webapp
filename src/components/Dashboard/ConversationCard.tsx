@@ -1,15 +1,20 @@
+'use client'
+
 import React from 'react';
 import {ChatGPTMessageItem} from '@/components/ArtiBot/ArtiBot';
 import {ChatGPTMessageObj, ChatGPTRole} from '@/constants/artibotData';
 import {Conversation} from '@/interfaces/Conversation';
 import {timeSince} from '@/helpers';
 import Link from 'next/link';
+import useMounted from '@/hooks/useMounted';
 
 interface ConversationCardProps {
 	conversation: Conversation;
 }
 
 const ConversationCard:React.FC<ConversationCardProps> = (props) => {
+	const mounted = useMounted();
+
 
 	return <Link href={'/artibot/' + props.conversation.id} >
 		<div className={'w-[25rem] flex-shrink-0 h-[13rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
@@ -18,7 +23,8 @@ const ConversationCard:React.FC<ConversationCardProps> = (props) => {
 				<h2 className="text-base font-medium text-primary">{props.conversation.title}</h2>
 				<span>
 				<span className="text-white text-opacity-30 text-[1.1em]">Last Activity:</span>
-				<span className="text-primary text-[1.1em] ml-1">{timeSince(props.conversation.last_activity) + ' ago'}</span>
+					{mounted && <span
+						className="text-primary text-[1.1em] ml-1">{timeSince(props.conversation.last_activity) + ' ago'}</span>}
 			</span>
 			</div>
 			<div>

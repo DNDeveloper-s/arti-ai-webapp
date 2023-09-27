@@ -3,6 +3,7 @@ import exampleJSON from '@/database/exampleJSON';
 import {AdJSONInput, ChatGPTMessageObj, ChatGPTRole} from '@/constants/artibotData';
 import {REACTION} from '@/interfaces';
 import {Conversation} from '@/interfaces/Conversation';
+import ObjectID from 'bson-objectid';
 
 interface Dummy {
 	Ad_Creatives: AdCreative[];
@@ -87,6 +88,7 @@ const Conversations = [{
 	title: 'Dummy Title',
 	ad_creative: Ad_Creatives[0],
 	last_activity: Date.now(),
+	has_activity: true,
 	messages: Messages
 }];
 

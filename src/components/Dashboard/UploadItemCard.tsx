@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import webImage from '@/assets/images/image1.webp'
 import {BsFillFileEarmarkPdfFill} from 'react-icons/bs';

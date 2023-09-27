@@ -1,32 +1,21 @@
-'use client';
-
-import Logo from '@/components/Logo';
-import Hero from '@/components/Hero';
-import Services from '@/components/Services';
-import WhyUs from '@/components/WhyUs';
-import Navbar from '@/components/Navbar';
-import Contact from '@/components/Contact';
-import Footer from '@/components/Footer';
-import ArtiBot from '@/components/ArtiBot/ArtiBot';
 import React from 'react';
-import {AnimatePresence, useScroll, motion, useMotionValueEvent} from 'framer-motion';
 import LandingPage from '@/components/LandingPage';
-import {useSession} from 'next-auth/react';
+// import {useSession} from 'next-auth/react';
 import AppLoader from '@/components/AppLoader';
 import Dashboard from '@/components/Dashboard/Dashboard';
+import {getServerSession} from 'next-auth/next';
+import {authOptions} from '@/app/api/auth/[...nextauth]/route';
 
-export default function Home() {
-  const {data, status} = useSession();
+export default async function Home() {
+  // const {data, status} = useSession();
+  // let status = 'authenticated';
+  const session = await getServerSession(authOptions)
 
   let jsx = <AppLoader />
 
-  if(status === 'unauthenticated')  jsx = <LandingPage />
+  if(!session)  jsx = <LandingPage />
 
-  if(status === 'authenticated')  jsx = <Dashboard />
+  if(session)  jsx = <Dashboard />
 
-  return (
-    <AnimatePresence mode={'wait'}>
-      {jsx}
-    </AnimatePresence>
-  )
+  return jsx
 }
