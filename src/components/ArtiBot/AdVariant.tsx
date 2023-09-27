@@ -30,8 +30,8 @@ export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: I
 
 	return (
 		<div key={adVariant['One Liner']} className="ad-variant text-xs md:text-base" {...props}>
-			<div className="flex justify-between items-center mb-[1.4em]">
-				<div ref={headingRef} className="font-bold flex items-center font-diatype text-[1.8em] cursor-pointer" onClick={(e) => {
+			<div className="flex justify-between items-center mb-[0.75em]">
+				<div ref={headingRef} className="font-bold flex items-center font-diatype text-[1.4em] cursor-pointer" onClick={(e) => {
 					if(!noExpand) setExpand(c => !c)
 				}}><span className="inline leading-[1.2em]">{adVariant['One Liner']}</span>
 					{/*{adVariant['Ad Type'] && <span className="text-[0.6em] py-[0.1em] px-[0.5em] ml-[0.85em] font-regular bg-white bg-opacity-10 text-primary rounded-lg upper">{adVariant['Ad Type'].split(' ')[0]}</span>}*/}

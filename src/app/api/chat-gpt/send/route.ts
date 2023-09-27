@@ -4,9 +4,8 @@ import {ChatGPTMessageObj} from '@/constants/artibotData';
 import {freeTierLimit} from '@/constants';
 import {NextApiResponse} from 'next';
 import {OpenAIStream, StreamingTextResponse} from 'ai';
-// import {getServerSession} from 'next-auth/next';
-// import {authOptions} from '@/app/api/auth/[...nextauth]/route';
 import { getToken } from "next-auth/jwt"
+import exampleJSON from '@/database/exampleJSON';
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
@@ -27,6 +26,21 @@ export async function POST(req: Request, res: NextApiResponse) {
 		const isDataExhausted = !token && messagesArr.length >= freeTierLimit;
 		if(isDataExhausted) return NextResponse.json({ok: false, error: 'You have exhausted the free tier limit. i.e, ' + freeTierLimit, limitLeft: 0});
 
+		// Check if the request body has generate_ad key as true
+		// If it does, then generate the ad and return the response as a JSON not a stream.
+		if(body.generate_ad) {
+			let _messages = [...(messagesArr ?? []), {role: 'user', content: `Send me a json similar to this but different values filled within the keys and make sure i receive only json in your response - "${JSON.stringify(exampleJSON)}"`}];
+			const generated_json = await openai.chat.completions.create({
+				messages: _messages,
+				model: 'gpt-3.5-turbo',
+				stream: false
+			});
+			return NextResponse.json({ok: true, is_ad_json: true, json: generated_json.choices[0].message.content});
+			// return NextResponse.json({ok: true, is_ad_json: true, json: exampleJSON});
+		}
+
+
+		// Else, return the response as a stream
 		const completion = await openai.chat.completions.create({
 			messages: messagesArr ?? [{ role: 'user', content: 'Say this is a test' }],
 			model: 'gpt-3.5-turbo',
@@ -37,49 +51,6 @@ export async function POST(req: Request, res: NextApiResponse) {
 		const stream = OpenAIStream(completion);
 
 		return new StreamingTextResponse(stream);
-
-		// let responseStream = new TransformStream();
-		// const writer = responseStream.writable.getWriter();
-		// const encoder = new TextEncoder();
-		//
-		// for await(const chunk of completion) {
-		// 	console.log('chunk - ', chunk);
-		// 	if(chunk.choices.at(-1) && chunk.choices.at(-1)?.finish_reason)  {
-		// 		// writer.write(JSON.stringify(chunk))
-		// 		// writer.close();
-		// 		res.write(JSON.stringify(chunk));
-		// 		res.end();
-		// 		return new Response(responseStream.readable, {
-		// 			headers: {
-		// 				"Access-Control-Allow-Origin": "*",
-		// 				"Content-Type": "text/event-stream; charset=utf-8",
-		// 				Connection: "keep-alive",
-		// 				"Cache-Control": "no-cache, no-transform",
-		// 				"X-Accel-Buffering": "no",
-		// 				"Content-Encoding": "none",
-		// 			},
-		// 		});
-		// 	}
-		// 	res.write(JSON.stringify(chunk))
-		// 	// resp.write(JSON.stringify(chunk));
-		// 	// writer.write(JSON.stringify(chunk))
-		// }
-		//
-		// // console.log('completion.choices - ', completion.choices);
-		//
-		// // return new Response(responseStream.readable, {
-		// // 	headers: {
-		// // 		"Access-Control-Allow-Origin": "*",
-		// // 		"Content-Type": "text/event-stream; charset=utf-8",
-		// // 		Connection: "keep-alive",
-		// // 		"Cache-Control": "no-cache, no-transform",
-		// // 		"X-Accel-Buffering": "no",
-		// // 		"Content-Encoding": "none",
-		// // 	},
-		// // });
-		//
-		//
-		// return NextResponse.json({ok: true, data: completion, message: 'Response received successfully!', limitLeft: freeTierLimit - messagesArr.length - 1})
 	} catch(e: unknown) {
 		console.log('e - ', e);
 		return NextResponse.json({ok: false, error: e})

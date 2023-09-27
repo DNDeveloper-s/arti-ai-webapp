@@ -20,17 +20,18 @@ import {LuDownload} from 'react-icons/lu';
 import {MdArrowBackIos, MdDelete} from 'react-icons/md';
 import Link from 'next/link';
 import MessageContainer from '@/components/ArtiBot/MessageContainer';
-import {ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, AdJSONInput, MessageObj} from '@/constants/artibotData';
+import {AdJSONInput, ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, MessageObj} from '@/constants/artibotData';
 import AdVariant from '@/components/ArtiBot/AdVariant';
 import {MessageService} from '@/services/Message';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import {freeTierLimit} from '@/constants';
 import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import exampleJSON from '@/database/exampleJSON';
-import {BiArrowBack} from 'react-icons/bi';
 import {Conversation} from '@/interfaces/Conversation';
 import {dummy} from '@/constants/dummy';
 import ObjectId from 'bson-objectid';
+import Loader from '@/components/Loader';
+import GetAdButton from '@/components/ArtiBot/GetAdButton';
 // import OpenAI from 'openai';
 
 // const openai = new OpenAI({
@@ -238,26 +239,34 @@ export function ChatGPTMessageItem({messageItem, disableCopy, size = 45}: {messa
 		return;
 	}
 
+	let item = (
+		<div className="flex items-start">
+			<p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
+				{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}
+			</p>
+			{!disableCopy && <div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
+				{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary"
+				                                 onClick={() => copyTextToClipboard(messageItem.content)}/> :
+					<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
+					        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
+					        animationData={tickAnimation}
+					        loop={false}
+					/>
+				}
+      </div>}
+		</div>
+	)
+
+	if(messageItem.type === 'ad-json') {
+		item = <AdItem messageItem={messageItem} />
+	}
+
 	return (
 		<div key={messageItem.content} className={'w-full ' + (messageItem.role === ChatGPTRole.ASSISTANT ? '' : 'bg-background bg-opacity-30')}>
 			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
 				<Image className="rounded-lg mr-[0.3em]" width={size} height={size} src={messageItem.role === ChatGPTRole.ASSISTANT ? botData.image : dummyUser.image} alt=""/>
 				<div className="ml-[0.8em] flex-1">
-					<div className="flex items-start">
-						<p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
-							{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}
-						</p>
-						{!disableCopy && <div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
-							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary"
-							                                 onClick={() => copyTextToClipboard(messageItem.content)}/> :
-								<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
-								        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
-								        animationData={tickAnimation}
-								        loop={false}
-								/>
-							}
-						</div>}
-					</div>
+					{item}
 				</div>
 			</div>
 		</div>
@@ -272,9 +281,9 @@ function AdItem({messageItem}: {messageItem: MessageObj}) {
 	if(!json) return null;
 
 	return (
-		<div className="divide-y [&>*]:pt-10 [&>*]:mb-2 md:[&>*]:mb-10 [&>*:first-child]:pt-0 [&>*:last-child]:mb-0 divide-gray-700">
+		<div style={{fontSize: '10px'}} className="divide-y [&>*]:pt-6 [&>*]:mb-2 md:[&>*]:mb-3 [&>*:first-child]:pt-0 [&>*:last-child]:mb-0 divide-gray-700">
 			{json.Ads.map(adVariant => (
-				<AdVariant key={adVariant['One Liner']} adVariant={adVariant} />
+				<AdVariant key={adVariant['One Liner']} adVariant={adVariant} style={{fontSize: '14px'}} />
 			))}
 		</div>
 	)
@@ -343,6 +352,15 @@ interface ArtiBotProps {
 	conversation?: Conversation;
 }
 
+export interface HandleChunkArgs {
+	done?: boolean;
+	chunk?: string;
+	index?: number;
+	is_json?: boolean;
+	json?: string;
+}
+
+// TODO: Refactor the ArtiBot Component
 const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false, conversation}) => {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
@@ -357,6 +375,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	const chunksRef = useRef('');
 	const doneRef = useRef(false);
 	const [msg, setMsg] = useState('');
+	const [adCreative, setAdCreative] = useState(conversation?.ad_creative ?? null);
 
 	useEffect(() => {
 		// console.log('freeTierLimit - ', freeTierLimit);
@@ -402,6 +421,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 					json: isJson.content
 				};
 				currentConversation.ad_creative = ad_creative;
+				setAdCreative(ad_creative);
 				// if the Ad_Creatives array contains the ad_creative, update it
 				const exist = dummy.Ad_Creatives.find(c => c.id === ad_creative.id);
 				if(exist) {
@@ -425,6 +445,28 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		})
 		setSelectedFiles(_fs.length > 0 ? _fs : null);
 	}, [files]);
+
+	function handleJsonResponse(json: string) {
+		const id = Date.now().toString();
+		setMessages(c => [...c, {
+			id,
+			role: ChatGPTRole.ASSISTANT,
+			content: json,
+			generating: false,
+			type: 'ad-json',
+			json: json
+		}]);
+	}
+
+	function handleMessageResponse(args: HandleChunkArgs) {
+		console.log('args - ', args);
+		if(!args?.is_ad_json) {
+			handleChunk(args.chunk, args.done, args.index);
+			return;
+		}
+
+		handleJsonResponse(args.json);
+	}
 
 	function handleChunk(chunk: string, done: boolean, index: number) {
 		if(index === 0) {
@@ -474,8 +516,8 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		doneRef.current = done;
 	}
 
-	async function handleSubmitMessage() {
-		if(exhausted || (!selectedFiles && inputValue.trim().length === 0)) return;
+	async function handleSubmitMessage(generate_ad?: boolean) {
+		if(!generate_ad && (exhausted || (!selectedFiles && inputValue.trim().length === 0))) return;
 		const currentConversation = dummy.Conversations.find(c => c.id === conversation?.id);
 		if(currentConversation) {
 			// set conversation has_activity to true
@@ -483,21 +525,22 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		}
 		setInputValue('');
 		setIsGenerating(true);
-		const _messages: ChatGPTMessageObj[] = [
-			...messages,
-			{
+		const _messages: ChatGPTMessageObj[] = [...messages];
+
+		if(!generate_ad) {
+			_messages.push({
 				id: Date.now().toString(),
 				role: ChatGPTRole.USER,
 				content: inputValue.trim()
-			}
-		]
+			})
+			setMessages(_messages);
+		}
 
-		const messageService = new MessageService();
-
-		setMessages(_messages);
 
 		const transformedMessages = _messages.map(c => ({role: c.role, content: c.content}));
-		const response = await messageService.send(transformedMessages, handleChunk);
+
+		const messageService = new MessageService();
+		const response = await messageService.send(transformedMessages, handleMessageResponse, generate_ad);
 
 		console.log('response - ', response);
 
@@ -541,26 +584,10 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 					</div>
 					<MessageContainer msg={msg} messages={messages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
 					<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
-						{showGetAdNowButton && <motion.button whileHover={{
-							scale: 1.05,
-							transition: { duration: 0.2 },
-						}} whileTap={{scale: 0.98}} initial={{y: -10, opacity: 0}} animate={{y: 0, opacity: 1}}
-                                                  transition={{type: 'spring', damping: 10}}
-                                                  className="cta-button px-4 py-2 md:py-4 md:px-8 absolute flex items-center text-lg font-diatype -top-14 md:-top-20 right-10 md:right-20"
-                                                  onClick={() => {
-							                                      // setMessages(c => ([{
-								                                    //   id: '5',
-								                                    //   is_ai_response: true,
-								                                    //   message: 'Hello there, Tell me something more about it.',
-								                                    //   timestamp: new Date().toISOString(),
-								                                    //   type: 'ad-json',
-								                                    //   json: exampleJSON
-							                                      // }, ...c]))
-						                                      }}
-            >
-              <LuDownload style={{fontSize: '22px'}}/>
-              <span className="ml-3 md:ml-5">Get Ad Now</span>
-            </motion.button>}
+						{(showGetAdNowButton) && <GetAdButton onClick={async (setLoading) => {
+							await handleSubmitMessage(true);
+							setLoading(false);
+						}} />}
 						{/*<label htmlFor="file" className="cursor-pointer mr-2 mb-[1.15rem]">*/}
 						{/*	<input onChange={e => {*/}
 						{/*		const files = e.currentTarget.files;*/}
@@ -610,7 +637,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 							}
 						</div>
 						<svg
-							onClick={handleSubmitMessage}
+							onClick={() => handleSubmitMessage()}
 							xmlns="http://www.w3.org/2000/svg"
 							width={19}
 							height={19}
@@ -633,7 +660,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
         </motion.div>}
 			</div>
 
-			{!miniVersion && conversation?.ad_creative && <RightPane adCreative={conversation.ad_creative} />}
+			{!miniVersion && adCreative && <RightPane adCreative={adCreative} />}
 		</div>
 	)
 }
