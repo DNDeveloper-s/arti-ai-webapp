@@ -4,45 +4,24 @@ import Link from 'next/link';
 import {motion} from 'framer-motion';
 import React, {FC, useState} from 'react';
 import CTAButton from '@/components/CTAButton';
+import {navbarData} from '@/constants/landingPageData/navbar';
 
 interface NavMenuItemsProps {
-	cta_href: string;
 }
 
-const NavMenuItems: FC<NavMenuItemsProps> = ({cta_href = '/auth'}) => {
+const NavMenuItems: FC<NavMenuItemsProps> = () => {
 	const [expand, setExpand] = useState(false);
-
-	const navBarItems = [
-		{
-			id: '1',
-			href: '#',
-			label: 'Home'
-		},{
-			id: '2',
-			href: '#product-overview',
-			label: 'Services'
-		},{
-			id: '3',
-			href: '#why-us',
-			label: 'Why Us'
-		},{
-			id: '4',
-			href: '#contact',
-			label: 'Contact'
-		},
-	]
 
 	return (
 		<>
 			<div className="absolute right-4 flex md:order-2">
-				<Link href={cta_href}>
+				<Link href={navbarData.cta.href}>
 					<CTAButton className="px-4 py-2 text-sm rounded-lg">
-						Register
+						{navbarData.cta.label}
 					</CTAButton>
 				</Link>
 				<button onClick={() => {
 					setExpand(c => !c)
-					console.log('clicked -- ');
 				}} data-collapse-toggle="navbar-sticky" type="button"
 				        className="ml-4 inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
 				        aria-controls="navbar-sticky" aria-expanded="false">
@@ -57,7 +36,7 @@ const NavMenuItems: FC<NavMenuItemsProps> = ({cta_href = '/auth'}) => {
 			<div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
 				<ul
 					className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
-					{navBarItems.map(item => (
+					{navbarData.navItems.map(item => (
 						<li
 							key={item.id}>
 							<Link href={item.href}
@@ -72,7 +51,7 @@ const NavMenuItems: FC<NavMenuItemsProps> = ({cta_href = '/auth'}) => {
 			            className="md:hidden visible w-full h-full bg-background overflow-hidden fixed top-[72px] left-0">
 				<ul
 					className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
-					{navBarItems.map(item => (
+					{navbarData.navItems.map(item => (
 						<li
 							key={item.id} onClick={() => setExpand(c => !c)}>
 							<Link href={item.href}

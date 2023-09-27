@@ -63,3 +63,5 @@ export function isValidJsonWithAdsArray(inputString: string): boolean {
 		return false; // JSON parsing error
 	}
 }
+
+export const isProduction = process.env.NODE_ENV === 'production';

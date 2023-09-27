@@ -1,7 +1,7 @@
 'use client';
 
 import React, {RefObject, useEffect, useMemo, useRef, useState} from 'react';
-import {whyUsData, WhyUsItem} from '@/constants/pageData/whyUs';
+import {whyUsData, WhyUsItem} from '@/constants/landingPageData/whyUs';
 import {PiCaretRightBold} from 'react-icons/pi';
 import {useInView, useMotionValueEvent, motion, useScroll} from 'framer-motion';
 import { useMediaQuery } from 'react-responsive'

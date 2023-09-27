@@ -1,11 +1,11 @@
 import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
-import Services from '@/components/Services';
-import WhyUs from '@/components/WhyUs';
+import Hero from '@/components/LandingPage/Hero';
+import Services from '@/components/LandingPage/Services';
+import WhyUs from '@/components/LandingPage/WhyUs';
 import ArtiBot from '@/components/ArtiBot/ArtiBot';
-import Contact from '@/components/Contact';
-import Footer from '@/components/Footer';
-import ScreenLoader from '@/components/ScreenLoader';
+import Contact from '@/components/LandingPage/Contact';
+import Footer from '@/components/LandingPage/Footer';
+import ScreenLoader from '@/components/LandingPage/ScreenLoader';
 
 export default function LandingPage() {
 

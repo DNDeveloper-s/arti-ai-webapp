@@ -1,5 +1,5 @@
 import React from 'react';
-import LandingPage from '@/components/LandingPage';
+import LandingPage from '@/components/LandingPage/LandingPage';
 // import {useSession} from 'next-auth/react';
 import AppLoader from '@/components/AppLoader';
 import Dashboard from '@/components/Dashboard/Dashboard';

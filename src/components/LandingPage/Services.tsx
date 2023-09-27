@@ -3,7 +3,7 @@
 import React, {useState} from 'react';
 import Image, {StaticImageData} from 'next/image';
 import Dummy from '@/assets/images/dummy.webp';
-import {servicesData} from '@/constants/pageData/services';
+import {servicesData} from '@/constants/landingPageData/services';
 import {motion} from 'framer-motion';
 
 interface Props {
