@@ -22,6 +22,7 @@ import {IConversation} from '@/interfaces/IConversation';
 import {dummy} from '@/constants/dummy';
 import ObjectId from 'bson-objectid';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';
+import FileItem from '@/components/ArtiBot/MessageItems/FileItem';
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',

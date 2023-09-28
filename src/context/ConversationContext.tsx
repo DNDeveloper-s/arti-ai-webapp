@@ -1,7 +1,6 @@
 'use client';
 
 import React, {createContext, FC, useContext, useReducer, useState} from 'react';
-import {IConversation} from '@/interfaces/IConversation';
 
 interface IConversationData {
 
