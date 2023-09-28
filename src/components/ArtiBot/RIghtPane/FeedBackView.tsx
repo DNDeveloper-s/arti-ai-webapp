@@ -6,7 +6,7 @@ import {motion} from 'framer-motion';
 import {wait} from '@/helpers';
 import TextArea from '@/components/TextArea';
 import ReactionIcon from '@/components/ArtiBot/ReactionIcon';
-import {AdCreativeVariant, Feedback} from '@/interfaces/AdCreative';
+import {AdCreativeVariant, Feedback} from '@/interfaces/IAdCreative';
 import {REACTION} from '@/interfaces';
 import {BiCommentDetail} from 'react-icons/bi';
 

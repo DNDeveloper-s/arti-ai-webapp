@@ -14,11 +14,11 @@ import _JSON from '@/database/exampleJSON';
 import Lottie from 'lottie-react';
 import typingAnimation from '@/assets/lottie/typing.json';
 import generatingAnimation from '@/assets/lottie/generating.json';
-import {AdCreative, AdCreativeVariant} from '@/interfaces/AdCreative';
+import {IAdCreative, AdCreativeVariant} from '@/interfaces/IAdCreative';
 import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
 
 interface RightPaneProps {
-	adCreative: AdCreative;
+	adCreative: IAdCreative;
 }
 
 const MIN_WIDTH = 450;

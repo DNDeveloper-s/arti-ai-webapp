@@ -1,19 +1,19 @@
-import {AdCreative} from '@/interfaces/AdCreative';
+import {IAdCreative} from '@/interfaces/IAdCreative';
 import exampleJSON from '@/database/exampleJSON';
-import {AdJSONInput, ChatGPTMessageObj, ChatGPTRole} from '@/constants/artibotData';
+import {AdJSONInput, ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
 import {REACTION} from '@/interfaces';
-import {Conversation} from '@/interfaces/Conversation';
+import {IConversation} from '@/interfaces/IConversation';
 import ObjectID from 'bson-objectid';
 
 interface Dummy {
-	Ad_Creatives: AdCreative[];
-	Conversations: Conversation[];
+	Ad_Creatives: IAdCreative[];
+	Conversations: IConversation[];
 	Messages: ChatGPTMessageObj[];
 }
 
 const json = JSON.parse(exampleJSON) as AdJSONInput;
 
-const Ad_Creatives: AdCreative[] = [{
+const Ad_Creatives: IAdCreative[] = [{
 	json: exampleJSON,
 	variants: [{
 		...json.Ads[0],

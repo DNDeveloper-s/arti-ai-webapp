@@ -11,7 +11,7 @@ import Drawer, {Position} from '@/components/Drawer';
 import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import React, {useState} from 'react';
 import {AttachmentDetails, ModalDispatchAction} from '@/interfaces';
-import {AdCreative} from '@/interfaces/AdCreative';
+import {IAdCreative} from '@/interfaces/IAdCreative';
 import {useRouter} from 'next/navigation';
 import {signOut} from 'next-auth/react';
 
@@ -19,13 +19,13 @@ export default function CardSection() {
 	const router = useRouter();
 	const [openModal, setOpenModal] = useState(false);
 	const [modalData, setModalData] = useState<ModalDispatchAction<AttachmentDetails>>(null);
-	const [currentAdCreative, setCurrentAdCreative] = useState<AdCreative | null>(null);
+	const [currentAdCreative, setCurrentAdCreative] = useState<IAdCreative | null>(null);
 
 	function handleLogOutButton() {
 		signOut();
 	}
 
-	function handleAdCreativeClick(adCreativeItem: AdCreative) {
+	function handleAdCreativeClick(adCreativeItem: IAdCreative) {
 		// setOpen(true);
 		setCurrentAdCreative(adCreativeItem);
 	}

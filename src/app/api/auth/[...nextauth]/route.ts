@@ -163,7 +163,7 @@ export const authOptions: AuthOptions = {
 		strategy: 'jwt'
 	},
 	secret: process.env.NEXTAUTH_SECRET || 'dndeveloper-saurabh',
-	debug: process.env.NODE_ENV === 'development'
+	// debug: process.env.NODE_ENV === 'development'
 }
 
 const handler = NextAuth(authOptions)

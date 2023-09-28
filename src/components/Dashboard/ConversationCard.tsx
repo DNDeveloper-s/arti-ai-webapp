@@ -1,15 +1,14 @@
 'use client'
 
 import React from 'react';
-import {ChatGPTMessageItem} from '@/components/ArtiBot/ArtiBot';
-import {ChatGPTMessageObj, ChatGPTRole} from '@/constants/artibotData';
-import {Conversation} from '@/interfaces/Conversation';
+import {IConversation} from '@/interfaces/IConversation';
 import {timeSince} from '@/helpers';
 import Link from 'next/link';
 import useMounted from '@/hooks/useMounted';
+import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
 
 interface ConversationCardProps {
-	conversation: Conversation;
+	conversation: IConversation;
 }
 
 const ConversationCard:React.FC<ConversationCardProps> = (props) => {
@@ -28,7 +27,7 @@ const ConversationCard:React.FC<ConversationCardProps> = (props) => {
 			</span>
 			</div>
 			<div>
-				{props.conversation.messages.map(messageItem => <ChatGPTMessageItem disableCopy size={20} key={messageItem.id} messageItem={messageItem} />)}
+				{props.conversation.messages.map(messageItem => <ChatGPTMessageItem disableCopy size={20} key={messageItem.id} messageItem={messageItem} variantFontSize={10} />)}
 			</div>
 		</div>
 	</Link>

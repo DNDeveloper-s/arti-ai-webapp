@@ -9,7 +9,7 @@ interface AdVariant {
 	'Ad Type': "Instagram Story Ad" | "LinkedIn Sponsored Content" | "Google Display Ad" | "YouTube Pre-roll Ad";
 	'Image Url': string;
 	'Text': string;
-	'One Liner': string;
+	'One liner': string;
 	'Image Description': string;
 	'Ad orientation': string;
 	'Rationale': string;
@@ -556,7 +556,7 @@ export class PDF {
 				rationale: ad.Rationale,
 				imageDescription: ad['Image Description'],
 				adOrientation: ad['Ad orientation'],
-				oneLiner: ad['One Liner'],
+				oneLiner: ad['One liner'],
 				imageUrl: ad['Image Url']
 			}
 			if(dimensions > 1) {

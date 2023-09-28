@@ -1,8 +1,8 @@
 import React, {FC, useEffect, useMemo, useRef} from 'react';
 import Lottie from 'lottie-react';
 import typingAnimation from '@/assets/lottie/typing.json';
-import {ChatGPTMessageItem, MessageItem} from '@/components/ArtiBot/ArtiBot';
-import {ChatGPTMessageObj} from '@/constants/artibotData';
+import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
+import {ChatGPTMessageObj} from '@/interfaces/IArtiBot';
 import WavingHand from '@/assets/images/waving-hand.webp';
 import Image from 'next/image';
 

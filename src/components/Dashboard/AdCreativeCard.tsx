@@ -1,15 +1,15 @@
 'use client'
 
 import React, {MouseEventHandler} from 'react';
-import {ChatGPTMessageItem} from '@/components/ArtiBot/ArtiBot';
-import {ChatGPTMessageObj, ChatGPTRole, AdJSONInput} from '@/constants/artibotData';
+import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
+import {ChatGPTMessageObj, ChatGPTRole, AdJSONInput} from '@/interfaces/IArtiBot';
 import exampleJSON from '@/database/exampleJSON';
 import AdVariant from '@/components/ArtiBot/AdVariant';
-import {AdCreative} from '@/interfaces/AdCreative';
+import {IAdCreative} from '@/interfaces/IAdCreative';
 
 interface AdCreativeCardProps {
-	onClick: (val: AdCreative) => void;
-	adCreative: AdCreative;
+	onClick: (val: IAdCreative) => void;
+	adCreative: IAdCreative;
 }
 
 const AdCreativeCard:React.FC<AdCreativeCardProps> = (props) => {
@@ -27,7 +27,7 @@ const AdCreativeCard:React.FC<AdCreativeCardProps> = (props) => {
 		</div>
 		<div className={"flex gap-3 px-3"}>
 			{json.Ads.map(currentAdVariant => (
-				<AdVariant key={currentAdVariant['One Liner']} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" style={{fontSize: '2px'}}/>
+				<AdVariant key={currentAdVariant['One liner']} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" style={{fontSize: '2px'}}/>
 			))}
 		</div>
 	</div>

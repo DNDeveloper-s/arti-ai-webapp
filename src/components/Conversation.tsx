@@ -4,10 +4,10 @@ import ArtiBot from '@/components/ArtiBot/ArtiBot';
 import {dummy} from '@/constants/dummy';
 import React from 'react';
 import {useParams} from 'next/navigation';
-import {Conversation} from '@/interfaces/Conversation';
+import {IConversation} from '@/interfaces/IConversation';
 
 export default function Conversation() {
-	let conversation: Conversation | undefined;
+	let conversation: IConversation | undefined;
 	// Create a conversation if the conversation with the id in params doesn't exist
 	const params = useParams();
 	console.log('params - ', params);
@@ -17,7 +17,7 @@ export default function Conversation() {
 		// If it doesn't exist, create a new conversation
 		if(!exist) {
 			// Create a new conversation
-			const newConversation: Conversation = {
+			const newConversation: IConversation = {
 				id: Array.isArray(params.conversation_id) ? params.conversation_id[0] : params.conversation_id,
 				messages: [],
 				last_activity: new Date().toISOString(),

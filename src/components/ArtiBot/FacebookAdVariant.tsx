@@ -30,7 +30,7 @@ export default function FacebookAdVariant({adVariant, noExpand, className, ...pr
 	// }, [expand])
 
 	return (
-		<div key={adVariant['One Liner']} className={'ad-variant text-xs md:text-base !p-0 ' + (className ?? '')} {...props}>
+		<div key={adVariant['One liner']} className={'ad-variant text-xs md:text-base !p-0 ' + (className ?? '')} {...props}>
 			<div className={"flex justify-between items-center mb-[.3em] px-[1em] pt-[1em]"}>
 				<div className="flex items-center gap-[0.5em]">
 					<div className="w-[2em] h-[2em] rounded-full bg-gray-700" />
@@ -47,9 +47,9 @@ export default function FacebookAdVariant({adVariant, noExpand, className, ...pr
 			<div>
 				<Image width={600} height={100} className="mb-[0.5em] w-full" src={dummyImage} alt="Ad Image" />
 			</div>
-			<div className={"flex justify-between items-center px-[1em]"}>
-				<span className={"text-[1.25em] leading-[1.3em]"}>{adVariant['One Liner']}</span>
-				<div>
+			<div className={"flex justify-between items-center px-[1em] mt-[1em]"}>
+				<span className={"text-[1.25em] leading-[1.3em]"}>{adVariant['One liner']}</span>
+				<div className="flex-shrink-0">
 					<span className="cursor-pointer rounded bg-gray-700 px-[0.6em] py-[0.5em] text-[1em]" onClick={() => setExpand(c => !c)}>Learn More</span>
 				</div>
 			</div>

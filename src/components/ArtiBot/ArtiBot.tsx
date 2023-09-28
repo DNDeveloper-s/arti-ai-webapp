@@ -1,44 +1,27 @@
 'use client';
 
 import React, {FC, useContext, useEffect, useRef, useState} from 'react';
-import Image from 'next/image';
-import {AiFillCloseCircle, AiFillFileExclamation, AiFillFileText} from 'react-icons/ai';
-import {BsFillFileEarmarkPdfFill} from 'react-icons/bs';
 import {colors} from '@/config/theme';
 import TextareaAutosize from 'react-textarea-autosize';
-import {botData, dummyUser} from '@/constants/images';
-import Lottie from 'lottie-react';
-import tickAnimation from '@/assets/lottie/tick_animation.json';
-import {IoIosCopy} from 'react-icons/io';
 import {motion} from 'framer-motion'
 import {humanFileSize, isValidJsonWithAdsArray} from '@/helpers';
 import {threshold} from '@/config/thresholds';
 import Logo from '@/components/Logo';
 import {framerContainer, framerItem} from '@/config/framer-motion';
 import {useRouter} from 'next/navigation';
-import {LuDownload} from 'react-icons/lu';
 import {MdArrowBackIos, MdDelete} from 'react-icons/md';
 import Link from 'next/link';
 import MessageContainer from '@/components/ArtiBot/MessageContainer';
-import {AdJSONInput, ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, MessageObj} from '@/constants/artibotData';
-import AdVariant from '@/components/ArtiBot/AdVariant';
+import {HandleChunkArgs, ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, MessageObj} from '@/interfaces/IArtiBot';
 import {MessageService} from '@/services/Message';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import {freeTierLimit} from '@/constants';
 import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import exampleJSON from '@/database/exampleJSON';
-import {Conversation} from '@/interfaces/Conversation';
+import {IConversation} from '@/interfaces/IConversation';
 import {dummy} from '@/constants/dummy';
 import ObjectId from 'bson-objectid';
-import Loader from '@/components/Loader';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';
-// import OpenAI from 'openai';
-
-// const openai = new OpenAI({
-// 	apiKey: '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',
-// 	dangerouslyAllowBrowser: true
-// })
-
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',
@@ -49,318 +32,12 @@ export const dummyJSONMessage: MessageObj = {
 	json: exampleJSON
 }
 
-// export const dummyMessages: ChatGPTMessageObj[] = [
-// 	{
-// 		id: '5',
-// 		is_ai_response: true,
-// 		message: 'Hello there, Tell me something more about it.',
-// 		timestamp: new Date().toISOString(),
-// 		type: 'ad-json',
-// 		json: exampleJSON
-// 	},
-// 	{
-// 		id: '3',
-// 		is_ai_response: false,
-// 		message: '',
-// 		type: 'attachment',
-// 		timestamp: new Date().toISOString(),
-// 		attachments: [
-// 			{
-// 				id: 23,
-// 				name: 'TJk12sdjf',
-// 				size: 2344,
-// 				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-// 				type: 'image/jpg'
-// 			},
-// 			{
-// 				id: 24,
-// 				name: 'TJks45djf',
-// 				size: 23144,
-// 				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-// 				type: 'image/jpg'
-// 			},
-// 			{
-// 				id: 25,
-// 				name: 'TJk31sdjf',
-// 				size: 23244,
-// 				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-// 				type: 'image/jpg'
-// 			},
-// 			{
-// 				id: 26,
-// 				name: 'T2Jksdjf',
-// 				size: 23344,
-// 				url: 'https://images.unsplash.com/photo-1543373014-cfe4f4bc1cdf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGlnaCUyMHJlc29sdXRpb258ZW58MHx8MHx8fDA%3D&w=1000&q=80',
-// 				type: 'image/jpg'
-// 			}
-// 		]
-// 	},
-// 	{
-// 		id: '1',
-// 		is_ai_response: true,
-// 		message: 'The chat will support a conversation between a user and an AI powered chatbot. For each user message sent, we make an API call to the chatbot to generate the response. At a high level, the chat should support following functionalities:',
-// 		timestamp: new Date().toISOString(),
-// 		type: 'text'
-// 	},
-// 	{
-// 		id: '2',
-// 		is_ai_response: false,
-// 		message: 'Hello there, Tell me something more about it.',
-// 		timestamp: new Date().toISOString(),
-// 		type: 'text'
-// 	}
-// ];
-
-function AttachmentItem({messageItem}: {messageItem: MessageObj}) {
-
-	const renderImage = () => {
-		const imagesAttachments = messageItem.attachments?.filter(item => item.type.includes('image/'))
-			.map(image => (
-				<Image width={1000} height={1000} className="w-full h-32 md:h-64 object-cover" key={image.name + image.size} src={image.url} alt={image.name} />
-			))
-
-		if(!imagesAttachments || imagesAttachments.length === 0) return null;
-
-		return (
-			<div className="grid grid-col-2 md:grid-cols-3 rounded-xl overflow-hidden gap-1">
-				{imagesAttachments}
-			</div>
-		)
-	}
-
-	const renderFile = () => {
-
-		const fileAttachments = messageItem.attachments?.filter(item => !item.type.includes('image/'))
-			.map(fileObj => {
-				let Icon = <AiFillFileExclamation className="text-6xl text-primary" />;
-
-				if(fileObj.type === 'application/pdf') {
-					Icon = <BsFillFileEarmarkPdfFill className="text-6xl text-secondaryText" />
-				} else if (fileObj.type === 'text/plain') {
-					Icon = <AiFillFileText className="text-6xl text-secondaryText" />
-				}
-
-				return (
-					<div key={fileObj.name + fileObj.size} className="w-auto flex items-center mb-2 p-4 pr-10 bg-secondaryBackground border border-gray-600 rounded-lg flex-shrink font-diatype">
-						{Icon}
-						<div className="flex-1 overflow-hidden">
-							<p className="text-primary truncate">{fileObj.name}</p>
-							<p className="opacity-40 text-xs mt-1">{humanFileSize(fileObj.size)}</p>
-						</div>
-					</div>
-				)
-			})
-
-		if(!fileAttachments || fileAttachments.length === 0) return null;
-
-		return (
-			<div className="flex flex-col items-start">
-				{fileAttachments}
-			</div>
-		)
-	}
-
-	return (
-		<>
-			{renderImage()}
-			{renderFile()}
-		</>
-	)
-}
-
-export function MessageItem({messageItem}: {messageItem: MessageObj}) {
-	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
-
-	async function copyTextToClipboard(text: string) {
-		if ('clipboard' in navigator) {
-			await navigator.clipboard.writeText(text);
-		} else {
-			document.execCommand('copy', true, text);
-		}
-		setShowCopyAnimation(true);
-		setTimeout(() => {
-			setShowCopyAnimation(false);
-		}, 2000)
-		return;
-	}
-
-	let item;
-
-	if(messageItem.type === 'attachment') {
-		item = <AttachmentItem messageItem={messageItem} />
-	}
-	if(messageItem.type === 'text') {
-		item = (
-			<div className="flex items-start">
-				<p className="whitespace-pre-wrap text-md text-primaryText opacity-60 flex-1">
-					{messageItem.message}
-				</p>
-				<div className="w-9 h-9 mx-5 flex items-center justify-center relative">
-					{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary" onClick={() => copyTextToClipboard(messageItem.message)}/> :
-						<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
-						        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
-						        animationData={tickAnimation}
-						        loop={false}
-						/>
-					}
-				</div>
-			</div>
-		)
-	}
-	if(messageItem.type === 'ad-json') {
-		item = <AdItem messageItem={messageItem} />
-	}
-
-	return (
-		<div key={messageItem.id} className={'w-full ' + (messageItem.is_ai_response ? '' : 'bg-background bg-opacity-30')}>
-			<div className="flex items-start px-5 py-4 w-full max-w-[800px] mx-auto">
-				<Image className="rounded-lg mr-1 bg-primary" width={45} height={45} src={messageItem.is_ai_response ? botData.image : dummyUser.image} alt=""/>
-				<div className="ml-3 flex-1">
-					{item}
-				</div>
-			</div>
-		</div>
-	)
-}
-
-export function ChatGPTMessageItem({messageItem, disableCopy, size = 45}: {messageItem: ChatGPTMessageObj, disableCopy?: boolean, size?: number}) {
-	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
-
-	async function copyTextToClipboard(text: string) {
-		if ('clipboard' in navigator) {
-			await navigator.clipboard.writeText(text);
-		} else {
-			document.execCommand('copy', true, text);
-		}
-		setShowCopyAnimation(true);
-		setTimeout(() => {
-			setShowCopyAnimation(false);
-		}, 2000)
-		return;
-	}
-
-	let item = (
-		<div className="flex items-start">
-			<p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
-				{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}
-			</p>
-			{!disableCopy && <div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
-				{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary"
-				                                 onClick={() => copyTextToClipboard(messageItem.content)}/> :
-					<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
-					        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
-					        animationData={tickAnimation}
-					        loop={false}
-					/>
-				}
-      </div>}
-		</div>
-	)
-
-	if(messageItem.type === 'ad-json') {
-		item = <AdItem messageItem={messageItem} />
-	}
-
-	return (
-		<div key={messageItem.content} className={'w-full ' + (messageItem.role === ChatGPTRole.ASSISTANT ? '' : 'bg-background bg-opacity-30')}>
-			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
-				<Image className="rounded-lg mr-[0.3em]" width={size} height={size} src={messageItem.role === ChatGPTRole.ASSISTANT ? botData.image : dummyUser.image} alt=""/>
-				<div className="ml-[0.8em] flex-1">
-					{item}
-				</div>
-			</div>
-		</div>
-	)
-}
-
-
-function AdItem({messageItem}: {messageItem: MessageObj}) {
-
-	const json = messageItem.json && JSON.parse(messageItem.json) as AdJSONInput;
-
-	if(!json) return null;
-
-	return (
-		<div style={{fontSize: '10px'}} className="divide-y [&>*]:pt-6 [&>*]:mb-2 md:[&>*]:mb-3 [&>*:first-child]:pt-0 [&>*:last-child]:mb-0 divide-gray-700">
-			{json.Ads.map(adVariant => (
-				<AdVariant key={adVariant['One Liner']} adVariant={adVariant} style={{fontSize: '14px'}} />
-			))}
-		</div>
-	)
-}
-
-
-interface FileItemProps {
-	fileObj: FileObject;
-	setFiles: React.Dispatch<React.SetStateAction<File[] | null>>;
-}
-const FileItem: React.FC<FileItemProps> = ({fileObj, setFiles}) => {
-	console.log('fileObj - ', fileObj);
-
-	if(fileObj.type.includes('image/')) {
-		return (
-			<div key={fileObj.id} className="h-full w-auto flex-shrink-0 mr-2 rounded-lg overflow-hidden relative border-2 border-secondaryBackground">
-				<Image width={100} height={100} className="w-auto h-full" src={fileObj.url} alt="thanks"/>
-				<MdDelete className="absolute top-1 right-1 text-primary cursor-pointer" onClick={() => {
-					setFiles(e => {
-						if(!e) return e;
-						return e.filter((c) => c.name !== fileObj.name && c.size !== fileObj.size);
-					})
-				}}/>
-			</div>
-		)
-	}
-
-	let Icon = <AiFillFileExclamation className="text-6xl text-primary" />;
-
-	if(fileObj.type === 'application/pdf') {
-		Icon = <BsFillFileEarmarkPdfFill className="text-6xl text-primary" />
-	} else if (fileObj.type === 'text/plain') {
-		Icon = <AiFillFileText className="text-6xl text-primary" />
-	}
-
-	return (
-		<div key={fileObj.id} className="h-full w-auto p-4 flex-shrink-0 flex justify-center flex-col items-center mr-2 rounded-lg overflow-hidden relative border-2 border-secondaryBackground">
-			<AiFillCloseCircle className="absolute top-1 right-1 text-primary cursor-pointer" onClick={() => {
-				setFiles(e => {
-					if(!e) return e;
-					return e.filter((c, ind) => ind !== fileObj.id);
-				})
-			}}/>
-			<div className="flex-1 flex justify-center items-center">
-				{Icon}
-			</div>
-			<p className="text-sm opacity-60 max-w-[10rem] text-center line-clamp-2">{fileObj.name}</p>
-		</div>
-	)
-}
-
-const d: IAdVariant = {
-	"Variant": 1,
-	"Ad Type": "Facebook Ad",
-	"Image Url": "https://i.ibb.co/Z1TK2kM/sean-pollock-Ph-Yq704ffd-A-unsplash.jpg",
-	"Text": "Discover the epitome of luxury at GLS Infra Project in Sector 67A, Gurugram. With 106 plots of various sizes, this is where your dream home comes to life. Enjoy state-of-the-art amenities, including a fully-equipped gym. Don't miss this opportunity! #GLSInfraProject #LuxuryLiving",
-	"One Liner": "Luxury living re-defined at GLS Infra Project!",
-	"Image Description": "The image shows a luxurious residential complex with modern architecture and lush green surroundings. The gym is highlighted in the image, showcasing the state-of-the-art facilities.",
-	"Ad orientation": "The ad layout will feature the image on the left side, with the text on the right side. The theme will be elegant and sophisticated, reflecting the luxury of the project.",
-	"Rationale": "This ad is effective because it highlights the luxury and exclusivity of the GLS Infra Project, targeting high-ranking professionals. The one-liner captures attention, and the image showcases the modern architecture and amenities, creating curiosity and desire."
-}
-
 interface ArtiBotProps {
 	containerClassName?: string;
 	miniVersion?: boolean;
-	conversation?: Conversation;
+	conversation?: IConversation;
 }
 
-export interface HandleChunkArgs {
-	done?: boolean;
-	chunk?: string;
-	index?: number;
-	is_json?: boolean;
-	json?: string;
-}
-
-// TODO: Refactor the ArtiBot Component
 const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false, conversation}) => {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
@@ -410,11 +87,11 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		// Check if the messages contain the message as our ad type json with the helper isValidJSON
 		const isJson = messages.find(c => isValidJsonWithAdsArray(c.content));
 		if(isJson) {
-			// Update the AdCreative in Conversation
+			// Update the IAdCreative in IConversation
 			const currentConversation = dummy.Conversations.find(c => c.id === conversation?.id);
 			if(currentConversation) {
 				const variants = JSON.parse(isJson.content).Ads.map((c: IAdVariant) => ({...c, feedback: {}}))
-				// Push to the AdCreative
+				// Push to the IAdCreative
 				const ad_creative = {
 					id: ObjectId(),
 					variants: variants,
@@ -460,15 +137,16 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 
 	function handleMessageResponse(args: HandleChunkArgs) {
 		console.log('args - ', args);
-		if(!args?.is_ad_json) {
+		if(!args?.is_ad_json && args.done !== undefined && args.index !== undefined) {
+			// if the response is not ad json
 			handleChunk(args.chunk, args.done, args.index);
 			return;
 		}
 
-		handleJsonResponse(args.json);
+		if(args.json) handleJsonResponse(args.json);
 	}
 
-	function handleChunk(chunk: string, done: boolean, index: number) {
+	function handleChunk(chunk: string | undefined, done: boolean, index: number) {
 		if(index === 0) {
 			const id = Date.now().toString();
 			chunksRef.current = '';
@@ -563,9 +241,6 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 
 	return (
 		<div className={`flex h-full overflow-hidden`}>
-			{/*<div className="w-full h-full flex flex-col bg-black">*/}
-
-			{/*</div>*/}
 			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
 				<>
 					<div className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">

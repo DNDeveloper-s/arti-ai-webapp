@@ -50,8 +50,12 @@ export function timeSince(date: number | Date | string) {
 	return Math.floor(seconds) + " sec" + (Math.floor(seconds) > 1 ? 's' : '');
 }
 
-export function isValidJsonWithAdsArray(inputString: string): boolean {
+export function isValidJsonWithAdsArray(_inputString: string, isIndentedString: boolean): boolean {
 	try {
+		let inputString = _inputString;
+		if(isIndentedString) {
+			inputString = JSON.parse(JSON.stringify(inputString));
+		}
 		const jsonObject = JSON.parse(inputString);
 		return (
 			typeof jsonObject === 'object' &&

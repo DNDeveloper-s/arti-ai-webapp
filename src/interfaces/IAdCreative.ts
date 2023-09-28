@@ -23,7 +23,7 @@ export interface AdCreativeVariant extends IAdVariant{
 	feedback: Partial<Record<FeedBackKeyProperty, Feedback | undefined>>
 }
 
-export interface AdCreative {
+export interface IAdCreative {
 	id: ObjectId | string;
 	variants: AdCreativeVariant[];
 	json: string;

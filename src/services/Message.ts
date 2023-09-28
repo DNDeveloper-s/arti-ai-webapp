@@ -1,4 +1,4 @@
-import {ChatGPTMessageObj} from '@/constants/artibotData';
+import {ChatGPTMessageObj} from '@/interfaces/IArtiBot';
 import axios from 'axios';
 import {HandleChunkArgs} from '@/components/ArtiBot/ArtiBot';
 
