@@ -20,7 +20,7 @@ export default function AdItem({messageItem, variantFontSize}: {messageItem: Cha
 			</div>
 			<div className={"border-t border-gray-600 pt-3 mt-5"}>
 				<ul className="list-disc px-4">
-					<li className="text-white text-opacity-50 font-diatype text-base leading-[1.6em] my-2">If you're not satisfied with the current ad, you can easily regenerate it by clicking the "Regenerate Ad" button.</li>
+					<li className="text-white text-opacity-50 font-diatype text-base leading-[1.6em] my-2">If you&apos;re not satisfied with the current ad, you can easily regenerate it by clicking the "Regenerate Ad" button.</li>
 					<li className="text-white text-opacity-50 font-diatype text-base leading-[1.6em] my-2">Feel free to provide feedback on each ad variant by visiting the "Provide Feedback" section on the right-hand side of the tab.</li>
 				</ul>
 			</div>
