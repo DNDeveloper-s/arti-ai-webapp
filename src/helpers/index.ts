@@ -24,7 +24,7 @@ export const wait = (duration: number) => new Promise(res => setTimeout(res, dur
 
 export function timeSince(date: number | Date | string) {
 
-	const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+	const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
 
 	let interval = seconds / 31536000;
 
@@ -50,13 +50,46 @@ export function timeSince(date: number | Date | string) {
 	return Math.floor(seconds) + " sec" + (Math.floor(seconds) > 1 ? 's' : '');
 }
 
-export function isValidJsonWithAdsArray(_inputString: string, isIndentedString: boolean): boolean {
-	try {
-		let inputString = _inputString;
-		if(isIndentedString) {
-			inputString = JSON.parse(JSON.stringify(inputString));
+export default function getJSONObjectFromAString(inputString: string) {
+	let jsonObjects = [];
+
+	let startIndex = 0;
+
+	while (startIndex < inputString.length) {
+		let startBracketIndex = inputString.indexOf('{', startIndex);
+		let endBracketIndex = inputString.indexOf('}', startBracketIndex);
+
+		if (startBracketIndex !== -1 && endBracketIndex !== -1) {
+			let jsonObject = inputString.substring(startBracketIndex, endBracketIndex + 1);
+
+			// Check if the extracted JSON object contains nested objects
+			while (jsonObject.indexOf('{', 1) !== -1) {
+				let nestedStartIndex = jsonObject.indexOf('{', 1);
+				let nestedEndIndex = inputString.indexOf('}', endBracketIndex + 1);
+				if (nestedEndIndex !== -1) {
+					jsonObject += inputString.substring(endBracketIndex + 1, nestedEndIndex + 1);
+					endBracketIndex = nestedEndIndex;
+				} else {
+					break;
+				}
+			}
+
+			jsonObjects.push(jsonObject);
+			startIndex = endBracketIndex + 1;
+		} else {
+			break;
 		}
+	}
+
+	return jsonObjects[0]
+}
+
+export function isValidJsonWithAdsArray(inputString: string, isIndentedString?: boolean): boolean {
+	try {
 		const jsonObject = JSON.parse(inputString);
+
+		console.log('inputString - ', jsonObject);
+
 		return (
 			typeof jsonObject === 'object' &&
 			jsonObject !== null &&

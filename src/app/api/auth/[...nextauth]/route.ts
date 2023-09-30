@@ -1,7 +1,7 @@
 import NextAuth, {AuthOptions} from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import {PrismaAdapter} from "@auth/prisma-adapter";
+import {PrismaAdapter} from '@auth/prisma-adapter';
 import {PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
 
@@ -149,9 +149,28 @@ export const authOptions: AuthOptions = {
 			return baseUrl
 		},
 		async session({ session, user, token }) {
-			return session
+			if(!session || !session.user || !session.user.email) return session;
+			
+			const existingUser = await prisma.user.findUnique({
+				where: { email: session.user.email },
+			});
+
+			if(!existingUser) {
+				return session;
+			}
+
+			return {
+				...session,
+				user: {
+					first_name: existingUser.first_name,
+					last_name: existingUser.last_name,
+					email: existingUser.email,
+					id: existingUser.id
+				}
+			}
 		},
 		async jwt({ token, user, account, profile, isNewUser }) {
+			console.log('user - ', isNewUser);
 			return token
 		}
 		// Other callback functions

@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {IoIosCopy} from 'react-icons/io';
 import Lottie from 'lottie-react';
 import tickAnimation from '@/assets/lottie/tick_animation.json';
-import {isValidJsonWithAdsArray} from '@/helpers';
+import getJSONObjectFromAString, {isValidJsonWithAdsArray} from '@/helpers';
 import Image from 'next/image';
 import {botData, dummyUser} from '@/constants/images';
 import AdItem from '@/components/ArtiBot/MessageItems/AdItem';
@@ -46,11 +46,12 @@ export default function ChatGPTMessageItem({messageItem, disableCopy, size = 45,
 		item = <AdItem messageItem={messageItem} variantFontSize={variantFontSize} />
 	}
 
-	const isJson = isValidJsonWithAdsArray(messageItem.content, true);
+	const jsonObjectInString = getJSONObjectFromAString(messageItem.content);
+	const isJson = isValidJsonWithAdsArray(jsonObjectInString, true);
 	if(isJson) {
 		const _messageItem = {
 			...messageItem,
-			json: messageItem.content
+			json: jsonObjectInString
 		}
 		item = <AdItem messageItem={_messageItem} variantFontSize={variantFontSize} />
 	}

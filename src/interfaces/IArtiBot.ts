@@ -71,6 +71,7 @@ export interface IAdVariant {
 	'Text': string;
 	'One liner': string;
 	'Image Description': string;
+	'Image': string;
 	'Ad orientation': string;
 	'Rationale': string;
 }

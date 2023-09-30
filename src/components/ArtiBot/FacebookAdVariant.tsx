@@ -8,11 +8,13 @@ import {IAdVariant} from '@/constants/artibotData';
 import ReactionIcon from '@/components/ArtiBot/ReactionIcon';
 import {REACTION} from '@/interfaces';
 import {SlOptions} from 'react-icons/sl';
+import {useConversation} from '@/context/ConversationContext';
 
 export default function FacebookAdVariant({adVariant, noExpand, className, ...props}: {adVariant: IAdVariant, [key: string]: any}) {
 	const [expand, setExpand] = useState<boolean>(noExpand || false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
+	const {state: {variant}, dispatch} = useConversation();
 
 	function handleLike() {
 		setReactionState(c => c === REACTION.LIKED ? REACTION.NEUTRAL : REACTION.LIKED);
@@ -45,7 +47,7 @@ export default function FacebookAdVariant({adVariant, noExpand, className, ...pr
 				<span className="text-[0.95em] inline-flex leading-[1.5em]">{adVariant['Text']}</span>
 			</div>
 			<div>
-				<Image width={600} height={100} className="mb-[0.5em] w-full" src={dummyImage} alt="Ad Image" />
+				<Image width={600} height={100} className="mb-[0.5em] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />
 			</div>
 			<div className={"flex justify-between items-center px-[1em] mt-[1em]"}>
 				<span className={"text-[1.25em] leading-[1.3em]"}>{adVariant['One liner']}</span>

@@ -8,7 +8,7 @@ import {AttachmentDetails, FILE_TYPE} from '@/interfaces';
 
 interface UploadItemCardProps {
 	fileDetails: AttachmentDetails;
-	onClick: (val: AttachmentDetails) => void;
+	onClick?: (val: AttachmentDetails) => void;
 }
 
 const UploadItemCard:React.FC<UploadItemCardProps> = (props) => {
@@ -33,7 +33,7 @@ const UploadItemCard:React.FC<UploadItemCardProps> = (props) => {
 			</div>
 		)
 	}
-	return <div onClick={() => props.onClick(props.fileDetails)} className={'flex-shrink-0 pb-4 h-[10rem] flex flex-col items-center min-w-[10rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
+	return <div onClick={() => props.onClick && props.onClick(props.fileDetails)} className={'flex-shrink-0 pb-4 h-[13rem] flex flex-col items-center min-w-[10rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
 		{jsx}
 	</div>
 }

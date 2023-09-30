@@ -5,6 +5,7 @@ import AppLoader from '@/components/AppLoader';
 import Dashboard from '@/components/Dashboard/Dashboard';
 import {getServerSession} from 'next-auth/next';
 import {authOptions} from '@/app/api/auth/[...nextauth]/route';
+import {ConversationContextProvider} from '@/context/ConversationContext';
 
 export default async function Home() {
   // const {data, status} = useSession();
@@ -15,7 +16,11 @@ export default async function Home() {
 
   if(!session)  jsx = <LandingPage />
 
-  if(session)  jsx = <Dashboard />
+  if(session)  jsx = (
+    <ConversationContextProvider>
+      <Dashboard />
+    </ConversationContextProvider>
+  )
 
   return jsx
 }

@@ -7,11 +7,15 @@ import dummyImage from '@/assets/images/dummy2.webp';
 import {IAdVariant} from '@/constants/artibotData';
 import ReactionIcon from '@/components/ArtiBot/ReactionIcon';
 import {REACTION} from '@/interfaces';
+import {useConversation} from '@/context/ConversationContext';
 
 export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: IAdVariant, [key: string]: any}) {
 	const [expand, setExpand] = useState<boolean>(noExpand || false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
+	const {state: {variant}, dispatch} = useConversation();
+
+	console.log('useConversation - ', variant);
 
 	function handleLike() {
 		setReactionState(c => c === REACTION.LIKED ? REACTION.NEUTRAL : REACTION.LIKED);
@@ -20,7 +24,6 @@ export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: I
 	function handleDislike() {
 		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NEUTRAL : REACTION.DISLIKED);
 	}
-
 
 	// useEffect(() => {
 	// 	if(!headingRef.current) return;
@@ -53,7 +56,7 @@ export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: I
 						<p className="mt-[0.3em] text-[1em] font-diatype opacity-60">{adVariant['Ad orientation']}</p>
 					</li>
 					<div className="my-[2em] relative bg-background bg-opacity-50 p-[1em] rounded-lg">
-						<Image width={500} height={100} className="mb-[1.3em] w-full max-w-[30em]" src={dummyImage} alt="Ad Image" />
+						<Image width={500} height={100} className="mb-[1.3em] w-full max-w-[30em]" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />
 						<p className="leading-[1.3em] text-[0.85em] font-diatype opacity-60">{adVariant.Text}</p>
 					</div>
 					<li className="pl-1 relative">

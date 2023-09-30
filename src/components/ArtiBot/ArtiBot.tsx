@@ -4,7 +4,7 @@ import React, {FC, useContext, useEffect, useRef, useState} from 'react';
 import {colors} from '@/config/theme';
 import TextareaAutosize from 'react-textarea-autosize';
 import {motion} from 'framer-motion'
-import {humanFileSize, isValidJsonWithAdsArray} from '@/helpers';
+import getJSONObjectFromAString, {humanFileSize, isValidJsonWithAdsArray} from '@/helpers';
 import {threshold} from '@/config/thresholds';
 import Logo from '@/components/Logo';
 import {framerContainer, framerItem} from '@/config/framer-motion';
@@ -23,6 +23,9 @@ import {dummy} from '@/constants/dummy';
 import ObjectId from 'bson-objectid';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';
 import FileItem from '@/components/ArtiBot/MessageItems/FileItem';
+import axios, {isAxiosError} from 'axios';
+import Image from 'next/image';
+import {updateVariantImage, useConversation} from '@/context/ConversationContext';
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',
@@ -54,13 +57,17 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	const doneRef = useRef(false);
 	const [msg, setMsg] = useState('');
 	const [adCreative, setAdCreative] = useState(conversation?.ad_creative ?? null);
+	const {state, dispatch} = useConversation()
 
 	useEffect(() => {
+		updateVariantImage(dispatch, 'key', 'value');
 		// console.log('freeTierLimit - ', freeTierLimit);
 		if(messages.length >= freeTierLimit && miniVersion) {
 			setExhausted(true);
 		}
 	}, [messages, miniVersion]);
+
+	console.log('state - ', state);
 
 	useEffect(() => {
 		setMessages(conversation?.messages ?? []);
@@ -86,33 +93,52 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		}
 
 		// Check if the messages contain the message as our ad type json with the helper isValidJSON
-		const isJson = messages.find(c => isValidJsonWithAdsArray(c.content));
-		if(isJson) {
+		const jsonMessage = messages.find(c => {
+			const jsonObjectInString = getJSONObjectFromAString(c.content);
+			return isValidJsonWithAdsArray(jsonObjectInString, true);
+		});
+		if(jsonMessage) {
 			// Update the IAdCreative in IConversation
 			const currentConversation = dummy.Conversations.find(c => c.id === conversation?.id);
 			if(currentConversation) {
-				const variants = JSON.parse(isJson.content).Ads.map((c: IAdVariant) => ({...c, feedback: {}}))
+				const json = getJSONObjectFromAString(jsonMessage.content);
+				const variants = JSON.parse(json).Ads.map((c: IAdVariant) => ({...c, feedback: {}}))
 				// Push to the IAdCreative
 				const ad_creative = {
 					id: ObjectId(),
 					variants: variants,
-					json: isJson.content
+					json: json
 				};
 				currentConversation.ad_creative = ad_creative;
 				setAdCreative(ad_creative);
-				// if the Ad_Creatives array contains the ad_creative, update it
-				const exist = dummy.Ad_Creatives.find(c => c.id === ad_creative.id);
-				if(exist) {
-					exist.variants = variants;
-					exist.json = isJson.content;
-				} else {
-					dummy.Ad_Creatives.push(ad_creative);
-				}
+
+				// Create the text-to-image API request
+				fetchImageForVariants(variants);
+
+				// const _res = await axios.post('/api/text-to-image')
+				// console.log('response - ', _res);
+
 			}
 		}
 
 
 	} , [conversation?.id, messages, miniVersion]);
+
+	async function fetchImageForVariants(variants: IAdVariant[]) {
+		// variants.map(async (variant) => {
+		// 	const _res = await axios.post('/api/text-to-image', {text: variant['One liner']});
+		// 	console.log('_res - ', _res);
+		// })
+
+		for await(let variant of variants) {
+			const _res = await axios.post('/api/text-to-image', {text: variant['Image']});
+
+			// variant
+			if(_res.data.ok) {
+				await updateVariantImage(dispatch, variant['One liner'], 'data:image/jpeg;charset=utf-8;base64,' + _res.data.data.artifacts[0].base64);
+			}
+		}
+	}
 
 	useEffect(() => {
 		if(!files) return setSelectedFiles(null);
@@ -260,10 +286,13 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 					</div>
 					<MessageContainer msg={msg} messages={messages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
 					<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
-						{(showGetAdNowButton) && <GetAdButton onClick={async (setLoading) => {
-							await handleSubmitMessage(true);
-							setLoading(false);
-						}} />}
+						{(showGetAdNowButton) && <GetAdButton
+							adGenerated={Boolean(adCreative)}
+							onClick={async (setLoading) => {
+								await handleSubmitMessage(true);
+								setLoading(false);
+							}}
+						/>}
 						{/*<label htmlFor="file" className="cursor-pointer mr-2 mb-[1.15rem]">*/}
 						{/*	<input onChange={e => {*/}
 						{/*		const files = e.currentTarget.files;*/}
@@ -296,7 +325,11 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 										setInputValue(e.target.value);
 									}}
 									onKeyDown={e => {
-										if(e.key === 'Enter') {
+										if(e.key === 'Enter' && !e.shiftKey) {
+											e.preventDefault();
+											handleSubmitMessage();
+										}
+										if(e.key === 'Enter' && e.shiftKey) {
 											areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
 										}
 									}}

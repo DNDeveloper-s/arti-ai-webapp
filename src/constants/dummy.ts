@@ -7,13 +7,103 @@ import ObjectID from 'bson-objectid';
 
 interface Dummy {
 	Ad_Creatives: IAdCreative[];
+	DAd_Creatives: IAdCreative[];
 	Conversations: IConversation[];
+	DConversations: IConversation[];
 	Messages: ChatGPTMessageObj[];
 }
 
 const json = JSON.parse(exampleJSON) as AdJSONInput;
 
-const Ad_Creatives: IAdCreative[] = [{
+const Ad_Creatives: IAdCreative[] = [];
+
+const DAd_Creatives: IAdCreative[] = [{
+	json: exampleJSON,
+	variants: [{
+		...json.Ads[0],
+		feedback: {
+			overall: {
+				feedback_message: 'This is a dummy overall feedback message.',
+				reaction: REACTION.LIKED
+			},
+			one_liner: {
+				feedback_message: 'This is a dummy one_liner feedback message.',
+				reaction: REACTION.DISLIKED
+			},
+			rationale: {
+				feedback_message: 'This is a dummy rationale feedback message.',
+				reaction: REACTION.LIKED
+			},
+			image_description: {
+				feedback_message: 'This is a dummy image_description feedback message.',
+				reaction: REACTION.LIKED
+			},
+			image_text: {
+				feedback_message: 'This is a dummy image_text feedback message.',
+				reaction: REACTION.DISLIKED
+			}
+		}
+	}, {
+		...json.Ads[1],
+		feedback: {
+			overall: {
+				feedback_message: 'This is a dummy overall feedback message for json 2.',
+				reaction: REACTION.LIKED
+			},
+			image_description: {
+				feedback_message: 'This is a dummy image_description feedback message.',
+				reaction: REACTION.LIKED
+			},
+			image_text: {
+				feedback_message: 'This is a dummy image_text feedback message.',
+				reaction: REACTION.DISLIKED
+			}
+		}
+	}]
+}, {
+	json: exampleJSON,
+	variants: [{
+		...json.Ads[0],
+		feedback: {
+			overall: {
+				feedback_message: 'This is a dummy overall feedback message.',
+				reaction: REACTION.LIKED
+			},
+			one_liner: {
+				feedback_message: 'This is a dummy one_liner feedback message.',
+				reaction: REACTION.DISLIKED
+			},
+			rationale: {
+				feedback_message: 'This is a dummy rationale feedback message.',
+				reaction: REACTION.LIKED
+			},
+			image_description: {
+				feedback_message: 'This is a dummy image_description feedback message.',
+				reaction: REACTION.LIKED
+			},
+			image_text: {
+				feedback_message: 'This is a dummy image_text feedback message.',
+				reaction: REACTION.DISLIKED
+			}
+		}
+	}, {
+		...json.Ads[1],
+		feedback: {
+			overall: {
+				feedback_message: 'This is a dummy overall feedback message for json 2.',
+				reaction: REACTION.LIKED
+			},
+			image_description: {
+				feedback_message: 'This is a dummy image_description feedback message.',
+				reaction: REACTION.LIKED
+			},
+			image_text: {
+				feedback_message: 'This is a dummy image_text feedback message.',
+				reaction: REACTION.DISLIKED
+			}
+		}
+	}]
+}, {
 	json: exampleJSON,
 	variants: [{
 		...json.Ads[0],
@@ -82,7 +172,7 @@ Here's the initial board:`,
 	role: ChatGPTRole.USER,
 },]
 
-const Conversations = [{
+const DConversations = [{
 	id: '1',
 	json: exampleJSON,
 	title: 'Dummy Title',
@@ -90,10 +180,29 @@ const Conversations = [{
 	last_activity: Date.now(),
 	has_activity: true,
 	messages: Messages
+}, {
+	id: '2',
+	json: exampleJSON,
+	title: 'Another Message',
+	ad_creative: Ad_Creatives[0],
+	last_activity: Date.now(),
+	has_activity: true,
+	messages: Messages
+}, {
+	id: '3',
+	json: exampleJSON,
+	title: 'Some Agency',
+	ad_creative: Ad_Creatives[0],
+	last_activity: Date.now(),
+	has_activity: true,
+	messages: Messages
 }];
+const Conversations: IConversation[] = [];
 
 export const dummy: Dummy = {
 	Ad_Creatives,
 	Conversations,
+	DConversations,
+	DAd_Creatives,
 	Messages
 }
