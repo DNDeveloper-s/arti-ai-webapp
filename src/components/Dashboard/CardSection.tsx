@@ -114,21 +114,18 @@ export default function CardSection() {
 					}
 				</div>
 			</section>
-			<section className="mb-10 w-full">
+			{dummy.Ad_Creatives && dummy.Ad_Creatives.length > 0 && <section className="mb-10 w-full">
 				<h2 className="mb-3">Past Ad Creatives</h2>
 				<div className="flex gap-4 w-full overflow-x-auto">
-					{!dummy.Conversations || dummy.Conversations.length === 0 ?
-						<EmptySection style={{backdropFilter: 'blur(3px)', background: 'rgba(0,0,0,0.8)'}} type={EmptySectionType.AD_CREATIVE} /> :
-						dummy.Ad_Creatives.map(adCreative => <AdCreativeCard key={adCreative.json} adCreative={adCreative} onClick={handleAdCreativeClick} />)
-					}
+					{dummy.Ad_Creatives.map(adCreative => <AdCreativeCard key={adCreative.json} adCreative={adCreative} onClick={handleAdCreativeClick}/>)}
 				</div>
-			</section>
-			<section className="mb-10 w-full">
-				<h2 className="mb-3">Past Uploads</h2>
-				<div className="flex gap-4 w-full overflow-x-auto">
-					<EmptySection style={{backdropFilter: 'blur(3px)', background: 'rgba(0,0,0,0.9)'}} type={EmptySectionType.UPLOAD} />
-				</div>
-			</section>
+			</section>}
+			{/*<section className="mb-10 w-full">*/}
+			{/*	<h2 className="mb-3">Past Uploads</h2>*/}
+			{/*	<div className="flex gap-4 w-full overflow-x-auto">*/}
+			{/*		<EmptySection style={{backdropFilter: 'blur(3px)', background: 'rgba(0,0,0,0.9)'}} type={EmptySectionType.UPLOAD} />*/}
+			{/*	</div>*/}
+			{/*</section>*/}
 			<AttachmentModal fileDetails={modalData} open={!!modalData} setOpen={setModalData} />
 			<Drawer open={!!currentAdCreative} position={Position.RIGHT} handelClose={() => setCurrentAdCreative(null)}>
 				{currentAdCreative && <RightPane adCreative={currentAdCreative}/>}

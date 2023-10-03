@@ -60,7 +60,6 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	const {state, dispatch} = useConversation()
 
 	useEffect(() => {
-		updateVariantImage(dispatch, 'key', 'value');
 		// console.log('freeTierLimit - ', freeTierLimit);
 		if(messages.length >= freeTierLimit && miniVersion) {
 			setExhausted(true);
