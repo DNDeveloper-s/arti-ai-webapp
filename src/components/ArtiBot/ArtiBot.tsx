@@ -1,6 +1,6 @@
 'use client';
 
-import React, {FC, useContext, useEffect, useRef, useState} from 'react';
+import React, {FC, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {colors} from '@/config/theme';
 import TextareaAutosize from 'react-textarea-autosize';
 import {motion} from 'framer-motion'
@@ -56,7 +56,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	const chunksRef = useRef('');
 	const doneRef = useRef(false);
 	const [msg, setMsg] = useState('');
-	const [adCreative, setAdCreative] = useState(conversation?.ad_creative ?? null);
+	const [adCreatives, setAdCreatives] = useState(conversation?.ad_creative ? [conversation?.ad_creative] : []);
 	const {state, dispatch} = useConversation()
 
 	useEffect(() => {
@@ -109,7 +109,8 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 					json: json
 				};
 				currentConversation.ad_creative = ad_creative;
-				setAdCreative(ad_creative);
+				console.log('ad_creative - ', ad_creative);
+				setAdCreatives(c => [...c, ad_creative]);
 
 				// Create the text-to-image API request
 				fetchImageForVariants(variants);
@@ -130,11 +131,11 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		// })
 
 		for await(let variant of variants) {
-			const _res = await axios.post('/api/text-to-image', {text: variant['Image']});
+			const _res = await axios.post('/api/text-to-image', {text: variant['Image'], name: variant['One liner']});
 
 			// variant
 			if(_res.data.ok) {
-				await updateVariantImage(dispatch, variant['One liner'], 'data:image/jpeg;charset=utf-8;base64,' + _res.data.data.artifacts[0].base64);
+				await updateVariantImage(dispatch, variant['One liner'], _res.data.data.url);
 			}
 		}
 	}
@@ -263,7 +264,12 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		return;
 	}
 
-	const showGetAdNowButton = messages.length >= threshold.getAdNowButtonAfter;
+	const adCreative = useMemo(() => {
+		return adCreatives[adCreatives.length - 1];
+	}, [adCreatives]);
+	const showGetAdNowButton = !miniVersion && messages.length >= threshold.getAdNowButtonAfter;
+
+	console.log('ad_creative - ', adCreative, adCreatives);
 
 	return (
 		<div className={`flex h-full overflow-hidden`}>

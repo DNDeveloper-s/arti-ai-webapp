@@ -4,10 +4,12 @@ import React, {useRef, useState} from 'react';
 import {motion} from 'framer-motion';
 import Image from 'next/image';
 import dummyImage from '@/assets/images/dummy2.webp';
-import {IAdVariant} from '@/constants/artibotData';
+import {IAdVariant} from '@/interfaces/IArtiBot';
 import ReactionIcon from '@/components/ArtiBot/ReactionIcon';
 import {REACTION} from '@/interfaces';
 import {useConversation} from '@/context/ConversationContext';
+import generatingImage from '@/assets/lottie/generating_image.json';
+import Lottie from 'lottie-react';
 
 export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: IAdVariant, [key: string]: any}) {
 	const [expand, setExpand] = useState<boolean>(noExpand || false);
@@ -30,6 +32,17 @@ export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: I
 	// 	// const height = headingRef.current.offsetTop;
 	// 	headingRef.current.scrollIntoView({behavior: 'smooth', block: 'start'})
 	// }, [expand])
+
+	const lottieAnimationJSX = <div className="w-full h-48 flex justify-center items-center">
+		<Lottie animationData={generatingImage} loop={true} />
+	</div>
+
+	const imageContainerJSX =
+		variant && variant[adVariant['One liner']]
+		? <Image width={500} height={100} className="mb-[1.3em] w-full max-w-[30em]" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />
+		: lottieAnimationJSX;
+
+	console.log('variant - ', variant);
 
 	return (
 		<div key={adVariant['One liner']} className="ad-variant text-xs md:text-base" {...props}>
@@ -56,7 +69,7 @@ export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: I
 						<p className="mt-[0.3em] text-[1em] font-diatype opacity-60">{adVariant['Ad orientation']}</p>
 					</li>
 					<div className="my-[2em] relative bg-background bg-opacity-50 p-[1em] rounded-lg">
-						<Image width={500} height={100} className="mb-[1.3em] w-full max-w-[30em]" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />
+						{imageContainerJSX}
 						<p className="leading-[1.3em] text-[0.85em] font-diatype opacity-60">{adVariant.Text}</p>
 					</div>
 					<li className="pl-1 relative">

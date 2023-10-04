@@ -95,6 +95,10 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 			.then(_docUrl => {
 				setDocUrl(_docUrl);
 			})
+
+		console.log('adCreative', adCreative);
+
+		setActiveVariant(adCreative.variants[0]);
 	}, [adCreative])
 
 	return (

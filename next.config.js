@@ -16,6 +16,12 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'srs-billing-storage.s3.ap-south-1.amazonaws.com',
+        port: '',
+        pathname: '/**'
       }
     ]
   }

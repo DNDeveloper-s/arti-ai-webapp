@@ -1,5 +1,5 @@
 import {artiBotData, TabId, TabItem} from '@/constants/artibotData';
-import {Dispatch, FC, SetStateAction, useState} from 'react';
+import {Dispatch, FC, SetStateAction, useEffect, useState} from 'react';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
 
 interface TabViewProps {

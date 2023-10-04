@@ -9,6 +9,8 @@ import ReactionIcon from '@/components/ArtiBot/ReactionIcon';
 import {REACTION} from '@/interfaces';
 import {SlOptions} from 'react-icons/sl';
 import {useConversation} from '@/context/ConversationContext';
+import Lottie from 'lottie-react';
+import generatingImage from '@/assets/lottie/generating_image.json';
 
 export default function FacebookAdVariant({adVariant, noExpand, className, ...props}: {adVariant: IAdVariant, [key: string]: any}) {
 	const [expand, setExpand] = useState<boolean>(noExpand || false);
@@ -31,6 +33,17 @@ export default function FacebookAdVariant({adVariant, noExpand, className, ...pr
 	// 	headingRef.current.scrollIntoView({behavior: 'smooth', block: 'start'})
 	// }, [expand])
 
+
+	const lottieAnimationJSX = <div className="w-full h-64 flex flex-col justify-center items-center">
+		<Lottie className={"w-32 h-32"} animationData={generatingImage} loop={true} />
+		<h6 className="text-white text-opacity-60">Crafting your vision, one pixel at a time.</h6>
+	</div>
+
+	const imageContainerJSX =
+		variant && variant[adVariant['One liner']]
+			? <Image width={600} height={100} className="mb-[0.5em] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />
+			: lottieAnimationJSX;
+
 	return (
 		<div key={adVariant['One liner']} className={'ad-variant text-xs md:text-base !p-0 ' + (className ?? '')} {...props}>
 			<div className={"flex justify-between items-center mb-[.3em] px-[1em] pt-[1em]"}>
@@ -47,7 +60,8 @@ export default function FacebookAdVariant({adVariant, noExpand, className, ...pr
 				<span className="text-[0.95em] inline-flex leading-[1.5em]">{adVariant['Text']}</span>
 			</div>
 			<div>
-				<Image width={600} height={100} className="mb-[0.5em] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />
+				{imageContainerJSX}
+				{/*<Image width={600} height={100} className="mb-[0.5em] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />*/}
 			</div>
 			<div className={"flex justify-between items-center px-[1em] mt-[1em]"}>
 				<span className={"text-[1.25em] leading-[1.3em]"}>{adVariant['One liner']}</span>
@@ -70,11 +84,12 @@ export default function FacebookAdVariant({adVariant, noExpand, className, ...pr
 						<span className="text-[1.05em] font-medium"><strong>Ad Orientation</strong></span>
 						<p className="mt-[0.3em] text-[1em] font-diatype opacity-60 leading-[1.5em]">{adVariant['Ad orientation']}</p>
 					</li>
-					<li className="pl-1 relative">
+					{adVariant['Image'] && <li className="pl-1 relative">
 						<p className="text-[1.05em] font-medium z-10 relative"><strong>Image Description</strong></p>
-						<p className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 relative z-10 leading-[1.5em]">{adVariant['Image Description']}</p>
+						<p
+							className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 relative z-10 leading-[1.5em]">{adVariant['Image']}</p>
 						{/*<div className="w-full h-full bg-secondaryText bg-opacity-30 rounded animate-pulse absolute top-0 left-0" />*/}
-					</li>
+					</li>}
 					<li className="pl-1">
 						<p className="text-[1.05em] font-medium"><strong>Rationale</strong></p>
 						<p className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 leading-[1.5em]">{adVariant.Rationale}</p>

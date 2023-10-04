@@ -67,7 +67,7 @@ export async function POST(req: Request, res: NextApiResponse) {
 		// Check if the request body has generate_ad key as true
 		// If it does, then generate the ad and return the response as a JSON not a stream.
 		if(body.generate_ad) {
-			let _messages = [...(messagesArr ?? []), {role: ChatGPTRole.USER, content: `Send me a json similar to this but different values filled within the keys and make sure i receive only json in your response - "${JSON.stringify(exampleJSON)}"`}];
+			let _messages = [...(messagesArr ?? []), {role: ChatGPTRole.USER, content: `get ad json`}];
 			const generated_json = await openai.chat.completions.create({
 				messages: _messages,
 				model: 'gpt-3.5-turbo',
