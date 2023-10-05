@@ -26,6 +26,7 @@ import FileItem from '@/components/ArtiBot/MessageItems/FileItem';
 import axios, {isAxiosError} from 'axios';
 import Image from 'next/image';
 import {updateVariantImage, useConversation} from '@/context/ConversationContext';
+import {ROUTES} from '@/config/api-config';
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',
@@ -110,7 +111,11 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 				};
 				currentConversation.ad_creative = ad_creative;
 				console.log('ad_creative - ', ad_creative);
-				setAdCreatives(c => [...c, ad_creative]);
+				setAdCreatives(c => {
+					let filteredOut = c.filter(a => a.id !== ad_creative.id);
+					dummy.Ad_Creatives = [...filteredOut, ad_creative];
+					return [...filteredOut, ad_creative];
+				});
 
 				// Create the text-to-image API request
 				fetchImageForVariants(variants);
@@ -131,7 +136,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		// })
 
 		for await(let variant of variants) {
-			const _res = await axios.post('/api/text-to-image', {text: variant['Image'], name: variant['One liner']});
+			const _res = await axios.post(ROUTES.UTIL.TEXT_TO_IMAGE, {text: variant['Image'], name: variant['One liner']});
 
 			// variant
 			if(_res.data.ok) {

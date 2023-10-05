@@ -18,11 +18,7 @@ export default async function ConversationID() {
 
 	if(!session) jsx = redirect('/', 'replace');
 
-	if(session) jsx = (
-		<ConversationContextProvider>
-			<Conversation />
-		</ConversationContextProvider>
-	)
+	if(session) jsx = <Conversation />
 
 	return jsx;
 }

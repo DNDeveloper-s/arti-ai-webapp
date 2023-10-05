@@ -101,13 +101,15 @@ export default function CardSection() {
 		setModalData(fileDetails)
 	}
 
+	const hasActiveConversations = dummy.Conversations.filter(c => c.has_activity).length > 0;
+
 	// TODO: Refactor them in corresponding component
 	return (
 		<>
 			<section className="mb-10 w-full">
 				<h2 className="mb-3">Previous Conversations</h2>
 				<div className="flex gap-4 w-full overflow-x-auto">
-					{!dummy.Conversations || dummy.Conversations.length === 0 ?
+					{!hasActiveConversations ?
 						<EmptySection style={{backdropFilter: 'blur(3px)', background: 'rgba(0,0,0,0.6)'}} type={EmptySectionType.CONVERSATION} /> :
 						dummy.Conversations.filter(c => c.has_activity).map(conversation =>
 								<ConversationCard key={conversation.title} conversation={conversation}/>)

@@ -9,19 +9,13 @@ import ObjectId from 'bson-objectid';
 import {dummy} from '@/constants/dummy';
 
 export default function Navbar() {
-	let id = ObjectId();
 
-	// Check if the conversation with no activity exists
-	const hasNoActivity = dummy.Conversations.find(c => !c.has_activity);
-	if(hasNoActivity) {
-		id = hasNoActivity.id as ObjectId;
-	}
 
 	return (
 		<div className="flex h-20 w-full px-5 justify-between items-center">
 			<Logo />
 			<div className="flex items-center">
-				<Link href={'/artibot/' + id}>
+				<Link href={'/artibot'}>
 					<CTAButton className="py-3 mr-2 rounded-lg text-sm">
 						<span>Start Chat</span>
 					</CTAButton>

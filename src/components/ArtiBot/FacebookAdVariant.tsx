@@ -63,7 +63,7 @@ export default function FacebookAdVariant({adVariant, noExpand, className, ...pr
 				{imageContainerJSX}
 				{/*<Image width={600} height={100} className="mb-[0.5em] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />*/}
 			</div>
-			<div className={"flex justify-between items-center px-[1em] mt-[1em]"}>
+			<div className={"flex justify-between gap-[.8em] items-center px-[1em] mt-[1em]"}>
 				<span className={"text-[1.25em] leading-[1.3em]"}>{adVariant['One liner']}</span>
 				<div className="flex-shrink-0">
 					<span className="cursor-pointer rounded bg-gray-700 px-[0.6em] py-[0.5em] text-[1em]" onClick={() => setExpand(c => !c)}>Learn More</span>

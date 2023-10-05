@@ -16,11 +16,7 @@ export default async function Home() {
 
   if(!session)  jsx = <LandingPage />
 
-  if(session)  jsx = (
-    <ConversationContextProvider>
-      <Dashboard />
-    </ConversationContextProvider>
-  )
+  if(session)  jsx = <Dashboard />
 
   return jsx
 }

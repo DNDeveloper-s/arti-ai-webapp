@@ -1,4 +1,5 @@
-import {S3} from 'aws-sdk';
+import {S3} from 'aws-sdk'
+// import {S3} from '@aws-sdk/client-s3'
 
 const s3 = new S3({
 	credentials: {
@@ -10,7 +11,7 @@ const s3 = new S3({
 
 export default async function uploadToS3(buf: S3.PutObjectRequest.Body, name: string, encoding?: string, type?: string): Promise<S3.ManagedUpload.SendData> {
 	const params: S3.Types.PutObjectRequest = {
-		Bucket: process.env.AWS_BUCKET_NAME,
+		Bucket: process.env.AWS_BUCKET_NAME as string,
 		Key: name,
 		Body: buf,
 	};

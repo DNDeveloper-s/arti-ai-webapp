@@ -7,6 +7,8 @@ import React from 'react';
 import {redirect} from 'next/navigation';
 import { getServerSession } from "next-auth/next"
 import {authOptions} from '@/app/api/auth/[...nextauth]/route';
+import ObjectId from 'bson-objectid';
+import {dummy} from '@/constants/dummy';
 
 
 export default async function ArtiBot() {
@@ -16,21 +18,22 @@ export default async function ArtiBot() {
 	const status = '';
 	console.log('session - ', session);
 
+
 	let jsx = <AppLoader />
 
 	if(!session) jsx = redirect('/', 'replace');
 
-	if(session) jsx = (
-		<main>
-			{/*<Logo />*/}
-			<div className="grid grid-cols-[1fr] h-screen">
-				{/*<div className="bg-background">*/}
 
-				{/*</div>*/}
-				<ArtiBot />
-			</div>
-		</main>
-	)
+	let id = ObjectId();
+
+	// Check if the conversation with no activity exists
+	const hasNoActivity = dummy.Conversations.find(c => !c.has_activity);
+	if(hasNoActivity) {
+		id = hasNoActivity.id as ObjectId;
+	}
+
+
+	if(session) return redirect('/artibot/' + id, 'replace');
 
 	return jsx;
 }

@@ -6,6 +6,7 @@ import {ChatGPTMessageObj, ChatGPTRole, AdJSONInput} from '@/interfaces/IArtiBot
 import exampleJSON from '@/database/exampleJSON';
 import AdVariant from '@/components/ArtiBot/AdVariant';
 import {IAdCreative} from '@/interfaces/IAdCreative';
+import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
 
 interface AdCreativeCardProps {
 	onClick: (val: IAdCreative) => void;
@@ -27,7 +28,7 @@ const AdCreativeCard:React.FC<AdCreativeCardProps> = (props) => {
 		</div>
 		<div className={"flex gap-3 px-3"}>
 			{json.Ads.map(currentAdVariant => (
-				<AdVariant key={currentAdVariant['One liner']} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" style={{fontSize: '2px'}}/>
+				<FacebookAdVariant key={currentAdVariant['One liner']} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" style={{fontSize: '2px'}}/>
 			))}
 		</div>
 	</div>
