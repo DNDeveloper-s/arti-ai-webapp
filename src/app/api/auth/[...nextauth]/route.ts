@@ -4,6 +4,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import {PrismaAdapter} from '@auth/prisma-adapter';
 import {PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import moment from 'moment';
 
 const prisma = new PrismaClient();
 
@@ -38,11 +40,17 @@ export const authOptions: AuthOptions = {
 
 				return user;
 			}
-		})
+		}),
+
 	],
 	callbacks: {
 		async signIn({user, account, profile}) {
 			// TODO: REFACTOR THIS CODE
+			console.log('user - ', user);
+			console.log('account - ', account);
+			console.log('profile - ', profile);
+
+
 			if (account?.provider === 'google' && profile?.name) {
 				// Split the "name" field into "first_name" and "last_name"
 				const [first_name, last_name] = profile.name.split(' ');
@@ -116,8 +124,6 @@ export const authOptions: AuthOptions = {
 					});
 				} else {
 					// Create a new user with first_name and last_name
-					console.log('Line 71: - ');
-
 					const _user = await prisma.user.create({
 						data: {
 							email: user.email,
@@ -146,6 +152,7 @@ export const authOptions: AuthOptions = {
 			return true;
 		},
 		async redirect({ url, baseUrl }) {
+			console.log('url - ', url, baseUrl);
 			return baseUrl
 		},
 		async session({ session, user, token }) {
@@ -165,21 +172,45 @@ export const authOptions: AuthOptions = {
 					first_name: existingUser.first_name,
 					last_name: existingUser.last_name,
 					email: existingUser.email,
-					id: existingUser.id
+					id: existingUser.id,
+					token
 				}
 			}
 		},
 		async jwt({ token, user, account, profile, isNewUser }) {
-			console.log('user - ', isNewUser);
 			return token
 		}
 		// Other callback functions
 	},
 	pages: {
-
+		// signIn: '/auth',
+		// error: '/auth', // Error code passed in query string as ?error=
 	},
 	session: {
 		strategy: 'jwt'
+	},
+	jwt: {
+		encode: async ({ secret, token, maxAge }) => {
+			if(!token) return '';
+			const accessTokenExpires = moment().add(
+				60,
+				"minutes"
+			);
+			return jwt.sign({
+				sub: token.sub,
+				iat: moment().unix(),
+				exp: accessTokenExpires.unix(),
+				email: token.email,
+				picture: token.picture,
+				type: 'ACCESS'
+			}, 'thisisasecretkey');
+		},
+		decode: async ({ secret, token }) => {
+			return {
+				...jwt.decode(token),
+				accessToken: token
+			}
+		}
 	},
 	secret: process.env.NEXTAUTH_SECRET || 'dndeveloper-saurabh',
 	// debug: process.env.NODE_ENV === 'development'

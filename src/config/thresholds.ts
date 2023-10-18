@@ -1,5 +1,5 @@
 export const threshold = {
-	freeTierMessageLimit: 400,
+	freeTierMessageLimit: 5,
 	getAdNowButtonAfter: 1
 }
 

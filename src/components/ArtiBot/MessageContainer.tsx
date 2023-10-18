@@ -1,22 +1,29 @@
-import React, {FC, useEffect, useMemo, useRef} from 'react';
+import React, {FC, useEffect, Dispatch, useMemo, useRef, useState} from 'react';
 import Lottie from 'lottie-react';
 import typingAnimation from '@/assets/lottie/typing.json';
 import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
-import {ChatGPTMessageObj} from '@/interfaces/IArtiBot';
+import {ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
 import WavingHand from '@/assets/images/waving-hand.webp';
 import Image from 'next/image';
+import {useParams} from 'next/navigation';
+import {dummyEssay} from '@/constants/dummy';
+import {botData, dummyUser} from '@/constants/images';
 
 interface MessageContainerProps {
 	miniVersion: boolean;
 	showGetAdNowButton: boolean;
 	// messages: MessageObj[];
 	messages: ChatGPTMessageObj[];
+	setMessages: Dispatch<React.SetStateAction<MessageContainerProps['messages']>>
 	isGenerating: boolean;
 	msg: string;
+	chunksRef?: React.MutableRefObject<string>;
+	doneRef?: React.MutableRefObject<boolean>
 }
 
-const MessageContainer: FC<MessageContainerProps> = ({msg, miniVersion, showGetAdNowButton, messages, isGenerating}) => {
+const MessageContainer: FC<MessageContainerProps> = ({msg, setMessages, miniVersion, showGetAdNowButton, messages, isGenerating, chunksRef, doneRef}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
+	const params = useParams();
 
 	useEffect(() => {
 		if(messages) {
@@ -29,10 +36,14 @@ const MessageContainer: FC<MessageContainerProps> = ({msg, miniVersion, showGetA
 
 	const reversedMessages = useMemo(() => {
 		if(!messages) return [];
-		const sorted = messages.sort((a, b) => +(a?.id ?? 0) - +(b?.id ?? 0));
-		// console.log('sorted - ', sorted);
-		return sorted.reverse();
+		return messages.sort((a, b) => {
+			if(a > b) return 1;
+			if(a < b) return -1;
+			return 0;
+		});
 	}, [messages])
+
+	// console.log('reversedMessages - ', reversedMessages);
 
 	return (
 		<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[35em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-14 md:pb-24' : '')} ref={containerRef}>
@@ -42,11 +53,21 @@ const MessageContainer: FC<MessageContainerProps> = ({msg, miniVersion, showGetA
 			{isGenerating && <div className="w-full max-w-[900px] h-10 px-3 mx-auto flex flex-end">
         <Lottie animationData={typingAnimation} loop={true} />
       </div>}
-			{
-				reversedMessages.map((messageItem: ChatGPTMessageObj) => (
-					<ChatGPTMessageItem key={messageItem.id} messageItem={messageItem} />
-				))
-			}
+			<div>
+				{
+					reversedMessages.map((messageItem: ChatGPTMessageObj) => (
+						<ChatGPTMessageItem
+							chunksRef={chunksRef}
+							doneRef={doneRef}
+							isGenerating={isGenerating}
+							conversationId={params.conversation_id as string}
+							key={messageItem.id}
+							setMessages={setMessages}
+							messageItem={messageItem}
+						/>
+					))
+				}
+			</div>
 			<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center mb-3">
 				<div className="h-0.5 mr-5 flex-1 bg-gray-800" />
 				<div className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">

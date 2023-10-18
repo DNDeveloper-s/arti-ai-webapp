@@ -20,7 +20,7 @@ const animateKeys = {
 
 interface DrawerProps {
 	position?: Position;
-	children?: ReactElement;
+	children: Element | ReactElement | JSX.Element | JSX.Element[] | Element[] | ReactElement[] | null;
 	PaperProps?: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 	BackdropProps?: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 	handelClose: () => any;

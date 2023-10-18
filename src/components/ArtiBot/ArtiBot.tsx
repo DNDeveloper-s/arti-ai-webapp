@@ -4,17 +4,16 @@ import React, {FC, useContext, useEffect, useMemo, useRef, useState} from 'react
 import {colors} from '@/config/theme';
 import TextareaAutosize from 'react-textarea-autosize';
 import {motion} from 'framer-motion'
-import getJSONObjectFromAString, {humanFileSize, isValidJsonWithAdsArray} from '@/helpers';
 import {threshold} from '@/config/thresholds';
 import Logo from '@/components/Logo';
 import {framerContainer, framerItem} from '@/config/framer-motion';
 import {useRouter} from 'next/navigation';
-import {MdArrowBackIos, MdDelete} from 'react-icons/md';
+import {MdArrowBackIos} from 'react-icons/md';
 import Link from 'next/link';
 import MessageContainer from '@/components/ArtiBot/MessageContainer';
-import {HandleChunkArgs, ChatGPTMessageObj, ChatGPTRole, FileObject, IAdVariant, MessageObj} from '@/interfaces/IArtiBot';
+import {ChatGPTMessageObj, ChatGPTRole, FileObject, HandleChunkArgs, MessageObj} from '@/interfaces/IArtiBot';
 import {MessageService} from '@/services/Message';
-import {SnackbarContext} from '@/context/SnackbarContext';
+import {SnackbarContext, SnackbarData} from '@/context/SnackbarContext';
 import {freeTierLimit} from '@/constants';
 import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import exampleJSON from '@/database/exampleJSON';
@@ -23,9 +22,10 @@ import {dummy} from '@/constants/dummy';
 import ObjectId from 'bson-objectid';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';
 import FileItem from '@/components/ArtiBot/MessageItems/FileItem';
-import axios, {isAxiosError} from 'axios';
-import Image from 'next/image';
-import {updateVariantImage, useConversation} from '@/context/ConversationContext';
+import {addAdCreatives, saveAdCreativeMessage, saveMessages, useConversation} from '@/context/ConversationContext';
+import useSessionToken from '@/hooks/useSessionToken';
+import getJSONObjectFromAString, {isValidJsonWithAdsArray} from '@/helpers';
+import axios from 'axios';
 import {ROUTES} from '@/config/api-config';
 
 export const dummyJSONMessage: MessageObj = {
@@ -56,22 +56,33 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 	const chunksRef = useRef('');
 	const doneRef = useRef(false);
+	const saveMessageRef = useRef(false);
+	// Track if the json was asked on demand by the get ad now button
+	const onDemandRef = useRef(false);
 	const [msg, setMsg] = useState('');
-	const [adCreatives, setAdCreatives] = useState(conversation?.ad_creative ? [conversation?.ad_creative] : []);
-	const {state, dispatch} = useConversation()
+	const [adCreatives, setAdCreatives] = useState(conversation?.adCreatives ? conversation?.adCreatives : []);
+	const {state, dispatch} = useConversation();
+	const token = useSessionToken();
 
 	useEffect(() => {
 		// console.log('freeTierLimit - ', freeTierLimit);
+		if(miniVersion) {
+			localStorage.setItem('messages', JSON.stringify(messages));
+		}
 		if(messages.length >= freeTierLimit && miniVersion) {
 			setExhausted(true);
 		}
 	}, [messages, miniVersion]);
 
-	console.log('state - ', state);
-
 	useEffect(() => {
 		setMessages(conversation?.messages ?? []);
 	}, [conversation])
+
+	useEffect(() => {
+		const adCreatives = state.adCreative.list?.filter(a => a.conversationId === conversation?.id) ?? [];
+		console.log('state.adCreative - ', state.adCreative);
+		setAdCreatives(adCreatives);
+	}, [state.adCreative.list, conversation]);
 
 	useEffect(() => {
 		miniVersion && setMessages(JSON.parse(localStorage.getItem('messages') ?? '[]'));
@@ -87,63 +98,46 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		// Update conversation messages
 		const currentConversation = dummy.Conversations.find(c => c.id === conversation?.id);
 		// Also check if the messages does not contain generating key as true
-		console.log('messages - ', messages);
 		if(currentConversation && !messages.find(m => m.generating)) {
 			currentConversation.messages = messages;
 		}
 
 		// Check if the messages contain the message as our ad type json with the helper isValidJSON
-		const jsonMessage = messages.find(c => {
-			const jsonObjectInString = getJSONObjectFromAString(c.content);
-			return isValidJsonWithAdsArray(jsonObjectInString, true);
-		});
-		if(jsonMessage) {
-			// Update the IAdCreative in IConversation
-			const currentConversation = dummy.Conversations.find(c => c.id === conversation?.id);
-			if(currentConversation) {
-				const json = getJSONObjectFromAString(jsonMessage.content);
-				const variants = JSON.parse(json).Ads.map((c: IAdVariant) => ({...c, feedback: {}}))
-				// Push to the IAdCreative
-				const ad_creative = {
-					id: ObjectId(),
-					variants: variants,
-					json: json
-				};
-				currentConversation.ad_creative = ad_creative;
-				console.log('ad_creative - ', ad_creative);
-				setAdCreatives(c => {
-					let filteredOut = c.filter(a => a.id !== ad_creative.id);
-					dummy.Ad_Creatives = [...filteredOut, ad_creative];
-					return [...filteredOut, ad_creative];
-				});
-
-				// Create the text-to-image API request
-				fetchImageForVariants(variants);
-
-				// const _res = await axios.post('/api/text-to-image')
-				// console.log('response - ', _res);
-
-			}
-		}
+		// const jsonMessage = messages.find(c => {
+		// 	const jsonObjectInString = getJSONObjectFromAString(c.content);
+		// 	return isValidJsonWithAdsArray(jsonObjectInString, true);
+		// });
+		// if(jsonMessage) {
+		// 	// Update the IAdCreative in IConversation
+		// 	const currentConversation = dummy.Conversations.find(c => c.id === conversation?.id);
+		// 	if(currentConversation) {
+		// 		const json = getJSONObjectFromAString(jsonMessage.content);
+		// 		const variants = JSON.parse(json).Ads.map((c: IAdVariant) => ({...c, image: c.Image, id: ObjectId(), feedback: {}}))
+		// 		// Push to the IAdCreative
+		// 		const ad_creative = {
+		// 			id: ObjectId(),
+		// 			variants: variants,
+		// 			json: json
+		// 		};
+		// 		currentConversation.ad_creative = ad_creative;
+		// 		console.log('ad_creative - ', ad_creative);
+		// 		setAdCreatives(c => {
+		// 			let filteredOut = c.filter(a => a.id !== ad_creative.id);
+		// 			dummy.Ad_Creatives = [...filteredOut, ad_creative];
+		// 			return [...filteredOut, ad_creative];
+		// 		});
+		//
+		// 		// Create the text-to-image API request
+		// 		fetchImageForVariants(variants);
+		//
+		// 		// const _res = await axios.post('/api/text-to-image')
+		// 		// console.log('response - ', _res);
+		//
+		// 	}
+		// }
 
 
 	} , [conversation?.id, messages, miniVersion]);
-
-	async function fetchImageForVariants(variants: IAdVariant[]) {
-		// variants.map(async (variant) => {
-		// 	const _res = await axios.post('/api/text-to-image', {text: variant['One liner']});
-		// 	console.log('_res - ', _res);
-		// })
-
-		for await(let variant of variants) {
-			const _res = await axios.post(ROUTES.UTIL.TEXT_TO_IMAGE, {text: variant['Image'], name: variant['One liner']});
-
-			// variant
-			if(_res.data.ok) {
-				await updateVariantImage(dispatch, variant['One liner'], _res.data.data.url);
-			}
-		}
-	}
 
 	useEffect(() => {
 		if(!files) return setSelectedFiles(null);
@@ -155,16 +149,14 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		setSelectedFiles(_fs.length > 0 ? _fs : null);
 	}, [files]);
 
-	function handleJsonResponse(json: string) {
+	function handleJsonResponse(json: string, data: any) {
 		const id = Date.now().toString();
 		setMessages(c => [...c, {
-			id,
-			role: ChatGPTRole.ASSISTANT,
-			content: json,
-			generating: false,
-			type: 'ad-json',
-			json: json
+			...data
 		}]);
+
+		addAdCreatives(dispatch, data.adCreatives);
+		// setAdCreatives(c => [...c, ...(data.adCreatives ?? [])])
 	}
 
 	function handleMessageResponse(args: HandleChunkArgs) {
@@ -175,55 +167,105 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 			return;
 		}
 
-		if(args.json) handleJsonResponse(args.json);
+		if(args.json) handleJsonResponse(args.json, args.data);
 	}
 
 	function handleChunk(chunk: string | undefined, done: boolean, index: number) {
 		if(index === 0) {
-			const id = Date.now().toString();
 			chunksRef.current = '';
-			setMessages(c => [...c, {content: chunksRef.current, role: ChatGPTRole.ASSISTANT, id}]);
-			let i = 0;
-			let lastChunk = chunksRef.current.slice(0, i);
-			const intervalId = setInterval(() => {
-
-				setMessages((c) => {
-					return c.map(a => {
-						if(a.id === id) {
-							return {
-								...a,
-								generating: !(doneRef.current && i > chunksRef.current.length),
-								content: chunksRef.current.slice(0, i)
-							}
-						}
-						return a;
-					});
-				})
-
-				lastChunk = chunksRef.current.slice(0, i + 1);
-				// setMsg(chunksRef.current.slice(0, i));
-				if(lastChunk !== chunksRef.current || i < chunksRef.current.length) i++;
-
-				if(doneRef.current && i >= chunksRef.current.length) {
-					clearInterval(intervalId);
-					setMessages((c) => {
-						return c.map(a => {
-							if(a.id === id) {
-								return {
-									...a,
-									generating: false
-								}
-							}
-							return a;
-						});
-					})
+			doneRef.current = false;
+			setMessages(c => [
+				...c,
+				{
+					id: ObjectId().toHexString(),
+					role: ChatGPTRole.ASSISTANT,
+					content: '',
+					generating: true
 				}
-
-			}, 10)
+			])
 		}
 
 		if(chunk) chunksRef.current = chunksRef.current + chunk;
 		doneRef.current = done;
+
+		// Save the messages to database if done
+		if(done && conversation?.id && conversation?.conversation_type) {
+			saveMessageRef.current = true;
+		}
+	}
+
+	useEffect(() => {
+		if(!saveMessageRef.current || !conversation?.id || !conversation?.conversation_type) return;
+
+		// Check if the last message is ad json
+		const lastMessage = chunksRef.current;
+		const jsonObjectInString = getJSONObjectFromAString(lastMessage);
+		const isJson = isValidJsonWithAdsArray(jsonObjectInString);
+
+		// If it is, then make calls to the saveAdCreativeMessage API
+		if(isJson) {
+			const _messages = messages.slice(-2).map(c => {
+				if(c.role === ChatGPTRole.ASSISTANT) {
+					return {
+						...c,
+						content: null
+					}
+				}
+				return c;
+			})
+			saveAdCreativeMessage(dispatch, _messages, jsonObjectInString, conversation?.id, conversation?.conversation_type, onDemandRef.current);
+		}
+		// Else make calls to saveMessages API
+		else {
+			const _messages = messages.slice(-2).map(c => {
+				if(c.role === ChatGPTRole.ASSISTANT) {
+					return {
+						...c,
+						content: chunksRef.current
+					}
+				}
+				return c;
+			})
+			saveMessages(dispatch, _messages, conversation?.id, conversation?.conversation_type);
+		}
+
+		onDemandRef.current = false;
+		saveMessageRef.current = false;
+	}, [messages, conversation?.id, conversation?.conversation_type]);
+
+	async function handleGetAdNowButton() {
+		if(exhausted || miniVersion) return;
+		chunksRef.current = '';
+		setInputValue('');
+		setIsGenerating(true);
+
+		const _messages = [...messages];
+		const transformedMessages = _messages.filter(a => a.content).map(c => ({role: c.role, content: c.content}));
+		const result = await axios.post(ROUTES.MESSAGE.GET_AD_JSON, {
+			messages: transformedMessages,
+		}, {
+			headers: {
+				Authorization: `Bearer ${localStorage.getItem('token')}`
+			}
+		});
+		setIsGenerating(false);
+		onDemandRef.current = true;
+
+		if(result.data.data) {
+			setMessages(c => [
+				...c,
+				{
+					id: ObjectId().toHexString(),
+					role: ChatGPTRole.ASSISTANT,
+					content: result.data.data,
+				}
+			])
+			chunksRef.current = result.data.data;
+			saveMessageRef.current = true;
+		} else {
+			setSnackBarData({message: 'We are unable to process the request right now!', status: 'error'})
+		}
+
 	}
 
 	async function handleSubmitMessage(generate_ad?: boolean) {
@@ -235,22 +277,23 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		}
 		setInputValue('');
 		setIsGenerating(true);
+
 		const _messages: ChatGPTMessageObj[] = [...messages];
 
 		if(!generate_ad) {
-			_messages.push({
+			const msgObj = {
 				id: Date.now().toString(),
 				role: ChatGPTRole.USER,
 				content: inputValue.trim()
-			})
+			};
+			_messages.push(msgObj)
 			setMessages(_messages);
 		}
 
-
-		const transformedMessages = _messages.map(c => ({role: c.role, content: c.content}));
+		const transformedMessages = _messages.filter(a => a.content).map(c => ({role: c.role, content: c.content}));
 
 		const messageService = new MessageService();
-		const response = await messageService.send(transformedMessages, handleMessageResponse, generate_ad);
+		const response = await messageService.send(transformedMessages, handleMessageResponse, conversation?.id, conversation?.conversation_type, generate_ad, miniVersion);
 
 		console.log('response - ', response);
 
@@ -270,11 +313,19 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	}
 
 	const adCreative = useMemo(() => {
-		return adCreatives[adCreatives.length - 1];
-	}, [adCreatives]);
-	const showGetAdNowButton = !miniVersion && messages.length >= threshold.getAdNowButtonAfter;
+		// Merge all the variants into one adCreative object within one conversation
+		if(!adCreatives || adCreatives.length === 0) return null;
+		let adCreative = adCreatives[adCreatives.length - 1];
+		if(!adCreative) return null;
+		adCreative = {
+			...adCreative,
+			variants: adCreatives.map(a => a.variants).flat()
+		}
 
-	console.log('ad_creative - ', adCreative, adCreatives);
+		return adCreative
+	}, [adCreatives]);
+
+	const showGetAdNowButton = !miniVersion && messages.length >= threshold.getAdNowButtonAfter;
 
 	return (
 		<div className={`flex h-full overflow-hidden`}>
@@ -294,12 +345,12 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 							<span className="text-white text-opacity-50">Dashboard</span>
 						</div>}
 					</div>
-					<MessageContainer msg={msg} messages={messages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
+					<MessageContainer chunksRef={chunksRef} doneRef={doneRef} msg={msg} messages={messages} setMessages={setMessages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
 					<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
 						{(showGetAdNowButton) && <GetAdButton
 							adGenerated={Boolean(adCreative)}
 							onClick={async (setLoading) => {
-								await handleSubmitMessage(true);
+								await handleGetAdNowButton();
 								setLoading(false);
 							}}
 						/>}

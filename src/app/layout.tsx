@@ -8,7 +8,7 @@ import React from 'react';
 import {getServerSession} from 'next-auth';
 import {authOptions} from "@/app/api/auth/[...nextauth]/route";
 import {SessionProvider} from 'next-auth/react';
-import {ConversationContextProvider} from '@/context/ConversationContext';
+import {ConversationContextProvider, initConversationState} from '@/context/ConversationContext';
 
 const metadata: Metadata = {
   title: 'Arti AI',
@@ -26,7 +26,7 @@ export default function RootLayout({
       <body>
         <SessionProvider>
           <SnackbarContextProvider>
-            <ConversationContextProvider>
+            <ConversationContextProvider {...initConversationState}>
               <>
                 {children}
                 <div id='myportal' className="z-[999] fixed top-0 left-0" />
@@ -34,7 +34,6 @@ export default function RootLayout({
             </ConversationContextProvider>
           </SnackbarContextProvider>
         </SessionProvider>
-
       </body>
     </html>
   )

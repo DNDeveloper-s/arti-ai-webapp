@@ -1,3 +1,5 @@
+import {IConversation, IConversationModel} from '@/interfaces/IConversation';
+
 export function humanFileSize(bytes: number, si=false, dp=1) {
 	const thresh = si ? 1000 : 1024;
 
@@ -93,12 +95,18 @@ export function isValidJsonWithAdsArray(inputString: string, isIndentedString?: 
 		return (
 			typeof jsonObject === 'object' &&
 			jsonObject !== null &&
-			jsonObject.hasOwnProperty('Ads') &&
-			Array.isArray(jsonObject.Ads)
+			jsonObject.hasOwnProperty('variants') &&
+			Array.isArray(jsonObject.variants)
 		);
 	} catch (error) {
 		return false; // JSON parsing error
 	}
+}
+
+export const getConversationURL = (id: IConversation['id'], conversationParams: IConversation | IConversation['conversation_type']) => {
+	if(typeof conversationParams === 'string') return `/artibot/${endPoint}/${id}`;
+	const endPoint = conversationParams.conversation_type === 'strategy' ? 'strategy' : 'ad_creative';
+	return `/artibot/${endPoint}/${id}`;
 }
 
 export const isProduction = process.env.NODE_ENV === 'production';

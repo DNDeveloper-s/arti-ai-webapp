@@ -79,12 +79,12 @@ const FeedBackView: FC<FeedBackViewProps> = (props) => {
 					feedback</label>
 				<div className="mb-6 divide-y divide-gray-800 bg-secondaryBackground p-5 py-1 mt-3 rounded-lg">
 					{artiBotData.feedBackKeys.map(feedBackKey => (
-						<FeedBackKeyItem key={feedBackKey.id} feedback={props.feedbackData[feedBackKey.id]} feedBackKey={feedBackKey} />
+						<FeedBackKeyItem key={feedBackKey.id} feedback={props.feedbackData ? props.feedbackData[feedBackKey.id] : undefined} feedBackKey={feedBackKey} />
 					))}
 				</div>
 				{/*<label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your*/}
 				{/*	feedback</label>*/}
-				<TextArea value={props.feedbackData.overall?.feedback_message ?? ''} placeholder="Write your overall feedback here..." handleSave={handleSave} rows={5} />
+				<TextArea value={props.feedbackData?.overall?.feedback_message ?? ''} placeholder="Write your overall feedback here..." handleSave={handleSave} rows={5} />
 			</div>
 		</>
 	)

@@ -22,7 +22,7 @@ const Modal: FC<ModalProps> = ({BackdropProps, open, setOpen, children, PaperPro
 		},
 		PaperProps: {
 			...PaperProps,
-			className: 'z-20 bg-black absolute min-h-[20rem] min-w-[20rem] modal-shadow transform top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' + (PaperProps?.className ?? ''),
+			className: 'z-20 bg-black absolute min-h-[20rem] min-w-[20rem] modal-shadow transform top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ' + (PaperProps?.className ?? ''),
 		},
 	}
 

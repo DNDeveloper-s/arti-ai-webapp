@@ -30,7 +30,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	const [docUrl, setDocUrl] = useState<string | null>(null);
 	const [width, setWidth] = useState(MIN_WIDTH);
 	const variantRef = useRef<HTMLDivElement>(null);
-	const [fontSize, setFontSize] = useState<number>(8.5)
+	const [fontSize, setFontSize] = useState<number>(8.5);
 
 	useEffect(() => {
 		if(!variantRef.current) return;
@@ -89,17 +89,17 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 		}
 	}, []);
 
-	useEffect(() => {
-		const pdf = new PDF(adCreative.json);
-		pdf.render()
-			.then(_docUrl => {
-				setDocUrl(_docUrl);
-			})
-
-		console.log('adCreative', adCreative);
-
-		setActiveVariant(adCreative.variants[0]);
-	}, [adCreative])
+	// useEffect(() => {
+	// 	const pdf = new PDF(adCreative);
+	// 	pdf.render()
+	// 		.then(_docUrl => {
+	// 			setDocUrl(_docUrl);
+	// 		})
+	//
+	// 	console.log('adCreative', adCreative);
+	//
+	// 	setActiveVariant(adCreative.variants[0]);
+	// }, [adCreative])
 
 	return (
 		<div className="w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative" style={{width}} ref={resizeContainerRef}>

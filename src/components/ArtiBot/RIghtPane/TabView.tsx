@@ -1,4 +1,3 @@
-import {artiBotData, TabId, TabItem} from '@/constants/artibotData';
 import {Dispatch, FC, SetStateAction, useEffect, useState} from 'react';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
 
@@ -11,7 +10,7 @@ interface TabViewProps {
 const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items}) => {
 
 	const tabItemProps = (tabItem: AdCreativeVariant) => {
-		const isActive = tabItem['One liner'] === activeAdTab['One liner'];
+		const isActive = tabItem.id === activeAdTab.id;
 		return ({
 			container: {
 				className: 'flex py-3 px-4 rounded-t-lg cursor-pointer hover:scale-[1.04] transition-all flex-col-reverse items-center ' + (isActive ? ' bg-primary ' : ' bg-secondaryBackground '),
@@ -34,7 +33,6 @@ const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items}) => {
 					return (
 						<div {...props.container} key={tabItem.id}>
 							<span {...props.label}>{'Variant #' + (index + 1)}</span>
-							{tabItem.icon && <tabItem.icon {...props.icon} />}
 						</div>
 					)
 				})}

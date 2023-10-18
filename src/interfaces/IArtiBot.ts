@@ -1,5 +1,6 @@
 import {IconType} from 'react-icons';
-import {FeedBackKeyProperty} from '@/interfaces/IAdCreative';
+import {FeedBackKeyProperty, IAdCreative} from '@/interfaces/IAdCreative';
+import {MongooseModel} from '@/interfaces/IConversation';
 
 export interface HandleChunkArgs {
 	done?: boolean;
@@ -7,6 +8,7 @@ export interface HandleChunkArgs {
 	index?: number;
 	is_ad_json?: boolean;
 	json?: string;
+	data?: any;
 }
 
 
@@ -51,10 +53,11 @@ export enum ChatGPTRole {
 export interface ChatGPTMessageObj {
 	id?: string;
 	role: ChatGPTRole;
-	content: string;
+	content: string | null;
 	generating?: boolean;
 	type?: 'ad-json' | 'text' | 'attachment';
 	json?: string;
+	adCreatives: IAdCreative[];
 }
 
 export interface ArtiBotData {
@@ -65,26 +68,25 @@ export interface ArtiBotData {
 export type AdType = "Instagram Story Ad" | "LinkedIn Sponsored Content" | "Google Display Ad" | "YouTube Pre-roll Ad" | "Facebook Ad";
 
 export interface IAdVariant {
-	'Variant': number;
-	'Ad Type': AdType;
-	'Image Url': string;
-	'Text': string;
-	'One liner': string;
-	'Image Description': string;
-	'Image': string;
-	'Ad orientation': string;
-	'Rationale': string;
+	id: string;
+	variantNo: string;
+	adType: string;
+	confidence: string;
+	image: string;
+	text: string;
+	imageUrl: string;
+	oneLiner: string;
+	imageDescription: string;
+	adOrientation: string;
+	rationale: string;
 }
 
-export interface AdJSONInput {
-	Confidence: string;
-	'Token Count': number;
-	'Disclaimer': string;
-	'Company Name': string;
-	'Date_Time': string;
-	'Ad Objective': string;
-	'Summary': string;
-	'Ads': IAdVariant[]
+export interface AdJSONInput extends MongooseModel {
+	adObjective: string;
+	companyName: string;
+	disclaimer: string;
+	summary: string;
+	variants: IAdVariant[];
 }
 
 export type TabId = 'Facebook' | 'YouTube' | 'Google' | 'LinkedIn' | 'Instagram'

@@ -29,27 +29,27 @@ const formFields: ContactFormField[] = [
 	{
 		label: 'Full Name',
 		name: 'full_name',
-		Input: (props: ContactInputProps) => <input {...props} type="text" className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (props.hasError ? 'border-opacity-100' : '')} />
+		Input: ({hasError, ...props}: ContactInputProps) => <input {...props} type="text" className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (hasError ? 'border-opacity-100' : '')} />
 	},
 	{
 		label: 'Email',
 		name: 'email',
-		Input: (props: ContactInputProps) => <input {...props} type="email" className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (props.hasError ? 'border-opacity-100' : '')} />
+		Input: ({hasError, ...props}: ContactInputProps) => <input {...props} type="email" className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (hasError ? 'border-opacity-100' : '')} />
 	},
 	{
 		label: 'Company',
 		name: 'company',
-		Input: (props: ContactInputProps) => <input {...props} type="text" className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (props.hasError ? 'border-opacity-100' : '')} />
+		Input: ({hasError, ...props}: ContactInputProps) => <input {...props} type="text" className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (hasError ? 'border-opacity-100' : '')} />
 	},
 	{
 		label: 'Profession',
 		name: 'profession',
-		Input: (props: ContactInputProps) => <input {...props} type="text" className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (props.hasError ? 'border-opacity-100' : '')} />
+		Input: ({hasError, ...props}: ContactInputProps) => <input {...props} type="text" className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (hasError ? 'border-opacity-100' : '')} />
 	},
 	{
 		label: 'Message',
 		name: 'message',
-		Input: (props: ContactTextAreaProps) => <textarea {...props} className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (props.hasError ? 'border-opacity-100' : '')} />,
+		Input: ({hasError, ...props}: ContactTextAreaProps) => <textarea {...props} className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-xl text-md py-2 px-3 transition-all ' + (hasError ? 'border-opacity-100' : '')} />,
 	}
 ];
 

@@ -1,6 +1,6 @@
-import {IAdVariant} from '@/constants/artibotData';
 import {Reaction} from '@/interfaces/index';
 import ObjectId from 'bson-objectid';
+import {AdJSONInput, IAdVariant} from '@/interfaces/IArtiBot';
 
 export interface Feedback {
 	feedback_message: string;
@@ -20,11 +20,11 @@ export enum FEEDBACK {
 }
 
 export interface AdCreativeVariant extends IAdVariant{
-	feedback: Partial<Record<FeedBackKeyProperty, Feedback | undefined>>
+	feedback?: Partial<Record<FeedBackKeyProperty, Feedback | undefined>>
 }
 
-export interface IAdCreative {
-	id: ObjectId | string;
-	variants: AdCreativeVariant[];
+export interface IAdCreative extends AdJSONInput {
+	id: string;
+	conversationId: string;
 	json: string;
 }

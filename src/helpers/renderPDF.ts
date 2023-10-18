@@ -3,28 +3,34 @@
 import {layoutMultilineText, PDFDocument, rgb, TextAlignment} from 'pdf-lib';
 import fontKit from '@pdf-lib/fontkit';
 import {PDFFont, PDFImage, RGB} from 'pdf-lib/es';
+import {IAdVariant} from '@/interfaces/IArtiBot';
+import {IAdCreative} from '@/interfaces/IAdCreative';
 
-interface AdVariant {
-	'Variant': number;
-	'Ad Type': "Instagram Story Ad" | "LinkedIn Sponsored Content" | "Google Display Ad" | "YouTube Pre-roll Ad";
-	'Image Url': string;
-	'Text': string;
-	'One liner': string;
-	'Image Description': string;
-	'Ad orientation': string;
-	'Rationale': string;
-}
+// interface AdVariant {
+// 	'Variant': number;
+// 	'Ad Type': "Instagram Story Ad" | "LinkedIn Sponsored Content" | "Google Display Ad" | "YouTube Pre-roll Ad";
+// 	'Image Url': string;
+// 	'Text': string;
+// 	'One liner': string;
+// 	'Image Description': string;
+// 	'Ad orientation': string;
+// 	'Rationale': string;
+// }
 
-interface JSONInput {
-	Confidence: string;
-	'Token Count': number;
-	'Disclaimer': string;
-	'Company Name': string;
-	'Date_Time': string;
-	'Ad Objective': string;
-	'Summary': string;
-	'Ads': AdVariant[]
-}
+type AdVariant = IAdVariant;
+
+type JSONInput = IAdCreative;
+
+// interface JSONInput {
+// 	Confidence: string;
+// 	'Token Count': number;
+// 	'Disclaimer': string;
+// 	'Company Name': string;
+// 	'Date_Time': string;
+// 	'Ad Objective': string;
+// 	'Summary': string;
+// 	'Ads': AdVariant[]
+// }
 interface ColorsConfig {
 	'primary': RGB,
 	'secondary': RGB,
@@ -120,7 +126,7 @@ const config = {
 	logo: {
 		white: baseUrl + "/images/Logo-white.png",
 		coloured: baseUrl + "/images/Logo-coloured.png",
-		width: 45,
+		width: 63,
 		height: 45
 	},
 	backgroundColors: {
@@ -143,7 +149,7 @@ export class PDF {
 	private pageSize: PageSize;
 	inputJSON: JSONInput;
 
-	constructor(json: string) {
+	constructor(adCreative: IAdCreative) {
 		this.colors = {
 			primary: rgb(255 / 255, 255 / 255, 255 / 255),
 			secondary: rgb(239 / 255, 64 / 255, 128 / 255),
@@ -155,7 +161,7 @@ export class PDF {
 			width: config.pageSize.width,
 			height: config.pageSize.height
 		}
-		this.inputJSON = JSON.parse(json);
+		this.inputJSON = adCreative;
 	}
 
 	async init() {
@@ -245,7 +251,7 @@ export class PDF {
 		}
 
 		{
-			const text = this.inputJSON['Company Name'].toUpperCase();
+			const text = this.inputJSON.companyName.toUpperCase();
 			const textWidth = this.fonts.introFont.widthOfTextAtSize(text, 20);
 			const x = (pageWidth / 2) - (textWidth / 2);
 			const textHeight = this.fonts.introFont.heightAtSize(20);
@@ -271,7 +277,7 @@ export class PDF {
 			}
 			const offset = margin * 2;
 
-			const mainImage = await this.loadJpg(params.imageUrl);
+			const mainImage = await this.loadPng(params.imageUrl);
 
 			page.drawImage(mainImage,{
 				y: 0,
@@ -419,7 +425,7 @@ export class PDF {
 		}
 		const offset = margin * 2;
 
-		const mainImage = await this.loadJpg(params.imageUrl);
+		const mainImage = await this.loadPng(params.imageUrl);
 
 		page.drawImage(mainImage,{
 			y: pageHeight - imageDims.height,
@@ -549,15 +555,15 @@ export class PDF {
 		if(!this.pdfDoc) throw new Error('Make sure to call init method first')
 		await this.renderIntroPage();
 
-		for(let i = 0; i < this.inputJSON.Ads.length; i++) {
-			const ad = this.inputJSON.Ads[i];
-			const dimensions = config.dimensions[ad['Ad Type']];
+		for(let i = 0; i < this.inputJSON.variants.length; i++) {
+			const ad = this.inputJSON.variants[i];
+			const dimensions = config.dimensions['Facebook Ad'];
 			const params = {
-				rationale: ad.Rationale,
-				imageDescription: ad['Image Description'],
-				adOrientation: ad['Ad orientation'],
-				oneLiner: ad['One liner'],
-				imageUrl: ad['Image Url']
+				rationale: ad.rationale,
+				imageDescription: ad.imageDescription,
+				adOrientation: ad.adOrientation,
+				oneLiner: ad.oneLiner,
+				imageUrl: ad.imageUrl
 			}
 			if(dimensions > 1) {
 				await this.loadHorizontalAdContent(params, i + 1, dimensions, )
