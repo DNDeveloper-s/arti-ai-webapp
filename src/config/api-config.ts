@@ -1,5 +1,5 @@
 export const apiConfig = {
-	baseUrl: 'https://arti-ai-server-65cd368aba6d.herokuapp.com',
+	baseUrl: 'https://api.artiai.org',
 	// baseUrl: 'http://localhost:8081',
 	version: '/v1'
 }
