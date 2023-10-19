@@ -17,7 +17,7 @@ import {SnackbarContext, SnackbarData} from '@/context/SnackbarContext';
 import {freeTierLimit} from '@/constants';
 import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import exampleJSON from '@/database/exampleJSON';
-import {IConversation} from '@/interfaces/IConversation';
+import {ConversationType, IConversation} from '@/interfaces/IConversation';
 import {dummy} from '@/constants/dummy';
 import ObjectId from 'bson-objectid';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';
@@ -75,6 +75,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	}, [messages, miniVersion]);
 
 	useEffect(() => {
+		console.log('conversation - ', conversation);
 		setMessages(conversation?.messages ?? []);
 	}, [conversation])
 
@@ -213,7 +214,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 				}
 				return c;
 			})
-			saveAdCreativeMessage(dispatch, _messages, jsonObjectInString, conversation?.id, conversation?.conversation_type, onDemandRef.current);
+			saveAdCreativeMessage(dispatch, _messages, jsonObjectInString, conversation?.id, conversation?.conversation_type, conversation?.project_name, onDemandRef.current);
 		}
 		// Else make calls to saveMessages API
 		else {
@@ -226,7 +227,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 				}
 				return c;
 			})
-			saveMessages(dispatch, _messages, conversation?.id, conversation?.conversation_type);
+			saveMessages(dispatch, _messages, conversation?.id, conversation?.conversation_type, conversation?.project_name);
 		}
 
 		onDemandRef.current = false;
@@ -293,7 +294,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		const transformedMessages = _messages.filter(a => a.content).map(c => ({role: c.role, content: c.content}));
 
 		const messageService = new MessageService();
-		const response = await messageService.send(transformedMessages, handleMessageResponse, conversation?.id, conversation?.conversation_type, generate_ad, miniVersion);
+		const response = await messageService.send(transformedMessages, handleMessageResponse, conversation?.id, conversation?.conversation_type, conversation?.project_name, generate_ad, miniVersion);
 
 		console.log('response - ', response);
 
@@ -325,7 +326,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		return adCreative
 	}, [adCreatives]);
 
-	const showGetAdNowButton = !miniVersion && messages.length >= threshold.getAdNowButtonAfter;
+	const showGetAdNowButton = !miniVersion && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
 
 	return (
 		<div className={`flex h-full overflow-hidden`}>

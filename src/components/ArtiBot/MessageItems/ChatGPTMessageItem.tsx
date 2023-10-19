@@ -1,5 +1,5 @@
 import {AdJSONInput, ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
-import React, {Dispatch, FC, useEffect, useState} from 'react';
+import React, {Dispatch, FC, useEffect, useMemo, useState} from 'react';
 import {IoIosCopy} from 'react-icons/io';
 import Lottie from 'lottie-react';
 import tickAnimation from '@/assets/lottie/tick_animation.json';
@@ -74,8 +74,38 @@ function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: {
 	);
 }
 
+// Create an array of random message lengths
+const randomMessageLengthForShimmer = [
+	'Hey How can I help you? I am Arti Ai your personal assistant. I can help you with your ads and I can help you with your ads. Some more text here',
+	'Hey, How can I help you?',
+	'Hey, How can I help you? I am Arti Ai',
+	'Hey, How can I help you? I am Arti Ai, your personal assistant',
+	'Hey, How can I help you? I am Arti Ai, your personal assistant. I can help you with your ads',
+	'Hey, How can I help you? I am Arti Ai, your personal assistant. I can help you with your ads. I can help you with your ads',
+]
 
-const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = ({setMessages, messageItem: _messageItem, doneRef, chunksRef, isGenerating, disableCopy, size = 45, variantFontSize, conversationId})  =>{
+// Generate a function to choose random index from the array
+const randomIndex = () => Math.floor(Math.random() * randomMessageLengthForShimmer.length);
+
+export const ChatGPTMessageItemShimmer = ({size = 45}) => {
+	const message = useMemo(() => {
+		return randomMessageLengthForShimmer[randomIndex()];
+	}, [])
+	return (
+		<div className={'w-full'}>
+			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+				<div className={'app-shimmer rounded-lg mr-[0.3em] ' + (`w-[20px] h-[20px]`)}  />
+				{/*<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>*/}
+				<div className="ml-[0.8em] flex-1">
+					<span className="app-shimmer">{message}</span>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
+	const {setMessages, messageItem: _messageItem, doneRef, chunksRef, isGenerating, disableCopy, size = 45, variantFontSize, conversationId} = props;
 	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
 	const [messageItem, setMessageItem] = useState<ChatGPTMessageObj>(_messageItem);
 	const {state, dispatch} = useConversation();

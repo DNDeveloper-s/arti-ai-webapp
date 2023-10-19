@@ -8,10 +8,10 @@ import {useConversation} from '@/context/ConversationContext';
 import {ConversationType} from '@/interfaces/IConversation';
 
 interface ArtiBotPageProps {
-
+	projectName: string;
 }
 
-const ArtiBotPage: FC<ArtiBotPageProps> = (props) => {
+const ArtiBotPage: FC<ArtiBotPageProps> = ({projectName}) => {
 	const { state } = useConversation();
 	const searchParams = useSearchParams();
 	const isStrategy = searchParams.get('conversation_type') === ConversationType.STRATEGY;
@@ -22,9 +22,9 @@ const ArtiBotPage: FC<ArtiBotPageProps> = (props) => {
 	const id = ObjectId();
 
 	if (isStrategy) {
-		return redirect(`/artibot/${conversationType}/${id}`, 'replace');
+		return redirect(`/artibot/${conversationType}/${id}?project_name=${projectName}`, 'replace');
 	} else {
-		return redirect(`/artibot/${conversationType}/${id}`, 'replace');
+		return redirect(`/artibot/${conversationType}/${id}?project_name=${projectName}`, 'replace');
 	}
 };
 export default ArtiBotPage;

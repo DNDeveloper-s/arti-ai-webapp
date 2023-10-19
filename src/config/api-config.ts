@@ -1,6 +1,6 @@
 export const apiConfig = {
-	baseUrl: 'https://api.artiai.org',
-	// baseUrl: 'http://localhost:8081',
+	// baseUrl: 'https://api.artiai.org',
+	baseUrl: 'http://localhost:8081',
 	version: '/v1'
 }
 

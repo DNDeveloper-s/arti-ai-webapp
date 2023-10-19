@@ -11,6 +11,7 @@ export interface IConversation extends MongooseModel {
 	json?: string | null | boolean;
 	adCreatives?: IAdCreative[];
 	conversation_type: ConversationType;
+	project_name: string;
 }
 
 export enum ConversationType {

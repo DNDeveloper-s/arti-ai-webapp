@@ -6,7 +6,7 @@ import {ConversationType} from '@/interfaces/IConversation';
 
 export class MessageService {
 
-	async send(messages: ChatGPTMessageObj[], handleChunk: (a: HandleChunkArgs) => any, conversationId?: ObjectID | string, conversationType: ConversationType = ConversationType.AD_CREATIVE, generate_ad?: boolean, miniVersion?: boolean) {
+	async send(messages: ChatGPTMessageObj[], handleChunk: (a: HandleChunkArgs) => any, conversationId?: ObjectID | string, conversationType: ConversationType = ConversationType.AD_CREATIVE, project_name: string, generate_ad?: boolean, miniVersion?: boolean) {
 		try {// const response = await fetch('http://localhost:8080/text-stream', {
 			const response = await fetch(miniVersion ? ROUTES.MESSAGE.SEND_FREE_TIER : ROUTES.MESSAGE.SEND, {
 				method: 'POST',
@@ -15,7 +15,7 @@ export class MessageService {
 					'Connection': 'keep-alive',
 					'Authorization': 'Bearer ' + localStorage.getItem('token')
 				},
-				body: JSON.stringify({messages, generate_ad, conversationId, conversationType})
+				body: JSON.stringify({messages, generate_ad, conversationId, conversationType, project_name})
 			})
 			console.log('response - ', response);
 			if(!response.body) return console.log('Received = No response body present');

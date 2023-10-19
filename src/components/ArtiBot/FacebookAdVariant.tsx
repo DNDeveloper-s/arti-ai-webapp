@@ -11,7 +11,43 @@ import {updateVariantImage, useConversation} from '@/context/ConversationContext
 import Lottie from 'lottie-react';
 import generatingImage from '@/assets/lottie/generating_image.json';
 
-interface FacebookAdVariantProps {
+
+export const FacebookAdVariantShimmer = ({style = {}, className = ''}) => {
+
+	return (
+		<div className={'ad-variant text-xs md:text-base !p-0 ' + (className)} style={style}>
+			<div className={"flex justify-between items-center mb-[.3em] px-[1em] pt-[1em]"}>
+				<div className="flex items-center gap-[0.5em]">
+					<div className="w-[2em] h-[2em] rounded-full bg-gray-700" />
+					<div>
+						<div className="w-[4em] h-[1em] mb-[0.2em] rounded-[.17em] bg-gray-700" />
+						<div className="w-[6em] h-[1em] rounded-[.17em] bg-gray-700" />
+					</div>
+				</div>
+				<SlOptions className="text-[1.5em]" />
+			</div>
+			<div className="mb-[1em] px-[1em]">
+				<span className="app-shimmer text-[0.95em] inline-flex leading-[1.5em]">Than you for providing that information, Saurabh, To better undersant yousfka sdlf jalsdf lajflj alsjf lajsdfl jaldf jlasdjf lasdf </span>
+			</div>
+			<div className="w-full aspect-square app-shimmer !block" />
+			<div className={"flex justify-between gap-[.8em] items-center px-[1em] mt-[1em]"}>
+				<span className={"app-shimmer text-[1.25em] leading-[1.3em]"}>This is a normal one liner where you can show one liner</span>
+				<div className="flex-shrink-0">
+					<span className="app-shimmer cursor-pointer rounded bg-gray-700 px-[0.6em] py-[0.5em] text-[1em]">Learn More</span>
+				</div>
+			</div>
+			<hr className="h-px my-[1em] border-0 bg-gray-700"/>
+			<div className="w-full px-[1em] pb-[1em] flex justify-between">
+				<div className="ml-[2em] w-[6.5em] h-[2em] rounded bg-gray-700" />
+				<div className="w-[6.5em] h-[2em] rounded bg-gray-700" />
+				<div className="w-[6.5em] h-[2em] rounded bg-gray-700" />
+				<div className="w-[2em] h-[2em] rounded-full bg-gray-700" />
+			</div>
+		</div>
+	)
+}
+
+interface FacebookAdVariantProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
 	adVariant: IAdVariant;
 	noExpand?: boolean;
 	className?: string;
@@ -40,19 +76,17 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 	// }, [expand]);
 
 	useEffect(() => {
+		console.log('adVariant.id - ', adVariant.id);
+		if(!adVariant.id || adVariant.id.includes('variant')) return;
 		if(!adVariant.imageUrl && adVariant.imageDescription && (!inProcess || !inProcess[adVariant.id])) {
 			updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
 		}
 	}, [adVariant, dispatch]);
 
-	useEffect(() => {
-		console.log('expand, noExpand - ', expand, noExpand);
-	}, [expand, noExpand])
 
-
-	const lottieAnimationJSX = <div className="w-full h-64 flex flex-col justify-center items-center">
+	const lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
 		<Lottie className={"w-32 h-32"} animationData={generatingImage} loop={true} />
-		<h6 className="text-white text-opacity-60">Crafting your vision, one pixel at a time.</h6>
+		<h6 className="text-white text-opacity-60 text-center px-5 leading-normal">Creating your ad variant image to make your brand shine, one pixel at a time.</h6>
 	</div>
 
 	const imageContainerJSX =

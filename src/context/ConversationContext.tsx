@@ -1,22 +1,13 @@
 'use client';
 
-import React, {
-	Context,
-	createContext,
-	FC,
-	useCallback,
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useReducer
-} from 'react';
-import {ConversationType, IConversation, IConversationModel} from '@/interfaces/IConversation';
+import React, {createContext, FC, useContext, useLayoutEffect, useReducer} from 'react';
+import {ConversationType, IConversation} from '@/interfaces/IConversation';
 import axios from 'axios';
 import {ROUTES} from '@/config/api-config';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import {ChatGPTMessageObj, IAdVariant} from '@/interfaces/IArtiBot';
 import {useSession} from 'next-auth/react';
-import Cookies from 'js-cookie';
+import ObjectId from 'bson-objectid';
 
 interface IConversationData {
 
@@ -29,6 +20,7 @@ enum CONVERSATION_ACTION_TYPE {
 	LOADING = 'LOADING',
 	LOADED = 'LOADED',
 	ADD_ADCREATIVES = 'ADD_ADCREATIVES',
+	REMOVE_ADCREATIVES = 'REMOVE_ADCREATIVES',
 	UPDATING_VARIANT_IMAGE = 'UPDATING_VARIANT_IMAGE',
 	UPDATE_VARIANT_IMAGE = 'UPDATE_VARIANT_IMAGE',
 	UPDATE_VARIANT_IMAGE_SUCCESS = 'UPDATE_VARIANT_IMAGE_SUCCESS',
@@ -39,7 +31,7 @@ enum CONVERSATION_ACTION_TYPE {
 	GET_CONVERSATIONS = 'GET_CONVERSATIONS',
 	GET_CONVERSATIONS_SUCCESS = 'GET_CONVERSATIONS_SUCCESS',
 	GET_CONVERSATIONS_FAILURE = 'GET_CONVERSATIONS_FAILURE',
-	GET_CONVERSATION = 'GET_CONVERSATION_SUCCESS',
+	GET_CONVERSATION = 'GET_CONVERSATION',
 	GET_CONVERSATION_SUCCESS = 'GET_CONVERSATION_SUCCESS',
 	GET_CONVERSATION_FAILURE = 'GET_CONVERSATION_FAILURE',
 	CREATE_CONVERSATION = 'CREATE_CONVERSATION',
@@ -69,7 +61,7 @@ interface IConversationState {
 	conversationMap?: Record<IConversation['id'], IConversation>;
 	variantMap?: Record<IAdVariant['id'], IAdVariant>;
 	adCreativeMap?: Record<IAdCreative['id'], IAdCreative>;
-	loading?: boolean;
+	loading: LoadingState;
 	messageBuffer?: ChatGPTMessageObj[];
 	inProcess?: any;
 }
@@ -106,7 +98,16 @@ const extractFromAdCreative = (adCreative: IAdCreative): Pick<StateRecordEnum, '
 	}, {variant: {map: {}, list: []}});
 }
 
-export const initConversationState = {
+interface LoadingState {
+	conversation?: boolean;
+	adCreative?: boolean;
+	variant?: boolean;
+	conversations?: boolean;
+	adCreatives?: boolean;
+	variants?: boolean
+}
+
+export const initConversationState: IConversationState = {
 	conversation: {map: {}, list: []},
 	adCreative: {map: {}, list: []},
 	variant: {map: {}, list: []},
@@ -115,7 +116,11 @@ export const initConversationState = {
 	conversationMap: {},
 	variantMap: {},
 	adCreativeMap: {},
-	loading: false,
+	loading: {
+		conversations: true,
+		conversation: true,
+		adCreatives: true
+	},
 	messageBuffer: [],
 	inProcess: false
 }
@@ -129,6 +134,21 @@ function addKeyToMap<T extends {id: string}>(map: Record<T['id'], T> | undefined
 	return {
 		...(map ?? {}),
 		[item.id]: item
+	}
+}
+
+/**
+ *
+ * @param record
+ * @param item
+ */
+function removeKeyFromStateRecord<T extends {id: string}>(record: StateRecord<T>, item: T): StateRecord<T> {
+	const list = record.list?.filter(i => i.id !== item.id) ?? [];
+	const map = {...record.map};
+	delete map[item.id as T["id"]];
+	return {
+		map,
+		list
 	}
 }
 
@@ -148,6 +168,13 @@ function addKeyToStateRecord<T extends {id: string}>(record: StateRecord<T>, ite
 			...list,
 			item
 		]
+	}
+}
+
+function updateLoadingState(state: IConversationState, loadingState: IConversationState['loading']): IConversationState['loading'] {
+	return {
+	...(state.loading ?? {}),
+	...loadingState
 	}
 }
 
@@ -187,7 +214,7 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 			// if(_variantMap[payload.variantId]) _variantMap[payload.variantId].imageUrl = payload.imageUrl;
 			return {
 				...state,
-				loading: false,
+				loading: updateLoadingState(state, {variant: false}),
 				variant: mergeStateRecord(state.variant, variant12),
 				inProcess: {
 					...(state.inProcess ?? {}),
@@ -205,7 +232,7 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 		case CONVERSATION_ACTION_TYPE.GET_ADCREATIVES:
 			return {
 				...state,
-				loading: true,
+				loading: updateLoadingState(state, {adCreatives: true})
 			};
 		case CONVERSATION_ACTION_TYPE.ADD_ADCREATIVES:
 			// Prepare the variantMap and adCreativeMap
@@ -219,25 +246,44 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 
 			return {
 				...state,
-				loading: false,
+				loading: updateLoadingState(state, {adCreatives: false}),
 				adCreative: mergeStateRecord(state.adCreative, maps3.adCreative),
 				variant: mergeStateRecord(state.variant, maps3.variant),
 			};
+		case CONVERSATION_ACTION_TYPE.REMOVE_ADCREATIVES:
+			const _adCreatives = payload.adCreatives as IAdCreative[];
+			_adCreatives.forEach(adCreative => {
+				state.adCreative = removeKeyFromStateRecord(state.adCreative, adCreative);
+				adCreative.variants?.forEach(variant => {
+					state.variant = removeKeyFromStateRecord(state.variant, variant);
+				})
+			})
+			return {
+				...state
+			}
 		case CONVERSATION_ACTION_TYPE.GET_ADCREATIVES_SUCCESS:
 			// Prepare the variantMap and adCreativeMap
-			const maps2 = payload.adCreatives.reduce((acc: {variantMap: IConversationState['variantMap'], adCreativeMap: IConversationState['adCreativeMap']}, adCreative: IAdCreative) => {
-				addKeyToMap(acc?.adCreativeMap, adCreative);
-				const {variantMap} = extractFromAdCreative(adCreative);
-				acc.variantMap = {...acc.variantMap, ...variantMap};
+			const maps2 = payload.adCreatives.reduce((acc: Omit<StateRecordEnum, 'conversation'>, adCreative: IAdCreative) => {
+				acc.adCreative = addKeyToStateRecord(acc?.adCreative, adCreative);
+				const {variant} = extractFromAdCreative(adCreative);
+				acc.variant = {...acc.variant, ...variant};
 				return acc;
-			}, {variantMap: {}, adCreativeMap: {}});
+			}, {variant: {}, adCreative: {}});
 			return {
 				...state,
-				loading: false,
+				loading: updateLoadingState(state, {adCreatives: false}),
 				adCreatives: payload.adCreatives ?? state.adCreatives,
 				adCreativeMap: {...(state.adCreativeMap ?? {}), ...maps2.adCreativeMap},
-				variantMap: {...(state.variantMap ?? {}), ...maps2.variantMap}
+				variantMap: {...(state.variantMap ?? {}), ...maps2.variantMap},
+				adCreative: mergeStateRecord(state.adCreative, maps2.adCreative),
+				variant: mergeStateRecord(state.variant, maps2.variant),
 			};
+		case CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS:
+			console.log('getting conversations - - ')
+			return {
+				...state,
+				loading: updateLoadingState(state, {conversations: true}),
+			}
 		case CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS_SUCCESS:
 			const maps = payload.conversations.reduce((acc: StateRecordEnum, conversation: IConversation) => {
 				acc.conversation = addKeyToStateRecord(acc?.conversation, conversation);
@@ -251,19 +297,28 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 
 			return {
 				...state,
-				loading: false,
+				loading: updateLoadingState(state, {conversations: false}),
 				conversations: payload.conversations ?? state.conversations,
 				conversation: mergeStateRecord(state.conversation, maps.conversation),
 				adCreative: mergeStateRecord(state.adCreative, maps.adCreative),
 				variant: mergeStateRecord(state.variant, maps.variant),
 			};
+		case CONVERSATION_ACTION_TYPE.GET_CONVERSATION:
+			return {
+				...state,
+				loading: updateLoadingState(state, {conversation: true}),
+			}
 		case CONVERSATION_ACTION_TYPE.GET_CONVERSATION_SUCCESS:
+			console.log('state.loading.conversation - ', updateLoadingState(state, {conversation: false}))
 			if(!payload.conversation) {
 				return {
 					...state,
-					loading: false
+					loading: updateLoadingState(state, {conversation: false}),
 				}
 			}
+
+			console.log('state.loading.conversation - ', updateLoadingState(state, {conversation: false}))
+
 			const conversation1 = addKeyToStateRecord(state.conversation, payload.conversation);
 			const _initial1 = {variant: {map: {}, list: []}, adCreative: {map: {}, list: []}};
 			const _maps13 = payload.conversation.adCreatives?.reduce((acc: Omit<StateRecordEnum, 'conversation'>, adCreative: IAdCreative) => {
@@ -274,7 +329,7 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 			}, _initial1) ?? _initial1;
 			return {
 				...state,
-				loading: false,
+				loading: updateLoadingState(state, {conversation: false}),
 				conversation: mergeStateRecord(state.conversation, conversation1),
 				adCreative: mergeStateRecord(state.adCreative, _maps13.adCreative),
 				variant: mergeStateRecord(state.variant, _maps13.variant),
@@ -290,23 +345,23 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 			}, _initial) ?? _initial;
 			return {
 				...state,
-				loading: false,
+				loading: updateLoadingState(state, {conversation: false}),
 				conversation: mergeStateRecord(state.conversation, conversation),
 				adCreative: mergeStateRecord(state.adCreative, _maps12.adCreative),
 				variant: mergeStateRecord(state.variant, _maps12.variant),
 				// adCreativeMap: maps.adCreativeMap,
 				// variantMap: maps.variantMap
 			};
-		case CONVERSATION_ACTION_TYPE.LOADING:
-			return {
-				...state,
-				loading: true
-			};
-		case CONVERSATION_ACTION_TYPE.LOADED:
-			return {
-				...state,
-				loading: false
-			};
+		// case CONVERSATION_ACTION_TYPE.LOADING:
+		// 	return {
+		// 		...state,
+		// 		loading: true
+		// 	};
+		// case CONVERSATION_ACTION_TYPE.LOADED:
+		// 	return {
+		// 		...state,
+		// 		loading: false
+		// 	};
 		case CONVERSATION_ACTION_TYPE.ADD_TO_MESSAGE_BUFFER:
 			const messageBuffer = [...(state?.messageBuffer ?? [])];
 			messageBuffer.push(payload);
@@ -445,7 +500,7 @@ async function getAdCreatives(dispatch: (a: ConversationAction) => void) {
 
 async function getConversation(dispatch: (a: ConversationAction) => void, conversationId: string) {
 	dispatch({
-		type: CONVERSATION_ACTION_TYPE.LOADING,
+		type: CONVERSATION_ACTION_TYPE.GET_CONVERSATION,
 		payload: {}
 	});
 
@@ -455,6 +510,7 @@ async function getConversation(dispatch: (a: ConversationAction) => void, conver
 				'Authorization': 'Bearer ' + localStorage.getItem('token')
 			}
 		});
+		console.log('state.loading.conversation - ', response);
 		if(response.data.ok) {
 			dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATION_SUCCESS, payload: {conversation: response.data.data}});
 		}
@@ -511,11 +567,12 @@ function flushBufferMessage(dispatch: (a: ConversationAction) => void) {
 	})
 }
 
-function saveMessages(dispatch: (a: ConversationAction) => void, messages: ChatGPTMessageObj[], conversationId: string, conversationType: ConversationType) {
+function saveMessages(dispatch: (a: ConversationAction) => void, messages: ChatGPTMessageObj[], conversationId: string, conversationType: ConversationType, projectName: string) {
 	axios.post(ROUTES.MESSAGE.SAVE, {
 		messages,
 		conversationId,
-		conversationType
+		conversationType,
+		projectName
 	}, {
 		headers: {
 			'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -523,12 +580,29 @@ function saveMessages(dispatch: (a: ConversationAction) => void, messages: ChatG
 	})
 }
 
-async function saveAdCreativeMessage(dispatch: (a: ConversationAction) => void, messages: ChatGPTMessageObj[], jsonObjectInString: string, conversationId: string, conversationType: ConversationType, onDemand: boolean) {
+async function saveAdCreativeMessage(dispatch: (a: ConversationAction) => void, messages: ChatGPTMessageObj[], jsonObjectInString: string, conversationId: string, conversationType: ConversationType, projectName: string, onDemand: boolean) {
+	const adCreativeJSON = JSON.parse(jsonObjectInString);
+	const adCreativesWithIds = adCreativeJSON.variants?.map((variant: IAdVariant) => {
+		return {
+			...variant,
+			_id: 'variant-' + new ObjectId().toString()
+		}
+	});
+	adCreativeJSON._id = 'ad_creative-' + new ObjectId().toString();
+	adCreativeJSON.variants = adCreativesWithIds;
+	dispatch({
+		type: CONVERSATION_ACTION_TYPE.ADD_ADCREATIVES,
+		payload: {
+			adCreatives: [adCreativeJSON]
+		}
+	});
+
 	try {
 		const response = await axios.post(ROUTES.MESSAGE.SAVE_AD_CREATIVE, {
 			messages,
 			json: jsonObjectInString,
 			conversationId,
+			projectName,
 			onDemand,
 		}, {
 			headers: {
@@ -539,8 +613,16 @@ async function saveAdCreativeMessage(dispatch: (a: ConversationAction) => void, 
 		const result = response.data.data;
 
 		dispatch({
+			type: CONVERSATION_ACTION_TYPE.REMOVE_ADCREATIVES,
+			payload: {
+				adCreatives: [adCreativeJSON]
+			}
+		});
+
+		dispatch({
 			type: CONVERSATION_ACTION_TYPE.ADD_ADCREATIVES,
 			payload: {
+				replaceId: adCreativeJSON._id,
 				adCreatives: result?.adCreatives ?? []
 			}
 		});

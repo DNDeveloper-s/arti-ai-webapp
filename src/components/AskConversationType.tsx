@@ -54,9 +54,10 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const hasConversationTypeParam = searchParams.get('conversation_type');
+	const [projectName, setProjectName] = React.useState<string>('');
 
 	if(hasConversationTypeParam) {
-		return <ArtiBotPage />
+		return <ArtiBotPage projectName={projectName} />
 	}
 
 	return (
@@ -79,8 +80,11 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
 				<Modal PaperProps={{className: 'rounded-lg'}} setOpen={() => {}} open={true}>
 					<>
 						<div className={'flex-1 h-[20rem] p-5 flex flex-col overflow-auto'}>
-							<div className="w-full flex justify-between items-center">
-								<h2 className="py-1 pb-3">Bot Choice & Business Info</h2>
+							<div className="w-full flex justify-between items-center pb-3 py-1">
+								<div className="flex items-center gap-1">
+									<MdArrowBackIos onClick={() => router.push('/')} style={{fontSize: '18px', cursor: 'pointer'}}/>
+									<h2>Bot Choice & Business Info</h2>
+								</div>
 								<div className="group relative flex items-center cursor-pointer justify-center">
 									<AiOutlineInfoCircle />
 									<div className="transition-all shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto absolute rounded top-[130%] min-w-[350px] right-0 bg-black border border-gray-800 p-1">
@@ -91,7 +95,7 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
 							<hr className="border-gray-500"/>
 							<div className="my-3">
 								<label className="text-sm text-secondaryText" htmlFor="">Business Name<span className="text-red-600">*</span></label>
-								<input required={true} type={'text'} className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-lg text-md py-2 px-3 transition-all'} />
+								<input value={projectName} onChange={e => setProjectName(e.target.value)} required={true} type={'text'} className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-lg text-md py-2 px-3 transition-all'} />
 							</div>
 							<div className="flex-1" />
 							<div className="w-full flex gap-5 my-5 justify-center items-center">

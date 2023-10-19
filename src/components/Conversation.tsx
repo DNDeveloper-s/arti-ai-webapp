@@ -3,7 +3,7 @@
 import ArtiBot from '@/components/ArtiBot/ArtiBot';
 import {dummy} from '@/constants/dummy';
 import React, {useEffect} from 'react';
-import {useParams} from 'next/navigation';
+import {redirect, useParams, useSearchParams} from 'next/navigation';
 import {ConversationType, IConversation} from '@/interfaces/IConversation';
 import {createConversation, getConversation, useConversation} from '@/context/ConversationContext';
 import useSessionToken from '@/hooks/useSessionToken';
@@ -28,6 +28,7 @@ export default function Conversation({type = ConversationType.AD_CREATIVE}: {typ
 	let conversation: IConversation | undefined;
 	const {state, dispatch} = useConversation();
 	const params = useParams();
+	const searchParams = useSearchParams();
 	const token = useSessionToken();
 
 	useEffect(() => {
@@ -35,9 +36,12 @@ export default function Conversation({type = ConversationType.AD_CREATIVE}: {typ
 	}, [dispatch, token, params.conversation_id])
 
 	useEffect(() => {
-		if(state.loading || !dispatch || !params.conversation_id) return;
+		console.log('state.loading.conversation - ', state.loading.conversation, state.conversation)
+		if(state.loading.conversation || !dispatch || !params.conversation_id) return;
 
 		if(!state.conversation.map || !state.conversation.map[params.conversation_id]) {
+			const projectName = searchParams.get('project_name');
+			if(!projectName) return redirect('/artibot');
 			const newConversation: IConversation = {
 				id: Array.isArray(params.conversation_id) ? params.conversation_id[0] : params.conversation_id,
 				messages: [],
@@ -45,11 +49,12 @@ export default function Conversation({type = ConversationType.AD_CREATIVE}: {typ
 				title: 'New Chat',
 				conversation_type: type,
 				// Check if the conversation has any activity
-				has_activity: false
+				has_activity: false,
+				project_name: projectName ? projectName : '',
 			}
 			createConversation(dispatch, newConversation);
 		}
-	}, [dispatch, state.loading, state.conversation.map, params.conversation_id])
+	}, [dispatch, state.loading.conversation, state.conversation.map, params.conversation_id, state.conversation, type])
 
 	return (
 		<main>
