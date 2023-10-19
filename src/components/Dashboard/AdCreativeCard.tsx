@@ -20,7 +20,7 @@ export const AdCreativeCardShimmer = () => {
 		<div className="py-3 px-3 relative flex items-center justify-between z-20">
 			<h2 className="app-shimmer whitespace-nowrap w-full overflow-hidden overflow-ellipsis mr-5 text-base font-medium text-primary">This is a normal object where you can have some other things to adjust</h2>
 			<span className="whitespace-nowrap">
-				<span className="text-opacity-0 text-white text-opacity-30 text-[1.1em]">Generated:</span>
+				<span className="text-white text-opacity-0 text-[1.1em]">Generated:</span>
 				<span className="app-shimmer text-primary text-[1.1em]">2 sec ago</span>
 			</span>
 		</div>
