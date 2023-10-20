@@ -25,8 +25,9 @@ import FileItem from '@/components/ArtiBot/MessageItems/FileItem';
 import {addAdCreatives, saveAdCreativeMessage, saveMessages, useConversation} from '@/context/ConversationContext';
 import useSessionToken from '@/hooks/useSessionToken';
 import getJSONObjectFromAString, {isValidJsonWithAdsArray} from '@/helpers';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import {ROUTES} from '@/config/api-config';
+import Snackbar from '@/components/Snackbar';
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',
@@ -49,6 +50,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	const [messages, setMessages] = useState<ChatGPTMessageObj[]>(conversation?.messages ?? []);
 	const [areaHeight, setAreaHeight] = useState(0);
 	const [isGenerating, setIsGenerating] = useState(false);
+	const [isGeneratingAd, setIsGeneratingAd] = useState(false);
 	const [files, setFiles] = useState<File[] | null>(null);
 	const [selectedFiles, setSelectedFiles] = useState<FileObject[] | null>(null);
 	const [exhausted, setExhausted] = useState(false);
@@ -238,33 +240,38 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		if(exhausted || miniVersion) return;
 		chunksRef.current = '';
 		setInputValue('');
-		setIsGenerating(true);
+		setIsGeneratingAd(true);
 
 		const _messages = [...messages];
 		const transformedMessages = _messages.filter(a => a.content).map(c => ({role: c.role, content: c.content}));
-		const result = await axios.post(ROUTES.MESSAGE.GET_AD_JSON, {
-			messages: transformedMessages,
-		}, {
-			headers: {
-				Authorization: `Bearer ${localStorage.getItem('token')}`
-			}
-		});
-		setIsGenerating(false);
-		onDemandRef.current = true;
-
-		if(result.data.data) {
-			setMessages(c => [
-				...c,
-				{
-					id: ObjectId().toHexString(),
-					role: ChatGPTRole.ASSISTANT,
-					content: result.data.data,
+		try {
+			const result = await axios.post(ROUTES.MESSAGE.GET_AD_JSON, {
+				messages: transformedMessages,
+			}, {
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem('token')}`
 				}
-			])
-			chunksRef.current = result.data.data;
-			saveMessageRef.current = true;
-		} else {
-			setSnackBarData({message: 'We are unable to process the request right now!', status: 'error'})
+			});
+			setIsGeneratingAd(false);
+			onDemandRef.current = true;
+
+			if(result.data.ok && result.data.data) {
+				setMessages(c => [
+					...c,
+					{
+						id: ObjectId().toHexString(),
+						role: ChatGPTRole.ASSISTANT,
+						content: result.data.data,
+					}
+				])
+				chunksRef.current = result.data.data;
+				saveMessageRef.current = true;
+			} else {
+				setSnackBarData({message: result.data?.message ?? 'We are unable to process the request right now!', status: 'error'})
+			}
+		} catch (axiosError: AxiosError | any) {
+			setIsGeneratingAd(false);
+			setSnackBarData({message: axiosError?.response?.data?.message ?? 'We are unable to process the request right now!', status: 'error'})
 		}
 
 	}
@@ -326,7 +333,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		return adCreative
 	}, [adCreatives]);
 
-	const showGetAdNowButton = !miniVersion && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
+	const showGetAdNowButton = !isGeneratingAd && !miniVersion && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
 
 	return (
 		<div className={`flex h-full overflow-hidden`}>
@@ -346,7 +353,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 							<span className="text-white text-opacity-50">Dashboard</span>
 						</div>}
 					</div>
-					<MessageContainer chunksRef={chunksRef} doneRef={doneRef} msg={msg} messages={messages} setMessages={setMessages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
+					<MessageContainer isGeneratingAd={isGeneratingAd} conversationType={conversation?.conversation_type} chunksRef={chunksRef} doneRef={doneRef} msg={msg} messages={messages} setMessages={setMessages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
 					<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
 						{(showGetAdNowButton) && <GetAdButton
 							adGenerated={Boolean(adCreative)}
@@ -432,6 +439,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 			</div>
 
 			{!miniVersion && adCreative && <RightPane adCreative={adCreative} />}
+			<Snackbar />
 		</div>
 	)
 }

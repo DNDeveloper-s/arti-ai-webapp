@@ -9,15 +9,7 @@ import GetAdButton from '@/components/ArtiBot/GetAdButton';
 import FileItem from '@/components/ArtiBot/MessageItems/FileItem';
 import TextareaAutosize from 'react-textarea-autosize';
 import {colors} from '@/config/theme';
-import {motion} from 'framer-motion';
-import {framerContainer, framerItem} from '@/config/framer-motion';
-import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
-import Lottie from 'lottie-react';
-import typingAnimation from '@/assets/lottie/typing.json';
-import {ChatGPTMessageObj} from '@/interfaces/IArtiBot';
-import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
-import Image from 'next/image';
-import WavingHand from '@/assets/images/waving-hand.webp';
+import {AnimatePresence, motion} from 'framer-motion';
 import {useRouter, useSearchParams} from 'next/navigation';
 import CTAButton from '@/components/CTAButton';
 import AdCreativeIcon from '@/components/shared/icons/AdCreativeIcon';
@@ -25,6 +17,7 @@ import StrategyIcon from '@/components/shared/icons/StrategyIcon';
 import ArtiBotPage from '@/components/ArtiBotPage';
 import Modal from '@/components/Modal';
 import {AiOutlineInfoCircle} from 'react-icons/ai';
+import {StringUtils} from '@/lib/String';
 
 interface AskConversationTypeProps {
 
@@ -77,13 +70,13 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
 						<span className="text-white text-opacity-50">Dashboard</span>
 					</div>
 				</div>
-				<Modal PaperProps={{className: 'rounded-lg'}} setOpen={() => {}} open={true}>
+				<Modal BackdropProps={{className: 'hidden pointer-events-none'}} PaperProps={{className: 'rounded-lg !min-h-0 w-[90vw] max-w-[600px]'}} setOpen={() => {}} open={true}>
 					<>
-						<div className={'flex-1 h-[20rem] p-5 flex flex-col overflow-auto'}>
+						<div className={'flex-1 p-5 flex flex-col overflow-auto'}>
 							<div className="w-full flex justify-between items-center pb-3 py-1">
 								<div className="flex items-center gap-1">
-									<MdArrowBackIos onClick={() => router.push('/')} style={{fontSize: '18px', cursor: 'pointer'}}/>
-									<h2>Bot Choice & Business Info</h2>
+									{/*<MdArrowBackIos onClick={() => router.push('/')} style={{fontSize: '18px', cursor: 'pointer'}}/>*/}
+									<h2>Let's Begin Your Journey</h2>
 								</div>
 								<div className="group relative flex items-center cursor-pointer justify-center">
 									<AiOutlineInfoCircle />
@@ -93,47 +86,68 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
 								</div>
 							</div>
 							<hr className="border-gray-500"/>
+
+							<div className="mt-3 text-sm text-gray-400 leading-relaxed">
+								<span>
+									Welcome to Arti AI🌟. What brings you here today? Let's get started by telling us your project name, and then choose a bot to assist you in creating memorable ads or planning your business strategy.
+								</span>
+							</div>
+
 							<div className="my-3">
-								<label className="text-sm text-secondaryText" htmlFor="">Business Name<span className="text-red-600">*</span></label>
-								<input value={projectName} onChange={e => setProjectName(e.target.value)} required={true} type={'text'} className={'w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-lg text-md py-2 px-3 transition-all'} />
+								<label className="text-sm text-secondaryText" htmlFor="">Project Name<span className="text-red-600">*</span></label>
+								<input placeholder="Enter your project name here..." value={projectName} onChange={e => setProjectName(e.target.value)} required={true} type={'text'} className={'w-full mt-1 bg-secondaryText placeholder:text-xs placeholder:opacity-30 bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-lg text-md py-2 px-3 transition-all'} />
 							</div>
 							<div className="flex-1" />
-							<div className="w-full flex gap-5 my-5 justify-center items-center">
-								<Link href={'/artibot?conversation_type=ad_creative'}>
-									<CTAButton className="py-3 rounded-lg flex gap-3 items-center text-sm bg-transparent border-2 border-primary">
-										<>
-											<div className="w-6">
-												<AdCreativeIcon fill={colors.primary} />
+							{
+								<AnimatePresence mode="wait">
+									{
+										new StringUtils(projectName).isNotEmpty().isMinLength(4).get() && <motion.div initial={{height: 0}} transition={{duration: 0.1}} animate={{height: '76px'}} exit={{height: '0px'}} className="w-full flex gap-5 my-5 justify-center transition-all overflow-hidden items-center">
+											<div>
+												<Link href={'/artibot?conversation_type=ad_creative'}>
+													<CTAButton
+														className="py-3 rounded-lg flex gap-3 items-center text-sm bg-transparent border-2 border-primary">
+														<>
+															<div className="w-6">
+																<AdCreativeIcon fill={colors.primary}/>
+															</div>
+															<span className="text-primary">Ad Creative Assistant</span>
+														</>
+													</CTAButton>
+												</Link>
+												<span className="text-xs text-gray-500">For creating eye-catching ads</span>
 											</div>
-											<span className="text-primary">Ad Creative Bot</span>
-										</>
-									</CTAButton>
-								</Link>
-								<Link href={'/artibot?conversation_type=strategy'}>
-									<CTAButton className="py-3 rounded-lg flex gap-3 items-center text-sm bg-transparent border-2 border-primary">
-										<>
-											<div className="w-6">
-												<StrategyIcon fill={colors.primary} />
+											<div>
+												<Link href={'/artibot?conversation_type=strategy'}>
+													<CTAButton
+														className="py-3 rounded-lg flex gap-3 items-center text-sm bg-transparent border-2 border-primary">
+														<>
+															<div className="w-6">
+																<StrategyIcon fill={colors.primary}/>
+															</div>
+															<span className="text-primary">Business Strategy Guide</span>
+														</>
+													</CTAButton>
+												</Link>
+												<span className="text-xs text-gray-500">For help with your business plans</span>
 											</div>
-											<span className="text-primary">Strategy Bot</span>
-										</>
-									</CTAButton>
-								</Link>
-							</div>
+										</motion.div>
+									}
+								</AnimatePresence>
+							}
 						</div>
 					</>
 				</Modal>
 				<div className={'flex-1 flex flex-col-reverse overflow-auto'}>
 					<div />
-					<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center mb-3">
-						<div className="h-0.5 mr-5 flex-1 bg-gray-800" />
-						<div className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
-							<span>Hey</span>
-							<Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
-							<span>, How can Arti Ai help you?</span>
-						</div>
-						<div className="h-0.5 ml-5 flex-1 bg-gray-800" />
-					</div>
+					{/*<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center mb-3">*/}
+					{/*	<div className="h-0.5 mr-5 flex-1 bg-gray-800" />*/}
+					{/*	<div className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">*/}
+					{/*		<span>Hey</span>*/}
+					{/*		<Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>*/}
+					{/*		<span>, How can Arti Ai help you?</span>*/}
+					{/*	</div>*/}
+					{/*	<div className="h-0.5 ml-5 flex-1 bg-gray-800" />*/}
+					{/*</div>*/}
 				</div>
 				<div className="blur-sm pointer-events-none flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground">
 					<div className="flex-1 relative rounded-xl bg-background h-[70%] mb-1 mx-3">

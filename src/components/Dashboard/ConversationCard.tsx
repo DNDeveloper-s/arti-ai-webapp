@@ -13,7 +13,7 @@ import AdCreativeIcon from '@/components/shared/icons/AdCreativeIcon';
 export const ConversationCardShimmer = () => {
 
 	return (
-		<div className={'animate-pulse w-[25rem] flex-shrink-0 h-[13rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
+		<div className={'animate-pulse w-[25rem] flex-shrink-0 h-[13rem] relative border-2 border-secondaryBackground transition-all rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
 			<div className="w-full h-full absolute top-0 z-10 left-0 bg-[linear-gradient(180deg,_rgba(0,0,0,0.00)_55.23%,_rgba(0,0,0,0.61)_77%,_rgba(0,0,0,0.82)_100%)]" />
 			<div className="py-3 px-3 flex items-center justify-between">
 				<div className="flex items-center gap-3">
@@ -50,15 +50,15 @@ const ConversationCard:React.FC<ConversationCardProps> = (props) => {
 		<div className={'w-[25rem] flex-shrink-0 h-[13rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
 			<div className="w-full h-full absolute top-0 z-10 left-0 bg-[linear-gradient(180deg,_rgba(0,0,0,0.00)_55.23%,_rgba(0,0,0,0.61)_77%,_rgba(0,0,0,0.82)_100%)]" />
 			<div className="py-3 px-3 flex items-center justify-between">
-				<div className="flex items-center gap-3">
+				{/*<div className="flex items-center gap-3">*/}
 					{/*<span className="w-4">*/}
 					{/*	{props.conversation.conversation_type === ConversationType.STRATEGY ?*/}
 					{/*		<StrategyIcon fill={colors.primary} />*/}
 					{/*		: <AdCreativeIcon fill={colors.primary} />*/}
 					{/*	}*/}
 					{/*</span>*/}
-					<h2 className="text-base font-medium text-primary">{props.conversation.conversation_type === ConversationType.AD_CREATIVE ? 'Ad Creative' : 'Strategy'} | {props.conversation.project_name}</h2>
-				</div>
+				{/*</div>*/}
+				<h2 className="whitespace-nowrap w-full overflow-hidden overflow-ellipsis mr-5 text-base font-medium text-primary">{props.conversation.conversation_type === ConversationType.AD_CREATIVE ? 'Ad Creative' : 'Strategy'} | {props.conversation.project_name}</h2>
 				{/*<div className="flex items-center gap-3">*/}
 				{/*	<h2 className="text-base font-medium text-primary">{'New Chat'}</h2>*/}
 				{/*	<div className="flex gap-1 items-center">*/}
@@ -68,11 +68,11 @@ const ConversationCard:React.FC<ConversationCardProps> = (props) => {
 				{/*		<span>Ad Creative</span>*/}
 				{/*	</div>*/}
 				{/*</div>*/}
-				<span>
-				<span className="text-white text-opacity-30 text-[1.1em]">Last Activity:</span>
-					{mounted && <span
-						className="text-primary text-[1.1em] ml-1">{timeSince(props.conversation.updatedAt) + ' ago'}</span>}
-			</span>
+				<span className="whitespace-nowrap">
+					<span className="text-white text-opacity-30 text-[1.1em]">Last Activity:</span>
+						{mounted && <span
+							className="text-primary text-[1.1em] ml-1">{timeSince(props.conversation.updatedAt) + ' ago'}</span>}
+				</span>
 			</div>
 			<div className="flex flex-col-reverse">
 				{props.conversation.messages.map(messageItem => <ChatGPTMessageItem disableCopy size={20} key={messageItem.id} messageItem={messageItem} variantFontSize={10} />)}

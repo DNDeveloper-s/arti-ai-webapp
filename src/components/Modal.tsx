@@ -18,11 +18,11 @@ const Modal: FC<ModalProps> = ({BackdropProps, open, setOpen, children, PaperPro
 	const props: any = {
 		BackdropProps: {
 			...BackdropProps,
-			className: 'z-10 relative w-screen h-screen bg-black bg-opacity-60 transition-all ' + (BackdropProps?.className ?? '')
+			className: 'z-10 absolute w-screen h-screen bg-black bg-opacity-60 transition-all ' + (BackdropProps?.className ?? '')
 		},
 		PaperProps: {
 			...PaperProps,
-			className: 'z-20 bg-black absolute min-h-[20rem] min-w-[20rem] modal-shadow transform top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ' + (PaperProps?.className ?? ''),
+			className: 'z-20 bg-black fixed min-h-[20rem] min-w-[20rem] modal-shadow transform top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ' + (PaperProps?.className ?? ''),
 		},
 	}
 

@@ -154,8 +154,9 @@ export default function CardSection() {
 		return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.AD_CREATIVE);
 	}, [activeTabItem.id, state.conversation.list])
 
+	const conversationLoadingCondition = state.loading.conversations && (!state.conversation?.list || state.conversation?.list?.length === 0);
 	function renderConversations() {
-		if(state.loading.conversations && (!state.conversation?.list || state.conversation?.list?.length === 0)) return <div className="w-full flex gap-4 overflow-hidden">
+		if(conversationLoadingCondition) return <div className="w-full flex gap-4 overflow-hidden">
 			<ConversationCardShimmer />
 			<ConversationCardShimmer />
 			<ConversationCardShimmer />
@@ -173,7 +174,7 @@ export default function CardSection() {
 	}
 
 	function renderAdCreatives() {
-		if(state.loading.adCreatives && (!state.adCreative?.list || state.adCreative?.list?.length === 0)) {
+		if(conversationLoadingCondition || state.loading.adCreatives && (!state.adCreative?.list || state.adCreative?.list?.length === 0)) {
 			return (
 				<section className="mb-10 w-full">
 					<h2 className="mb-3">Past Ad Creatives</h2>

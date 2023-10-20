@@ -10,6 +10,8 @@ import AdItem from '@/components/ArtiBot/MessageItems/AdItem';
 import {addAdCreatives, useConversation} from '@/context/ConversationContext';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import {dummyEssay} from '@/constants/dummy';
+import {ConversationType} from '@/interfaces/IConversation';
+import generatingAdJSON from '@/assets/lottie/generating_image.json';
 
 interface ChatGPTMessageItemProps {
 	messageItem: ChatGPTMessageObj;
@@ -98,6 +100,71 @@ export const ChatGPTMessageItemShimmer = ({size = 45}) => {
 				{/*<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>*/}
 				<div className="ml-[0.8em] flex-1">
 					<span className="app-shimmer">{message}</span>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+const welcomeMessage = {
+	[ConversationType.AD_CREATIVE]: 'Hello! I am Arti, an AI with a background in advertising. I can assist you in crafting captivating advertisements for various platforms. May I please know your name and your role in this project? Additionally, could you let me know the type of ad you wish to create and where you intend to display these ads?',
+	[ConversationType.STRATEGY]: 'Hello! I am Arti, an AI with proficiency in consultancy. I am here to help you understand key SWOT parameters for your business, provide insights on how to improve your marketing, digital presence, and overall offering. May I know your name, profession, and what your business is about?'
+}
+
+export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType.AD_CREATIVE}) => {
+	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
+
+	const message = useMemo(() => {
+		return randomMessageLengthForShimmer[randomIndex()];
+	}, [])
+	return (
+		<div className={'w-full'}>
+			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+				<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
+				<div className="ml-[0.8em] flex-1">
+					<div className="flex items-start">
+						<p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
+							{welcomeMessage[type]}
+						</p>
+						<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
+							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary"
+							                                 onClick={() => messageItem && messageItem.content && copyTextToClipboard(messageItem.content)}/> :
+								<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
+								        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
+								        animationData={tickAnimation}
+								        loop={false}
+								/>
+							}
+            </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+export const ChatGPTMessageCreatingAd = ({size = 45}) => {
+	const message = useMemo(() => {
+		return randomMessageLengthForShimmer[randomIndex()];
+	}, [])
+	return (
+		<div className={'w-full'}>
+			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+				<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
+				<div className="ml-[0.8em] flex-1">
+					<div className="flex items-start">
+						<span className="flex gap-2 p-3 rounded-xl border-2 border-primary border-opacity-20 bg-secondaryText bg-opacity-10 shadow w-full max-w-[350px]">
+							<span className="h-[44px] aspect-square bg-black rounded-xl flex items-center justify-center">
+								<span className="w-7 h-7 flex items-center justify-center">
+									<Lottie animationData={generatingAdJSON} loop={true} />
+								</span>
+							</span>
+							<span className="flex flex-col">
+								<span className="leading-tight">Arti Ai</span>
+								<span className="mt-0.5 text-gray-500 text-sm">Generating Ad Creatives</span>
+							</span>
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>

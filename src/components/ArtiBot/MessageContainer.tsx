@@ -1,13 +1,17 @@
 import React, {FC, useEffect, Dispatch, useMemo, useRef, useState} from 'react';
 import Lottie from 'lottie-react';
 import typingAnimation from '@/assets/lottie/typing.json';
-import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
+import ChatGPTMessageItem, {
+	ChatGPTMessageCreatingAd,
+	ChatGPTMessageWelcomeMessage
+} from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
 import {ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
 import WavingHand from '@/assets/images/waving-hand.webp';
 import Image from 'next/image';
 import {useParams} from 'next/navigation';
 import {dummyEssay} from '@/constants/dummy';
 import {botData, dummyUser} from '@/constants/images';
+import {ConversationType} from '@/interfaces/IConversation';
 
 interface MessageContainerProps {
 	miniVersion: boolean;
@@ -16,12 +20,14 @@ interface MessageContainerProps {
 	messages: ChatGPTMessageObj[];
 	setMessages: Dispatch<React.SetStateAction<MessageContainerProps['messages']>>
 	isGenerating: boolean;
+	isGeneratingAd: boolean;
 	msg: string;
+	conversationType?: ConversationType;
 	chunksRef?: React.MutableRefObject<string>;
 	doneRef?: React.MutableRefObject<boolean>
 }
 
-const MessageContainer: FC<MessageContainerProps> = ({msg, setMessages, miniVersion, showGetAdNowButton, messages, isGenerating, chunksRef, doneRef}) => {
+const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversationType, msg, setMessages, miniVersion, showGetAdNowButton, messages, isGenerating, chunksRef, doneRef}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const params = useParams();
 
@@ -47,6 +53,7 @@ const MessageContainer: FC<MessageContainerProps> = ({msg, setMessages, miniVers
 
 	return (
 		<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[35em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-14 md:pb-24' : '')} ref={containerRef}>
+			{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
 			<div className="text-white whitespace-pre-wrap">
 				{msg}
 			</div>
@@ -68,7 +75,8 @@ const MessageContainer: FC<MessageContainerProps> = ({msg, setMessages, miniVers
 					))
 				}
 			</div>
-			<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center mb-3">
+			{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}
+			<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
 				<div className="h-0.5 mr-5 flex-1 bg-gray-800" />
 				<div className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
 					<span>Hey</span>

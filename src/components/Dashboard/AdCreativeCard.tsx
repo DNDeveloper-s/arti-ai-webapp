@@ -15,7 +15,7 @@ interface AdCreativeCardProps {
 }
 
 export const AdCreativeCardShimmer = () => {
-	return <div className={'animate-pulse w-[25rem] flex-shrink-0 pb-4  relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
+	return <div className={'animate-pulse w-[25rem] flex-shrink-0 pb-4  relative border-2 border-secondaryBackground transition-all rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
 		<div className="pointer-events-none w-full h-full absolute top-0 z-10 left-0 bg-[linear-gradient(90deg,_rgba(0,0,0,0.00)_55.23%,_rgba(0,0,0,0.61)_77%,_rgba(0,0,0,0.82)_100%)]" />
 		<div className="py-3 px-3 relative flex items-center justify-between z-20">
 			<h2 className="app-shimmer whitespace-nowrap w-full overflow-hidden overflow-ellipsis mr-5 text-base font-medium text-primary">This is a normal object where you can have some other things to adjust</h2>
@@ -28,9 +28,9 @@ export const AdCreativeCardShimmer = () => {
 			{/*{adCreative.variants.map(currentAdVariant => (*/}
 			{/*	<FacebookAdVariant style={{zoom: 0.3, fontSize: '10px'}} key={currentAdVariant.id} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]"/>*/}
 			{/*))}*/}
-			<FacebookAdVariantShimmer style={{zoom: 0.3, fontSize: '10px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
-			<FacebookAdVariantShimmer style={{zoom: 0.3, fontSize: '10px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
-			<FacebookAdVariantShimmer style={{zoom: 0.3, fontSize: '10px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
+			<FacebookAdVariantShimmer style={{zoom: 0.3, fontSize: '9px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
+			<FacebookAdVariantShimmer style={{zoom: 0.3, fontSize: '9px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
+			<FacebookAdVariantShimmer style={{zoom: 0.3, fontSize: '9px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
 		</div>
 	</div>
 }
@@ -64,7 +64,7 @@ const AdCreativeCard:React.FC<AdCreativeCardProps> = ({adCreatives, onClick}) =>
 		</div>
 		<div className={"flex items-start gap-3 px-3"}>
 			{adCreative.variants.map(currentAdVariant => (
-				<FacebookAdVariant style={{zoom: 0.3, fontSize: '10px'}} key={currentAdVariant.id} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]"/>
+				<FacebookAdVariant style={{zoom: 0.3, fontSize: '9px'}} key={currentAdVariant.id} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]"/>
 			))}
 		</div>
 	</div>
