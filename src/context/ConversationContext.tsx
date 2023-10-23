@@ -495,27 +495,44 @@ async function updateVariantImage(dispatch: (a: ConversationAction) => void, tex
 
 }
 
-async function getConversations(dispatch: (a: ConversationAction) => void) {
+function withRetry(func: Function) {
+	const retry = 1;
+
+	let a = func();
+
+	if(!a) {
+		a = func();
+	}
+
+	return;
+}
+
+async function getConversations(dispatch: (a: ConversationAction) => void, maxRetries = 2) {
 	dispatch({
 		type: CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS,
 		payload: {}
 	});
 
-	try {
-		const response = await axios.get(ROUTES.CONVERSATION.QUERY(), {
-			headers: {
-				'Authorization': 'Bearer ' + localStorage.getItem('token')
+	for (let retry = 0; retry < maxRetries; retry++) {
+		try {
+			const response = await axios.get(ROUTES.CONVERSATION.QUERY(), {
+				headers: {
+					'Authorization': 'Bearer ' + localStorage.getItem('token')
+				}
+			});
+			if(response.data.ok) {
+				return dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS_SUCCESS, payload: {conversations: response.data.data}});
 			}
-		});
-		if(response.data.ok) {
-			return dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS_SUCCESS, payload: {conversations: response.data.data}});
+			console.log('retrying - ');
+			await new Promise(resolve => setTimeout(resolve, 1000));
+		} catch (error: any) {
+			console.log('retrying - ');
+			await new Promise(resolve => setTimeout(resolve, 1000));
 		}
-		console.log('setting error - ');
-		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversations. Please try again!'}});
-	} catch (error: any) {
-		console.log('setting error - ');
-		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversations. Please try again!'}});
 	}
+
+	console.log('setting error - ');
+	dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversations. Please try again!'}});
 }
 
 async function getAdCreatives(dispatch: (a: ConversationAction) => void) {
