@@ -63,7 +63,7 @@ export default function Conversation({type = ConversationType.AD_CREATIVE}: {typ
 				{/*<div className="bg-background">*/}
 
 				{/*</div>*/}
-				{state.conversation.map && state.conversation.map[params.conversation_id] && <ArtiBot conversation={state.conversation.map[params.conversation_id]}/>}
+				<ArtiBot conversation={state.conversation.map[params.conversation_id]}/>
 			</div>
 		</main>
 	)

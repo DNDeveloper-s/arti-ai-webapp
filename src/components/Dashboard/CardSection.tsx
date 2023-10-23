@@ -9,21 +9,22 @@ import webImage from '@/assets/images/image1.webp';
 import AttachmentModal from '@/components/Dashboard/AttachmentModal';
 import Drawer, {Position} from '@/components/Drawer';
 import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
-import React, {FC, useEffect, useMemo, useState} from 'react';
+import React, {FC, useContext, useEffect, useMemo, useState} from 'react';
 import {AttachmentDetails, ModalDispatchAction} from '@/interfaces';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import {useRouter} from 'next/navigation';
-import {signOut, useSession} from 'next-auth/react';
-import PlaceholderCard from '@/components/Dashboard/PlaceholderCard';
-import CTAButton from '@/components/CTAButton';
+import {signOut} from 'next-auth/react';
 import EmptyFolderIcon from '@/components/EmptyFolderIcon';
 import Link from 'next/link';
-import {getAdCreatives, getConversations, useConversation} from '@/context/ConversationContext';
-import {ConversationType, IConversation, IConversationModel} from '@/interfaces/IConversation';
-import Tabs, {TabItem} from '@/components/shared/tabs/Tabs';
+import {clearError, getAdCreatives, getConversations, useConversation} from '@/context/ConversationContext';
+import {ConversationType, IConversation} from '@/interfaces/IConversation';
+import {TabItem} from '@/components/shared/tabs/Tabs';
 import AdCreativeIcon from '@/components/shared/icons/AdCreativeIcon';
 import StrategyIcon from '@/components/shared/icons/StrategyIcon';
 import useSessionToken from '@/hooks/useSessionToken';
+import Snackbar from '@/components/Snackbar';
+import {SnackbarContext} from '@/context/SnackbarContext';
+import {ChatGPTRole} from '@/interfaces/IArtiBot';
 
 enum EmptySectionType {
 	CONVERSATION = 'conversation',
@@ -100,8 +101,16 @@ export default function CardSection() {
 	const [currentAdCreative, setCurrentAdCreative] = useState<IAdCreative | null>(null);
 	const {state, dispatch} = useConversation();
 	const token = useSessionToken();
-
+	const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 	const [activeTabItem, setActiveTabItem] = useState<TabItem>(tabItems[0]);
+
+	useEffect(() => {
+		console.log('state.error - ', state.error);
+		if(state.error && state.error.message) {
+			setSnackBarData({status: 'error', message: state.error.message});
+			clearError(dispatch);
+		}
+	}, [dispatch, setSnackBarData, state.error])
 
 	useEffect(() => {
 		token && dispatch && getConversations(dispatch);
@@ -144,17 +153,23 @@ export default function CardSection() {
 		setActiveTabItem(tabItem)
 	}
 
+	function isActiveConversation(conversation: IConversation) {
+		// We can check if the conversation is active or not
+		// by checking the messages array and if the message has been received by the user
+		return conversation.messages.some(message => message.role === ChatGPTRole.ASSISTANT)
+	}
+
 	const conversations = useMemo(() => {
 		if(!state.conversation.list) return null;
 		const _conversations = state.conversation.list;
 
 		if(activeTabItem.id === ConversationType.STRATEGY) {
-			return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.STRATEGY);
+			return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.STRATEGY && isActiveConversation(c)).reverse();
 		}
-		return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.AD_CREATIVE);
+		return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.AD_CREATIVE && isActiveConversation(c)).reverse();
 	}, [activeTabItem.id, state.conversation.list])
 
-	const conversationLoadingCondition = state.loading.conversations && (!state.conversation?.list || state.conversation?.list?.length === 0);
+	const conversationLoadingCondition = (state.loading.conversations && conversations?.length === 0) && (!state.conversation?.list || state.conversation?.list?.length === 0);
 	function renderConversations() {
 		if(conversationLoadingCondition) return <div className="w-full flex gap-4 overflow-hidden">
 			<ConversationCardShimmer />
@@ -163,10 +178,10 @@ export default function CardSection() {
 		</div>
 		return (
 			<>
-				{!state.conversation?.list || state.conversation?.list?.length === 0 ?
+				{!conversations || conversations?.length === 0 ?
 					<EmptySection style={{backdropFilter: 'blur(3px)', background: 'rgba(0,0,0,0.6)'}} type={EmptySectionType.CONVERSATION} /> :
 					// state.conversations.filter((c: IConversationModel & {has_activity: boolean}) => c.has_activity).map((conversation: IConversationModel) =>
-					state.conversation?.list.map((conversation: IConversation) =>
+					conversations.map((conversation: IConversation) =>
 						<ConversationCard key={conversation.id} conversation={conversation}/>)
 				}
 			</>
@@ -232,6 +247,7 @@ export default function CardSection() {
 			<Drawer open={!!currentAdCreative} position={Position.RIGHT} handelClose={() => setCurrentAdCreative(null)}>
 				{currentAdCreative && <RightPane adCreative={currentAdCreative}/>}
 			</Drawer>
+			<Snackbar />
 		</>
 	)
 }

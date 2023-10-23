@@ -10,6 +10,7 @@ import {SlOptions} from 'react-icons/sl';
 import {updateVariantImage, useConversation} from '@/context/ConversationContext';
 import Lottie from 'lottie-react';
 import generatingImage from '@/assets/lottie/generating_image.json';
+import errorImage from '@/assets/lottie/error.json';
 
 
 export const FacebookAdVariantShimmer = ({style = {}, className = ''}) => {
@@ -56,7 +57,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 	const [expand, setExpand] = useState<boolean>(false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
-	const {state: {inProcess, variant}, dispatch} = useConversation();
+	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
 
 	const adVariant = variant.map && variant.map[_adVariant.id] ? variant.map[_adVariant.id] : _adVariant;
 
@@ -76,18 +77,25 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 	// }, [expand]);
 
 	useEffect(() => {
-		console.log('adVariant.id - ', adVariant.id);
-		if(!adVariant.id || adVariant.id.includes('variant')) return;
+		if(!adVariant.id || adVariant.id.includes('variant') || noExpand) return;
 		if(!adVariant.imageUrl && adVariant.imageDescription && (!inProcess || !inProcess[adVariant.id])) {
+			console.log('adVariant.id - ', adVariant.id);
 			updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
 		}
 	}, [adVariant, dispatch]);
 
 
-	const lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
+	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
 		<Lottie className={"w-32 h-32"} animationData={generatingImage} loop={true} />
 		<h6 className="text-white text-opacity-60 text-center px-5 leading-normal">Creating your ad variant image to make your brand shine, one pixel at a time.</h6>
 	</div>
+
+	if(inError && inError[adVariant.id]) {
+		lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
+			<Lottie className={"w-32 h-32"} animationData={errorImage} loop={true} />
+			<h6 className="text-white text-opacity-60 text-center px-5 leading-normal">Oops! It looks like there was an issue creating your ad variant image. Try creating another one.</h6>
+		</div>
+	}
 
 	const imageContainerJSX =
 		adVariant.imageUrl

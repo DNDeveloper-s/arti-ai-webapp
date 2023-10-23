@@ -2,7 +2,7 @@
 
 import React, {createContext, FC, useContext, useLayoutEffect, useReducer} from 'react';
 import {ConversationType, IConversation} from '@/interfaces/IConversation';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import {ROUTES} from '@/config/api-config';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import {ChatGPTMessageObj, IAdVariant} from '@/interfaces/IArtiBot';
@@ -19,10 +19,12 @@ export type ConversationData = IConversationData | null | false;
 enum CONVERSATION_ACTION_TYPE {
 	LOADING = 'LOADING',
 	LOADED = 'LOADED',
+	CLEAR_ERROR = 'CLEAR_ERROR',
 	ADD_ADCREATIVES = 'ADD_ADCREATIVES',
 	REMOVE_ADCREATIVES = 'REMOVE_ADCREATIVES',
 	UPDATING_VARIANT_IMAGE = 'UPDATING_VARIANT_IMAGE',
 	UPDATE_VARIANT_IMAGE = 'UPDATE_VARIANT_IMAGE',
+	ERROR_IN_UPDATING_VARIANT_IMAGE = 'ERROR_IN_UPDATING_VARIANT_IMAGE',
 	UPDATE_VARIANT_IMAGE_SUCCESS = 'UPDATE_VARIANT_IMAGE_SUCCESS',
 	UPDATE_VARIANT_IMAGE_FAILURE = 'UPDATE_VARIANT_IMAGE_FAILURE',
 	GET_ADCREATIVES = 'GET_ADCREATIVES',
@@ -39,6 +41,7 @@ enum CONVERSATION_ACTION_TYPE {
 	CREATE_CONVERSATION_FAILURE = 'CREATE_CONVERSATION_FAILURE',
 	ADD_TO_MESSAGE_BUFFER = 'ADD_TO_MESSAGE_BUFFER',
 	FLUSH_MESSAGE_BUFFER = 'FLUSH_MESSAGE_BUFFER',
+	SHOW_ERROR_MESSAGE = 'SHOW_ERROR_MESSAGE',
 }
 
 // An interface for our actions
@@ -50,6 +53,10 @@ interface ConversationAction {
 interface StateRecord<T extends {id: string}> {
 	map: Record<T['id'], T>;
 	list: T[];
+}
+
+interface IError {
+	message: string;
 }
 
 interface IConversationState {
@@ -64,6 +71,8 @@ interface IConversationState {
 	loading: LoadingState;
 	messageBuffer?: ChatGPTMessageObj[];
 	inProcess?: any;
+	inError?: any;
+	error?: IError;
 }
 
 interface StateRecordEnum {
@@ -229,6 +238,18 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 					[payload.variantId]: true
 				}
 			};
+		case CONVERSATION_ACTION_TYPE.ERROR_IN_UPDATING_VARIANT_IMAGE:
+			return {
+				...state,
+				inProcess: {
+					...(state.inProcess ?? {}),
+					[payload.variantId]: false
+				},
+				inError: {
+					...(state.inError ?? {}),
+					[payload.variantId]: true
+				}
+			};
 		case CONVERSATION_ACTION_TYPE.GET_ADCREATIVES:
 			return {
 				...state,
@@ -303,6 +324,20 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 				adCreative: mergeStateRecord(state.adCreative, maps.adCreative),
 				variant: mergeStateRecord(state.variant, maps.variant),
 			};
+		case CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE:
+			console.log('action.payload.message - ', action.payload.message);
+			return {
+				...state,
+				error: {
+					message: action.payload.message
+				},
+			}
+		case CONVERSATION_ACTION_TYPE.CLEAR_ERROR:
+			console.log('action.payload.message - ', action.payload.message);
+			return {
+				...state,
+				error: undefined,
+			}
 		case CONVERSATION_ACTION_TYPE.GET_CONVERSATION:
 			return {
 				...state,
@@ -449,9 +484,13 @@ async function updateVariantImage(dispatch: (a: ConversationAction) => void, tex
 		});
 		if(response.data.ok) {
 			dispatch({type: CONVERSATION_ACTION_TYPE.UPDATE_VARIANT_IMAGE_SUCCESS, payload: {variantId, variant: response.data.data}});
+		} else {
+			console.log('setting error - ', response.data?.message);
+			dispatch({type: CONVERSATION_ACTION_TYPE.ERROR_IN_UPDATING_VARIANT_IMAGE, payload: {variantId}});
 		}
 	} catch (error: any) {
-		dispatch({type: CONVERSATION_ACTION_TYPE.UPDATE_VARIANT_IMAGE_FAILURE, payload: {error: error.message}});
+		console.log('setting error - ');
+		dispatch({type: CONVERSATION_ACTION_TYPE.ERROR_IN_UPDATING_VARIANT_IMAGE, payload: {variantId}});
 	}
 
 }
@@ -469,12 +508,14 @@ async function getConversations(dispatch: (a: ConversationAction) => void) {
 			}
 		});
 		if(response.data.ok) {
-			dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS_SUCCESS, payload: {conversations: response.data.data}});
+			return dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS_SUCCESS, payload: {conversations: response.data.data}});
 		}
+		console.log('setting error - ');
+		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversations. Please try again!'}});
 	} catch (error: any) {
-		dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS_FAILURE, payload: {error: error.message}});
+		console.log('setting error - ');
+		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversations. Please try again!'}});
 	}
-
 }
 
 async function getAdCreatives(dispatch: (a: ConversationAction) => void) {
@@ -512,10 +553,14 @@ async function getConversation(dispatch: (a: ConversationAction) => void, conver
 		});
 		console.log('state.loading.conversation - ', response);
 		if(response.data.ok) {
-			dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATION_SUCCESS, payload: {conversation: response.data.data}});
+			return dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATION_SUCCESS, payload: {conversation: response.data.data}});
 		}
+		console.log('setting error - ');
+		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversation. Please try again!'}});
 	} catch (error: any) {
-		dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATION_FAILURE, payload: {error: error.message}});
+		console.log('state.error - ', error);
+		console.log('setting error - ');
+		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversation. Please try again!'}});
 	}
 }
 
@@ -567,17 +612,26 @@ function flushBufferMessage(dispatch: (a: ConversationAction) => void) {
 	})
 }
 
-function saveMessages(dispatch: (a: ConversationAction) => void, messages: ChatGPTMessageObj[], conversationId: string, conversationType: ConversationType, projectName: string) {
-	axios.post(ROUTES.MESSAGE.SAVE, {
-		messages,
-		conversationId,
-		conversationType,
-		projectName
-	}, {
-		headers: {
-			'Authorization': 'Bearer ' + localStorage.getItem('token')
+async function saveMessages(dispatch: (a: ConversationAction) => void, messages: ChatGPTMessageObj[], conversationId: string, conversationType: ConversationType, projectName: string) {
+	try {
+		const response = await axios.post(ROUTES.MESSAGE.SAVE, {
+			messages,
+			conversationId,
+			conversationType,
+			projectName
+		}, {
+			headers: {
+				'Authorization': 'Bearer ' + localStorage.getItem('token')
+			}
+		})
+		if(!response?.data?.ok) {
+			console.log('setting error - ');
+			dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: response?.data?.message ?? 'Unable to save your message. Please try again later.'}});
 		}
-	})
+	} catch(error: any) {
+		console.log('setting error - ');
+		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to save your message. Please try again later.'}});
+	}
 }
 
 async function saveAdCreativeMessage(dispatch: (a: ConversationAction) => void, messages: ChatGPTMessageObj[], jsonObjectInString: string, conversationId: string, conversationType: ConversationType, projectName: string, onDemand: boolean) {
@@ -632,6 +686,14 @@ async function saveAdCreativeMessage(dispatch: (a: ConversationAction) => void, 
 	}
 }
 
+function clearError(dispatch: (a: ConversationAction) => void) {
+	console.log('clearing error - ');
+	dispatch({
+		type: CONVERSATION_ACTION_TYPE.CLEAR_ERROR,
+		payload: {}
+	});
+}
+
 export {
 	createConversation,
 	addAdCreatives,
@@ -643,6 +705,7 @@ export {
 	addMessageToBuffer,
 	flushBufferMessage,
 	saveMessages,
+	clearError,
 	saveAdCreativeMessage,
 	ConversationContextProvider
 };

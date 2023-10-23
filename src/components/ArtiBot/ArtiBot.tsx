@@ -1,6 +1,6 @@
 'use client';
 
-import React, {FC, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {FC, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {colors} from '@/config/theme';
 import TextareaAutosize from 'react-textarea-autosize';
 import {motion} from 'framer-motion'
@@ -22,7 +22,13 @@ import {dummy} from '@/constants/dummy';
 import ObjectId from 'bson-objectid';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';
 import FileItem from '@/components/ArtiBot/MessageItems/FileItem';
-import {addAdCreatives, saveAdCreativeMessage, saveMessages, useConversation} from '@/context/ConversationContext';
+import {
+	addAdCreatives,
+	clearError,
+	saveAdCreativeMessage,
+	saveMessages,
+	useConversation
+} from '@/context/ConversationContext';
 import useSessionToken from '@/hooks/useSessionToken';
 import getJSONObjectFromAString, {isValidJsonWithAdsArray} from '@/helpers';
 import axios, {AxiosError} from 'axios';
@@ -65,6 +71,19 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	const [adCreatives, setAdCreatives] = useState(conversation?.adCreatives ? conversation?.adCreatives : []);
 	const {state, dispatch} = useConversation();
 	const token = useSessionToken();
+
+	const showError = useCallback((message: string) => {
+		if(message) return setSnackBarData({status: 'error', message});
+		if(state.error && state.error.message) {
+			console.log('state.error - ', state.error);
+			setSnackBarData({status: 'error', message: state.error.message});
+			clearError(dispatch);
+		}
+	}, [dispatch, setSnackBarData, state.error]);
+
+	useEffect(() => {
+		showError();
+	}, [showError])
 
 	useEffect(() => {
 		// console.log('freeTierLimit - ', freeTierLimit);
@@ -301,7 +320,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		const transformedMessages = _messages.filter(a => a.content).map(c => ({role: c.role, content: c.content}));
 
 		const messageService = new MessageService();
-		const response = await messageService.send(transformedMessages, handleMessageResponse, conversation?.id, conversation?.conversation_type, conversation?.project_name, generate_ad, miniVersion);
+		const response = await messageService.send(transformedMessages, handleMessageResponse, conversation?.id, conversation?.conversation_type, conversation?.project_name, generate_ad, miniVersion, showError);
 
 		console.log('response - ', response);
 

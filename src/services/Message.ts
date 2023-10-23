@@ -6,7 +6,7 @@ import {ConversationType} from '@/interfaces/IConversation';
 
 export class MessageService {
 
-	async send(messages: ChatGPTMessageObj[], handleChunk: (a: HandleChunkArgs) => any, conversationId?: ObjectID | string, conversationType: ConversationType = ConversationType.AD_CREATIVE, project_name: string, generate_ad?: boolean, miniVersion?: boolean) {
+	async send(messages: ChatGPTMessageObj[], handleChunk: (a: HandleChunkArgs) => any, conversationId?: ObjectID | string, conversationType: ConversationType = ConversationType.AD_CREATIVE, project_name: string, generate_ad?: boolean, miniVersion?: boolean, showError?: (a: string) => {}) {
 		try {// const response = await fetch('http://localhost:8080/text-stream', {
 			const response = await fetch(miniVersion ? ROUTES.MESSAGE.SEND_FREE_TIER : ROUTES.MESSAGE.SEND, {
 				method: 'POST',
@@ -18,6 +18,12 @@ export class MessageService {
 				body: JSON.stringify({messages, generate_ad, conversationId, conversationType, project_name})
 			})
 			console.log('response - ', response);
+
+			if(!response.ok) {
+				showError && showError('You message is not sent. Please try again later!');
+				return;
+			}
+
 			if(!response.body) return console.log('Received = No response body present');
 
 			// Check if the response is a json or a stream

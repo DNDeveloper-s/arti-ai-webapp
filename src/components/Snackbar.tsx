@@ -1,9 +1,11 @@
 import {AnimatePresence, motion} from 'framer-motion';
 import {useContext, useEffect} from 'react';
 import {SnackbarContext} from '@/context/SnackbarContext';
+import {clearError, useConversation} from '@/context/ConversationContext';
 
 export default function Snackbar() {
 	const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+	const {state, dispatch} = useConversation();
 
 	useEffect(() => {
 		if(snackBarData) {
@@ -33,7 +35,7 @@ export default function Snackbar() {
 	return snackBarData && (
 		<AnimatePresence mode="wait">
 			<motion.div initial={{x: 230, opacity: 0}} animate={{x: 0, opacity: 1}} exit={{x: 230, opacity: 0}} className={props.container.className}
-			            role="alert">
+			            style={{zIndex: 100000}} role="alert">
 				<svg className="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
 				     fill="currentColor" viewBox="0 0 20 20">
 					<path
