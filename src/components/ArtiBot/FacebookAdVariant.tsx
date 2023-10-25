@@ -78,7 +78,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 
 	useEffect(() => {
 		if(!adVariant.id || adVariant.id.includes('variant') || noExpand) return;
-		if(!adVariant.imageUrl && adVariant.imageDescription && (!inProcess || !inProcess[adVariant.id] || !inError[adVariant.id])) {
+		if(!adVariant.imageUrl && adVariant.imageDescription && (!inProcess || !inProcess[adVariant.id]) && (!inError || !inError[adVariant.id])) {
 			console.log('adVariant.id - ', adVariant.id);
 			updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
 		}

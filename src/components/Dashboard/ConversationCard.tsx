@@ -46,7 +46,7 @@ const ConversationCard:React.FC<ConversationCardProps> = (props) => {
 	const mounted = useMounted();
 
 
-	return <Link href={getConversationURL(props.conversation.id, props.conversation)} >
+	return <Link href={getConversationURL(props.conversation.id, props.conversation)} prefetch={true}>
 		<div className={'w-[25rem] flex-shrink-0 h-[13rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
 			<div className="w-full h-full absolute top-0 z-10 left-0 bg-[linear-gradient(180deg,_rgba(0,0,0,0.00)_55.23%,_rgba(0,0,0,0.61)_77%,_rgba(0,0,0,0.82)_100%)]" />
 			<div className="py-3 px-3 flex items-center justify-between">

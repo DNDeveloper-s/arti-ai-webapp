@@ -15,7 +15,7 @@ export default function Navbar() {
 		<div className="flex h-20 w-full px-5 justify-between items-center">
 			<Logo />
 			<div className="flex items-center">
-				<Link href={'/artibot'}>
+				<Link href={'/artibot'} prefetch={true}>
 					<CTAButton className="py-3 mr-2 rounded-lg text-sm">
 						<span>Start Chat</span>
 					</CTAButton>
