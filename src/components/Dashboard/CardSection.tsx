@@ -163,10 +163,19 @@ export default function CardSection() {
 		if(!state.conversation.list) return null;
 		const _conversations = state.conversation.list;
 
+		// sort the list with the key updatedAt which holds the ISO String
 		if(activeTabItem.id === ConversationType.STRATEGY) {
-			return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.STRATEGY && isActiveConversation(c)).reverse();
+			return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.STRATEGY && isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
+				if(a.updatedAt > b.updatedAt) return -1;
+				if(a.updatedAt < b.updatedAt) return 1;
+				return 0;
+			});
 		}
-		return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.AD_CREATIVE && isActiveConversation(c)).reverse();
+		return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.AD_CREATIVE && isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
+			if(a.updatedAt > b.updatedAt) return -1;
+			if(a.updatedAt < b.updatedAt) return 1;
+			return 0;
+		});
 	}, [activeTabItem.id, state.conversation.list])
 
 	const conversationLoadingCondition = (state.loading.conversations && conversations?.length === 0) && (!state.conversation?.list || state.conversation?.list?.length === 0);

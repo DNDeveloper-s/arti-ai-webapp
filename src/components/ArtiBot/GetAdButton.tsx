@@ -23,17 +23,19 @@ const GetAdButton: FC<GetAdButtonProps> = (props) => {
 			initial={{y: -10, opacity: 0}}
 			animate={{y: 0, opacity: 1}}
 			transition={{type: 'spring', damping: 10}}
-			className="cta-button w-56 h-14 absolute flex justify-center items-center text-lg font-diatype -top-14 md:-top-20 right-10 md:right-20"
+			className={('breathing-button rounded h-10 absolute -top-10 md:-top-12 right-10 md:right-12 ') + (props.adGenerated ? 'w-40' : 'w-36')}
 			onClick={() => {
 				console.log('clicking - ');
 				setLoading(true);
 				props.onClick && props.onClick(setLoading);
 			}}
 		>
-			{loading ? <Loader /> : <>
-				{props.adGenerated ? <HiRefresh style={{fontSize: '22px'}}/> : <LuDownload style={{fontSize: '22px'}}/>}
-				<span className="ml-3 md:ml-3">{props.adGenerated ? 'Regenerate Ad' : 'Get Ad Now'}</span>
-			</>}
+			<div className="z-10 border border-gray-600 rounded bg-secondaryBackground w-full h-full flex justify-center items-center text-sm font-diatype">
+				{loading ? <Loader /> : <>
+					{props.adGenerated ? <HiRefresh style={{fontSize: '22px'}}/> : <LuDownload style={{fontSize: '16px'}}/>}
+					<span className="ml-3 md:ml-3">{props.adGenerated ? 'Regenerate Ad' : 'Get Ad Now'}</span>
+				</>}
+			</div>
 		</motion.button>
 	)
 }

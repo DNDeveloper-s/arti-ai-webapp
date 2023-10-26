@@ -2,7 +2,7 @@ import React, {FC, useEffect, Dispatch, useMemo, useRef, useState} from 'react';
 import Lottie from 'lottie-react';
 import typingAnimation from '@/assets/lottie/typing.json';
 import ChatGPTMessageItem, {
-	ChatGPTMessageCreatingAd,
+	ChatGPTMessageCreatingAd, ChatGPTMessageGeneratingAnimation,
 	ChatGPTMessageWelcomeMessage
 } from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
 import {ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
@@ -12,6 +12,8 @@ import {useParams} from 'next/navigation';
 import {dummyEssay} from '@/constants/dummy';
 import {botData, dummyUser} from '@/constants/images';
 import {ConversationType} from '@/interfaces/IConversation';
+import {AnimatePresence, motion} from 'framer-motion';
+import {framerContainer} from '@/config/framer-motion';
 
 interface MessageContainerProps {
 	miniVersion: boolean;
@@ -52,40 +54,41 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 	// console.log('reversedMessages - ', reversedMessages);
 
 	return (
-		<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[35em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-14 md:pb-24' : '')} ref={containerRef}>
-			{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
-			<div className="text-white whitespace-pre-wrap">
-				{msg}
-			</div>
-			{isGenerating && <div className="w-full max-w-[900px] h-10 px-3 mx-auto flex flex-end">
-        <Lottie animationData={typingAnimation} loop={true} />
-      </div>}
-			<div>
-				{
-					reversedMessages.map((messageItem: ChatGPTMessageObj) => (
-						<ChatGPTMessageItem
-							chunksRef={chunksRef}
-							doneRef={doneRef}
-							isGenerating={isGenerating}
-							conversationId={params.conversation_id as string}
-							key={messageItem.id}
-							setMessages={setMessages}
-							messageItem={messageItem}
-						/>
-					))
-				}
-			</div>
-			{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}
-			<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
-				<div className="h-0.5 mr-5 flex-1 bg-gray-800" />
-				<div className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
-					<span>Hey</span>
-					<Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
-					<span>, How can Arti Ai help you?</span>
+		<AnimatePresence mode="wait">
+			<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[35em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-9 md:pb-14' : '')} ref={containerRef}>
+				{/*<ChatGPTMessageCreatingAd/>*/}
+				{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
+				<div className="text-white whitespace-pre-wrap">
+					{msg}
 				</div>
-				<div className="h-0.5 ml-5 flex-1 bg-gray-800" />
+				{isGenerating && <ChatGPTMessageGeneratingAnimation />}
+				<motion.div variants={framerContainer} animate="show" initial="hidden" exit="hidden" >
+					{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}
+					{
+						reversedMessages.map((messageItem: ChatGPTMessageObj) => (
+							<ChatGPTMessageItem
+								chunksRef={chunksRef}
+								doneRef={doneRef}
+								isGenerating={isGenerating}
+								conversationId={params.conversation_id as string}
+								key={messageItem.id}
+								setMessages={setMessages}
+								messageItem={messageItem}
+							/>
+						))
+					}
+				</motion.div>
+				<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
+					<div className="h-0.5 mr-5 flex-1 bg-gray-800" />
+					<div className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
+						<span>Hey</span>
+						<Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
+						<span>, How can Arti Ai help you?</span>
+					</div>
+					<div className="h-0.5 ml-5 flex-1 bg-gray-800" />
+				</div>
 			</div>
-		</div>
+		</AnimatePresence>
 	)
 }
 

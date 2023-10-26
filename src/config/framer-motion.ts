@@ -1,5 +1,5 @@
 export const framerContainer = {
-	hidden: { opacity: 0, y: -20 },
+	hidden: { opacity: 1, y: 0 },
 	show: {
 		opacity: 1,
 		y: 0,
@@ -26,5 +26,6 @@ export const framerContainerReverse = {
 
 export const framerItem = (opacity = 1, y = -10) => ({
 	hidden: { opacity: 0, y },
-	show: { opacity, y: 0 }
+	show: { opacity, y: 0 },
+	transition: {type: 'spring', damping: 15, duration: .15}
 })

@@ -72,7 +72,7 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
 				</div>
 				<Modal BackdropProps={{className: 'hidden pointer-events-none'}} PaperProps={{className: 'rounded-lg !min-h-0 w-[90vw] max-w-[600px]'}} setOpen={() => {}} open={true}>
 					<>
-						<div className={'flex-1 p-5 flex flex-col overflow-auto'}>
+						<div className={'flex-1 p-5 flex flex-col'}>
 							<div className="w-full flex justify-between items-center pb-3 py-1">
 								<div className="flex items-center gap-1">
 									{/*<MdArrowBackIos onClick={() => router.push('/')} style={{fontSize: '18px', cursor: 'pointer'}}/>*/}
@@ -89,7 +89,8 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
 
 							<div className="mt-3 text-sm text-gray-400 leading-relaxed">
 								<span>
-									Welcome to Arti AI🌟. What brings you here today? Let's get started by telling us your project name, and then choose a bot to assist you in creating memorable ads or planning your business strategy.
+									{/*Welcome to Arti AI🌟. What brings you here today? Let's get started by telling us your project name, and then choose a bot to assist you in creating memorable ads or planning your business strategy.*/}
+									Get started by telling us your project name.
 								</span>
 							</div>
 
@@ -101,34 +102,42 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
 							{
 								<AnimatePresence mode="wait">
 									{
-										new StringUtils(projectName).isNotEmpty().isMinLength(4).get() && <motion.div initial={{height: 0}} transition={{duration: 0.1}} animate={{height: '76px'}} exit={{height: '0px'}} className="w-full flex gap-5 my-5 justify-center transition-all overflow-hidden items-center">
-											<div>
-												<Link href={'/artibot?conversation_type=ad_creative'}>
-													<CTAButton
-														className="py-3 rounded-lg flex gap-3 items-center text-sm bg-transparent border-2 border-primary">
-														<>
-															<div className="w-6">
-																<AdCreativeIcon fill={colors.primary}/>
-															</div>
-															<span className="text-primary">Ad Creative Assistant</span>
-														</>
-													</CTAButton>
-												</Link>
-												<span className="text-xs text-gray-500">For creating eye-catching ads</span>
-											</div>
-											<div>
-												<Link href={'/artibot?conversation_type=strategy'}>
-													<CTAButton
-														className="py-3 rounded-lg flex gap-3 items-center text-sm bg-transparent border-2 border-primary">
-														<>
-															<div className="w-6">
-																<StrategyIcon fill={colors.primary}/>
-															</div>
-															<span className="text-primary">Business Strategy Guide</span>
-														</>
-													</CTAButton>
-												</Link>
-												<span className="text-xs text-gray-500">For help with your business plans</span>
+										new StringUtils(projectName).isNotEmpty().isMinLength(1).get() && <motion.div initial={{height: 0}} transition={{duration: 0.1}} animate={{height: '106px'}} exit={{height: '0px'}} className="w-full my-5 transition-all overflow-hidden">
+                      <div className="text-sm mb-2 mx-1 text-gray-400 leading-relaxed">
+												<span>
+													{/*Welcome to Arti AI🌟. What brings you here today? Let's get started by telling us your project name, and then choose a bot to assist you in creating memorable ads or planning your business strategy.*/}
+                          Choose a bot to assist you
+												</span>
+                      </div>
+											<div className="flex gap-5 mx-1 justify-between items-center">
+                        <div>
+                          <Link href={'/artibot?conversation_type=ad_creative'}>
+                            <CTAButton
+                              className="py-3 rounded-lg flex gap-3 items-center text-sm bg-transparent border-2 border-primary">
+                              <>
+                                <div className="w-6">
+                                  <AdCreativeIcon fill={colors.primary}/>
+                                </div>
+                                <span className="text-primary">Ad Creative Assistant</span>
+                              </>
+                            </CTAButton>
+                          </Link>
+                          <span className="text-xs text-gray-500">For creating eye-catching ads</span>
+                        </div>
+                        <div>
+                          <Link href={'/artibot?conversation_type=strategy'}>
+                            <CTAButton
+                              className="py-3 rounded-lg flex gap-3 items-center text-sm bg-transparent border-2 border-primary">
+                              <>
+                                <div className="w-6">
+                                  <StrategyIcon fill={colors.primary}/>
+                                </div>
+                                <span className="text-primary">Business Strategy Guide</span>
+                              </>
+                            </CTAButton>
+                          </Link>
+                          <span className="text-xs text-gray-500">For help with your business plans</span>
+                        </div>
 											</div>
 										</motion.div>
 									}

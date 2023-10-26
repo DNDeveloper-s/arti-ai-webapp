@@ -9,6 +9,25 @@ import moment from 'moment';
 
 const prisma = new PrismaClient();
 
+function generateNewToken(token) {
+	// Set your JWT secret and options
+	const secret = 'thisisasecretkey'; // Replace with your secret key
+	const accessTokenExpires = moment().add(
+		60,
+		"minutes"
+	);
+
+	// Create a new token with the user data and new expiration time
+	return jwt.sign({
+		sub: token.sub,
+		iat: moment().unix(),
+		exp: accessTokenExpires.unix(),
+		email: token.email,
+		picture: token.picture,
+		type: 'ACCESS'
+	}, secret);
+}
+
 export const authOptions: AuthOptions = {
 	adapter: PrismaAdapter(prisma),
 	providers: [
@@ -178,7 +197,12 @@ export const authOptions: AuthOptions = {
 			}
 		},
 		async jwt({ token, user, account, profile, isNewUser }) {
-			return token
+
+			if (moment().unix() < token.exp) {
+				return token;
+			}
+
+			return generateNewToken(token);
 		}
 		// Other callback functions
 	},
@@ -192,18 +216,7 @@ export const authOptions: AuthOptions = {
 	jwt: {
 		encode: async ({ secret, token, maxAge }) => {
 			if(!token) return '';
-			const accessTokenExpires = moment().add(
-				60,
-				"minutes"
-			);
-			return jwt.sign({
-				sub: token.sub,
-				iat: moment().unix(),
-				exp: accessTokenExpires.unix(),
-				email: token.email,
-				picture: token.picture,
-				type: 'ACCESS'
-			}, 'thisisasecretkey');
+			return generateNewToken(token);
 		},
 		decode: async ({ secret, token }) => {
 			return {

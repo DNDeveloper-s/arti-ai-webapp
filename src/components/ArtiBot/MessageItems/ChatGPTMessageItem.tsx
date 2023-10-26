@@ -12,6 +12,9 @@ import {IAdCreative} from '@/interfaces/IAdCreative';
 import {dummyEssay} from '@/constants/dummy';
 import {ConversationType} from '@/interfaces/IConversation';
 import generatingAdJSON from '@/assets/lottie/generating_image.json';
+import {AnimatePresence, motion} from 'framer-motion';
+import typingAnimation from '@/assets/lottie/typing.json';
+import {framerItem} from '@/config/framer-motion';
 
 interface ChatGPTMessageItemProps {
 	messageItem: ChatGPTMessageObj;
@@ -118,7 +121,7 @@ export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType
 		return randomMessageLengthForShimmer[randomIndex()];
 	}, [])
 	return (
-		<div className={'w-full'}>
+		<motion.div variants={framerItem()} className={'w-full'}>
 			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
 				<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
 				<div className="ml-[0.8em] flex-1">
@@ -126,11 +129,9 @@ export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType
 						<p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
 							{welcomeMessage[type]}
 						</p>
-						<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
-							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary"
-							                                 onClick={() => messageItem && messageItem.content && copyTextToClipboard(messageItem.content)}/> :
-								<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
-								        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
+						<div className="opacity-0 pointer-events-none w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
+							{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary" /> :
+								<Lottie className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
 								        animationData={tickAnimation}
 								        loop={false}
 								/>
@@ -139,7 +140,7 @@ export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType
 					</div>
 				</div>
 			</div>
-		</div>
+		</motion.div>
 	)
 }
 
@@ -148,26 +149,53 @@ export const ChatGPTMessageCreatingAd = ({size = 45}) => {
 		return randomMessageLengthForShimmer[randomIndex()];
 	}, [])
 	return (
-		<div className={'w-full'}>
-			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
-				<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
-				<div className="ml-[0.8em] flex-1">
-					<div className="flex items-start">
-						<span className="flex gap-2 p-3 rounded-xl border-2 border-primary border-opacity-20 bg-secondaryText bg-opacity-10 shadow w-full max-w-[350px]">
-							<span className="h-[44px] aspect-square bg-black rounded-xl flex items-center justify-center">
-								<span className="w-7 h-7 flex items-center justify-center">
-									<Lottie animationData={generatingAdJSON} loop={true} />
+		<AnimatePresence mode="wait">
+			<motion.div
+				initial={{height: 0, opacity: 0}}
+				animate={{height: 'auto', opacity: 1}}
+				transition={{type: 'spring', damping: 10}}
+				className={'w-full'}
+			>
+				<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+					<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
+					<div className="ml-[0.8em] flex-1">
+						<div className="flex items-start">
+						<span className="relative breathing-button rounded-xl">
+							<span className="z-10 flex gap-2 p-3 rounded-xl border-2 border-primary border-opacity-20 bg-secondaryText bg-opacity-10 shadow w-full max-w-[350px]">
+								<span className="h-[44px] aspect-square bg-black rounded-xl flex items-center justify-center">
+									<span className="w-7 h-7 flex items-center justify-center">
+										<Lottie animationData={generatingAdJSON} loop={true} />
+									</span>
+								</span>
+								<span className="flex flex-col">
+									<span className="leading-tight">Arti Ai</span>
+									<span className="mt-0.5 text-gray-500 text-sm">Generating Ad Creatives</span>
 								</span>
 							</span>
-							<span className="flex flex-col">
-								<span className="leading-tight">Arti Ai</span>
-								<span className="mt-0.5 text-gray-500 text-sm">Generating Ad Creatives</span>
-							</span>
 						</span>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+			</motion.div>
+		</AnimatePresence>
+	)
+}
+
+export const ChatGPTMessageGeneratingAnimation = () => {
+
+	return (
+		<AnimatePresence mode="wait">
+			<motion.div
+				initial={{height: 0, opacity: 0}}
+				animate={{height: 'auto', opacity: 1}}
+				transition={{type: 'spring', damping: 10}}
+				className={'w-full'}
+			>
+				<div className="w-full max-w-[900px] h-10 px-3 mx-auto flex flex-end">
+					<Lottie animationData={typingAnimation} loop={true} />
+				</div>
+			</motion.div>
+		</AnimatePresence>
 	)
 }
 
@@ -200,7 +228,7 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 				{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}
 			</p>
 			{!disableCopy && <div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
-				{!showCopyAnimation ? <IoIosCopy className="cursor-pointer justify-self-end text-primary"
+				{!showCopyAnimation ? <IoIosCopy className="group-hover:opacity-100 opacity-0 transition-all cursor-pointer justify-self-end text-primary"
 				                                 onClick={() => messageItem && messageItem.content && copyTextToClipboard(messageItem.content)}/> :
 					<Lottie onAnimationEnd={() => setShowCopyAnimation(false)}
 					        className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
@@ -255,14 +283,24 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 	}
 
 	return (
-		<div key={messageItem.content} className={'w-full ' + (messageItem.role === ChatGPTRole.ASSISTANT ? '' : 'bg-background bg-opacity-30')}>
-			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
-				<Image className="rounded-lg mr-[0.3em]" width={size} height={size} src={messageItem.role === ChatGPTRole.ASSISTANT ? botData.image : dummyUser.image} alt=""/>
-				<div className="ml-[0.8em] flex-1">
-					{item}
+		<AnimatePresence mode="wait">
+			<motion.div
+				variants={framerItem()}
+				// initial={{height: 0, opacity: 0}}
+				// animate={{height: 'auto', opacity: 1}}
+				// transition={{type: 'spring', damping: 15, duration: .15}}
+				className={'w-full overflow-hidden'}
+			>
+				<div key={messageItem.content} className={'group w-full ' + (messageItem.role === ChatGPTRole.ASSISTANT ? '' : 'bg-background bg-opacity-30')}>
+					<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+						<Image className="rounded-lg mr-[0.3em]" width={size} height={size} src={messageItem.role === ChatGPTRole.ASSISTANT ? botData.image : dummyUser.image} alt=""/>
+						<div className="ml-[0.8em] flex-1">
+							{item}
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
+			</motion.div>
+		</AnimatePresence>
 	)
 }
 

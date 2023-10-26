@@ -20,8 +20,8 @@ export enum ConversationType {
 }
 
 export interface MongooseModel {
-	createdAt?: Date,
-	updatedAt?: Date,
+	createdAt: Date,
+	updatedAt: Date,
 }
 
 export interface IMessageModel extends MongooseModel {
