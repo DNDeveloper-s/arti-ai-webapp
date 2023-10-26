@@ -1,3 +1,5 @@
+'use client';
+
 import {AdJSONInput, ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
 import React, {Dispatch, FC, useEffect, useMemo, useState} from 'react';
 import {IoIosCopy} from 'react-icons/io';
@@ -15,6 +17,7 @@ import generatingAdJSON from '@/assets/lottie/generating_image.json';
 import {AnimatePresence, motion} from 'framer-motion';
 import typingAnimation from '@/assets/lottie/typing.json';
 import {framerItem} from '@/config/framer-motion';
+import useMounted from '@/hooks/useMounted';
 
 interface ChatGPTMessageItemProps {
 	messageItem: ChatGPTMessageObj;
@@ -93,6 +96,7 @@ const randomMessageLengthForShimmer = [
 const randomIndex = () => Math.floor(Math.random() * randomMessageLengthForShimmer.length);
 
 export const ChatGPTMessageItemShimmer = ({size = 45}) => {
+	const mounted = useMounted();
 	const message = useMemo(() => {
 		return randomMessageLengthForShimmer[randomIndex()];
 	}, [])
@@ -102,7 +106,7 @@ export const ChatGPTMessageItemShimmer = ({size = 45}) => {
 				<div className={'app-shimmer rounded-lg mr-[0.3em] ' + (`w-[20px] h-[20px]`)}  />
 				{/*<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>*/}
 				<div className="ml-[0.8em] flex-1">
-					<span className="app-shimmer">{message}</span>
+					<span className="app-shimmer">{!mounted ? randomMessageLengthForShimmer[1] : message}</span>
 				</div>
 			</div>
 		</div>
