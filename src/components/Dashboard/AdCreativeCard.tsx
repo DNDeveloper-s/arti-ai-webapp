@@ -8,10 +8,13 @@ import AdVariant from '@/components/ArtiBot/AdVariant';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import FacebookAdVariant, {FacebookAdVariantShimmer} from '@/components/ArtiBot/FacebookAdVariant';
 import {timeSince} from '@/helpers';
+import {IConversation} from '@/interfaces/IConversation';
+import {useConversation} from '@/context/ConversationContext';
 
 interface AdCreativeCardProps {
 	onClick: (val: IAdCreative) => void;
 	adCreatives: IAdCreative[];
+	conversationId?: IConversation['id'];
 }
 
 export const AdCreativeCardShimmer = () => {
@@ -35,7 +38,8 @@ export const AdCreativeCardShimmer = () => {
 	</div>
 }
 
-const AdCreativeCard:React.FC<AdCreativeCardProps> = ({adCreatives, onClick}) => {
+const AdCreativeCard:React.FC<AdCreativeCardProps> = ({conversationId, adCreatives, onClick}) => {
+	const {state} = useConversation();
 
 	// const json = JSON.parse(adCreative.json) as AdJSONInput;
 	const adCreative: IAdCreative = adCreatives.reduce((acc: IAdCreative, current) => {
@@ -53,13 +57,15 @@ const AdCreativeCard:React.FC<AdCreativeCardProps> = ({adCreatives, onClick}) =>
 		return acc;
 	}, {} as IAdCreative);
 
+	const lastUpdated = state.conversation.map[conversationId ?? '']?.lastAdCreativeCreatedAt ?? state.conversation.map[conversationId ?? '']?.updatedAt ?? adCreative.updatedAt;
+
 	return <div onClick={() => onClick(adCreative)} className={'w-[25rem] flex-shrink-0 pb-4  relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
 		<div className="pointer-events-none w-full h-full absolute top-0 z-10 left-0 bg-[linear-gradient(90deg,_rgba(0,0,0,0.00)_55.23%,_rgba(0,0,0,0.61)_77%,_rgba(0,0,0,0.82)_100%)]" />
 		<div className="py-3 px-3 relative flex items-center justify-between z-20">
 			<h2 className="whitespace-nowrap w-full overflow-hidden overflow-ellipsis mr-5 text-base font-medium text-primary">{adCreative.adObjective}</h2>
 			<span className="whitespace-nowrap">
 				<span className="text-white text-opacity-30 text-[1.1em]">Generated:</span>
-				<span className="text-primary text-[1.1em]">{timeSince(adCreative.updatedAt) + ' ago'}</span>
+				<span className="text-primary text-[1.1em]">{timeSince(lastUpdated) + ' ago'}</span>
 			</span>
 		</div>
 		<div className={"flex items-start gap-3 px-3"}>

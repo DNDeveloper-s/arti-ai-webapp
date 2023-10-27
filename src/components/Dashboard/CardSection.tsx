@@ -136,7 +136,14 @@ export default function CardSection() {
 		}
 		acc[adCreative.conversationId].push(adCreative);
 		return acc;
-	}, {} as Record<string, IAdCreative[]>) ?? {};
+	}, {} as Record<IConversation['id'], IAdCreative[]>) ?? {};
+
+	const sortedGroupAdVariantsByConversationId = Object.keys(adVariantsByConversationId).sort((a: string, b: string) => {
+		if(!state.conversation.map[a] || !state.conversation.map[b]) return 0;
+		if(state.conversation.map[a].updatedAt > state.conversation.map[b].updatedAt) return -1;
+		if(state.conversation.map[a].updatedAt < state.conversation.map[b].updatedAt) return 1;
+		return 0;
+	});
 
 	function handleAdCreativeClick(adCreativeItem: IAdCreative) {
 		// setOpen(true);
@@ -164,14 +171,14 @@ export default function CardSection() {
 		const _conversations = state.conversation.list;
 
 		// sort the list with the key updatedAt which holds the ISO String
-		if(activeTabItem.id === ConversationType.STRATEGY) {
-			return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.STRATEGY && isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
-				if(a.updatedAt > b.updatedAt) return -1;
-				if(a.updatedAt < b.updatedAt) return 1;
-				return 0;
-			});
-		}
-		return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.AD_CREATIVE && isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
+		// if(activeTabItem.id === ConversationType.STRATEGY) {
+		// 	return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.STRATEGY && isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
+		// 		if(a.updatedAt > b.updatedAt) return -1;
+		// 		if(a.updatedAt < b.updatedAt) return 1;
+		// 		return 0;
+		// 	});
+		// }
+		return _conversations.filter((c: IConversation) => isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
 			if(a.updatedAt > b.updatedAt) return -1;
 			if(a.updatedAt < b.updatedAt) return 1;
 			return 0;
@@ -218,7 +225,7 @@ export default function CardSection() {
 				{state.adCreative.list && state.adCreative.list.length > 0 && <section className="mb-10 w-full">
           <h2 className="mb-3">Past Ad Creatives</h2>
           <div className="flex gap-4 w-full overflow-x-auto">
-						{Object.keys(adVariantsByConversationId).map((conversationId: string) => <AdCreativeCard key={conversationId} adCreatives={adVariantsByConversationId[conversationId]} onClick={handleAdCreativeClick}/>)}
+						{sortedGroupAdVariantsByConversationId.map((conversationId: string) => <AdCreativeCard key={conversationId} conversationId={conversationId} adCreatives={adVariantsByConversationId[conversationId]} onClick={handleAdCreativeClick}/>)}
           </div>
         </section>}
 			</>

@@ -9,7 +9,6 @@ export default function AdItem({messageItem, variantFontSize}: {messageItem: Cha
 	const json = messageItem.adCreatives && messageItem.adCreatives[0] as IAdCreative;
 
 	if(!json) return null;
-	console.log('messageItem - ', messageItem);
 
 	return (
 		<div className="">

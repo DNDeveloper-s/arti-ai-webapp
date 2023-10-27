@@ -75,7 +75,7 @@ const ConversationCard:React.FC<ConversationCardProps> = (props) => {
 				</span>
 			</div>
 			<div className="flex flex-col-reverse">
-				{props.conversation.messages.map(messageItem => <ChatGPTMessageItem disableCopy size={20} key={messageItem.id} messageItem={messageItem} variantFontSize={10} />)}
+				{props.conversation.messages.map(messageItem => <ChatGPTMessageItem disableCopy size={20} key={messageItem.id} messageItem={messageItem} variantFontSize={10}  isGenerating={false} setMessages={() => {}}/>)}
 			</div>
 		</div>
 	</Link>

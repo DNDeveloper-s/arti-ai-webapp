@@ -1,6 +1,7 @@
 import {ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import ObjectId from 'bson-objectid';
+import {ISODateString} from 'next-auth';
 
 export interface IConversation extends MongooseModel {
 	id: string;
@@ -11,6 +12,7 @@ export interface IConversation extends MongooseModel {
 	json?: string | null | boolean;
 	adCreatives?: IAdCreative[];
 	conversation_type: ConversationType;
+	lastAdCreativeCreatedAt?: ISODateString;
 	project_name: string;
 }
 
@@ -20,8 +22,8 @@ export enum ConversationType {
 }
 
 export interface MongooseModel {
-	createdAt: Date,
-	updatedAt: Date,
+	createdAt: ISODateString,
+	updatedAt: ISODateString,
 }
 
 export interface IMessageModel extends MongooseModel {

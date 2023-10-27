@@ -18,10 +18,11 @@ import {AnimatePresence, motion} from 'framer-motion';
 import typingAnimation from '@/assets/lottie/typing.json';
 import {framerItem} from '@/config/framer-motion';
 import useMounted from '@/hooks/useMounted';
+import MarkdownRenderer from '@/components/ArtiBot/MarkdownRenderer';
 
 interface ChatGPTMessageItemProps {
 	messageItem: ChatGPTMessageObj;
-	isGenerating: boolean;
+	isGenerating?: boolean;
 	disableCopy?: boolean;
 	size?: number;
 	variantFontSize?: number;
@@ -72,8 +73,8 @@ function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: {
 	return (
 		<div className="flex items-start">
 			<p className="whitespace-pre-wrap text-[1em] text-primaryText text-opacity-60 flex-1">
-				{item}
-				<span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>
+				<MarkdownRenderer markdownContent={item}/>
+				{/*<span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>*/}
 			</p>
 			<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
 				<IoIosCopy className="cursor-pointer opacity-0 pointer-events-none justify-self-end text-primary" />
@@ -228,9 +229,10 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 
 	let item = (
 		<div className="flex items-start">
-			<p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
-				{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}
-			</p>
+			{messageItem.content && <p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
+				{/*{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}*/}
+				<MarkdownRenderer markdownContent={messageItem.content}/>
+			</p>}
 			{!disableCopy && <div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
 				{!showCopyAnimation ? <IoIosCopy className="group-hover:opacity-100 opacity-0 transition-all cursor-pointer justify-self-end text-primary"
 				                                 onClick={() => messageItem && messageItem.content && copyTextToClipboard(messageItem.content)}/> :
