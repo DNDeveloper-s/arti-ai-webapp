@@ -6,7 +6,10 @@ import {ChatGPTMessageObj, ChatGPTRole, AdJSONInput, IAdVariant} from '@/interfa
 import exampleJSON from '@/database/exampleJSON';
 import AdVariant from '@/components/ArtiBot/AdVariant';
 import {IAdCreative} from '@/interfaces/IAdCreative';
-import FacebookAdVariant, {FacebookAdVariantShimmer} from '@/components/ArtiBot/FacebookAdVariant';
+import FacebookAdVariant, {
+	FacebookAdVariantMini,
+	FacebookAdVariantShimmer
+} from '@/components/ArtiBot/FacebookAdVariant';
 import {timeSince} from '@/helpers';
 import {IConversation} from '@/interfaces/IConversation';
 import {useConversation} from '@/context/ConversationContext';
@@ -70,7 +73,7 @@ const AdCreativeCard:React.FC<AdCreativeCardProps> = ({conversationId, adCreativ
 		</div>
 		<div className={"flex items-start gap-3 px-3"}>
 			{adCreative.variants.map(currentAdVariant => (
-				<FacebookAdVariant style={{zoom: 0.3, fontSize: '9px'}} key={currentAdVariant.id} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]"/>
+				<FacebookAdVariantMini style={{zoom: 0.3, fontSize: '9px'}} key={currentAdVariant.id} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]"/>
 			))}
 		</div>
 	</div>

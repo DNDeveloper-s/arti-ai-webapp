@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# This is a sample pre-push hook to check the values in the apiConfig object
+
+# Get the local and remote branch names
+local_branch="$1"
+remote_branch="$2"
+
+if [ "$local_branch" == "master" ]; then
+  echo "You cannot push to the 'master' branch."
+  echo "Use a feature branch and create a pull request instead."
+  exit 1
+fi
+
+project_directory=$(git rev-parse --show-toplevel)
+
+# Specify the TypeScript file to check
+file_to_check="$project_directory/configChecker.ts"
+config_file="$project_directory/tsconfig-dev.json"
+
+# Define the desired values
+desired_baseUrl="https://api.artiai.org"
+desired_version="/v1"
+
+# Use ts-node to execute the TypeScript module
+if ! ts-node --project $config_file $file_to_check; then
+  echo "Push rejected: The values in apiConfig do not match the desired values."
+  exit 1
+fi
+
+echo "Push rejected: The values are in place."
+exit 1
+
+# If you want to perform other checks, you can add more code here
+
+exit 0

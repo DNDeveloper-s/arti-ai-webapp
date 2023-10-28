@@ -127,7 +127,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 					<>
 						<label htmlFor="message" className="block text-sm font-light text-white text-opacity-50 w-[80%] mt-4 text-left">Ad Preview</label>
 						<div ref={variantRef} className={"mt-2 w-[80%]"}>
-							<FacebookAdVariant adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: fontSize + 'px'}}/>
+							<FacebookAdVariant adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
 						</div>
 					</>
 				)}

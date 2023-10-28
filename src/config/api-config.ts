@@ -1,5 +1,6 @@
 export const apiConfig = {
 	baseUrl: process.env.NODE_ENV === 'production' ? 'https://api.artiai.org' : 'http://localhost:8081',
+	// baseUrl: 'https://api.artiai.org1',
 	version: '/v1'
 }
 

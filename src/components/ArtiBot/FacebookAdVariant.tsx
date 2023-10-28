@@ -158,4 +158,62 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 	)
 }
 
+export const FacebookAdVariantMini: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, noExpand, className, ...props}) => {
+	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
+
+	const adVariant = variant.map && variant.map[_adVariant.id] ? variant.map[_adVariant.id] : _adVariant;
+
+	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
+		<Lottie className={"w-[120px] h-[120px]"} animationData={generatingImage} loop={true} />
+		<h6 className="text-white text-opacity-60 text-[7.25px] text-center px-5 leading-normal">Creating your ad variant image to make your brand shine, one pixel at a time.</h6>
+	</div>
+
+	if(inError && inError[adVariant.id]) {
+		lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
+			<Lottie className={"w-[120px] h-[120px]"} animationData={errorImage} loop={true} />
+			<h6 className="text-white text-opacity-60 text-[7.25px] text-center px-5 leading-normal">Oops! It looks like there was an issue creating your ad variant image. Try creating another one.</h6>
+		</div>
+	}
+
+	const imageContainerJSX =
+		adVariant.imageUrl
+			? <Image width={600} height={100} className="mb-[2.5px] w-full" src={adVariant.imageUrl ? adVariant.imageUrl : dummyImage} alt="Ad Image" />
+			: lottieAnimationJSX;
+
+	return (
+		<div key={adVariant.oneLiner} className={'ad-variant text-[7px] md:text-[35px] !p-0 ' + (className ?? '')} {...props}>
+			<div className={"flex justify-between items-center mb-[2.1px] px-[4px] pt-[3px]"}>
+				<div className="flex items-center gap-[3.5px]">
+					<div className="w-[14px] h-[14px] rounded-full bg-gray-700" />
+					<div>
+						<div className="w-[28px] h-[7px] mb-[1.4px] rounded-[1.19px] bg-gray-700" />
+						<div className="w-[42px] h-[7px] rounded-[1.19px] bg-gray-700" />
+					</div>
+				</div>
+				<SlOptions className="text-[10.5px]" />
+			</div>
+			<div className="mb-[7px] px-[7px]">
+				<span className="text-[6.65px] inline-flex leading-[10.5px]">{adVariant.text}</span>
+			</div>
+			<div>
+				{imageContainerJSX}
+				{/*<Image width={4200px} height={700px} className="mb-[3.5px] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />*/}
+			</div>
+			<div className={"flex justify-between gap-[5.6px] items-center px-[7px] mt-[7px]"}>
+				<span className={"text-[8.75px] leading-[9.1px]"}>{adVariant.oneLiner}</span>
+				<div className="flex-shrink-0">
+					<span className="cursor-pointer rounded bg-gray-700 px-[4.2px] py-[3.5px] text-[7px]">Learn More</span>
+				</div>
+			</div>
+			<hr className="h-[1.4px] my-[7px] border-0 bg-gray-700"/>
+			<div className="w-full px-[7px] pb-[7px] flex justify-between">
+				<div className="ml-[14px] w-[45.5px] h-[14px] rounded bg-gray-700" />
+				<div className="w-[45.5px] h-[14px] rounded bg-gray-700" />
+				<div className="w-[45.5px] h-[14px] rounded bg-gray-700" />
+				<div className="w-[14px] h-[14px] rounded-full bg-gray-700" />
+			</div>
+		</div>
+	)
+}
+
 export default FacebookAdVariant;
