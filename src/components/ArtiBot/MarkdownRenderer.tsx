@@ -12,8 +12,8 @@ const MarkdownRenderer = ({ markdownContent }: { markdownContent: string }) => {
 					h1: ({ children }) => <h1 className="custom-h1">{children}</h1>,
 					h2: ({ children }) => <h2 className="custom-h2">{children}</h2>,
 					p: ({ children }) => <p className="custom-paragraph">{children}</p>,
-					ul: ({ children }) => <ul className="list-disc pl-5 leading-[1] custom-ul">{children}</ul>,
-					ol: ({ children }) => <ol className="list-decimal leading-[1rem] pl-5 [&>li]:leading-[0]">{children}</ol>,
+					ul: ({ children }) => <ul style={{lineHeight: '1'}} className="list-disc pl-5 custom-ul">{children}</ul>,
+					ol: ({ children }) => <ol className="list-decimal leading-[1rem] pl-5 [&>li:has(li)]:leading-[0]">{children}</ol>,
 					li: ({ children }) => <li className="custom-li leading-[1.3]">{children}</li>,
 					a: ({ children, href }) => (
 						<a className="custom-link" href={href}>
