@@ -126,7 +126,7 @@ export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType
 		return randomMessageLengthForShimmer[randomIndex()];
 	}, [])
 	return (
-		<motion.div variants={framerItem()} className={'w-full'}>
+		<div variants={framerItem()} className={'w-full'}>
 			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
 				<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
 				<div className="ml-[0.8em] flex-1">
@@ -145,7 +145,7 @@ export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType
 					</div>
 				</div>
 			</div>
-		</motion.div>
+		</div>
 	)
 }
 
@@ -154,8 +154,8 @@ export const ChatGPTMessageCreatingAd = ({size = 45}) => {
 		return randomMessageLengthForShimmer[randomIndex()];
 	}, [])
 	return (
-		<AnimatePresence mode="wait">
-			<motion.div
+		// <AnimatePresence mode="wait">
+			<div
 				initial={{height: 0, opacity: 0}}
 				animate={{height: 'auto', opacity: 1}}
 				transition={{type: 'spring', damping: 10}}
@@ -181,16 +181,16 @@ export const ChatGPTMessageCreatingAd = ({size = 45}) => {
 						</div>
 					</div>
 				</div>
-			</motion.div>
-		</AnimatePresence>
+			</div>
+		// </AnimatePresence>
 	)
 }
 
 export const ChatGPTMessageGeneratingAnimation = () => {
 
 	return (
-		<AnimatePresence mode="wait">
-			<motion.div
+		// <AnimatePresence mode="wait">
+			<div
 				initial={{height: 0, opacity: 0}}
 				animate={{height: 'auto', opacity: 1}}
 				transition={{type: 'spring', damping: 10}}
@@ -199,8 +199,8 @@ export const ChatGPTMessageGeneratingAnimation = () => {
 				<div className="w-full max-w-[900px] h-10 px-3 mx-auto flex flex-end">
 					<Lottie animationData={typingAnimation} loop={true} />
 				</div>
-			</motion.div>
-		</AnimatePresence>
+			</div>
+		// </AnimatePresence>
 	)
 }
 
@@ -289,8 +289,8 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 	}
 
 	return (
-		<AnimatePresence mode="wait">
-			<motion.div
+		// <AnimatePresence mode="wait">
+			<div
 				variants={framerItem()}
 				// initial={{height: 0, opacity: 0}}
 				// animate={{height: 'auto', opacity: 1}}
@@ -305,8 +305,8 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 						</div>
 					</div>
 				</div>
-			</motion.div>
-		</AnimatePresence>
+			</div>
+		// </AnimatePresence>
 	)
 }
 

@@ -1,14 +1,10 @@
 'use client'
 
-import React, {MouseEventHandler} from 'react';
-import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
-import {ChatGPTMessageObj, ChatGPTRole, AdJSONInput, IAdVariant} from '@/interfaces/IArtiBot';
-import exampleJSON from '@/database/exampleJSON';
-import AdVariant from '@/components/ArtiBot/AdVariant';
+import React from 'react';
 import {IAdCreative} from '@/interfaces/IAdCreative';
-import FacebookAdVariant, {
+import {
 	FacebookAdVariantMini,
-	FacebookAdVariantShimmer
+	FacebookAdVariantMiniShimmer,
 } from '@/components/ArtiBot/FacebookAdVariant';
 import {timeSince} from '@/helpers';
 import {IConversation} from '@/interfaces/IConversation';
@@ -34,13 +30,12 @@ export const AdCreativeCardShimmer = () => {
 			{/*{adCreative.variants.map(currentAdVariant => (*/}
 			{/*	<FacebookAdVariant style={{zoom: 0.3, fontSize: '10px'}} key={currentAdVariant.id} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]"/>*/}
 			{/*))}*/}
-			<FacebookAdVariantShimmer style={{zoom: 0.3, fontSize: '9px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
-			<FacebookAdVariantShimmer style={{zoom: 0.3, fontSize: '9px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
-			<FacebookAdVariantShimmer style={{zoom: 0.3, fontSize: '9px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
+			<FacebookAdVariantMiniShimmer style={{zoom: 0.3, fontSize: '9px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
+			<FacebookAdVariantMiniShimmer style={{zoom: 0.3, fontSize: '9px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
+			<FacebookAdVariantMiniShimmer style={{zoom: 0.3, fontSize: '9px'}} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]" />
 		</div>
 	</div>
 }
-
 const AdCreativeCard:React.FC<AdCreativeCardProps> = ({conversationId, adCreatives, onClick}) => {
 	const {state} = useConversation();
 

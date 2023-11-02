@@ -54,7 +54,7 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 	// console.log('reversedMessages - ', reversedMessages);
 
 	return (
-		<AnimatePresence mode="wait">
+		// <AnimatePresence mode="wait">
 			<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[35em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-9 md:pb-14' : '')} ref={containerRef}>
 				{/*<ChatGPTMessageCreatingAd/>*/}
 				{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
@@ -62,7 +62,7 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 					{msg}
 				</div>
 				{isGenerating && <ChatGPTMessageGeneratingAnimation />}
-				<motion.div variants={framerContainer} animate="show" initial="hidden" exit="hidden" >
+				<div variants={framerContainer} animate="show" initial="hidden" exit="hidden" >
 					{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}
 					{
 						reversedMessages.map((messageItem: ChatGPTMessageObj) => (
@@ -77,7 +77,7 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 							/>
 						))
 					}
-				</motion.div>
+				</div>
 				<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
 					<div className="h-0.5 mr-5 flex-1 bg-gray-800" />
 					<div className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
@@ -88,7 +88,7 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 					<div className="h-0.5 ml-5 flex-1 bg-gray-800" />
 				</div>
 			</div>
-		</AnimatePresence>
+		// </AnimatePresence>
 	)
 }
 
