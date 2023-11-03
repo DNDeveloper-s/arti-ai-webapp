@@ -18,8 +18,8 @@ const WelcomeSection:React.FC<WelcomeSectionProps> = (props) => {
 	console.log('session - ', session);
 
 	return (
-		<div className="w-full pt-12 pb-16">
-			<h2 className="text-3xl text-white text-opacity-70 font-light mb-5">Welcome {(session && session.user) ? session.user.first_name : ""}</h2>
+		<div className="w-full pt-4 pb-5 md:pt-12 md:pb-16">
+			<h2 className="text-xl md:text-3xl text-white text-opacity-70 font-light mb-5">Welcome {(session && session.user) ? session.user.first_name : ""}</h2>
 			{/*<p className="mb-2 text-white text-opacity-50">Start chat,</p>*/}
 			{/*<div className="w-full rounded-lg h-32 bg-secondaryBackground">*/}
 

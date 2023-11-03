@@ -12,7 +12,7 @@ import {useEffect} from 'react';
 export default function Navbar() {
 
 	return (
-		<div className="flex h-20 w-full px-5 justify-between items-center">
+		<div className="flex h-20 w-full justify-between items-center">
 			<Logo />
 			<div className="flex items-center">
 				<Link href={'/artibot'} prefetch={true}>

@@ -223,7 +223,7 @@ export default function CardSection() {
 		return (
 			<>
 				{state.adCreative.list && state.adCreative.list.length > 0 && <section className="mb-10 w-full">
-          <h2 className="mb-3">Past Ad Creatives</h2>
+          <h2 className="mb-3 text-sm md:text-base">Past Ad Creatives</h2>
           <div className="flex gap-4 w-full overflow-x-auto">
 						{sortedGroupAdVariantsByConversationId.map((conversationId: string) => <AdCreativeCard key={conversationId} conversationId={conversationId} adCreatives={adVariantsByConversationId[conversationId]} onClick={handleAdCreativeClick}/>)}
           </div>
@@ -237,7 +237,7 @@ export default function CardSection() {
 		<>
 			<section className="mb-10 w-full">
 				<div className="flex mb-3 justify-between items-center">
-					<h2>Past Conversations</h2>
+					<h2 className="text-sm md:text-base">Past Conversations</h2>
 					{/*<div className="h-8">*/}
 					{/*	<Tabs items={tabItems} handleChange={handleTabChange} />*/}
 					{/*</div>*/}

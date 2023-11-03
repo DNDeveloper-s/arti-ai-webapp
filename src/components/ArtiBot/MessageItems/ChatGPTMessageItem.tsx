@@ -1,7 +1,7 @@
 'use client';
 
 import {AdJSONInput, ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
-import React, {Dispatch, FC, useEffect, useMemo, useState} from 'react';
+import React, {Dispatch, FC, useEffect, useMemo, useRef, useState} from 'react';
 import {IoIosCopy} from 'react-icons/io';
 import Lottie from 'lottie-react';
 import tickAnimation from '@/assets/lottie/tick_animation.json';
@@ -19,6 +19,7 @@ import typingAnimation from '@/assets/lottie/typing.json';
 import {framerItem} from '@/config/framer-motion';
 import useMounted from '@/hooks/useMounted';
 import MarkdownRenderer from '@/components/ArtiBot/MarkdownRenderer';
+import Markdown from 'react-remarkable';
 
 interface ChatGPTMessageItemProps {
 	messageItem: ChatGPTMessageObj;
@@ -32,50 +33,212 @@ interface ChatGPTMessageItemProps {
 	setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>
 }
 
+interface MessageItemProps {
+	messageItem: ChatGPTMessageObj,
+	setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>,
+	chunksRef?: React.MutableRefObject<string>,
+	doneRef?: React.MutableRefObject<boolean>
+};
 
-function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: {messageItem: ChatGPTMessageObj, setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>, chunksRef?: React.MutableRefObject<string>, doneRef?: React.MutableRefObject<boolean>}) {
+function HandleRenderMessageItem({item}) {
+	// console.log('item - ', item);
+	const itemRef = useRef('');
+	const textContainerRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		console.log('item - ', item);
+		function getDiff(str1, str2) {
+			let result = '';
+			for (let i = 0; i < str1.length || i < str2.length; i++) {
+				if (str1[i] === str2[i]) {
+					result += str1[i];
+				} else {
+					break;
+				}
+			}
+			return str2.slice(result.length);
+		}
+
+		const diff = getDiff(itemRef.current, item);
+		console.log('diff - ', diff);
+		textContainerRef.current && (textContainerRef.current.innerHTML += diff);
+
+
+		itemRef.current = item;
+	}, [item]);
+
+	return (
+		<div ref={textContainerRef}>
+
+		</div>
+	)
+}
+
+function RenderMessageItem({setMessages, messageItem, chunksRef, doneRef}: MessageItemProps) {
 	const [item, setItem] = useState('');
+	const animationFrameRef = useRef<number>(0);
+	const textContainerRef = useRef<HTMLDivElement>(null);
+	const [markdownChunks, setMarkdownChunks] = useState([]);
+	const [renderedChunks, setRenderedChunks] = useState([]);
+
+	// useEffect(() => {
+	// 	if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
+	//
+	// 	let j = 0;
+	// 	const interval = setInterval(() => {
+	// 		// Shift the cursor to next index when the chunks array has more chunks
+	// 		if(chunksRef.current.length >= j) {
+	// 			j += 25;
+	// 		}
+	//
+	// 		const message = chunksRef.current.slice(0, j);
+	// 		setItem(c => message);
+	//
+	// 		console.log('j for joy - ', j);
+	//
+	// 		// Clear the interval when the chunks array is done and the message is fully typed
+	// 		if(doneRef.current && chunksRef.current.length < j) {
+	// 			clearInterval(interval);
+	// 			setMessages(_messages => {
+	// 				const messages = [..._messages];
+	// 				const index = messages.findIndex(m => m.id === messageItem.id);
+	// 				messages[index] = {
+	// 					...messageItem,
+	// 					generating: false,
+	// 					content: message
+	// 				}
+	// 				return messages;
+	// 			})
+	// 		}
+	// 	}, 200);
+	//
+	// 	return () => {
+	// 		clearInterval(interval);
+	// 	}
+	// }, [chunksRef, doneRef, messageItem, setMessages]);
+
+
+
+	// const processSSEChunk = (chunk) => {
+	// 	console.log('chunk - ', chunk);
+	// 	// Check if the chunk is already rendered
+	// 	if (renderedChunks.includes(chunk)) {
+	// 		return;
+	// 	}
+	//
+	// 	// Add the chunk to the list of rendered chunks
+	// 	setRenderedChunks((prevRenderedChunks) => [...prevRenderedChunks, chunk]);
+	//
+	// 	// Split the incoming chunk by lines
+	// 	const lines = chunk.split('\n');
+	//
+	// 	// Process each line of the chunk
+	// 	for (const line of lines) {
+	// 		// Append the line as-is to the last chunk
+	// 		if (markdownChunks.length > 0) {
+	// 			setMarkdownChunks((prevChunks) => [
+	// 				...prevChunks.slice(0, -1),
+	// 				`${prevChunks[prevChunks.length - 1]} ${line}`,
+	// 			]);
+	// 		} else {
+	// 			// If there's no previous chunk, create a new one
+	// 			setMarkdownChunks((prevChunks) => [...prevChunks, line]);
+	// 		}
+	// 	}
+	// };
 
 	useEffect(() => {
 		if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
 
 		let j = 0;
-		const interval = setInterval(() => {
-			const message = chunksRef.current.slice(0, j);
-			setItem(c => message);
-
+		let prevJ = 0;
+		let frame = 0;
+		// const interval = setInterval(, 200);
+		function step() {
+			if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
 			// Shift the cursor to next index when the chunks array has more chunks
-			if(chunksRef.current.length >= j) {
-				j++;
+			if(chunksRef.current.length >= j && frame === 15) {
+				j += 25;
+				frame = 0;
+
+				const message = chunksRef.current.slice(prevJ, j);
+				// textContainerRef.current.innerHTML += message;
+				console.log('message - ', message);
+				// processSSEChunk(message);
+				setMarkdownChunks(c => [...c, message]);
 			}
+			// setItem(c => message);
+
+			console.log('j for joy - ', j);
 
 			// Clear the interval when the chunks array is done and the message is fully typed
 			if(doneRef.current && chunksRef.current.length < j) {
-				clearInterval(interval);
+				// clearInterval(interval);
+				cancelAnimationFrame(animationFrameRef.current)
 				setMessages(_messages => {
 					const messages = [..._messages];
 					const index = messages.findIndex(m => m.id === messageItem.id);
 					messages[index] = {
 						...messageItem,
 						generating: false,
-						content: message
+						content: chunksRef.current
 					}
 					return messages;
 				})
 			}
-		}, 5);
+
+			prevJ = j;
+			frame += 1;
+			animationFrameRef.current = requestAnimationFrame(step);
+		}
+
+		// const animateTyping = (message, callback) => {
+		// 	let currentIndex = 0;
+		//
+		// 	function step() {
+		// 		if (currentIndex < message.length) {
+		// 			setItem(message.substring(0, currentIndex + 1));
+		// 			currentIndex++;
+		// 			requestAnimationFrame(step);
+		// 		} else {
+		// 			callback();
+		// 		}
+		// 	}
+		//
+		// 	requestAnimationFrame(step);
+		// };
+		animationFrameRef.current = requestAnimationFrame(step);
+
 
 		return () => {
-			clearInterval(interval);
+			// clearInterval(interval);
+			cancelAnimationFrame(animationFrameRef.current)
 		}
 	}, [chunksRef, doneRef, messageItem, setMessages]);
 
 	return (
+		// <Markdown source={item} />
+		// <HandleRenderMessageItem item={item} />
+		<div>
+			{markdownChunks.map((chunk, index) => (
+				<span key={chunk}>{chunk}</span>
+			))}
+		</div>
+	);
+}
+
+function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: MessageItemProps) {
+
+	return (
 		<div className="flex items-start">
-			<p className="whitespace-pre-wrap text-[1em] text-primaryText text-opacity-60 flex-1">
-				<MarkdownRenderer markdownContent={item}/>
+			<div className="whitespace-pre-wrap text-[1em] text-primaryText text-opacity-60 flex-1">
+				{/*<MarkdownRenderer markdownContent={item}/>*/}
+				<div className="chat-markdown">
+					<RenderMessageItem { ...{setMessages, messageItem, chunksRef, doneRef}} />
+				</div>
+				{/*{item}*/}
 				{/*<span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>*/}
-			</p>
+			</div>
 			<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
 				<IoIosCopy className="cursor-pointer opacity-0 pointer-events-none justify-self-end text-primary" />
 			</div>
@@ -311,3 +474,63 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 }
 
 export default ChatGPTMessageItem;
+
+// useEffect(() => {
+// 	if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
+//
+// 	let j = 0;
+// 	// const interval = setInterval(, 200);
+// 	function step() {
+// 		if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
+// 		// Shift the cursor to next index when the chunks array has more chunks
+// 		if(chunksRef.current.length >= j) {
+// 			j += 25;
+// 		}
+//
+// 		const message = chunksRef.current.slice(0, j);
+// 		setItem(c => message);
+//
+// 		console.log('j for joy - ', j);
+//
+// 		// Clear the interval when the chunks array is done and the message is fully typed
+// 		if(doneRef.current && chunksRef.current.length < j) {
+// 			// clearInterval(interval);
+// 			cancelAnimationFrame(animationFrameRef.current)
+// 			setMessages(_messages => {
+// 				const messages = [..._messages];
+// 				const index = messages.findIndex(m => m.id === messageItem.id);
+// 				messages[index] = {
+// 					...messageItem,
+// 					generating: false,
+// 					content: message
+// 				}
+// 				return messages;
+// 			})
+// 		}
+//
+// 		animationFrameRef.current = requestAnimationFrame(step);
+// 	}
+//
+// 	// const animateTyping = (message, callback) => {
+// 	// 	let currentIndex = 0;
+// 	//
+// 	// 	function step() {
+// 	// 		if (currentIndex < message.length) {
+// 	// 			setItem(message.substring(0, currentIndex + 1));
+// 	// 			currentIndex++;
+// 	// 			requestAnimationFrame(step);
+// 	// 		} else {
+// 	// 			callback();
+// 	// 		}
+// 	// 	}
+// 	//
+// 	// 	requestAnimationFrame(step);
+// 	// };
+// 	animationFrameRef.current = requestAnimationFrame(step);
+//
+//
+// 	return () => {
+// 		// clearInterval(interval);
+// 		cancelAnimationFrame(animationFrameRef.current)
+// 	}
+// }, [chunksRef, doneRef, messageItem, setMessages]);

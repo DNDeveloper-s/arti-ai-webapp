@@ -6,7 +6,7 @@ import CardSection from '@/components/Dashboard/CardSection';
 export default function Dashboard() {
 
 	return (
-		<main className={"w-full max-w-[900px] mx-auto"}>
+		<main className={"w-full max-w-[900px] mx-auto px-5"}>
 			<Navbar />
 			<WelcomeSection />
 			<CardSection />
