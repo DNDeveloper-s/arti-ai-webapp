@@ -1,7 +1,7 @@
 'use client';
 
 import {AdJSONInput, ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
-import React, {Dispatch, FC, useEffect, useMemo, useState} from 'react';
+import React, {Dispatch, FC, useEffect, useMemo, useRef, useState} from 'react';
 import {IoIosCopy} from 'react-icons/io';
 import Lottie from 'lottie-react';
 import tickAnimation from '@/assets/lottie/tick_animation.json';
@@ -32,49 +32,95 @@ interface ChatGPTMessageItemProps {
 	setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>
 }
 
-
-function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: {messageItem: ChatGPTMessageObj, setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>, chunksRef?: React.MutableRefObject<string>, doneRef?: React.MutableRefObject<boolean>}) {
-	const [item, setItem] = useState('');
+interface RenderMessageItemProps {
+	messageItem: ChatGPTMessageObj;
+	setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>
+	chunksRef?: React.MutableRefObject<string>;
+	doneRef?: React.MutableRefObject<boolean>
+}
+function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: RenderMessageItemProps) {
+	const animationFrameRef = useRef<number>(0);
+	const textContainerRef = useRef<HTMLDivElement>(null);
+	const [markdownChunks, setMarkdownChunks] = useState<string[]>([]);
+	const [renderedChunks, setRenderedChunks] = useState([]);
+	const lastItemRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
-		if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
+		// if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
 
 		let j = 0;
-		const interval = setInterval(() => {
-			const message = chunksRef.current.slice(0, j);
-			setItem(c => message);
-
+		let prevJ = 0;
+		let frame = 0;
+		// const interval = setInterval(, 200);
+		function step() {
+			if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
 			// Shift the cursor to next index when the chunks array has more chunks
-			if(chunksRef.current.length >= j) {
-				j++;
+			if(chunksRef.current.length >= j && frame === 15) {
+				j += 25;
+				frame = 0;
+
+				const message = chunksRef.current.slice(prevJ, j);
+				// textContainerRef.current.innerHTML += message;
+				console.log('message - ', message);
+				// processSSEChunk(message);
+				setMarkdownChunks(c => [...c, message]);
 			}
+			// setItem(c => message);
+
+			console.log('j for joy - ', j);
 
 			// Clear the interval when the chunks array is done and the message is fully typed
 			if(doneRef.current && chunksRef.current.length < j) {
-				clearInterval(interval);
+				// clearInterval(interval);
 				setMessages(_messages => {
 					const messages = [..._messages];
 					const index = messages.findIndex(m => m.id === messageItem.id);
 					messages[index] = {
 						...messageItem,
 						generating: false,
-						content: message
+						content: chunksRef.current
 					}
 					return messages;
 				})
+				cancelAnimationFrame(animationFrameRef.current)
 			}
-		}, 5);
+
+			prevJ = j;
+			frame += 1;
+			animationFrameRef.current = requestAnimationFrame(step);
+		}
+
+		animationFrameRef.current = requestAnimationFrame(step);
 
 		return () => {
-			clearInterval(interval);
+			// clearInterval(interval);
+			cancelAnimationFrame(animationFrameRef.current)
 		}
 	}, [chunksRef, doneRef, messageItem, setMessages]);
 
+	useEffect(() => {
+		lastItemRef.current && lastItemRef.current.scrollIntoView({behavior: 'smooth'});
+	}, [markdownChunks])
+
+	return (
+		// <Markdown source={item} />
+		// <HandleRenderMessageItem item={item} />
+		<div>
+			<div>
+				{markdownChunks.map((chunk, index) => (
+					<React.Fragment key={chunk}>{chunk}</React.Fragment>
+				))}
+			</div>
+			<div ref={lastItemRef} />
+		</div>
+	);
+}
+
+function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: {messageItem: ChatGPTMessageObj, setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>, chunksRef?: React.MutableRefObject<string>, doneRef?: React.MutableRefObject<boolean>}) {
 	return (
 		<div className="flex items-start">
 			<p className="whitespace-pre-wrap text-[1em] text-primaryText text-opacity-60 flex-1">
-				<MarkdownRenderer markdownContent={item}/>
-				{/*<span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>*/}
+				<RenderMessageItem setMessages={setMessages} messageItem={messageItem} chunksRef={chunksRef} doneRef={doneRef} />
 			</p>
 			<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
 				<IoIosCopy className="cursor-pointer opacity-0 pointer-events-none justify-self-end text-primary" />
