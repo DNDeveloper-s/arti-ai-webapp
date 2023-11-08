@@ -2,7 +2,7 @@
 
 import React, {FC, useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import dummyImage from '@/assets/images/image4.webp';
 import {IAdVariant} from '@/interfaces/IArtiBot';
 import {REACTION} from '@/interfaces';
@@ -76,13 +76,13 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 	// 	headingRef.current.scrollIntoView({behavior: 'smooth', block: 'start'})
 	// }, [expand]);
 
-	useEffect(() => {
-		if(!adVariant.id || adVariant.id.includes('variant') || noExpand) return;
-		if(!adVariant.imageUrl && adVariant.imageDescription && (!inProcess || !inProcess[adVariant.id]) && (!inError || !inError[adVariant.id])) {
-			console.log('adVariant.id - ', adVariant.id);
-			updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
-		}
-	}, [adVariant, dispatch]);
+	// useEffect(() => {
+	// 	if(!adVariant.id || adVariant.id.includes('variant') || noExpand) return;
+	// 	if(!adVariant.imageUrl && adVariant.imageDescription && (!inProcess || !inProcess[adVariant.id]) && (!inError || !inError[adVariant.id])) {
+	// 		console.log('adVariant.id - ', adVariant.id);
+	// 		updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
+	// 	}
+	// }, [adVariant, dispatch, inError, inProcess, noExpand]);
 
 
 	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
@@ -99,7 +99,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 
 	const imageContainerJSX =
 		adVariant.imageUrl
-			? <Image width={600} height={100} className="mb-[0.5em] w-full" src={adVariant.imageUrl ? adVariant.imageUrl : dummyImage} alt="Ad Image" />
+			? <NextImage width={600} height={100} className="mb-[0.5em] w-full" src={adVariant.imageUrl ? adVariant.imageUrl : dummyImage} alt="Ad Image" />
 			: lottieAnimationJSX;
 
 	return (

@@ -16,6 +16,7 @@ import typingAnimation from '@/assets/lottie/typing.json';
 import generatingAnimation from '@/assets/lottie/generating.json';
 import {IAdCreative, AdCreativeVariant} from '@/interfaces/IAdCreative';
 import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
+import {updateVariantImage, useConversation} from '@/context/ConversationContext';
 
 interface RightPaneProps {
 	adCreative: IAdCreative;
@@ -31,6 +32,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	const [width, setWidth] = useState(MIN_WIDTH);
 	const variantRef = useRef<HTMLDivElement>(null);
 	const [fontSize, setFontSize] = useState<number>(8.5);
+	const {state: {inProcess, inError}, dispatch} = useConversation();
 
 	useEffect(() => {
 		if(!variantRef.current) return;
@@ -88,6 +90,16 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 			handleRef.removeEventListener('mousedown', mouseDownHandler)
 		}
 	}, []);
+
+	useEffect(() => {
+		if(adCreative.variants) {
+			adCreative.variants.forEach(variant => {
+				if(!variant.imageUrl && variant.imageDescription && (!inProcess || !inProcess[variant.id]) && (!inError || !inError[variant.id])) {
+					updateVariantImage(dispatch, variant.imageDescription, variant.id);
+				}
+			});
+		}
+	}, [dispatch, adCreative.variants, inProcess, inError])
 
 	// useEffect(() => {
 	// 	const pdf = new PDF(adCreative);

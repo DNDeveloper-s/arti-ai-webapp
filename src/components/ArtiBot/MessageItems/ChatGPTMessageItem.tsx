@@ -27,8 +27,8 @@ interface ChatGPTMessageItemProps {
 	variantFontSize?: number;
 	conversationId?: string;
 	chunksRef?: React.MutableRefObject<string>;
-	doneRef?: React.MutableRefObject<boolean>
-	setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>
+	doneRef?: React.MutableRefObject<boolean>;
+	setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>;
 }
 
 

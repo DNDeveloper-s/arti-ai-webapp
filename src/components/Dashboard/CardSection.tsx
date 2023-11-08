@@ -130,13 +130,19 @@ export default function CardSection() {
 
 
 	// Merge the variants of adCreatives per conversationId
-	const adVariantsByConversationId = state.adCreatives?.reduce((acc: Record<string, IAdCreative[]>, adCreative: IAdCreative) => {
-		if(!acc[adCreative.conversationId]) {
-			acc[adCreative.conversationId] = [];
-		}
-		acc[adCreative.conversationId].push(adCreative);
-		return acc;
-	}, {} as Record<string, IAdCreative[]>) ?? {};
+	const adVariantsByConversationId = useMemo(() => {
+		if(!state.conversation.map || !state.adCreatives.map) return {};
+		return state.adCreatives?.reduce((acc: Record<string, {list: IAdCreative[], updatedAt?: Date}>, adCreative: IAdCreative) => {
+			if(!acc[adCreative.conversationId]) {
+				acc[adCreative.conversationId] = {
+					list: []
+				};
+			}
+			acc[adCreative.conversationId].list.push(adCreative);
+			acc[adCreative.conversationId].updatedAt = state.conversation.map[adCreative.conversationId]?.lastAdCreativeCreatedAt;
+			return acc;
+		}, {} as Record<string, {list: IAdCreative[], updatedAt?: Date}>) ?? {};
+	}, [state.conversation, state.adCreatives])
 
 	function handleAdCreativeClick(adCreativeItem: IAdCreative) {
 		// setOpen(true);
@@ -218,7 +224,12 @@ export default function CardSection() {
 				{state.adCreative.list && state.adCreative.list.length > 0 && <section className="mb-10 w-full">
           <h2 className="mb-3">Past Ad Creatives</h2>
           <div className="flex gap-4 w-full overflow-x-auto">
-						{Object.keys(adVariantsByConversationId).map((conversationId: string) => <AdCreativeCard key={conversationId} adCreatives={adVariantsByConversationId[conversationId]} onClick={handleAdCreativeClick}/>)}
+						{Object.keys(adVariantsByConversationId).sort((a, b) => {
+							if(!adVariantsByConversationId || adVariantsByConversationId[a] || adVariantsByConversationId[b]) return 0;
+							if(adVariantsByConversationId[a].updatedAt > adVariantsByConversationId[b].updatedAt) return -1;
+							if(adVariantsByConversationId[a].updatedAt < adVariantsByConversationId[b].updatedAt) return 1;
+							return 0;
+						}).map((conversationId: string) => <AdCreativeCard key={conversationId} adCreatives={adVariantsByConversationId[conversationId].list} onClick={handleAdCreativeClick}/>)}
           </div>
         </section>}
 			</>
