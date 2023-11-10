@@ -1,6 +1,6 @@
 import {IconType} from 'react-icons';
 import {FeedBackKeyProperty, IAdCreative} from '@/interfaces/IAdCreative';
-import {MongooseModel} from '@/interfaces/IConversation';
+import {IMessageModel, MongooseModel} from '@/interfaces/IConversation';
 
 export interface HandleChunkArgs {
 	done?: boolean;
@@ -50,10 +50,10 @@ export enum ChatGPTRole {
 	'ASSISTANT' = 'assistant'
 }
 
-export interface ChatGPTMessageObj {
-	id?: string;
+export interface ChatGPTMessageObj extends IMessageModel {
+	// id?: string;
 	role: ChatGPTRole;
-	content: string | null;
+	// content: string | null;
 	generating?: boolean;
 	type?: 'ad-json' | 'text' | 'attachment';
 	json?: string;

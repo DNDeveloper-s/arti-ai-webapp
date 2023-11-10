@@ -51,7 +51,7 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 		});
 	}, [messages])
 
-	// console.log('reversedMessages - ', reversedMessages);
+	console.log('reversedMessages - ', reversedMessages);
 
 	return (
 		<AnimatePresence mode="wait">

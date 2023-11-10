@@ -30,7 +30,7 @@ export interface MongooseModel {
 export interface IMessageModel extends MongooseModel {
 	id: string,
 	role: ChatGPTRole,
-	content: string,
+	content: string | null,
 	conversationId: string,
 }
 
