@@ -24,7 +24,6 @@ interface RightPaneProps {
 }
 
 const MIN_WIDTH = 450;
-let generated = false;
 
 const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	const [activeVariant, setActiveVariant] = useState<AdCreativeVariant>(adCreative.variants[0]);
@@ -104,15 +103,14 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 		variantList.forEach(variant => {
 			router.prefetch(variant.imageUrl);
 		});
-	}, [variantList]);
+	}, [router, variantList]);
 
 	useEffect(() => {
 
 		if(variantList) {
 
 			const hasAtLeastOneVariantToFetch = variantList.some(variant => !variant.imageUrl && variant.imageDescription && (!inProcess || !inProcess[variant.id]) && (!inError || !inError[variant.id]));
-			if(!inProcess[adCreative.id] && hasAtLeastOneVariantToFetch && !generated) {
-				generated = true;
+			if(!inProcess[adCreative.id] && hasAtLeastOneVariantToFetch) {
 				generateAdCreativeImages(dispatch, adCreative.conversationId);
 			}
 
