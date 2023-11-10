@@ -15,8 +15,8 @@ function generateNewToken(token: JWT) {
 	// Set your JWT secret and options
 	const secret = 'thisisasecretkey'; // Replace with your secret key
 	const accessTokenExpires = moment().add(
-		60,
-		"minutes"
+		15,
+		"days"
 	);
 
 	// Create a new token with the user data and new expiration time

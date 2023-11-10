@@ -16,13 +16,15 @@ import typingAnimation from '@/assets/lottie/typing.json';
 import generatingAnimation from '@/assets/lottie/generating.json';
 import {IAdCreative, AdCreativeVariant} from '@/interfaces/IAdCreative';
 import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
-import {updateVariantImage, useConversation} from '@/context/ConversationContext';
+import {generateAdCreativeImages, updateVariantImage, useConversation} from '@/context/ConversationContext';
+import {useRouter} from 'next/navigation';
 
 interface RightPaneProps {
 	adCreative: IAdCreative;
 }
 
 const MIN_WIDTH = 450;
+let generated = false;
 
 const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	const [activeVariant, setActiveVariant] = useState<AdCreativeVariant>(adCreative.variants[0]);
@@ -32,7 +34,8 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	const [width, setWidth] = useState(MIN_WIDTH);
 	const variantRef = useRef<HTMLDivElement>(null);
 	const [fontSize, setFontSize] = useState<number>(8.5);
-	const {state: {inProcess, inError}, dispatch} = useConversation();
+	const {state: {inProcess, variant, inError}, getVariantsByAdCreativeId, dispatch} = useConversation();
+	const router = useRouter();
 
 	useEffect(() => {
 		if(!variantRef.current) return;
@@ -91,15 +94,36 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 		}
 	}, []);
 
+	const variantList = useMemo(() => {
+		return getVariantsByAdCreativeId(adCreative.id) || [];
+		// const variantIds = adCreative.variants.map(variant => variant.id);
+		// return variant.list.filter(c => variantIds.includes(c.id));
+	}, [getVariantsByAdCreativeId, adCreative.id]);
+
 	useEffect(() => {
-		if(adCreative.variants) {
-			adCreative.variants.forEach(variant => {
-				if(!variant.imageUrl && variant.imageDescription && (!inProcess || !inProcess[variant.id]) && (!inError || !inError[variant.id])) {
-					updateVariantImage(dispatch, variant.imageDescription, variant.id);
-				}
-			});
+		variantList.forEach(variant => {
+			router.prefetch(variant.imageUrl);
+		});
+	}, [variantList]);
+
+	useEffect(() => {
+
+		if(variantList) {
+
+			const hasAtLeastOneVariantToFetch = variantList.some(variant => !variant.imageUrl && variant.imageDescription && (!inProcess || !inProcess[variant.id]) && (!inError || !inError[variant.id]));
+			if(!inProcess[adCreative.id] && hasAtLeastOneVariantToFetch && !generated) {
+				generated = true;
+				generateAdCreativeImages(dispatch, adCreative.conversationId);
+			}
+
+			// variantList.forEach(variant => {
+			// 	if(!variant.imageUrl && variant.imageDescription && (!inProcess || !inProcess[variant.id]) && (!inError || !inError[variant.id])) {
+			// 		// updateVariantImage(dispatch, variant.imageDescription, variant.id);
+			// 		// generateAdCreativeImages(dispatch, adCreative.id);
+			// 	}
+			// });
 		}
-	}, [dispatch, adCreative.variants, inProcess, inError])
+	}, [dispatch, adCreative.id, variantList, inProcess, inError])
 
 	// useEffect(() => {
 	// 	const pdf = new PDF(adCreative);
@@ -133,13 +157,13 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 				{/*	<span>Generating PDF</span>*/}
 				{/*</motion.button>*/}
 				</div>
-				<TabView items={adCreative.variants} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant} />
+				<TabView items={variantList} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant} />
 
 				{activeVariant && (
 					<>
 						<label htmlFor="message" className="block text-sm font-light text-white text-opacity-50 w-[80%] mt-4 text-left">Ad Preview</label>
 						<div ref={variantRef} className={"mt-2 w-[80%]"}>
-							<FacebookAdVariant adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: fontSize + 'px'}}/>
+							<FacebookAdVariant adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
 						</div>
 					</>
 				)}

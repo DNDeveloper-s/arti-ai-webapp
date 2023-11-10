@@ -1,6 +1,6 @@
 'use client';
 
-import React, {createContext, FC, useContext, useLayoutEffect, useReducer} from 'react';
+import React, {createContext, FC, useCallback, useContext, useLayoutEffect, useReducer} from 'react';
 import {ConversationType, IConversation} from '@/interfaces/IConversation';
 import axios, {AxiosError} from 'axios';
 import {ROUTES} from '@/config/api-config';
@@ -26,6 +26,9 @@ enum CONVERSATION_ACTION_TYPE {
 	UPDATE_VARIANT_IMAGE = 'UPDATE_VARIANT_IMAGE',
 	ERROR_IN_UPDATING_VARIANT_IMAGE = 'ERROR_IN_UPDATING_VARIANT_IMAGE',
 	UPDATE_VARIANT_IMAGE_SUCCESS = 'UPDATE_VARIANT_IMAGE_SUCCESS',
+	GEN_AD_CREATIVE_IMAGES = 'GEN_AD_CREATIVE_IMAGES',
+	GEN_AD_CREATIVE_IMAGES_SUCCESS = 'GEN_AD_CREATIVE_IMAGES_SUCCESS',
+	ERROR_IN_GENERATING_CREATIVE_IMAGES = 'ERROR_IN_GENERATING_CREATIVE_IMAGES',
 	UPDATE_VARIANT_IMAGE_FAILURE = 'UPDATE_VARIANT_IMAGE_FAILURE',
 	GET_ADCREATIVES = 'GET_ADCREATIVES',
 	GET_ADCREATIVES_SUCCESS = 'GET_ADCREATIVES_SUCCESS',
@@ -97,14 +100,14 @@ const extractFromConversation = (conversation: IConversation): Omit<StateRecordE
 }
 
 // Create a utility function to extract the variantMap from an adCreative
-const extractFromAdCreative = (adCreative: IAdCreative): Pick<StateRecordEnum, 'variant'> => {
+const extractFromAdCreative = (adCreative: IAdCreative, initVariant: StateRecord<IAdVariant>): Pick<StateRecordEnum, 'variant'> => {
 	return adCreative.variants?.reduce((acc: {
 		variant: StateRecord<IAdVariant>,
 	}, variant: IAdVariant) => {
 		acc.variant = addKeyToStateRecord(acc.variant, variant);
 		// acc.variant.map = addKeyToStateRecord(acc.variant.map, variant);
 		return acc;
-	}, {variant: {map: {}, list: []}});
+	}, {variant: initVariant});
 }
 
 interface LoadingState {
@@ -115,6 +118,30 @@ interface LoadingState {
 	adCreatives?: boolean;
 	variants?: boolean
 }
+
+type GenerateAdCreativeImageApiSuccess = {
+	ok: true;
+	url: string;
+	name: string;
+	variantId: IAdVariant["id"];
+};
+
+type GenerateAdCreativeImageApiError = {
+	ok: false;
+	message: string;
+	stack: any;
+	variantId: IAdVariant["id"];
+};
+
+type GenerateAdCreativeImageApiResponseRes = GenerateAdCreativeImageApiSuccess | GenerateAdCreativeImageApiError
+
+type GenerateAdCreativeImageApiResponse = {
+	ok: boolean;
+	message: string;
+	data: {
+		response: GenerateAdCreativeImageApiResponseRes[];
+	}
+};
 
 export const initConversationState: IConversationState = {
 	conversation: {map: {}, list: []},
@@ -131,7 +158,8 @@ export const initConversationState: IConversationState = {
 		adCreatives: true
 	},
 	messageBuffer: [],
-	inProcess: false
+	inProcess: {},
+	inError: {}
 }
 
 /**
@@ -230,6 +258,58 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 					[payload.variantId]: false
 				}
 			};
+		case CONVERSATION_ACTION_TYPE.GEN_AD_CREATIVE_IMAGES:
+			let { conversationId: adCreativeId1 } = payload;
+			const variantList = state.adCreative.list.find(adCreative => adCreative.id === adCreativeId1)?.variants ?? [];
+			const init = {inProcess: {...(state.inProcess ?? {})}};
+			const map1 = variantList.reduce((acc: typeof init, variant) => {
+				if(variant.imageUrl) {
+					acc.inProcess[variant.id] = false;
+					return acc;
+				}
+				acc.inProcess[variant.id] = true;
+				return acc;
+			}, init);
+
+			console.log('GenerateAdCreativeImages | map1 - ', map1);
+
+			return {
+				...state,
+				loading: updateLoadingState(state, {variant: false}),
+				inProcess: {
+					...map1.inProcess,
+					[adCreativeId1]: true
+				}
+			};
+		case CONVERSATION_ACTION_TYPE.GEN_AD_CREATIVE_IMAGES_SUCCESS:
+			const { conversationId, response } = payload;
+			// const adCreative = state.adCreative.map[adCreativeId];
+			let adVariant = {...state.variant};
+			response.map((res: GenerateAdCreativeImageApiResponseRes) => {
+				if(res.ok) {
+					const variant = state.variant.map[res.variantId];
+					variant.imageUrl = res.url;
+					adVariant = addKeyToStateRecord(adVariant, variant);
+					state.inError[res.variantId] = false;
+					state.inProcess[res.variantId] = false;
+				} else {
+					state.inError[res.variantId] = true;
+					state.inProcess[res.variantId] = false;
+				}
+			});
+
+			console.log('GenerateAdCreativeImages | state - ', state);
+			return {
+				...state,
+				inProcess: {
+					...(state.inProcess ?? {}),
+					[conversationId]: false
+				},
+				inError: {
+					...(state.inError ?? {}),
+				},
+				variant: mergeStateRecord(state.variant, adVariant)
+			};
 		case CONVERSATION_ACTION_TYPE.UPDATING_VARIANT_IMAGE:
 			return {
 				...state,
@@ -260,8 +340,8 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 			const _initial12 =  {variant: {map: {}, list: []}, adCreative: {map: {}, list: []}};
 			const maps3 = payload.adCreatives?.reduce((acc: Omit<StateRecordEnum, 'conversation'>, adCreative: IAdCreative) => {
 				acc.adCreative = addKeyToStateRecord(acc?.adCreative, adCreative);
-				const {variant} = extractFromAdCreative(adCreative);
-				acc.variant = {...acc.variant, ...variant};
+				const {variant} = extractFromAdCreative(adCreative, acc.variant);
+				acc.variant = variant;
 				return acc;
 			}, _initial12) ?? _initial12;
 
@@ -284,12 +364,14 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 			}
 		case CONVERSATION_ACTION_TYPE.GET_ADCREATIVES_SUCCESS:
 			// Prepare the variantMap and adCreativeMap
+			console.log('addKeyToStateRecord(acc?.adCreative, adCreative) -  | payload.adCreatives - ', payload.adCreatives)
 			const maps2 = payload.adCreatives.reduce((acc: Omit<StateRecordEnum, 'conversation'>, adCreative: IAdCreative) => {
+				console.log('addKeyToStateRecord(acc?.adCreative, adCreative) - ', addKeyToStateRecord(acc?.adCreative, adCreative));
 				acc.adCreative = addKeyToStateRecord(acc?.adCreative, adCreative);
-				const {variant} = extractFromAdCreative(adCreative);
-				acc.variant = {...acc.variant, ...variant};
+				const {variant} = extractFromAdCreative(adCreative, acc.variant);
+				acc.variant = variant;
 				return acc;
-			}, {variant: {}, adCreative: {}});
+			}, {variant: {...state.variant}, adCreative: {...state.adCreative}});
 			return {
 				...state,
 				loading: updateLoadingState(state, {adCreatives: false}),
@@ -358,7 +440,7 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 			const _initial1 = {variant: {map: {}, list: []}, adCreative: {map: {}, list: []}};
 			const _maps13 = payload.conversation.adCreatives?.reduce((acc: Omit<StateRecordEnum, 'conversation'>, adCreative: IAdCreative) => {
 				acc.adCreative = addKeyToStateRecord(acc?.adCreative, adCreative);
-				const {variant} = extractFromAdCreative(adCreative);
+				const {variant} = extractFromAdCreative(adCreative, acc.variant);
 				acc.variant = {...acc.variant, ...variant};
 				return acc;
 			}, _initial1) ?? _initial1;
@@ -374,7 +456,7 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 			const _initial = {variant: {map: {}, list: []}, adCreative: {map: {}, list: []}};
 			const _maps12 = payload.conversation.adCreatives?.reduce((acc: Omit<StateRecordEnum, 'conversation'>, adCreative: IAdCreative) => {
 				acc.adCreative = addKeyToStateRecord(acc?.adCreative, adCreative);
-				const {variant} = extractFromAdCreative(adCreative);
+				const {variant} = extractFromAdCreative(adCreative, acc.variant);
 				acc.variant = {...acc.variant, ...variant};
 				return acc;
 			}, _initial) ?? _initial;
@@ -427,16 +509,29 @@ const useConversationContext = (initState: IConversationState) => {
 		}
 	}, [session])
 
+	const getVariantsByAdCreativeId = useCallback((adCreativeId: string) => {
+		console.log('GenerateAdCreativeImages | fetching variants by adcreativeId - ', state, adCreativeId);
+		const conversationId = state.adCreative.map[adCreativeId]?.conversationId;
+		if(!conversationId) return null;
+		const adCreativeIds = state.adCreative.list.filter(adCreative => adCreative.conversationId === conversationId).map(adCreative => adCreative.id);
+		const variantIds = state.adCreative.list.filter(adCreative => adCreativeIds?.includes(adCreative.id)).map(adCreative => adCreative.variants?.map(variant => variant.id)).flat();
+		if(!variantIds) return null;
+		return state.variant.list.filter(c => variantIds.includes(c.id));
+	}, [state]);
+
 	// const increment = useCallback(() => {
 	// 	dispatch({type: REDUCER_ACTION_TYPE.INCREMENT});
 	// }, []);
 
-	return {state, dispatch};
+	return {state, dispatch, getVariantsByAdCreativeId};
 }
 
 type UseConversationContextType = ReturnType<typeof useConversationContext>;
 
-export const ConversationContext = createContext<UseConversationContextType>({state: initConversationState, dispatch: (action: ConversationAction) => {}});
+export const ConversationContext = createContext<UseConversationContextType>({
+	getVariantsByAdCreativeId(adCreativeId: string): null | any {
+		return undefined;
+	}, state: initConversationState, dispatch: (action: ConversationAction) => {}});
 
 const ConversationContextProvider: FC<{children: React.ReactElement} & IConversationState> = ({children, ...initState}) => {
 	// const [ConversationData, setConversationData] = useState<ConversationData>(null);
@@ -456,6 +551,7 @@ const ConversationContextProvider: FC<{children: React.ReactElement} & IConversa
 type UseCreateSalesHookType = {
 	state: IConversationState;
 	dispatch: (action: ConversationAction) => void;
+	getVariantsByAdCreativeId: (adCreativeId: string) => IAdVariant[] | null;
 }
 
 function useConversation(): UseCreateSalesHookType {
@@ -491,6 +587,35 @@ async function updateVariantImage(dispatch: (a: ConversationAction) => void, tex
 	} catch (error: any) {
 		console.log('setting error - ');
 		dispatch({type: CONVERSATION_ACTION_TYPE.ERROR_IN_UPDATING_VARIANT_IMAGE, payload: {variantId}});
+	}
+}
+
+async function generateAdCreativeImages(dispatch: (a: ConversationAction) => void, conversationId: string) {
+	dispatch({
+		type: CONVERSATION_ACTION_TYPE.GEN_AD_CREATIVE_IMAGES,
+		payload: {
+			conversationId,
+		}
+	});
+
+	try {
+		console.log('GenerateAdCreativeImages | generating ad creatives - ');
+
+		const response = await axios.patch<GenerateAdCreativeImageApiResponse>(ROUTES.CONVERSATION.GENERATE_IMAGES(conversationId), {}, {
+			headers: {
+				'Authorization': 'Bearer ' + localStorage.getItem('token')
+			}
+		});
+
+		if(response.data.ok) {
+			dispatch({type: CONVERSATION_ACTION_TYPE.GEN_AD_CREATIVE_IMAGES_SUCCESS, payload: {conversationId, response: response.data.data.response}});
+		} else {
+			console.log('setting error - ', response.data?.message);
+			dispatch({type: CONVERSATION_ACTION_TYPE.ERROR_IN_GENERATING_CREATIVE_IMAGES, payload: {conversationId}});
+		}
+	} catch (error: any) {
+		console.log('setting error - ');
+		dispatch({type: CONVERSATION_ACTION_TYPE.ERROR_IN_GENERATING_CREATIVE_IMAGES, payload: {conversationId}});
 	}
 
 }
@@ -721,6 +846,7 @@ export {
 	updateVariantImage,
 	addMessageToBuffer,
 	flushBufferMessage,
+	generateAdCreativeImages,
 	saveMessages,
 	clearError,
 	saveAdCreativeMessage,

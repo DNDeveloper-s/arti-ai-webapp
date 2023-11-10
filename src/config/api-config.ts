@@ -1,6 +1,6 @@
 export const apiConfig = {
 	baseUrl: process.env.NODE_ENV === 'production' ? 'https://api.artiai.org' : 'http://localhost:8081',
-	// baseUrl: 'http://localhost:8081',
+	// baseUrl: 'https://api.artiai.org1',
 	version: '/v1'
 }
 
@@ -35,6 +35,7 @@ export const ROUTES = {
 		CREATE: (id: string) => apiUrl(`/conversations/${id}`),
 		GET: (id: string) => apiUrl(`/conversations/${id}`),
 		QUERY: (limit?: number, page?: number, sortBy?: 'asc' | 'desc') => apiUrl('/conversations', new URLSearchParams(pickValidKeys({limit, page, sortBy}))),
+		GENERATE_IMAGES: (conversationId: string) => apiUrl(`/ad_creatives/generate-images/${conversationId}`),
 	},
 	ADCREATIVE: {
 		QUERY: (limit?: number, page?: number, sortBy?: 'asc' | 'desc') => apiUrl('/ad_creatives', new URLSearchParams(pickValidKeys({limit, page, sortBy}))),
@@ -52,5 +53,5 @@ export const ROUTES = {
 	},
 	VARIANT: {
 		UPDATE_IMAGE: (variantId: string) => apiUrl(`/variants/${variantId}/image`),
-	}
+	},
 }

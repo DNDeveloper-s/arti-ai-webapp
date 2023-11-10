@@ -131,8 +131,8 @@ export default function CardSection() {
 
 	// Merge the variants of adCreatives per conversationId
 	const adVariantsByConversationId = useMemo(() => {
-		if(!state.conversation.map || !state.adCreatives.map) return {};
-		return state.adCreatives?.reduce((acc: Record<string, {list: IAdCreative[], updatedAt?: Date}>, adCreative: IAdCreative) => {
+		if(!state.conversation.map || !state.adCreative.map) return {};
+		return state.adCreative.list?.reduce((acc: Record<string, {list: IAdCreative[], updatedAt?: string}>, adCreative: IAdCreative) => {
 			if(!acc[adCreative.conversationId]) {
 				acc[adCreative.conversationId] = {
 					list: []
@@ -141,8 +141,21 @@ export default function CardSection() {
 			acc[adCreative.conversationId].list.push(adCreative);
 			acc[adCreative.conversationId].updatedAt = state.conversation.map[adCreative.conversationId]?.lastAdCreativeCreatedAt;
 			return acc;
-		}, {} as Record<string, {list: IAdCreative[], updatedAt?: Date}>) ?? {};
-	}, [state.conversation, state.adCreatives])
+		}, {} as Record<string, {list: IAdCreative[], updatedAt?: string}>) ?? {};
+	}, [state.conversation.map, state.adCreative.map, state.adCreative.list])
+
+	let sortedKeys: string[] = [];
+
+	if(adVariantsByConversationId) {
+		sortedKeys = Object.keys(adVariantsByConversationId).sort((a, b) => {
+			if(!adVariantsByConversationId || !adVariantsByConversationId[a] || !adVariantsByConversationId[b]) return 0;
+			if(!adVariantsByConversationId[a].updatedAt) return 1;
+			if(!adVariantsByConversationId[b].updatedAt) return -1;
+			if(adVariantsByConversationId[a].updatedAt > adVariantsByConversationId[b].updatedAt) return -1;
+			if(adVariantsByConversationId[a].updatedAt < adVariantsByConversationId[b].updatedAt) return 1;
+			return 0;
+		});
+	}
 
 	function handleAdCreativeClick(adCreativeItem: IAdCreative) {
 		// setOpen(true);
@@ -170,14 +183,14 @@ export default function CardSection() {
 		const _conversations = state.conversation.list;
 
 		// sort the list with the key updatedAt which holds the ISO String
-		if(activeTabItem.id === ConversationType.STRATEGY) {
-			return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.STRATEGY && isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
-				if(a.updatedAt > b.updatedAt) return -1;
-				if(a.updatedAt < b.updatedAt) return 1;
-				return 0;
-			});
-		}
-		return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.AD_CREATIVE && isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
+		// if(activeTabItem.id === ConversationType.STRATEGY) {
+		// 	return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.STRATEGY && isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
+		// 		if(a.updatedAt > b.updatedAt) return -1;
+		// 		if(a.updatedAt < b.updatedAt) return 1;
+		// 		return 0;
+		// 	});
+		// }
+		return _conversations.filter((c: IConversation) => isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
 			if(a.updatedAt > b.updatedAt) return -1;
 			if(a.updatedAt < b.updatedAt) return 1;
 			return 0;
@@ -224,12 +237,7 @@ export default function CardSection() {
 				{state.adCreative.list && state.adCreative.list.length > 0 && <section className="mb-10 w-full">
           <h2 className="mb-3">Past Ad Creatives</h2>
           <div className="flex gap-4 w-full overflow-x-auto">
-						{Object.keys(adVariantsByConversationId).sort((a, b) => {
-							if(!adVariantsByConversationId || adVariantsByConversationId[a] || adVariantsByConversationId[b]) return 0;
-							if(adVariantsByConversationId[a].updatedAt > adVariantsByConversationId[b].updatedAt) return -1;
-							if(adVariantsByConversationId[a].updatedAt < adVariantsByConversationId[b].updatedAt) return 1;
-							return 0;
-						}).map((conversationId: string) => <AdCreativeCard key={conversationId} adCreatives={adVariantsByConversationId[conversationId].list} onClick={handleAdCreativeClick}/>)}
+						{sortedKeys.map((conversationId: string) => <AdCreativeCard key={conversationId} adCreatives={adVariantsByConversationId[conversationId].list} onClick={handleAdCreativeClick}/>)}
           </div>
         </section>}
 			</>

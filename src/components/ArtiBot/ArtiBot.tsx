@@ -352,7 +352,8 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		return adCreative
 	}, [adCreatives]);
 
-	const showGetAdNowButton = !isGeneratingAd && !miniVersion && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
+	const enableMessageInput = !isGeneratingAd && !isGenerating && !saveMessageRef.current && !miniVersion;
+	const showGetAdNowButton = enableMessageInput && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
 
 	return (
 		<div className={`flex h-full overflow-hidden`}>
@@ -399,7 +400,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 						{/*	<input type="file" className="absolute w-full h-full z-10 cursor-pointer" hidden/>*/}
 						{/*	<BsFillFileEarmarkFill className="text-xl" />*/}
 						{/*</div>*/}
-						<div className="flex-1 relative rounded-xl bg-background h-[70%] mb-1 mx-3">
+						<div className={'flex-1 relative rounded-xl bg-background h-[70%] mb-1 mx-3 ' + (!enableMessageInput ? ' opacity-60 pointer-events-none cursor-none' : '')}>
 							{selectedFiles ? <div className="w-full h-[200px] p-3 px-6 flex absolute bottom-0 bg-background rounded-xl overflow-x-auto">
 									{selectedFiles.map(fileObj => (
 										<FileItem key={fileObj.id} setFiles={setFiles} fileObj={fileObj} />
