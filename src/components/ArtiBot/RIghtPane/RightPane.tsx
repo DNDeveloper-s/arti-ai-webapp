@@ -35,6 +35,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	const [fontSize, setFontSize] = useState<number>(8.5);
 	const {state: {inProcess, variant, inError}, getVariantsByAdCreativeId, dispatch} = useConversation();
 	const router = useRouter();
+	const ranTheGenerationRef = useRef<boolean>(false);
 
 	useEffect(() => {
 		if(!variantRef.current) return;
@@ -110,7 +111,8 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 		if(variantList) {
 
 			const hasAtLeastOneVariantToFetch = variantList.some(variant => !variant.imageUrl && variant.imageDescription && (!inProcess || !inProcess[variant.id]) && (!inError || !inError[variant.id]));
-			if(!inProcess[adCreative.id] && hasAtLeastOneVariantToFetch) {
+			if(!ranTheGenerationRef.current && !inProcess[adCreative.conversationId] && hasAtLeastOneVariantToFetch) {
+				ranTheGenerationRef.current = true;
 				generateAdCreativeImages(dispatch, adCreative.conversationId);
 			}
 
