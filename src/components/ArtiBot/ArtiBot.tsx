@@ -352,7 +352,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		return adCreative
 	}, [adCreatives]);
 
-	const enableMessageInput = !isGeneratingAd && !isGenerating && !saveMessageRef.current && !miniVersion;
+	const enableMessageInput = !isGeneratingAd && !isGenerating && !saveMessageRef.current && !miniVersion && messages?.find(m => m.generating === true) === undefined;
 	const showGetAdNowButton = enableMessageInput && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
 
 	return (
