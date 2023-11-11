@@ -4,8 +4,8 @@ import React, {createContext, FC, useCallback, useContext, useLayoutEffect, useR
 import {ConversationType, IConversation} from '@/interfaces/IConversation';
 import axios, {AxiosError} from 'axios';
 import {ROUTES} from '@/config/api-config';
-import {IAdCreative} from '@/interfaces/IAdCreative';
-import {ChatGPTMessageObj, IAdVariant} from '@/interfaces/IArtiBot';
+import {Feedback, FeedBackKeyProperty, IAdCreative} from '@/interfaces/IAdCreative';
+import {ChatGPTMessageObj, FeedBackKey, IAdVariant} from '@/interfaces/IArtiBot';
 import {useSession} from 'next-auth/react';
 import ObjectId from 'bson-objectid';
 
@@ -45,6 +45,7 @@ enum CONVERSATION_ACTION_TYPE {
 	ADD_TO_MESSAGE_BUFFER = 'ADD_TO_MESSAGE_BUFFER',
 	FLUSH_MESSAGE_BUFFER = 'FLUSH_MESSAGE_BUFFER',
 	SHOW_ERROR_MESSAGE = 'SHOW_ERROR_MESSAGE',
+	HANDLE_FEEDBACK_KEY = 'HANDLE_FEEDBACK_KEY',
 }
 
 // An interface for our actions
@@ -236,6 +237,7 @@ function mergeStateRecord<T extends {id: string}>(state: StateRecord<T>, record:
 
 function conversationReducer(state: IConversationState, action: ConversationAction): IConversationState {
 	const { type, payload } = action;
+	console.log('Action - ', action, state);
 	switch (type) {
 		case CONVERSATION_ACTION_TYPE.UPDATE_VARIANT_IMAGE_SUCCESS:
 			const conversations = state.conversations;
@@ -271,8 +273,6 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 				return acc;
 			}, init);
 
-			console.log('GenerateAdCreativeImages | map1 - ', map1);
-
 			return {
 				...state,
 				loading: updateLoadingState(state, {variant: false}),
@@ -298,7 +298,6 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 				}
 			});
 
-			console.log('GenerateAdCreativeImages | state - ', state);
 			return {
 				...state,
 				inProcess: {
@@ -359,6 +358,39 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 					state.variant = removeKeyFromStateRecord(state.variant, variant);
 				})
 			})
+			return {
+				...state
+			}
+		case CONVERSATION_ACTION_TYPE.HANDLE_FEEDBACK_KEY:
+			// const _adCreatives = payload.adCreatives as IAdCreative[];
+			// _adCreatives.forEach(adCreative => {
+			// 	state.adCreative = removeKeyFromStateRecord(state.adCreative, adCreative);
+			// 	adCreative.variants?.forEach(variant => {
+			// 		state.variant = removeKeyFromStateRecord(state.variant, variant);
+			// 	})
+			// })
+			const {variantId, feedbackKey, feedback} = payload as {variantId: IAdVariant['id'], feedbackKey: FeedBackKeyProperty, feedback: Feedback};
+			const variant = state.variant.map[variantId];
+			// if(!variant.feedback) variant.feedback = {};
+			// variant.feedback[feedbackKey] = feedback;
+
+			const variantsFeedbackLocal = window.localStorage.getItem('variantsFeedback');
+			let obj: Record<string, string> = {};
+			try {
+				obj = JSON.parse(variantsFeedbackLocal ?? '{}');
+			} catch (e) {
+				obj = {};
+			}
+
+			variant.feedback = {
+				// @ts-ignore
+				...(obj[variantId] ?? {}),
+				[feedbackKey]: feedback
+			}
+
+			window.localStorage.setItem('variantsFeedback', JSON.stringify({...obj, [variantId]: variant.feedback}));
+
+			state.variant = addKeyToStateRecord(state.variant, variant);
 			return {
 				...state
 			}
@@ -510,25 +542,37 @@ const useConversationContext = (initState: IConversationState) => {
 	}, [session])
 
 	const getVariantsByAdCreativeId = useCallback((adCreativeId: string) => {
-		console.log('GenerateAdCreativeImages | fetching variants by adcreativeId - ', state, adCreativeId);
 		const conversationId = state.adCreative.map[adCreativeId]?.conversationId;
 		if(!conversationId) return null;
 		const adCreativeIds = state.adCreative.list.filter(adCreative => adCreative.conversationId === conversationId).map(adCreative => adCreative.id);
 		const variantIds = state.adCreative.list.filter(adCreative => adCreativeIds?.includes(adCreative.id)).map(adCreative => adCreative.variants?.map(variant => variant.id)).flat();
 		if(!variantIds) return null;
-		return state.variant.list.filter(c => variantIds.includes(c.id));
-	}, [state]);
+		return state.variant.list.filter(c => variantIds.includes(c.id)).sort((a, b) => a.id > b.id ? -1 : 1);
+	}, [state.adCreative.list, state.adCreative.map, state.variant.list]);
+
+	const handleFeedBackKey = useCallback((variantId: IAdVariant['id'], feedbackKey: FeedBackKeyProperty, feedback: Feedback) => {
+		dispatch({
+			type: CONVERSATION_ACTION_TYPE.HANDLE_FEEDBACK_KEY,
+			payload: {
+				variantId,
+				feedbackKey,
+				feedback
+			}
+		});
+	}, [])
 
 	// const increment = useCallback(() => {
 	// 	dispatch({type: REDUCER_ACTION_TYPE.INCREMENT});
 	// }, []);
 
-	return {state, dispatch, getVariantsByAdCreativeId};
+	return {state, dispatch, getVariantsByAdCreativeId, handleFeedBackKey};
 }
 
 type UseConversationContextType = ReturnType<typeof useConversationContext>;
 
 export const ConversationContext = createContext<UseConversationContextType>({
+	handleFeedBackKey(variantId: IAdVariant["id"], feedbackKey: FeedBackKeyProperty, feedback: Feedback): void {
+	},
 	getVariantsByAdCreativeId(adCreativeId: string): null | any {
 		return undefined;
 	}, state: initConversationState, dispatch: (action: ConversationAction) => {}});
@@ -552,6 +596,7 @@ type UseCreateSalesHookType = {
 	state: IConversationState;
 	dispatch: (action: ConversationAction) => void;
 	getVariantsByAdCreativeId: (adCreativeId: string) => IAdVariant[] | null;
+	handleFeedBackKey: (variantId: IAdVariant['id'], feedbackKey: FeedBackKeyProperty, feedback: Feedback) => void;
 }
 
 function useConversation(): UseCreateSalesHookType {
@@ -599,8 +644,6 @@ async function generateAdCreativeImages(dispatch: (a: ConversationAction) => voi
 	});
 
 	try {
-		console.log('GenerateAdCreativeImages | generating ad creatives - ');
-
 		const response = await axios.patch<GenerateAdCreativeImageApiResponse>(ROUTES.CONVERSATION.GENERATE_IMAGES(conversationId), {}, {
 			headers: {
 				'Authorization': 'Bearer ' + localStorage.getItem('token')

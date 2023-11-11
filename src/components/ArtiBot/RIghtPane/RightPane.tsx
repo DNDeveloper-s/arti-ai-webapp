@@ -9,6 +9,7 @@ import {IAdCreative, AdCreativeVariant} from '@/interfaces/IAdCreative';
 import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
 import {generateAdCreativeImages, updateVariantImage, useConversation} from '@/context/ConversationContext';
 import {useRouter} from 'next/navigation';
+import VariantItem from '@/components/ArtiBot/VariantItem';
 
 interface RightPaneProps {
 	adCreative: IAdCreative;
@@ -22,25 +23,11 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	const resizeContainerRef = useRef<HTMLDivElement>(null);
 	const [docUrl, setDocUrl] = useState<string | null>(null);
 	const [width, setWidth] = useState(MIN_WIDTH);
-	const variantRef = useRef<HTMLDivElement>(null);
-	const [fontSize, setFontSize] = useState<number>(8.5);
-	const {state: {inProcess, variant, inError}, getVariantsByAdCreativeId, dispatch} = useConversation();
+	const {state: {inProcess, variant, inError, ...state}, getVariantsByAdCreativeId, dispatch} = useConversation();
 	const router = useRouter();
 	const ranTheGenerationRef = useRef<boolean>(false);
 	const prevVariantListRef = useRef('');
 
-	useEffect(() => {
-		if(!variantRef.current) return;
-		let newHeight = (356 * width) / 340;
-		//
-		const maxWidth = 340 * (innerHeight / 1.5) / 356;
-		variantRef.current.style.maxWidth = maxWidth + 'px';
-		if(newHeight > (innerHeight / 1.5)) return;
-
-
-		// console.log('newHeight - ', newHeight / 57);
-		setFontSize(newHeight / 57);
-	}, [width])
 
 	useEffect(() => {
 		if(!resizeHandleRef.current || !resizeContainerRef.current) return;
@@ -90,11 +77,24 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 		const list = getVariantsByAdCreativeId(adCreative.id) || [];
 		// const list = [];
 
-		const newVariantListRef = list.map(variant => variant.id).join(',');
+		const newVariantListRef = list.map(variant => variant.id).sort((a, b) => {
+			if(a > b) return 1;
+			if(a < b) return -1;
+			return 0;
+		}).join(',');
 
-		ranTheGenerationRef.current = newVariantListRef === prevVariantListRef.current;
+		if(newVariantListRef !== prevVariantListRef.current) ranTheGenerationRef.current = false;
 
-		prevVariantListRef.current = list.map(variant => variant.id).join(',');
+		if(!ranTheGenerationRef.current) {
+			console.log('setting active variant');
+			setActiveVariant(list[0]);
+		}
+
+		prevVariantListRef.current = list.map(variant => variant.id).sort((a, b) => {
+			if(a > b) return 1;
+			if(a < b) return -1;
+			return 0;
+		}).join(',');
 		return list;
 		// const variantIds = adCreative.variants.map(variant => variant.id);
 		// return variant.list.filter(c => variantIds.includes(c.id));
@@ -115,6 +115,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 				ranTheGenerationRef.current = true;
 				generateAdCreativeImages(dispatch, adCreative.conversationId);
 			}
+			ranTheGenerationRef.current = true;
 
 			// variantList.forEach(variant => {
 			// 	if(!variant.imageUrl && variant.imageDescription && (!inProcess || !inProcess[variant.id]) && (!inError || !inError[variant.id])) {
@@ -123,7 +124,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 			// 	}
 			// });
 		}
-	}, [dispatch, adCreative.id, variantList, inProcess, inError])
+	}, [dispatch, variantList, inProcess, inError, adCreative.conversationId])
 
 	// useEffect(() => {
 	// 	const pdf = new PDF(adCreative);
@@ -159,16 +160,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 				</div>
 				<TabView items={variantList} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant} />
 
-				{activeVariant && (
-					<>
-						<label htmlFor="message" className="block text-sm font-light text-white text-opacity-50 w-[80%] mt-4 text-left">Ad Preview</label>
-						<div ref={variantRef} className={"mt-2 w-[80%]"}>
-							<FacebookAdVariant adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
-						</div>
-					</>
-				)}
-
-				<FeedBackView feedbackData={activeVariant.feedback} />
+				<VariantItem activeVariant={activeVariant} width={width} />
 
 			</div>
 		</div>

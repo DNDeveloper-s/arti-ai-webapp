@@ -69,7 +69,11 @@ const AdCreativeCard:React.FC<AdCreativeCardProps> = ({conversationId, adCreativ
 			</span>
 		</div>
 		<div className={"flex items-start gap-3 px-3"}>
-			{adCreative.variants.map(currentAdVariant => (
+			{adCreative.variants.sort((a, b) => {
+				if(a.id > b.id) return -1;
+				if(a.id < b.id) return 1;
+				return 0;
+			}).map(currentAdVariant => (
 				<FacebookAdVariantMini style={{zoom: 0.3, fontSize: '9px'}} key={currentAdVariant.id} noExpand={true} adVariant={currentAdVariant} className="flex-shrink-0 p-[3.8em] border border-gray-800 bg-secondaryBackground rounded max-w-[30%]"/>
 			))}
 		</div>

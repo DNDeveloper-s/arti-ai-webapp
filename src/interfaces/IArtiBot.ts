@@ -1,5 +1,5 @@
 import {IconType} from 'react-icons';
-import {FeedBackKeyProperty, IAdCreative} from '@/interfaces/IAdCreative';
+import {FEEDBACK, FeedbackData, FeedBackKeyProperty, IAdCreative} from '@/interfaces/IAdCreative';
 import {IMessageModel, MongooseModel} from '@/interfaces/IConversation';
 
 export interface HandleChunkArgs {
@@ -79,6 +79,7 @@ export interface IAdVariant {
 	imageDescription: string;
 	adOrientation: string;
 	rationale: string;
+	feedback?: FeedbackData
 }
 
 export interface AdJSONInput extends MongooseModel {

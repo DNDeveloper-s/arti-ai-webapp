@@ -5,7 +5,10 @@ import {AdJSONInput, IAdVariant} from '@/interfaces/IArtiBot';
 export interface Feedback {
 	feedback_message: string;
 	reaction: Reaction;
+	updated_at: Date | string;
 }
+
+export type FeedbackData = Partial<Record<FeedBackKeyProperty, Feedback | undefined>>
 
 export type FeedBackKeyProperty = 'overall' | 'one_liner' | 'ad_orientation' | 'image_description' | 'rationale' | 'ad_variant_image' | 'image_text';
 
@@ -20,7 +23,7 @@ export enum FEEDBACK {
 }
 
 export interface AdCreativeVariant extends IAdVariant{
-	feedback?: Partial<Record<FeedBackKeyProperty, Feedback | undefined>>
+	feedback?: FeedbackData
 }
 
 export interface IAdCreative extends AdJSONInput {

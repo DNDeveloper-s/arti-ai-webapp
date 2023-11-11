@@ -69,8 +69,6 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NEUTRAL : REACTION.DISLIKED);
 	}
 
-	console.log('GenerateAdCreativeImages | adVariant - ', adVariant, variant);
-
 	// useEffect(() => {
 	// 	if(!headingRef.current) return;
 	// 	// const height = headingRef.current.offsetTop;
@@ -116,7 +114,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 				<SlOptions className="text-[1.5em]" />
 			</div>
 			<div className="mb-[1em] px-[1em]">
-				<span className="text-[0.95em] inline-flex leading-[1.5em]">{adVariant.text}</span>
+				<span className="text-[1.1em] inline-flex leading-[1.5em]">{adVariant.text}</span>
 			</div>
 			<div>
 				{imageContainerJSX}
