@@ -3,17 +3,8 @@
 import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
 import TabView from '@/components/ArtiBot/RIghtPane/TabView';
 import FeedBackView from '@/components/ArtiBot/RIghtPane/FeedBackView';
-import AdVariant from '@/components/ArtiBot/AdVariant';
-import {dummyMessages} from '@/components/ArtiBot/ArtiBot';
-import {AdJSONInput, MessageObj, TabId} from '@/constants/artibotData';
-import {intTime} from 'yaml/dist/schema/yaml-1.1/timestamp';
 import {FiDownload} from 'react-icons/fi';
-import {PDF} from '@/helpers/renderPDF';
 import {motion} from 'framer-motion';
-import _JSON from '@/database/exampleJSON';
-import Lottie from 'lottie-react';
-import typingAnimation from '@/assets/lottie/typing.json';
-import generatingAnimation from '@/assets/lottie/generating.json';
 import {IAdCreative, AdCreativeVariant} from '@/interfaces/IAdCreative';
 import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
 import {generateAdCreativeImages, updateVariantImage, useConversation} from '@/context/ConversationContext';
@@ -36,6 +27,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	const {state: {inProcess, variant, inError}, getVariantsByAdCreativeId, dispatch} = useConversation();
 	const router = useRouter();
 	const ranTheGenerationRef = useRef<boolean>(false);
+	const prevVariantListRef = useRef('');
 
 	useEffect(() => {
 		if(!variantRef.current) return;
@@ -73,7 +65,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 			isMouseDown = false;
 		}
 
-		const mouseMoveHandler = (e) => {
+		const mouseMoveHandler = (e: MouseEvent) => {
 			if(isMouseDown) {
 				let _width = initialData.width + (initialData.x - e.clientX);
 				if(_width < MIN_WIDTH) _width = MIN_WIDTH;
@@ -95,14 +87,22 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	}, []);
 
 	const variantList = useMemo(() => {
-		return getVariantsByAdCreativeId(adCreative.id) || [];
+		const list = getVariantsByAdCreativeId(adCreative.id) || [];
+		// const list = [];
+
+		const newVariantListRef = list.map(variant => variant.id).join(',');
+
+		ranTheGenerationRef.current = newVariantListRef === prevVariantListRef.current;
+
+		prevVariantListRef.current = list.map(variant => variant.id).join(',');
+		return list;
 		// const variantIds = adCreative.variants.map(variant => variant.id);
 		// return variant.list.filter(c => variantIds.includes(c.id));
 	}, [getVariantsByAdCreativeId, adCreative.id]);
 
 	useEffect(() => {
 		variantList.forEach(variant => {
-			router.prefetch(variant.imageUrl);
+			variant.imageUrl && router.prefetch(variant.imageUrl);
 		});
 	}, [router, variantList]);
 
