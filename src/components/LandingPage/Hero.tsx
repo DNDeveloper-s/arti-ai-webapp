@@ -1,15 +1,25 @@
 'use client'
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Logo from '@/components/Logo';
 import {colors} from '@/config/theme';
 import {motion, useScroll, useMotionValueEvent} from 'framer-motion';
 import {useRouter} from 'next/navigation';
 import CTAButton from '@/components/CTAButton';
+import {GTM_EVENT, initGTM, logEvent} from '@/utils/gtm';
 
 export default function Hero() {
 	const {scrollY} = useScroll();
 	const [opacity, setOpacity] = useState(1);
 	const router = useRouter()
+
+	useEffect(() => {
+		initGTM();
+
+		logEvent({
+			event: GTM_EVENT.VISIT_PAGE,
+			page: 'landing-page'
+		})
+	}, [])
 
 	useMotionValueEvent(scrollY, "change", (latest) => {
 		let val;
