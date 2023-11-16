@@ -2,14 +2,11 @@
 
 import './globals.css'
 import type { Metadata } from 'next'
-import Navbar from '@/components/Navbar';
 import SnackbarContextProvider from '@/context/SnackbarContext';
 import React from 'react';
-import {getServerSession} from 'next-auth';
-import {authOptions} from "@/app/api/auth/[...nextauth]/route";
 import {SessionProvider} from 'next-auth/react';
-import Script from 'next/script';
 import {ConversationContextProvider, initConversationState} from '@/context/ConversationContext';
+import { Analytics } from '@vercel/analytics/react';
 
 const metadata: Metadata = {
   title: 'Arti AI',
@@ -35,6 +32,7 @@ export default function RootLayout({
             </ConversationContextProvider>
           </SnackbarContextProvider>
         </SessionProvider>
+        <Analytics />
         {/*<Script*/}
         {/*  id={"gtag"}*/}
         {/*  strategy={"afterInteractive"}*/}

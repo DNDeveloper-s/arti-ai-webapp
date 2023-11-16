@@ -17,6 +17,7 @@
     "@types/node": "20.5.2",
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
+    "@vercel/analytics": "^1.1.1",
     "ai": "^2.2.12",
     "autoprefixer": "10.4.15",
     "aws-sdk": "^2.1469.0",
