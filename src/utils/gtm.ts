@@ -7,7 +7,7 @@ export enum GTM_EVENT {
 
 export const initGTM = () => {
 	const tagManagerArgs = {
-		gtmId: 'AW-11408559506\n',
+		gtmId: 'AW-11408559506',
 		events: {
 			[`${GTM_EVENT.VISIT_PAGE}`]: 'pageview',
 		}
