@@ -15,10 +15,10 @@ export default function Hero() {
 	useEffect(() => {
 		initGTM();
 
-		logEvent({
-			event: GTM_EVENT.VISIT_PAGE,
-			page: 'landing-page'
-		})
+		// logEvent({
+		// 	event: GTM_EVENT.VISIT_PAGE,
+		// 	page: 'landing-page'
+		// })
 	}, [])
 
 	useMotionValueEvent(scrollY, "change", (latest) => {

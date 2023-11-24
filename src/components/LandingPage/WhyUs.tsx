@@ -5,6 +5,14 @@ import {whyUsData, WhyUsItem} from '@/constants/landingPageData/whyUs';
 import {PiCaretRightBold} from 'react-icons/pi';
 import {useInView, useMotionValueEvent, motion, useScroll} from 'framer-motion';
 import { useMediaQuery } from 'react-responsive'
+import Image from 'next/image';
+import {
+	carouselImage1,
+	carouselImage2,
+	carouselImage3,
+	carouselImage4, carouselImage5,
+	carouselImage6, carouselImage7
+} from '@/assets/images/carousel-images';
 
 interface WhyUsCardProps {
 	item: WhyUsItem;
@@ -72,6 +80,98 @@ const WhyUsCard: React.FC<WhyUsCardProps> = ({item, expand}) => {
 		</div>
 	)
 }
+
+function CarouselContainer() {
+
+	const images = (
+		<>
+			<div className="grid grid-cols-3 grid-rows-[150px_150px]">
+				<div className="border border-primary">
+					<Image className="object-cover w-full h-full" src={carouselImage1} alt="One" />
+				</div>
+				<div className="border border-primary">
+					<Image className="object-cover w-full h-full" src={carouselImage2} alt={"Two"} />
+				</div>
+				<div className="border border-primary row-span-2">
+					<Image className="object-cover w-full h-full" src={carouselImage3} alt={"Three"} />
+				</div>
+				<div className="border border-primary">
+					<Image className="object-cover w-full h-full" src={carouselImage4} alt={"Four"} />
+				</div>
+				<div className="border border-primary">
+					<Image className="object-cover w-full h-full" src={carouselImage5} alt={"Five"} />
+				</div>
+			</div>
+		</>
+	)
+
+	const imagesAlt = (
+		<>
+			<div className="grid grid-cols-3 grid-rows-[150px_150px]">
+				<div className="border border-primary row-span-2">
+					<Image className="object-cover w-full h-full" src={carouselImage1} alt="One" />
+				</div>
+				<div className="border border-primary">
+					<Image className="object-cover w-full h-full" src={carouselImage2} alt={"Two"} />
+				</div>
+				<div className="border border-primary">
+					<Image className="object-cover w-full h-full" src={carouselImage3} alt={"Three"} />
+				</div>
+				<div className="border border-primary">
+					<Image className="object-cover w-full h-full" src={carouselImage4} alt={"Four"} />
+				</div>
+				<div className="border border-primary">
+					<Image className="object-cover w-full h-full" src={carouselImage5} alt={"Five"} />
+				</div>
+			</div>
+		</>
+	)
+
+	return (
+		<div className="absolute top-0 left-1/2 w-full h-screen -translate-x-1/2 image-carousel-whyus-container overflow-hidden">
+			<div className="absolute top-0 left-0 w-full h-full bg-opacity-70 bg-black" style={{zIndex: 1}} /> {/* This is the overlay */}
+			<div className="w-[90%] max-w-[500px] h-auto flex flex-col carousel-images">
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+				{images}
+				{imagesAlt}
+			</div>
+		</div>
+	)
+}
+
 const offset = 500;
 export default function WhyUs() {
 	const ref = useRef<HTMLDivElement>(null)
@@ -89,11 +189,15 @@ export default function WhyUs() {
 
 	return (
 		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-20 mt-40" id={'why-us'} ref={ref}>
-			<div className="text-left relative md:sticky h-min top-1/2" style={{transform: 'translateY(-50%)'}}>
-				<h2 className="text-5xl">{whyUsData.title}</h2>
-				<p className="opacity-60 text-md my-6">{whyUsData.description}</p>
-				{whyUsData.cta && <button className="cta-button">{whyUsData.cta}</button>}
-				{whyUsData.bottomLine && <p className="mt-5 text-sm opacity-60">{whyUsData.bottomLine}</p>}
+			<div className="relative md:sticky h-screen top-0 flex justify-center items-start pt-32">
+				<CarouselContainer />
+				<div className="text-left relative h-min">
+					<h2 className="text-5xl">{whyUsData.title}</h2>
+					<p className="opacity-60 text-md my-6">{whyUsData.description}</p>
+					{whyUsData.cta && <button className="cta-button">{whyUsData.cta}</button>}
+					{whyUsData.bottomLine && <p className="mt-5 text-sm opacity-60">{whyUsData.bottomLine}</p>}
+					{whyUsData.bottomLine2 && <p className="opacity-60 text-md text-green-400 my-6">{whyUsData.bottomLine2}</p>}
+				</div>
 			</div>
 			<div>
 				{whyUsData.items.map((whyUsItem) => (

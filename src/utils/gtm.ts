@@ -3,23 +3,33 @@ import * as TagManager from 'react-gtm-module';
 
 export enum GTM_EVENT {
 	'VISIT_PAGE' = 'visit-page',
+	'TIME_SPENT' = 'time-spent',
+	'SCROLL_DEPTH' = 'scroll-depth',
+	'CONTACT_FORM_SUBMISSION' = 'contact_form_submission',
 }
 
 export const initGTM = () => {
 	const tagManagerArgs = {
-		gtmId: 'AW-11408559506',
+		// gtmId: 'AW-11408559506',
+		gtmId: 'GTM-PSDW4ZV4',
 		events: {
 			[`${GTM_EVENT.VISIT_PAGE}`]: 'pageview',
+			[`${GTM_EVENT.TIME_SPENT}`]: 'time-spent',
+			[`${GTM_EVENT.CONTACT_FORM_SUBMISSION}`]: 'contact_form_submission',
 		}
 	}
 
 	TagManager.initialize(tagManagerArgs)
 };
 
-export const logEvent = (event: {event: GTM_EVENT, page: string}) => {
+interface GTMEvent {
+	event: GTM_EVENT,
+	page?: string,
+	[key: string]: any,
+}
+
+export const logEvent = (dataLayer: any) => {
 	TagManager.dataLayer({
-		dataLayer: {
-			event
-		}
+		dataLayer
 	});
 };

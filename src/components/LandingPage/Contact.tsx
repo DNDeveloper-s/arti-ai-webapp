@@ -8,6 +8,7 @@ import useForm, {Validators} from '@/hooks/useForm';
 import Snackbar from '@/components/Snackbar';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import Loader from '@/components/Loader';
+import {GTM_EVENT, initGTM, logEvent} from '@/utils/gtm';
 
 
 
@@ -28,18 +29,24 @@ export default function Contact() {
 	}
 
 	async function handleSubmit() {
-		setShowError(true);
-		console.log('errors - ', errors);
-		if(errors && Object.keys(errors).length > 0) return;
+		// initGTM();
 
-		setIsSubmitting(true);
-		setShowError(false);
-
-		const response = await axios.post('/api/send-mail', {values});
-
-		setIsSubmitting(false);
-		reset();
-		setSnackBarData({message: response.data.message, status: response.data.ok ? 'success' : 'error'});
+		logEvent({
+			event: GTM_EVENT.CONTACT_FORM_SUBMISSION,
+		})
+		//
+		// setShowError(true);
+		// console.log('errors - ', errors);
+		// if(errors && Object.keys(errors).length > 0) return;
+		//
+		// setIsSubmitting(true);
+		// setShowError(false);
+		//
+		// const response = await axios.post('/api/send-mail', {values});
+		//
+		// setIsSubmitting(false);
+		// reset();
+		// setSnackBarData({message: response.data.message, status: response.data.ok ? 'success' : 'error'});
 	}
 
 	return (
@@ -58,7 +65,7 @@ export default function Contact() {
 							</div>
 						)
 					})}
-					<button onClick={handleSubmit} disabled={errors && Object.keys(errors).length > 0} className="disabled:opacity-30 h-14 cta-button w-full flex items-center justify-center rounded-xl">
+					<button id={"contact-submit-id"} onClick={handleSubmit} disabled={false && errors && Object.keys(errors).length > 0} className="disabled:opacity-30 h-14 cta-button w-full flex items-center justify-center rounded-xl">
 						{isSubmitting ? <Loader /> : <span>Submit</span>}
 					</button>
 				</div>

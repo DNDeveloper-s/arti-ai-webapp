@@ -4,6 +4,7 @@ interface WhyUsData {
 	description: string;
 	cta?: string;
 	bottomLine?: string;
+	bottomLine2?: string;
 	items: WhyUsItem[];
 }
 
@@ -20,6 +21,7 @@ export const whyUsData: WhyUsData = {
 	description: 'Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI.',
 	// cta: 'Generate Ad Creatives',
 	// bottomLine: 'Try 100% free for 7 days. Cancel Anytime',
+	// bottomLine2: 'Look at our few generated ad creatives',
 	items: [
 		{
 			id: 1,

@@ -34,6 +34,7 @@ import getJSONObjectFromAString, {isValidJsonWithAdsArray} from '@/helpers';
 import axios, {AxiosError} from 'axios';
 import {ROUTES} from '@/config/api-config';
 import Snackbar from '@/components/Snackbar';
+import {GTM_EVENT, logEvent} from '@/utils/gtm';
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',
@@ -320,6 +321,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		const transformedMessages = _messages.filter(a => a.content).map(c => ({role: c.role, content: c.content}));
 
 		const messageService = new MessageService();
+
 		const response = await messageService.send(transformedMessages, handleMessageResponse, conversation?.id, conversation?.conversation_type, conversation?.project_name, generate_ad, miniVersion, showError);
 
 		console.log('response - ', response);
@@ -352,7 +354,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		return adCreative
 	}, [adCreatives]);
 
-	const enableMessageInput = !isGeneratingAd && !isGenerating && !saveMessageRef.current && !miniVersion && messages?.find(m => m.generating === true) === undefined;
+	const enableMessageInput = miniVersion ? !exhausted : !isGeneratingAd && !isGenerating && !saveMessageRef.current && messages?.find(m => m.generating === true) === undefined;
 	const showGetAdNowButton = enableMessageInput && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
 
 	return (
