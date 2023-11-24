@@ -17,7 +17,7 @@ export default function Hero() {
 
 		// logEvent({
 		// 	event: GTM_EVENT.VISIT_PAGE,
-		// 	page: 'landing-page'
+		// 	page: 'landing-age'
 		// })
 	}, [])
 
