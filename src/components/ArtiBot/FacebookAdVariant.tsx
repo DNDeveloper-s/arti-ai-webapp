@@ -104,20 +104,19 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NEUTRAL : REACTION.DISLIKED);
 	}
 
-
 	// useEffect(() => {
 	// 	if(!headingRef.current) return;
 	// 	// const height = headingRef.current.offsetTop;
 	// 	headingRef.current.scrollIntoView({behavior: 'smooth', block: 'start'})
 	// }, [expand]);
 
-	useEffect(() => {
-		if(!adVariant.id || adVariant.id.includes('variant') || noExpand) return;
-		if(!adVariant.imageUrl && adVariant.imageDescription && (!inProcess || !inProcess[adVariant.id]) && (!inError || !inError[adVariant.id])) {
-			console.log('adVariant.id - ', adVariant.id);
-			updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
-		}
-	}, [adVariant, dispatch]);
+	// useEffect(() => {
+	// 	if(!adVariant.id || adVariant.id.includes('variant') || noExpand) return;
+	// 	if(!adVariant.imageUrl && adVariant.imageDescription && (!inProcess || !inProcess[adVariant.id]) && (!inError || !inError[adVariant.id])) {
+	// 		console.log('adVariant.id - ', adVariant.id);
+	// 		updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
+	// 	}
+	// }, [adVariant, dispatch, inError, inProcess, noExpand]);
 
 
 	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
@@ -150,7 +149,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 				<SlOptions className="text-[1.5em]" />
 			</div>
 			<div className="mb-[1em] px-[1em]">
-				<span className="text-[0.95em] inline-flex leading-[1.5em]">{adVariant.text}</span>
+				<span className="text-[1.1em] inline-flex leading-[1.5em]">{adVariant.text}</span>
 			</div>
 			<div>
 				{imageContainerJSX}

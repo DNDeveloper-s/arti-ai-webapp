@@ -1,46 +1,68 @@
 'use client';
 
-import {artiBotData, FeedBackKey} from '@/constants/artibotData';
+import {artiBotData} from '@/constants/artibotData';
 import React, {FC, useEffect, useState} from 'react';
 import {motion} from 'framer-motion';
 import {wait} from '@/helpers';
 import TextArea from '@/components/TextArea';
 import ReactionIcon from '@/components/ArtiBot/ReactionIcon';
-import {AdCreativeVariant, Feedback} from '@/interfaces/IAdCreative';
+import {AdCreativeVariant, FEEDBACK, Feedback, FeedbackData} from '@/interfaces/IAdCreative';
 import {REACTION} from '@/interfaces';
 import {BiCommentDetail} from 'react-icons/bi';
+import {useConversation} from '@/context/ConversationContext';
+import {FeedBackKey, IAdVariant} from '@/interfaces/IArtiBot';
 
 interface FeedBackKeyItemProps {
 	feedBackKey: FeedBackKey;
-	feedback?: Feedback
+	feedback?: Feedback;
+	variantId: IAdVariant['id'];
 }
 
-const FeedBackKeyItem: FC<FeedBackKeyItemProps> = ({feedBackKey, feedback}) => {
+const FeedBackKeyItem: FC<FeedBackKeyItemProps> = ({feedBackKey, feedback, variantId}) => {
+	const {state, handleFeedBackKey} = useConversation();
 	const [expand, setExpand] = useState(false);
 	const [reactionState, setReactionState] = useState<REACTION>(REACTION.NEUTRAL);
 	const [feedbackMessage, setFeedbackMessage] = useState<string>(() => {
 		return feedback?.feedback_message ?? ''
 	});
+	const interactedRef = React.useRef<boolean>(false);
 
 	const hasFeedbackValue = feedbackMessage.trim().length > 0;
+
+	console.log('state -–-df-sd-f-sdf-s-df -s-df  ', state);
 
 	async function handleSave(val: string) {
 		await wait(1000);
 		setFeedbackMessage(val);
+		interactedRef.current = true;
 	}
 
 	useEffect(() => {
 		setReactionState(feedback?.reaction ?? REACTION.NEUTRAL);
 		setFeedbackMessage(feedback?.feedback_message ?? '');
+		interactedRef.current = false;
 	}, [feedback])
 
 	function handleLike() {
 		setReactionState(c => c === REACTION.LIKED ? REACTION.NEUTRAL : REACTION.LIKED);
+		interactedRef.current = true;
 	}
 
 	function handleDislike() {
 		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NEUTRAL : REACTION.DISLIKED);
+		interactedRef.current = true;
 	}
+
+	useEffect(() => {
+		// if(feedbackMessage.trim().length === 0) return;
+		if(!interactedRef.current) return;
+		handleFeedBackKey(variantId, feedBackKey.id, {
+			reaction: reactionState,
+			feedback_message: feedbackMessage.trim(),
+			updated_at: new Date().toISOString()
+		});
+		interactedRef.current = false;
+	} ,[reactionState, feedbackMessage, handleFeedBackKey, variantId, feedBackKey.id])
 
 	return (
 		<>
@@ -61,15 +83,34 @@ const FeedBackKeyItem: FC<FeedBackKeyItemProps> = ({feedBackKey, feedback}) => {
 }
 
 interface FeedBackViewProps {
-	feedbackData: AdCreativeVariant['feedback']
+	variant: IAdVariant;
 }
 
-const FeedBackView: FC<FeedBackViewProps> = (props) => {
+const FeedBackView: FC<FeedBackViewProps> = ({variant}) => {
+	const {feedback: _feedback, id} = variant;
+	// console.log('props.feedbackData - ', props.feedbackData);
+	const [feedback, setFeedback] = useState<FeedbackData>(() => {
+		return _feedback ?? {}
+	});
+	const {handleFeedBackKey} = useConversation();
 
-	console.log('props.feedbackData - ', props.feedbackData);
+	useEffect(() => {
+		const variantsFeedbackLocal = window.localStorage.getItem('variantsFeedback');
+		try {
+			const parsed = JSON.parse(variantsFeedbackLocal ?? '{}');
+			setFeedback(parsed[variant.id] ?? {});
+		} catch (e) {
+			setFeedback(variant.feedback ?? {});
+		}
+	}, [variant])
 
-	async function handleSave() {
+	async function handleSave(val: string) {
 		await wait(1000);
+		handleFeedBackKey(id, FEEDBACK.OVERALL, {
+			reaction: REACTION.NEUTRAL,
+			feedback_message: val.trim(),
+			updated_at: new Date().toISOString()
+		});
 	}
 
 	return (
@@ -79,12 +120,12 @@ const FeedBackView: FC<FeedBackViewProps> = (props) => {
 					feedback</label>
 				<div className="mb-6 divide-y divide-gray-800 bg-secondaryBackground p-5 py-1 mt-3 rounded-lg">
 					{artiBotData.feedBackKeys.map(feedBackKey => (
-						<FeedBackKeyItem key={feedBackKey.id} feedback={props.feedbackData ? props.feedbackData[feedBackKey.id] : undefined} feedBackKey={feedBackKey} />
+						<FeedBackKeyItem variantId={id} key={feedBackKey.id} feedback={feedback ? feedback[feedBackKey.id] : undefined} feedBackKey={feedBackKey} />
 					))}
 				</div>
 				{/*<label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your*/}
 				{/*	feedback</label>*/}
-				<TextArea value={props.feedbackData?.overall?.feedback_message ?? ''} placeholder="Write your overall feedback here..." handleSave={handleSave} rows={5} />
+				<TextArea value={feedback?.overall?.feedback_message ?? ''} placeholder="Write your overall feedback here..." handleSave={handleSave} rows={5} />
 			</div>
 		</>
 	)

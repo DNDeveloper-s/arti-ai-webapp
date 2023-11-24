@@ -45,13 +45,13 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 	const reversedMessages = useMemo(() => {
 		if(!messages) return [];
 		return messages.sort((a, b) => {
-			if(a > b) return 1;
-			if(a < b) return -1;
+			if(a.updatedAt > b.updatedAt) return 1;
+			if(a.updatedAt < b.updatedAt) return -1;
 			return 0;
 		});
 	}, [messages])
 
-	// console.log('reversedMessages - ', reversedMessages);
+	console.log('reversedMessages - ', reversedMessages);
 
 	return (
 		// <AnimatePresence mode="wait">

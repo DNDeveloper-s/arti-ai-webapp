@@ -15,8 +15,8 @@ const NavMenuItems: FC<NavMenuItemsProps> = () => {
 	return (
 		<>
 			<div className="absolute right-4 flex md:order-2">
-				<Link href={navbarData.cta.href}>
-					<CTAButton className="px-4 py-2 text-sm rounded-lg">
+				<Link className="breathing-button-primary rounded-lg" href={navbarData.cta.href}>
+					<CTAButton className=" px-4 py-2 text-sm rounded-lg">
 						{navbarData.cta.label}
 					</CTAButton>
 				</Link>

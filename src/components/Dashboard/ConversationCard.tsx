@@ -45,6 +45,11 @@ interface ConversationCardProps {
 const ConversationCard:React.FC<ConversationCardProps> = (props) => {
 	const mounted = useMounted();
 
+	const sortedMessages = props.conversation.messages.sort((a, b) => {
+		if(a.updatedAt > b.updatedAt) return 1;
+		if(a.updatedAt < b.updatedAt) return -1;
+		return 0;
+	});
 
 	return <Link href={getConversationURL(props.conversation.id, props.conversation)} prefetch={true}>
 		<div className={'w-[25rem] flex-shrink-0 h-[13rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground'}>
@@ -75,7 +80,7 @@ const ConversationCard:React.FC<ConversationCardProps> = (props) => {
 				</span>
 			</div>
 			<div className="flex flex-col-reverse">
-				{props.conversation.messages.map(messageItem => <ChatGPTMessageItem disableCopy size={20} key={messageItem.id} messageItem={messageItem} variantFontSize={10}  isGenerating={false} setMessages={() => {}}/>)}
+				{sortedMessages.map(messageItem => <ChatGPTMessageItem disableCopy size={20} key={messageItem.id} messageItem={messageItem} variantFontSize={10}  isGenerating={false} setMessages={() => {}}/>)}
 			</div>
 		</div>
 	</Link>

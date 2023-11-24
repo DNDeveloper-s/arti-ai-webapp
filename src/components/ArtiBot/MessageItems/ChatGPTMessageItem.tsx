@@ -19,7 +19,6 @@ import typingAnimation from '@/assets/lottie/typing.json';
 import {framerItem} from '@/config/framer-motion';
 import useMounted from '@/hooks/useMounted';
 import MarkdownRenderer from '@/components/ArtiBot/MarkdownRenderer';
-import Markdown from 'react-remarkable';
 
 interface ChatGPTMessageItemProps {
 	messageItem: ChatGPTMessageObj;
@@ -29,126 +28,25 @@ interface ChatGPTMessageItemProps {
 	variantFontSize?: number;
 	conversationId?: string;
 	chunksRef?: React.MutableRefObject<string>;
-	doneRef?: React.MutableRefObject<boolean>
+	doneRef?: React.MutableRefObject<boolean>;
+	setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>;
+}
+
+interface RenderMessageItemProps {
+	messageItem: ChatGPTMessageObj;
 	setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>
-}
-
-interface MessageItemProps {
-	messageItem: ChatGPTMessageObj,
-	setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>,
-	chunksRef?: React.MutableRefObject<string>,
+	chunksRef?: React.MutableRefObject<string>;
 	doneRef?: React.MutableRefObject<boolean>
-};
-
-function HandleRenderMessageItem({item}) {
-	// console.log('item - ', item);
-	const itemRef = useRef('');
-	const textContainerRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		console.log('item - ', item);
-		function getDiff(str1, str2) {
-			let result = '';
-			for (let i = 0; i < str1.length || i < str2.length; i++) {
-				if (str1[i] === str2[i]) {
-					result += str1[i];
-				} else {
-					break;
-				}
-			}
-			return str2.slice(result.length);
-		}
-
-		const diff = getDiff(itemRef.current, item);
-		console.log('diff - ', diff);
-		textContainerRef.current && (textContainerRef.current.innerHTML += diff);
-
-
-		itemRef.current = item;
-	}, [item]);
-
-	return (
-		<div ref={textContainerRef}>
-
-		</div>
-	)
 }
-
-function RenderMessageItem({setMessages, messageItem, chunksRef, doneRef}: MessageItemProps) {
-	const [item, setItem] = useState('');
+function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: RenderMessageItemProps) {
 	const animationFrameRef = useRef<number>(0);
 	const textContainerRef = useRef<HTMLDivElement>(null);
-	const [markdownChunks, setMarkdownChunks] = useState([]);
+	const [markdownChunks, setMarkdownChunks] = useState('');
 	const [renderedChunks, setRenderedChunks] = useState([]);
-
-	// useEffect(() => {
-	// 	if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
-	//
-	// 	let j = 0;
-	// 	const interval = setInterval(() => {
-	// 		// Shift the cursor to next index when the chunks array has more chunks
-	// 		if(chunksRef.current.length >= j) {
-	// 			j += 25;
-	// 		}
-	//
-	// 		const message = chunksRef.current.slice(0, j);
-	// 		setItem(c => message);
-	//
-	// 		console.log('j for joy - ', j);
-	//
-	// 		// Clear the interval when the chunks array is done and the message is fully typed
-	// 		if(doneRef.current && chunksRef.current.length < j) {
-	// 			clearInterval(interval);
-	// 			setMessages(_messages => {
-	// 				const messages = [..._messages];
-	// 				const index = messages.findIndex(m => m.id === messageItem.id);
-	// 				messages[index] = {
-	// 					...messageItem,
-	// 					generating: false,
-	// 					content: message
-	// 				}
-	// 				return messages;
-	// 			})
-	// 		}
-	// 	}, 200);
-	//
-	// 	return () => {
-	// 		clearInterval(interval);
-	// 	}
-	// }, [chunksRef, doneRef, messageItem, setMessages]);
-
-
-
-	// const processSSEChunk = (chunk) => {
-	// 	console.log('chunk - ', chunk);
-	// 	// Check if the chunk is already rendered
-	// 	if (renderedChunks.includes(chunk)) {
-	// 		return;
-	// 	}
-	//
-	// 	// Add the chunk to the list of rendered chunks
-	// 	setRenderedChunks((prevRenderedChunks) => [...prevRenderedChunks, chunk]);
-	//
-	// 	// Split the incoming chunk by lines
-	// 	const lines = chunk.split('\n');
-	//
-	// 	// Process each line of the chunk
-	// 	for (const line of lines) {
-	// 		// Append the line as-is to the last chunk
-	// 		if (markdownChunks.length > 0) {
-	// 			setMarkdownChunks((prevChunks) => [
-	// 				...prevChunks.slice(0, -1),
-	// 				`${prevChunks[prevChunks.length - 1]} ${line}`,
-	// 			]);
-	// 		} else {
-	// 			// If there's no previous chunk, create a new one
-	// 			setMarkdownChunks((prevChunks) => [...prevChunks, line]);
-	// 		}
-	// 	}
-	// };
+	const lastItemRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
-		if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
+		// if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
 
 		let j = 0;
 		let prevJ = 0;
@@ -161,11 +59,12 @@ function RenderMessageItem({setMessages, messageItem, chunksRef, doneRef}: Messa
 				j += 25;
 				frame = 0;
 
-				const message = chunksRef.current.slice(prevJ, j);
+				const message = chunksRef.current.slice(0, j);
+				setMarkdownChunks(message);
 				// textContainerRef.current.innerHTML += message;
-				console.log('message - ', message);
+				// console.log('message - ', message);
 				// processSSEChunk(message);
-				setMarkdownChunks(c => [...c, message]);
+				// setMarkdownChunks(c => [...c, message]);
 			}
 			// setItem(c => message);
 
@@ -174,7 +73,6 @@ function RenderMessageItem({setMessages, messageItem, chunksRef, doneRef}: Messa
 			// Clear the interval when the chunks array is done and the message is fully typed
 			if(doneRef.current && chunksRef.current.length < j) {
 				// clearInterval(interval);
-				cancelAnimationFrame(animationFrameRef.current)
 				setMessages(_messages => {
 					const messages = [..._messages];
 					const index = messages.findIndex(m => m.id === messageItem.id);
@@ -185,6 +83,7 @@ function RenderMessageItem({setMessages, messageItem, chunksRef, doneRef}: Messa
 					}
 					return messages;
 				})
+				cancelAnimationFrame(animationFrameRef.current)
 			}
 
 			prevJ = j;
@@ -192,23 +91,7 @@ function RenderMessageItem({setMessages, messageItem, chunksRef, doneRef}: Messa
 			animationFrameRef.current = requestAnimationFrame(step);
 		}
 
-		// const animateTyping = (message, callback) => {
-		// 	let currentIndex = 0;
-		//
-		// 	function step() {
-		// 		if (currentIndex < message.length) {
-		// 			setItem(message.substring(0, currentIndex + 1));
-		// 			currentIndex++;
-		// 			requestAnimationFrame(step);
-		// 		} else {
-		// 			callback();
-		// 		}
-		// 	}
-		//
-		// 	requestAnimationFrame(step);
-		// };
 		animationFrameRef.current = requestAnimationFrame(step);
-
 
 		return () => {
 			// clearInterval(interval);
@@ -216,29 +99,28 @@ function RenderMessageItem({setMessages, messageItem, chunksRef, doneRef}: Messa
 		}
 	}, [chunksRef, doneRef, messageItem, setMessages]);
 
+	useEffect(() => {
+		lastItemRef.current && lastItemRef.current.scrollIntoView({behavior: 'smooth'});
+	}, [markdownChunks])
+
 	return (
 		// <Markdown source={item} />
 		// <HandleRenderMessageItem item={item} />
 		<div>
-			{markdownChunks.map((chunk, index) => (
-				<span key={chunk}>{chunk}</span>
-			))}
+			<div>
+				<MarkdownRenderer markdownContent={markdownChunks} />
+			</div>
+			<div ref={lastItemRef} />
 		</div>
 	);
 }
 
-function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: MessageItemProps) {
-
+function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: {messageItem: ChatGPTMessageObj, setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>, chunksRef?: React.MutableRefObject<string>, doneRef?: React.MutableRefObject<boolean>}) {
 	return (
 		<div className="flex items-start">
-			<div className="whitespace-pre-wrap text-[1em] text-primaryText text-opacity-60 flex-1">
-				{/*<MarkdownRenderer markdownContent={item}/>*/}
-				<div className="chat-markdown">
-					<RenderMessageItem { ...{setMessages, messageItem, chunksRef, doneRef}} />
-				</div>
-				{/*{item}*/}
-				{/*<span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>*/}
-			</div>
+			<p className="whitespace-pre-wrap text-[1em] text-primaryText text-opacity-60 flex-1">
+				<RenderMessageItem setMessages={setMessages} messageItem={messageItem} chunksRef={chunksRef} doneRef={doneRef} />
+			</p>
 			<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
 				<IoIosCopy className="cursor-pointer opacity-0 pointer-events-none justify-self-end text-primary" />
 			</div>
@@ -289,7 +171,7 @@ export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType
 		return randomMessageLengthForShimmer[randomIndex()];
 	}, [])
 	return (
-		<div variants={framerItem()} className={'w-full'}>
+		<motion.div variants={framerItem()} className={'w-full'}>
 			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
 				<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
 				<div className="ml-[0.8em] flex-1">
@@ -308,7 +190,7 @@ export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType
 					</div>
 				</div>
 			</div>
-		</div>
+		</motion.div>
 	)
 }
 
@@ -317,8 +199,8 @@ export const ChatGPTMessageCreatingAd = ({size = 45}) => {
 		return randomMessageLengthForShimmer[randomIndex()];
 	}, [])
 	return (
-		// <AnimatePresence mode="wait">
-			<div
+		<AnimatePresence mode="wait">
+			<motion.div
 				initial={{height: 0, opacity: 0}}
 				animate={{height: 'auto', opacity: 1}}
 				transition={{type: 'spring', damping: 10}}
@@ -344,16 +226,16 @@ export const ChatGPTMessageCreatingAd = ({size = 45}) => {
 						</div>
 					</div>
 				</div>
-			</div>
-		// </AnimatePresence>
+			</motion.div>
+		</AnimatePresence>
 	)
 }
 
 export const ChatGPTMessageGeneratingAnimation = () => {
 
 	return (
-		// <AnimatePresence mode="wait">
-			<div
+		<AnimatePresence mode="wait">
+			<motion.div
 				initial={{height: 0, opacity: 0}}
 				animate={{height: 'auto', opacity: 1}}
 				transition={{type: 'spring', damping: 10}}
@@ -362,8 +244,8 @@ export const ChatGPTMessageGeneratingAnimation = () => {
 				<div className="w-full max-w-[900px] h-10 px-3 mx-auto flex flex-end">
 					<Lottie animationData={typingAnimation} loop={true} />
 				</div>
-			</div>
-		// </AnimatePresence>
+			</motion.div>
+		</AnimatePresence>
 	)
 }
 
@@ -452,8 +334,8 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 	}
 
 	return (
-		// <AnimatePresence mode="wait">
-			<div
+		<AnimatePresence mode="wait">
+			<motion.div
 				variants={framerItem()}
 				// initial={{height: 0, opacity: 0}}
 				// animate={{height: 'auto', opacity: 1}}
@@ -468,69 +350,9 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 						</div>
 					</div>
 				</div>
-			</div>
-		// </AnimatePresence>
+			</motion.div>
+		</AnimatePresence>
 	)
 }
 
 export default ChatGPTMessageItem;
-
-// useEffect(() => {
-// 	if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
-//
-// 	let j = 0;
-// 	// const interval = setInterval(, 200);
-// 	function step() {
-// 		if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
-// 		// Shift the cursor to next index when the chunks array has more chunks
-// 		if(chunksRef.current.length >= j) {
-// 			j += 25;
-// 		}
-//
-// 		const message = chunksRef.current.slice(0, j);
-// 		setItem(c => message);
-//
-// 		console.log('j for joy - ', j);
-//
-// 		// Clear the interval when the chunks array is done and the message is fully typed
-// 		if(doneRef.current && chunksRef.current.length < j) {
-// 			// clearInterval(interval);
-// 			cancelAnimationFrame(animationFrameRef.current)
-// 			setMessages(_messages => {
-// 				const messages = [..._messages];
-// 				const index = messages.findIndex(m => m.id === messageItem.id);
-// 				messages[index] = {
-// 					...messageItem,
-// 					generating: false,
-// 					content: message
-// 				}
-// 				return messages;
-// 			})
-// 		}
-//
-// 		animationFrameRef.current = requestAnimationFrame(step);
-// 	}
-//
-// 	// const animateTyping = (message, callback) => {
-// 	// 	let currentIndex = 0;
-// 	//
-// 	// 	function step() {
-// 	// 		if (currentIndex < message.length) {
-// 	// 			setItem(message.substring(0, currentIndex + 1));
-// 	// 			currentIndex++;
-// 	// 			requestAnimationFrame(step);
-// 	// 		} else {
-// 	// 			callback();
-// 	// 		}
-// 	// 	}
-// 	//
-// 	// 	requestAnimationFrame(step);
-// 	// };
-// 	animationFrameRef.current = requestAnimationFrame(step);
-//
-//
-// 	return () => {
-// 		// clearInterval(interval);
-// 		cancelAnimationFrame(animationFrameRef.current)
-// 	}
-// }, [chunksRef, doneRef, messageItem, setMessages]);

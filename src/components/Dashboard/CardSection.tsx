@@ -130,20 +130,32 @@ export default function CardSection() {
 
 
 	// Merge the variants of adCreatives per conversationId
-	const adVariantsByConversationId = state.adCreatives?.reduce((acc: Record<string, IAdCreative[]>, adCreative: IAdCreative) => {
-		if(!acc[adCreative.conversationId]) {
-			acc[adCreative.conversationId] = [];
-		}
-		acc[adCreative.conversationId].push(adCreative);
-		return acc;
-	}, {} as Record<IConversation['id'], IAdCreative[]>) ?? {};
+	const adVariantsByConversationId = useMemo(() => {
+		if(!state.conversation.map || !state.adCreative.map) return {};
+		return state.adCreative.list?.reduce((acc: Record<string, {list: IAdCreative[], updatedAt?: string}>, adCreative: IAdCreative) => {
+			if(!acc[adCreative.conversationId]) {
+				acc[adCreative.conversationId] = {
+					list: []
+				};
+			}
+			acc[adCreative.conversationId].list.push(adCreative);
+			acc[adCreative.conversationId].updatedAt = state.conversation.map[adCreative.conversationId]?.lastAdCreativeCreatedAt;
+			return acc;
+		}, {} as Record<string, {list: IAdCreative[], updatedAt?: string}>) ?? {};
+	}, [state.conversation.map, state.adCreative.map, state.adCreative.list])
 
-	const sortedGroupAdVariantsByConversationId = Object.keys(adVariantsByConversationId).sort((a: string, b: string) => {
-		if(!state.conversation.map[a] || !state.conversation.map[b]) return 0;
-		if(state.conversation.map[a].updatedAt > state.conversation.map[b].updatedAt) return -1;
-		if(state.conversation.map[a].updatedAt < state.conversation.map[b].updatedAt) return 1;
-		return 0;
-	});
+	let sortedKeys: string[] = [];
+
+	if(adVariantsByConversationId) {
+		sortedKeys = Object.keys(adVariantsByConversationId).sort((a, b) => {
+			if(!adVariantsByConversationId || !adVariantsByConversationId[a] || !adVariantsByConversationId[b]) return 0;
+			if(!adVariantsByConversationId[a].updatedAt) return 1;
+			if(!adVariantsByConversationId[b].updatedAt) return -1;
+			if(adVariantsByConversationId[a].updatedAt > adVariantsByConversationId[b].updatedAt) return -1;
+			if(adVariantsByConversationId[a].updatedAt < adVariantsByConversationId[b].updatedAt) return 1;
+			return 0;
+		});
+	}
 
 	function handleAdCreativeClick(adCreativeItem: IAdCreative) {
 		// setOpen(true);
@@ -225,7 +237,7 @@ export default function CardSection() {
 				{state.adCreative.list && state.adCreative.list.length > 0 && <section className="mb-10 w-full">
           <h2 className="mb-3 text-sm md:text-base">Past Ad Creatives</h2>
           <div className="flex gap-4 w-full overflow-x-auto">
-						{sortedGroupAdVariantsByConversationId.map((conversationId: string) => <AdCreativeCard key={conversationId} conversationId={conversationId} adCreatives={adVariantsByConversationId[conversationId]} onClick={handleAdCreativeClick}/>)}
+						{sortedKeys.map((conversationId: string) => <AdCreativeCard key={conversationId} adCreatives={adVariantsByConversationId[conversationId].list} onClick={handleAdCreativeClick}/>)}
           </div>
         </section>}
 			</>

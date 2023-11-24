@@ -34,6 +34,7 @@ import getJSONObjectFromAString, {isValidJsonWithAdsArray} from '@/helpers';
 import axios, {AxiosError} from 'axios';
 import {ROUTES} from '@/config/api-config';
 import Snackbar from '@/components/Snackbar';
+import {GTM_EVENT, logEvent} from '@/utils/gtm';
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',
@@ -320,6 +321,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		const transformedMessages = _messages.filter(a => a.content).map(c => ({role: c.role, content: c.content}));
 
 		const messageService = new MessageService();
+
 		const response = await messageService.send(transformedMessages, handleMessageResponse, conversation?.id, conversation?.conversation_type, conversation?.project_name, generate_ad, miniVersion, showError);
 
 		console.log('response - ', response);
@@ -352,7 +354,8 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		return adCreative
 	}, [adCreatives]);
 
-	const showGetAdNowButton = !isGeneratingAd && !miniVersion && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
+	const enableMessageInput = miniVersion ? !exhausted : !isGeneratingAd && !isGenerating && !saveMessageRef.current && messages?.find(m => m.generating === true) === undefined;
+	const showGetAdNowButton = enableMessageInput && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
 
 	return (
 		<div className={`flex h-full overflow-hidden`}>
@@ -399,7 +402,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 						{/*	<input type="file" className="absolute w-full h-full z-10 cursor-pointer" hidden/>*/}
 						{/*	<BsFillFileEarmarkFill className="text-xl" />*/}
 						{/*</div>*/}
-						<div className="flex-1 relative rounded-xl bg-background h-[70%] mb-1 mx-3">
+						<div className={'flex-1 relative rounded-xl bg-background h-[70%] mb-1 mx-3 ' + (!enableMessageInput ? ' opacity-60 pointer-events-none cursor-none' : '')}>
 							{selectedFiles ? <div className="w-full h-[200px] p-3 px-6 flex absolute bottom-0 bg-background rounded-xl overflow-x-auto">
 									{selectedFiles.map(fileObj => (
 										<FileItem key={fileObj.id} setFiles={setFiles} fileObj={fileObj} />

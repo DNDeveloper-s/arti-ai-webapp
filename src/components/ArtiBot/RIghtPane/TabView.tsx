@@ -9,6 +9,11 @@ interface TabViewProps {
 
 const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items}) => {
 
+	useEffect(() => {
+		console.log('items - ', items);
+	}, [items])
+
+
 	const tabItemProps = (tabItem: AdCreativeVariant) => {
 		const isActive = tabItem.id === activeAdTab.id;
 		return ({

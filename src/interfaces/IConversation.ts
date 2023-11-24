@@ -14,6 +14,7 @@ export interface IConversation extends MongooseModel {
 	conversation_type: ConversationType;
 	lastAdCreativeCreatedAt?: ISODateString;
 	project_name: string;
+	lastAdCreativeCreatedAt?: Date;
 }
 
 export enum ConversationType {
@@ -29,7 +30,7 @@ export interface MongooseModel {
 export interface IMessageModel extends MongooseModel {
 	id: string,
 	role: ChatGPTRole,
-	content: string,
+	content: string | null,
 	conversationId: string,
 }
 

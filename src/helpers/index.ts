@@ -49,6 +49,9 @@ export function timeSince(date: number | Date | string) {
 	if (interval > 1) {
 		return Math.floor(interval) + " min" + (Math.floor(interval) > 1 ? 's' : '');
 	}
+
+	// return 'just now';
+
 	return Math.floor(seconds) + " sec" + (Math.floor(seconds) > 1 ? 's' : '');
 }
 

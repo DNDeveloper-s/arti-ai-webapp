@@ -28,6 +28,12 @@ const nextConfig = {
         hostname: 'srs-billing-storage.s3.ap-south-1.amazonaws.com',
         port: '',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'oaidalleapiprodscus.blob.core.windows.net',
+        port: '',
+        pathname: '/**'
       }
     ]
   }

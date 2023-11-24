@@ -26,7 +26,14 @@ const TextArea: FC<TextAreaProps> = ({handleSave, value = '', className, placeho
 
 	useEffect(() => {
 		setVal(value);
+		resetTheArea();
 	}, [value])
+
+	function resetTheArea(resetValue?: boolean) {
+		resetValue && setVal('');
+		setSaveState(SAVE_STATE.WAITING);
+		saveTimeStampRef.current = 0
+	}
 
 	function handleChange(e: any) {
 		setVal(e.target.value);
