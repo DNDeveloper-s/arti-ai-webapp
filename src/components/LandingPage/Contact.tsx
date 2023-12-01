@@ -50,7 +50,7 @@ export default function Contact() {
 	}
 
 	return (
-		<div className="text-primaryText landing-page-section font-diatype" id="contact">
+		<div data-groupid={"landing-section"} data-section="contact_us" className="text-primaryText landing-page-section font-diatype" id="contact">
 			<div className="grid gap-10 grid-cols-1 md:grid-cols-[1fr_500px]">
 				<div className="hidden md:visible w-max-[300px] md:flex items-center">
 					<Image className="h-[28rem]" src={IdeaSvg} alt={'Contact ArtiBot'} />

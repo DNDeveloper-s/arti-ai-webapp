@@ -29,7 +29,7 @@ export default function Hero() {
 	})
 
 	return (
-		<div className="text-primaryText h-screen flex items-center justify-center flex-col mt-0 md:mt-0">
+		<div data-groupid="landing-section" data-section="hero" className="text-primaryText h-screen flex items-center justify-center flex-col mt-0 md:mt-0">
 			<div className="flex flex-col justify-center items-center h-full px-4">
 				{/*<Logo width={60} height={60} fill={colors.primaryText} />*/}
 				<Logo width={60} height={60} />

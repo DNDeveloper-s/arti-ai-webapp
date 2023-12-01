@@ -11,6 +11,7 @@ import ScreenLoader from '@/components/LandingPage/ScreenLoader';
 import {useEffect, useRef} from 'react';
 import useAnalyticsClient from '@/hooks/useAnalyticsClient';
 import {GTM_EVENT, logEvent} from '@/utils/gtm';
+import BgAttachment from '@/components/LandingPage/BgAttachment';
 
 function calculateScrollDepth() {
 	const scrollHeight = document.documentElement.scrollHeight;
@@ -24,6 +25,7 @@ function calculateScrollDepth() {
 export default function LandingPage() {
 	const {clientId} = useAnalyticsClient();
 	const timeoutRef = useRef<any>(0);
+	const sectionLoggedRef = useRef<Map<string, boolean>>(new Map());
 
 	useEffect(() => {
 		if(!clientId) return;
@@ -42,29 +44,73 @@ export default function LandingPage() {
 	useEffect(() => {
 		if(!clientId) return;
 
-		const handleScroll = () => {
-			clearTimeout(timeoutRef.current);
+		// const handleScroll = () => {
+		// 	clearTimeout(timeoutRef.current);
+		//
+		// 	timeoutRef.current = setTimeout(() => {
+		// 		const scrollDepth = calculateScrollDepth();
+		//
+		// 		if (clientId) {
+		// 			logEvent({
+		// 				event: GTM_EVENT.SCROLL_DEPTH,
+		// 				event_category: 'Engagement',
+		// 				event_label: 'Scroll Depth',
+		// 				value: scrollDepth,
+		// 				client_identifier: clientId,
+		// 			});
+		// 		}
+		// 	}, 1000); // 1 second is the debounce time
+		// };
+		//
+		// window.addEventListener('scroll', handleScroll);
+		//
+		// return () => {
+		// 	window.removeEventListener('scroll', handleScroll);
+		// };
+		const handleIntersection = (entries, observer) => {
+			entries.forEach((entry) => {
+				console.log('entry - ', entry);
+				if (entry.isIntersecting) {
+					const sectionIndex = entry.target.dataset.section;
+					console.log(`User scrolled to section ${sectionIndex}`);
 
-			timeoutRef.current = setTimeout(() => {
-				const scrollDepth = calculateScrollDepth();
+					const isSectionLogged = sectionLoggedRef.current.get(sectionIndex);
+					if(!isSectionLogged) {
+						logEvent({
+							event: GTM_EVENT.SCROLL_DEPTH,
+							event_category: 'Engagement',
+							event_label: 'Section Viewed',
+							value: sectionIndex,
+							client_identifier: clientId,
+						});
 
-				if (clientId) {
-					logEvent({
-						event: GTM_EVENT.SCROLL_DEPTH,
-						event_category: 'Engagement',
-						event_label: 'Scroll Depth',
-						value: scrollDepth,
-						client_identifier: clientId,
-					});
+						sectionLoggedRef.current.set(sectionIndex, true);
+					}
+					// Log your event or perform any other action here
 				}
-			}, 1000); // 1 second is the debounce time
+			});
 		};
 
-		window.addEventListener('scroll', handleScroll);
+		const options = {
+			root: null,
+			rootMargin: '0px',
+			threshold: 0.5,
+		};
+
+		const observer = new IntersectionObserver(handleIntersection, options);
+
+		const sections = document.querySelectorAll('main [data-groupid="landing-section"]');
+
+		console.log('sections - ', sections);
+
+		sections.forEach((section, index) => {
+			observer.observe(section);
+		});
 
 		return () => {
-			window.removeEventListener('scroll', handleScroll);
+			observer.disconnect();
 		};
+
 	}, [clientId]);
 
 	return (
@@ -75,8 +121,9 @@ export default function LandingPage() {
 				{/*<Logo />*/}
 				<Hero />
 				<Services />
+				<BgAttachment />
 				<WhyUs />
-				<div id="arti-bot" className="bg-black py-20">
+				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black py-20">
 					<div className="landing-page-section px-0 md:px-10">
 						<h2 className="text-3xl mb-10 px-10">Try Arti AI for free</h2>
 						<ArtiBot miniVersion={true} containerClassName="rounded-xl border-2 border-primary" />

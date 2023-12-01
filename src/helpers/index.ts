@@ -24,6 +24,16 @@ export function humanFileSize(bytes: number, si=false, dp=1) {
 
 export const wait = (duration: number) => new Promise(res => setTimeout(res, duration));
 
+export const waitWithCleanup = (duration: number) => {
+	let timeoutId;
+	const promise = new Promise((resolve) => {
+		timeoutId = setTimeout(resolve, duration);
+	});
+
+	// Return both the timeoutId and the promise
+	return { timeoutId, promise } as {timeoutId: NodeJS.Timeout | undefined, promise: Promise<void>};
+}
+
 export function timeSince(date: number | Date | string) {
 
 	const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);

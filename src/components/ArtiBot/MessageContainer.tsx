@@ -1,6 +1,4 @@
 import React, {FC, useEffect, Dispatch, useMemo, useRef, useState} from 'react';
-import Lottie from 'lottie-react';
-import typingAnimation from '@/assets/lottie/typing.json';
 import ChatGPTMessageItem, {
 	ChatGPTMessageCreatingAd, ChatGPTMessageGeneratingAnimation,
 	ChatGPTMessageWelcomeMessage
@@ -9,8 +7,6 @@ import {ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
 import WavingHand from '@/assets/images/waving-hand.webp';
 import Image from 'next/image';
 import {useParams} from 'next/navigation';
-import {dummyEssay} from '@/constants/dummy';
-import {botData, dummyUser} from '@/constants/images';
 import {ConversationType} from '@/interfaces/IConversation';
 import {AnimatePresence, motion} from 'framer-motion';
 import {framerContainer} from '@/config/framer-motion';
@@ -34,12 +30,12 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 	const params = useParams();
 
 	useEffect(() => {
-		if(messages) {
-			setTimeout(() => {
-				containerRef.current && console.log('scrollEnd.current.scrollHeight - ', containerRef.current.scrollHeight)
-				containerRef.current && containerRef.current.scrollTo({top: containerRef.current.scrollHeight, behavior: 'smooth'});
-			}, 500)
-		}
+		// if(messages) {
+		// 	setTimeout(() => {
+		// 		containerRef.current && console.log('scrollEnd.current.scrollHeight - ', containerRef.current.scrollHeight)
+		// 		containerRef.current && containerRef.current.scrollTo({top: containerRef.current.scrollHeight, behavior: 'smooth'});
+		// 	}, 500)
+		// }
 	}, [messages])
 
 	const reversedMessages = useMemo(() => {
@@ -50,8 +46,6 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 			return 0;
 		});
 	}, [messages])
-
-	console.log('reversedMessages - ', reversedMessages);
 
 	return (
 		<AnimatePresence mode="wait">

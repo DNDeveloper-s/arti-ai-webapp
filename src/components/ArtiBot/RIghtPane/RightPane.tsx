@@ -13,11 +13,13 @@ import VariantItem from '@/components/ArtiBot/VariantItem';
 
 interface RightPaneProps {
 	adCreative: IAdCreative;
+	isMock?: boolean;
+	style?: React.CSSProperties;
 }
 
 const MIN_WIDTH = 450;
 
-const RightPane: FC<RightPaneProps> = ({adCreative}) => {
+const RightPane: FC<RightPaneProps> = ({adCreative, isMock, style}) => {
 	const [activeVariant, setActiveVariant] = useState<AdCreativeVariant>(adCreative.variants[0]);
 	const resizeHandleRef = useRef<HTMLDivElement>(null);
 	const resizeContainerRef = useRef<HTMLDivElement>(null);
@@ -74,6 +76,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	}, []);
 
 	const variantList = useMemo(() => {
+		if(isMock) return adCreative.variants;
 		const list = getVariantsByAdCreativeId(adCreative.id) || [];
 		// const list = [];
 
@@ -98,7 +101,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 		return list;
 		// const variantIds = adCreative.variants.map(variant => variant.id);
 		// return variant.list.filter(c => variantIds.includes(c.id));
-	}, [getVariantsByAdCreativeId, adCreative.id]);
+	}, [getVariantsByAdCreativeId, adCreative.id, isMock]);
 
 	useEffect(() => {
 		variantList.forEach(variant => {
@@ -139,7 +142,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 	// }, [adCreative])
 
 	return (
-		<div className="w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative" style={{width}} ref={resizeContainerRef}>
+		<div className={'w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative'} style={{width: width, ...(style ?? {})}} ref={resizeContainerRef}>
 			<div ref={resizeHandleRef} className="absolute left-0 top-0 h-full w-2 bg-white bg-opacity-20 cursor-col-resize hover:w-2.5 transition-all" onMouseDown={(e) => {
 				console.log('e', e, e.currentTarget)
 			}} />
@@ -160,7 +163,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative}) => {
 				</div>
 				<TabView items={variantList} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant} />
 
-				<VariantItem activeVariant={activeVariant} width={width} />
+				<VariantItem isMock={isMock} activeVariant={activeVariant} width={width} />
 
 			</div>
 		</div>

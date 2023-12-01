@@ -26,6 +26,7 @@ interface ChatGPTMessageItemProps {
 	disableCopy?: boolean;
 	size?: number;
 	variantFontSize?: number;
+	isMock?: boolean;
 	conversationId?: string;
 	chunksRef?: React.MutableRefObject<string>;
 	doneRef?: React.MutableRefObject<boolean>;
@@ -47,7 +48,6 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 
 	useEffect(() => {
 		// if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
-
 		let j = 0;
 		let prevJ = 0;
 		let frame = 0;
@@ -56,7 +56,7 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 			if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
 			// Shift the cursor to next index when the chunks array has more chunks
 			if(chunksRef.current.length >= j && frame === 15) {
-				j += 25;
+				j += 15;
 				frame = 0;
 
 				const message = chunksRef.current.slice(0, j);
@@ -67,8 +67,6 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 				// setMarkdownChunks(c => [...c, message]);
 			}
 			// setItem(c => message);
-
-			console.log('j for joy - ', j);
 
 			// Clear the interval when the chunks array is done and the message is fully typed
 			if(doneRef.current && chunksRef.current.length < j) {
@@ -100,7 +98,7 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 	}, [chunksRef, doneRef, messageItem, setMessages]);
 
 	useEffect(() => {
-		lastItemRef.current && lastItemRef.current.scrollIntoView({behavior: 'smooth'});
+		// lastItemRef.current && lastItemRef.current.scrollIntoView({behavior: 'smooth'});
 	}, [markdownChunks])
 
 	return (
@@ -250,7 +248,7 @@ export const ChatGPTMessageGeneratingAnimation = () => {
 }
 
 const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
-	const {setMessages, messageItem: _messageItem, doneRef, chunksRef, isGenerating, disableCopy, size = 45, variantFontSize, conversationId} = props;
+	const {setMessages, isMock, messageItem: _messageItem, doneRef, chunksRef, isGenerating, disableCopy, size = 45, variantFontSize, conversationId} = props;
 	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
 	const [messageItem, setMessageItem] = useState<ChatGPTMessageObj>(_messageItem);
 	const {state, dispatch} = useConversation();
@@ -299,7 +297,7 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 		item = <AdItem messageItem={messageItem} variantFontSize={variantFontSize} />
 	}
 
-	if(messageItem.content && conversationId && !isGenerating) {
+	if(messageItem.content && (conversationId || isMock) && !isGenerating) {
 		const jsonObjectInString = getJSONObjectFromAString(messageItem.content);
 		const isJson = isValidJsonWithAdsArray(jsonObjectInString);
 

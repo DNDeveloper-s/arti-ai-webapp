@@ -20,6 +20,8 @@ const config: Config = {
     fontFamily: {
       'diatype': ['ABCDiatype', 'Helvetica', 'sans-serif'],
       'giasyr': ['ABC Gaisyr', 'Helvetica', 'sans-serif'],
+      'gilroyBold': ['Gilroy-Bold', 'Helvetica', 'sans-serif'],
+      'gilroyRegular': ['Gilroy-Regular', 'Helvetica', 'sans-serif'],
     },
     extend: {
       backgroundImage: {

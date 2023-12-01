@@ -52,8 +52,10 @@ interface FacebookAdVariantProps extends React.DetailedHTMLProps<React.HTMLAttri
 	adVariant: IAdVariant;
 	noExpand?: boolean;
 	className?: string;
+	isMock?: boolean;
 }
-const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, noExpand, className, ...props}) => {
+
+const FacebookAdVariant: FC<FacebookAdVariantProps> = ({isMock, adVariant: _adVariant, noExpand, className, ...props}) => {
 	const [expand, setExpand] = useState<boolean>(false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
@@ -82,7 +84,18 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 	// 		updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
 	// 	}
 	// }, [adVariant, dispatch, inError, inProcess, noExpand]);
+	const [imageUrl, setImageUrl] = useState<string | null>(isMock ? null : adVariant.imageUrl);
 
+	useEffect(() => {
+		if(!isMock) return setImageUrl(adVariant.imageUrl);
+		const timeout = setTimeout(() => {
+			setImageUrl(adVariant.imageUrl);
+		}, 3000)
+
+		return () => {
+			clearTimeout(timeout);
+		}
+	}, [imageUrl, isMock, adVariant.imageUrl])
 
 	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
 		<Lottie className={"w-32 h-32"} animationData={generatingImage} loop={true} />
@@ -97,8 +110,8 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({adVariant: _adVariant, n
 	}
 
 	const imageContainerJSX =
-		adVariant.imageUrl
-			? <Image width={600} height={100} className="mb-[0.5em] w-full" src={adVariant.imageUrl ? adVariant.imageUrl : dummyImage} alt="Ad Image" />
+		imageUrl
+			? <Image width={600} height={100} className="mb-[0.5em] w-full" src={imageUrl ? imageUrl : dummyImage} alt="Ad Image" />
 			: lottieAnimationJSX;
 
 	return (

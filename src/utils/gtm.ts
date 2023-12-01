@@ -6,12 +6,13 @@ export enum GTM_EVENT {
 	'TIME_SPENT' = 'time-spent',
 	'SCROLL_DEPTH' = 'scroll-depth',
 	'CONTACT_FORM_SUBMISSION' = 'contact_form_submission',
+	'SECTION_VIEW' = 'section-view',
 }
 
 export const initGTM = () => {
 	const tagManagerArgs = {
 		// gtmId: 'AW-11408559506',
-		gtmId: 'GTM-PSDW4ZV4',
+		gtmId: 'GTM-WZJ82FPC',
 		events: {
 			[`${GTM_EVENT.VISIT_PAGE}`]: 'pageview',
 			[`${GTM_EVENT.TIME_SPENT}`]: 'time-spent',

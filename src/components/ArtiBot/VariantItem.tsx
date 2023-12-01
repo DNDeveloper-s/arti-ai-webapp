@@ -7,9 +7,10 @@ import {timeSince} from '@/helpers';
 interface VariantTabProps {
 	activeVariant: AdCreativeVariant;
 	width: number;
+	isMock?: boolean;
 }
 
-const VariantItem: FC<VariantTabProps> = ({width, activeVariant}) => {
+const VariantItem: FC<VariantTabProps> = ({isMock, width, activeVariant}) => {
 	const variantRef = useRef<HTMLDivElement>(null);
 	const [fontSize, setFontSize] = useState<number>(8.5);
 
@@ -40,7 +41,7 @@ const VariantItem: FC<VariantTabProps> = ({width, activeVariant}) => {
 						</span>}
 					</div>
 					<div ref={variantRef} className={"mt-2 w-[80%]"}>
-						<FacebookAdVariant adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
+						<FacebookAdVariant isMock={isMock} adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
 					</div>
 				</>
 			)}

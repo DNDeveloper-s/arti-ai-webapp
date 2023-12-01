@@ -22,8 +22,6 @@ interface WhyUsCardProps {
 const WhyUsCard: React.FC<WhyUsCardProps> = ({item, expand}) => {
 	const [expanded, setExpanded] = useState(null);
 
-	console.log('expand - ', expand, expanded);
-
 	function toggleExpand() {
 		setExpanded(c => !c);
 	}
@@ -189,7 +187,7 @@ export default function WhyUs() {
 
 	return (
 		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-20 mt-40" id={'why-us'} ref={ref}>
-			<div className="relative md:sticky h-screen top-0 flex justify-center items-start pt-32">
+			<div data-groupid={"landing-section"} data-section="why_us" className="relative md:sticky h-screen top-0 flex justify-center items-start pt-32">
 				<CarouselContainer />
 				<div className="text-left relative h-min">
 					<h2 className="text-5xl">{whyUsData.title}</h2>
