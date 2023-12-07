@@ -135,3 +135,5 @@ export default function LandingPage() {
 		</>
 	)
 }
+
+// https://www.artiai.org/artibot/ad_creative/656ec68f03b0997ed7c52c06?project_name=Baskin%27%20Coffee

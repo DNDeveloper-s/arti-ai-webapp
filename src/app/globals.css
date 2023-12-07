@@ -213,10 +213,10 @@ body {
 
 @keyframes pulse-animation-primary {
   0% {
-    box-shadow: 0 0 0 0px rgb(237 4 235 / 66%);
+    box-shadow: 0 0 0 0px rgb(237 4 235 / 46%);
   }
   100% {
-    box-shadow: 0 0 0 20px rgb(237 4 235 / 5%);
+    box-shadow: 0 0 0 10px rgb(237 4 235 / 5%);
   }
 }
 
@@ -275,6 +275,63 @@ body {
 
 .carousel-images {
   animation: anim_carousel 650s infinite;
+}
+
+.hero-image-container {
+  -webkit-mask: linear-gradient(
+          90deg,
+          transparent,
+          white 20%,
+          white 80%,
+          transparent
+  );
+  mask: linear-gradient(
+          90deg,
+          transparent,
+          white 20%,
+          white 80%,
+          transparent
+  );
+}
+
+.hero-image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+  height: 100%;
+
+  @apply bg-black bg-opacity-50;
+}
+
+.image-animation-1 {
+  animation: anim_image 20s linear infinite;
+  animation-duration: 25s;
+}
+
+.image-animation-2 {
+  animation: anim_image 20s linear infinite;
+  animation-direction: reverse;
+  animation-duration: 35s;
+}
+
+.image-animation-3 {
+  animation: anim_image 20s linear infinite;
+  animation-duration: 60s;
+}
+
+@keyframes anim_image {
+  to {
+    transform: translate(calc(-100% - 1.6rem));
+  }
+}
+
+@keyframes anim_image_1 {
+  to {
+    transform: translate(calc(100% - 1.6rem));
+  }
 }
 
 @keyframes anim_carousel {

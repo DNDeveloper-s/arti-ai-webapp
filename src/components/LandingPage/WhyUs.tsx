@@ -172,11 +172,11 @@ function CarouselContainer() {
 
 const offset = 500;
 export default function WhyUs() {
-	const ref = useRef<HTMLDivElement>(null)
-	const isInView = useInView(ref)
+	const ref = useRef<HTMLDivElement>(null);
+	const isInView = useInView(ref);
 	const { scrollY } = useScroll();
 	const [scrollPos, setScrollPos] = useState<number>(0);
-	const isSmallScreen = useMediaQuery({ query: '(max-width: 500px)' })
+	const isSmallScreen = useMediaQuery({ query: '(max-width: 500px)' });
 
 	useMotionValueEvent(scrollY, "change", (latest) => {
 		if(!ref.current) return;

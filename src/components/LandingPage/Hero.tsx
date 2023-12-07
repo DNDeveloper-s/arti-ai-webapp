@@ -6,6 +6,8 @@ import {motion, useScroll, useMotionValueEvent} from 'framer-motion';
 import {useRouter} from 'next/navigation';
 import CTAButton from '@/components/CTAButton';
 import {GTM_EVENT, initGTM, logEvent} from '@/utils/gtm';
+import Image from 'next/image';
+import MobileImage from '@/assets/images/mobile_bg.png';
 
 export default function Hero() {
 	const {scrollY} = useScroll();
@@ -29,8 +31,23 @@ export default function Hero() {
 	})
 
 	return (
-		<div data-groupid="landing-section" data-section="hero" className="text-primaryText h-screen flex items-center justify-center flex-col mt-0 md:mt-0">
-			<div className="flex flex-col justify-center items-center h-full px-4">
+		<div data-groupid="landing-section" data-section="hero" className="relative text-primaryText h-screen flex items-center justify-center flex-col mt-0 md:mt-0">
+			<div className="absolute w-full h-full top-0 left-0 flex flex-col justify-center gap-[1.2em] items-center hero-image-container">
+				<div className="flex gap-[1.6rem] image-animation-1">
+					<Image src={MobileImage} alt="mobile_image" />
+					<Image src={MobileImage} alt="mobile_image" />
+				</div>
+				<div className="flex gap-[1.6rem] image-animation-2">
+					<Image src={MobileImage} alt="mobile_image" />
+					<Image src={MobileImage} alt="mobile_image" />
+					<Image src={MobileImage} alt="mobile_image" />
+				</div>
+				<div className="flex gap-[1.6rem] image-animation-3">
+					<Image src={MobileImage} alt="mobile_image" />
+					<Image src={MobileImage} alt="mobile_image" />
+				</div>
+			</div>
+			<div className="flex flex-col justify-center items-center h-full px-4 z-50">
 				{/*<Logo width={60} height={60} fill={colors.primaryText} />*/}
 				<Logo width={60} height={60} />
 				<p className="text-2xl md:text-3xl font-medium text-white font-giasyr">Arti AI</p>
