@@ -368,3 +368,14 @@ body {
           transparent
   );
 }
+
+.testimonial-animation {
+  animation: testimonial_anim 20s linear infinite;
+  animation-duration: 25s;
+}
+
+@keyframes testimonial_anim {
+  to {
+    transform: translate(calc(-50% - 0.375rem));
+  }
+}

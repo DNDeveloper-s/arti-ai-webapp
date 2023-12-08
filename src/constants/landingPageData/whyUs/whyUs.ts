@@ -31,7 +31,7 @@ export const whyUsData: WhyUsData = {
 			title: 'A Revolution in Digital Strategy & Design',
 			overview: 'Embrace the dawn of a new era in business innovation with our groundbreaking AI-powered platform. Designed with the dream to reshape strategic planning and creative design, we stand at the forefront of technological evolution.',
 			readMore: 'Our platform isn\'t just a product; it\'s a mission. We envision a world where every business, regardless of size or industry, can harness the power of cutting-edge AI technology to elevate their strategies and visuals. Join us on this transformative journey, where potential meets performance.',
-			icon: FutureIcon,
+			icon: RevolutionIcon,
 		},
 		{
 			id: 2,

@@ -97,12 +97,12 @@ export default function WhyUs() {
 					<WhyUsCard
 						key={whyUsItem.id}
 						item={whyUsItem}
-						expand={!isSmallScreen}
+						expand={false}
 					/>
 				))}
 			</div>
 			<div className="flex my-20 overflow-hidden gap-3 mask-black">
-				<div className="flex justify-center gap-3 image-animation-1">
+				<div className="flex justify-center gap-3 testimonial-animation">
 					<TestimonialItem item={{title: 'Amazon'}} />
 					<TestimonialItem item={{title: 'Microsoft'}} />
 					<TestimonialItem item={{title: 'Apple'}} />
@@ -114,8 +114,6 @@ export default function WhyUs() {
 					<TestimonialItem item={{title: 'VS Code'}} />
 					<TestimonialItem item={{title: 'Youtube'}} />
 					<TestimonialItem item={{title: 'Monitor'}} />
-				</div>
-				<div className="flex justify-center gap-3 image-animation-1">
 					<TestimonialItem item={{title: 'Amazon'}} />
 					<TestimonialItem item={{title: 'Microsoft'}} />
 					<TestimonialItem item={{title: 'Apple'}} />
