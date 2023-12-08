@@ -49,9 +49,10 @@ interface ArtiBotProps {
 	containerClassName?: string;
 	miniVersion?: boolean;
 	conversation?: IConversation;
+	borderAnimation?: boolean
 }
 
-const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false, conversation}) => {
+const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', miniVersion = false, conversation}) => {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<ChatGPTMessageObj[]>(conversation?.messages ?? []);
@@ -358,7 +359,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	const showGetAdNowButton = enableMessageInput && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
 
 	return (
-		<div className={`flex h-full overflow-hidden`}>
+		<div className={`${borderAnimation ? 'border-animation' : ''} flex h-full overflow-hidden`}>
 			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
 				<>
 					<div className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">

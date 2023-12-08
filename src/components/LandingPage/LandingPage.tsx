@@ -120,7 +120,7 @@ export default function LandingPage() {
 				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black py-20">
 					<div className="landing-page-section px-0 md:px-10">
 						<h2 className="text-3xl mb-10 px-10">Try Arti AI for free</h2>
-						<ArtiBot miniVersion={true} containerClassName="rounded-xl border-2 border-primary" />
+						<ArtiBot borderAnimation={true} miniVersion={true} containerClassName="rounded-xl" />
 					</div>
 				</div>
 				<WhyUs />
