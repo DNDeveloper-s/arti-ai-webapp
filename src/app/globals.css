@@ -9,6 +9,10 @@
   .landing-page-section {
     @apply w-[100vw] px-10 max-w-[1100px] mx-auto py-10 font-diatype;
   }
+
+  .arti-card {
+    @apply relative bg-gray-800 rounded-3xl p-px before:absolute before:w-96 before:h-96 before:-left-48 before:-top-48 before:rounded-full before:opacity-0 before:pointer-events-none before:transition-opacity before:duration-500 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] before:hover:opacity-20 before:z-30 before:blur-[100px] after:absolute after:inset-0 after:rounded-[inherit] after:opacity-0 after:transition-opacity after:duration-500 after:[background:_radial-gradient(250px_circle_at_var(--mouse-x)_var(--mouse-y),theme(colors.gray.400),transparent)] after:group-hover:opacity-100 after:z-10 overflow-hidden
+  }
 }
 
 @layer utilities {
@@ -32,6 +36,10 @@
   --background-end-rgb: 255, 255, 255;
   --color-primary: #ed02eb;
   scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -178,7 +186,8 @@ body {
 .breathing-button-primary {
   /*border-color: transparent;*/
   /*padding: 1.5px;*/
-  background: transparent;
+  position: relative;
+  /*background: transparent;*/
 }
 
 .breathing-button-primary::before {
@@ -341,4 +350,21 @@ body {
   100% {
     transform: translateY(-100%);
   }
+}
+
+.mask-black {
+  -webkit-mask: linear-gradient(
+          90deg,
+          transparent,
+          white 20%,
+          white 80%,
+          transparent
+  );
+  mask: linear-gradient(
+          90deg,
+          transparent,
+          white 20%,
+          white 80%,
+          transparent
+  );
 }

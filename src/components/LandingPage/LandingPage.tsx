@@ -8,10 +8,11 @@ import ArtiBot from '@/components/ArtiBot/ArtiBot';
 import Contact from '@/components/LandingPage/Contact';
 import Footer from '@/components/LandingPage/Footer';
 import ScreenLoader from '@/components/LandingPage/ScreenLoader';
-import {useEffect, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import useAnalyticsClient from '@/hooks/useAnalyticsClient';
 import {GTM_EVENT, logEvent} from '@/utils/gtm';
 import BgAttachment from '@/components/LandingPage/BgAttachment';
+import TryForFreeButton from '@/components/LandingPage/TryForFreeButton';
 
 function calculateScrollDepth() {
 	const scrollHeight = document.documentElement.scrollHeight;
@@ -26,20 +27,7 @@ export default function LandingPage() {
 	const {clientId} = useAnalyticsClient();
 	const timeoutRef = useRef<any>(0);
 	const sectionLoggedRef = useRef<Map<string, boolean>>(new Map());
-
-	useEffect(() => {
-		if(!clientId) return;
-
-		// setInterval(() => {
-		// 	logEvent({
-		// 		event: GTM_EVENT.TIME_SPENT,
-		// 		event_category: 'Engagement',
-		// 		event_label: 'Webpage Time',
-		// 		value: 10,
-		// 		client_identifier: clientId,
-		// 	})
-		// }, 10000) // 10 seconds
-	}, [clientId]);
+	const [showTryButton, setShowTryButton] = useState<boolean>(true);
 
 	useEffect(() => {
 		if(!clientId) return;
@@ -73,6 +61,12 @@ export default function LandingPage() {
 				if (entry.isIntersecting) {
 					const sectionIndex = entry.target.dataset.section;
 					console.log(`User scrolled to section ${sectionIndex}`);
+
+					if(sectionIndex === 'hero' || sectionIndex === 'arti_bot') {
+						setShowTryButton(false);
+					} else {
+						setShowTryButton(true);
+					}
 
 					const isSectionLogged = sectionLoggedRef.current.get(sectionIndex);
 					if(!isSectionLogged) {
@@ -121,15 +115,17 @@ export default function LandingPage() {
 				{/*<Logo />*/}
 				<Hero />
 				<Services />
-				<BgAttachment />
-				<WhyUs />
+
+				{/*<BgAttachment />*/}
 				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black py-20">
 					<div className="landing-page-section px-0 md:px-10">
 						<h2 className="text-3xl mb-10 px-10">Try Arti AI for free</h2>
 						<ArtiBot miniVersion={true} containerClassName="rounded-xl border-2 border-primary" />
 					</div>
 				</div>
+				<WhyUs />
 				<Contact />
+				{showTryButton && <TryForFreeButton/>}
 				<Footer />
 			</main>
 		</>

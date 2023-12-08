@@ -456,7 +456,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
           <motion.p variants={framerItem()} className="text-3xl font-medium text-white font-giasyr">Arti</motion.p>
           <motion.p variants={framerItem(.5)} className="text-md my-4">Discover the Arti Difference</motion.p>
           <motion.p variants={framerItem()} className="text-sm max-w-lg text-yellow-500 text-center">You have exhausted the free tier limit. Please register to get the full access</motion.p>
-          <motion.button variants={framerItem()} className="my-4 cta-button" onClick={() => router.push('#contact')}>Contact us for a Demo</motion.button>
+          <motion.button variants={framerItem()} className="my-4 cta-button breathing-button-primary" onClick={() => router.push('#contact')}>Contact us for a Demo</motion.button>
         </motion.div>}
 			</div>
 

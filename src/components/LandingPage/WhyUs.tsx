@@ -1,18 +1,10 @@
 'use client';
-
-import React, {RefObject, useEffect, useMemo, useRef, useState} from 'react';
-import {whyUsData, WhyUsItem} from '@/constants/landingPageData/whyUs';
+import React, {useEffect, useRef, useState} from 'react';
+import {whyUsData, WhyUsItem} from '@/constants/landingPageData/whyUs/whyUs';
 import {PiCaretRightBold} from 'react-icons/pi';
 import {useInView, useMotionValueEvent, motion, useScroll} from 'framer-motion';
-import { useMediaQuery } from 'react-responsive'
+import { useMediaQuery } from 'react-responsive';
 import Image from 'next/image';
-import {
-	carouselImage1,
-	carouselImage2,
-	carouselImage3,
-	carouselImage4, carouselImage5,
-	carouselImage6, carouselImage7
-} from '@/assets/images/carousel-images';
 
 interface WhyUsCardProps {
 	item: WhyUsItem;
@@ -30,36 +22,16 @@ const WhyUsCard: React.FC<WhyUsCardProps> = ({item, expand}) => {
 		setExpanded(expand);
 	}, [expand])
 
-	// return (
-	// 	<div className="h-screen">
-	// 		<div style={{
-	// 			top: '50%',
-	// 			right: '100px',
-	// 			transform: 'translateY(-50%)'
-	// 		}} className="fixed bg-secondaryText bg-opacity-25 rounded-2xl mb-14 p-8 pt-14 font-diatype" onClick={toggleExpand}>
-	// 			<PiCaretRightBold className="absolute top-5 right-5" />
-	// 			<h4 className="font-bold text-lg mb-2">{item.title}</h4>
-	// 			<p className="text-sm leading-5 opacity-50">{item.overview}</p>
-	//
-	// 			{item.readMore !== undefined && <div className="overflow-hidden max-h-0 pt-5" style={{
-	// 				maxHeight: expanded ? '300px' : 0,
-	// 				transition: '.3s ease-out'
-	// 			}}>
-	// 				{typeof item.readMore === 'string' ? <p className="text-sm leading-5 opacity-50">{item.readMore}</p> : item.readMore.map(item => (
-	// 					<div key={item.id} className="mt-4">
-	// 						<h6 className="font-medium text-md mb-0.5 font-diatype">{item.title}</h6>
-	// 						<p className="text-sm leading-5 opacity-50">{item.overview}</p>
-	// 					</div>
-	// 				))}
-  //       </div>}
-	// 		</div>
-	// 	</div>
-	// )
-
 	return (
-		<div className="md:h-screen flex items-center">
-			<div className="relative bg-secondaryText bg-opacity-25 rounded-2xl p-8 mb-10 md:mb-0 pt-14 font-diatype" onClick={toggleExpand}>
+		<div className="arti-card">
+			<div className="p-6 relative h-full bg-gray-950 rounded-[inherit] z-20 overflow-hidden  font-diatype" onClick={toggleExpand}>
+			{/*<div className="relative bg-secondaryText bg-opacity-25 rounded-2xl p-8 mb-10 md:mb-0 pt-14 font-diatype" onClick={toggleExpand}>*/}
 				<PiCaretRightBold style={{transform: `rotate(${expanded ? -90 : 0}deg)`}} className="md:hidden transition-all absolute top-5 right-5" />
+				{item.icon && (
+					<div className="w-10 h-10 border border-gray-900 rounded-full flex justify-center items-center mb-4">
+						<item.icon className="w-8 h-8 text-white fill-primary stroke-primary" />
+					</div>
+				)}
 				<h4 className="font-bold text-lg mb-2">{item.title}</h4>
 				<p className="text-sm leading-5 opacity-50">{item.overview}</p>
 
@@ -79,92 +51,16 @@ const WhyUsCard: React.FC<WhyUsCardProps> = ({item, expand}) => {
 	)
 }
 
-function CarouselContainer() {
-
-	const images = (
-		<>
-			<div className="grid grid-cols-3 grid-rows-[150px_150px]">
-				<div className="border border-primary">
-					<Image className="object-cover w-full h-full" src={carouselImage1} alt="One" />
-				</div>
-				<div className="border border-primary">
-					<Image className="object-cover w-full h-full" src={carouselImage2} alt={"Two"} />
-				</div>
-				<div className="border border-primary row-span-2">
-					<Image className="object-cover w-full h-full" src={carouselImage3} alt={"Three"} />
-				</div>
-				<div className="border border-primary">
-					<Image className="object-cover w-full h-full" src={carouselImage4} alt={"Four"} />
-				</div>
-				<div className="border border-primary">
-					<Image className="object-cover w-full h-full" src={carouselImage5} alt={"Five"} />
-				</div>
-			</div>
-		</>
-	)
-
-	const imagesAlt = (
-		<>
-			<div className="grid grid-cols-3 grid-rows-[150px_150px]">
-				<div className="border border-primary row-span-2">
-					<Image className="object-cover w-full h-full" src={carouselImage1} alt="One" />
-				</div>
-				<div className="border border-primary">
-					<Image className="object-cover w-full h-full" src={carouselImage2} alt={"Two"} />
-				</div>
-				<div className="border border-primary">
-					<Image className="object-cover w-full h-full" src={carouselImage3} alt={"Three"} />
-				</div>
-				<div className="border border-primary">
-					<Image className="object-cover w-full h-full" src={carouselImage4} alt={"Four"} />
-				</div>
-				<div className="border border-primary">
-					<Image className="object-cover w-full h-full" src={carouselImage5} alt={"Five"} />
-				</div>
-			</div>
-		</>
-	)
-
+interface TestimonialItemProps {
+	item: {
+		title: string
+	}
+}
+const TestimonialItem: React.FC<TestimonialItemProps> = ({item}) => {
 	return (
-		<div className="absolute top-0 left-1/2 w-full h-screen -translate-x-1/2 image-carousel-whyus-container overflow-hidden">
-			<div className="absolute top-0 left-0 w-full h-full bg-opacity-70 bg-black" style={{zIndex: 1}} /> {/* This is the overlay */}
-			<div className="w-[90%] max-w-[500px] h-auto flex flex-col carousel-images">
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
-				{images}
-				{imagesAlt}
+		<div>
+			<div className="bg-gray-800 py-2 px-4 rounded-lg whitespace-nowrap">
+				<span>{item.title}</span>
 			</div>
 		</div>
 	)
@@ -183,21 +79,20 @@ export default function WhyUs() {
 		const offsetTop = ref.current.offsetTop + 40;
 		setScrollPos(latest - offsetTop);
 	})
-	const shouldVisible = (index: number) => (index === 0 || scrollPos > index * offset) && (index === whyUsData.items.length - 1 || scrollPos < (index + 1) * offset)
 
 	return (
-		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-20 mt-40" id={'why-us'} ref={ref}>
-			<div data-groupid={"landing-section"} data-section="why_us" className="relative md:sticky h-screen top-0 flex justify-center items-start pt-32">
-				<CarouselContainer />
-				<div className="text-left relative h-min">
-					<h2 className="text-5xl">{whyUsData.title}</h2>
-					<p className="opacity-60 text-md my-6">{whyUsData.description}</p>
-					{whyUsData.cta && <button className="cta-button">{whyUsData.cta}</button>}
-					{whyUsData.bottomLine && <p className="mt-5 text-sm opacity-60">{whyUsData.bottomLine}</p>}
-					{whyUsData.bottomLine2 && <p className="opacity-60 text-md text-green-400 my-6">{whyUsData.bottomLine2}</p>}
-				</div>
-			</div>
-			<div>
+		<div className="landing-page-section relative mt-40" id={'why-us'} ref={ref}>
+		{/*<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-20 mt-40" id={'why-us'} ref={ref}>*/}
+			{/*<div data-groupid={"landing-section"} data-section="why_us" className="relative md:sticky h-screen top-0 flex justify-center items-start pt-32">*/}
+			{/*	<div className="text-left relative h-min">*/}
+			{/*		<h2 className="text-5xl">{whyUsData.title}</h2>*/}
+			{/*		<p className="opacity-60 text-md my-6">{whyUsData.description}</p>*/}
+			{/*		{whyUsData.cta && <button className="cta-button">{whyUsData.cta}</button>}*/}
+			{/*		{whyUsData.bottomLine && <p className="mt-5 text-sm opacity-60">{whyUsData.bottomLine}</p>}*/}
+			{/*		{whyUsData.bottomLine2 && <p className="opacity-60 text-md text-green-400 my-6">{whyUsData.bottomLine2}</p>}*/}
+			{/*	</div>*/}
+			{/*</div>*/}
+			<div data-groupid={"landing-section"} data-section="why_us" className="max-w-[800px] mx-auto grid grid-cols-2 gap-8">
 				{whyUsData.items.map((whyUsItem) => (
 					<WhyUsCard
 						key={whyUsItem.id}
@@ -205,6 +100,34 @@ export default function WhyUs() {
 						expand={!isSmallScreen}
 					/>
 				))}
+			</div>
+			<div className="flex my-20 overflow-hidden gap-3 mask-black">
+				<div className="flex justify-center gap-3 image-animation-1">
+					<TestimonialItem item={{title: 'Amazon'}} />
+					<TestimonialItem item={{title: 'Microsoft'}} />
+					<TestimonialItem item={{title: 'Apple'}} />
+					<TestimonialItem item={{title: 'Google'}} />
+					<TestimonialItem item={{title: 'Mendable'}} />
+					<TestimonialItem item={{title: 'Pustack'}} />
+					<TestimonialItem item={{title: 'Facebook'}} />
+					<TestimonialItem item={{title: 'Android'}} />
+					<TestimonialItem item={{title: 'VS Code'}} />
+					<TestimonialItem item={{title: 'Youtube'}} />
+					<TestimonialItem item={{title: 'Monitor'}} />
+				</div>
+				<div className="flex justify-center gap-3 image-animation-1">
+					<TestimonialItem item={{title: 'Amazon'}} />
+					<TestimonialItem item={{title: 'Microsoft'}} />
+					<TestimonialItem item={{title: 'Apple'}} />
+					<TestimonialItem item={{title: 'Google'}} />
+					<TestimonialItem item={{title: 'Mendable'}} />
+					<TestimonialItem item={{title: 'Pustack'}} />
+					<TestimonialItem item={{title: 'Facebook'}} />
+					<TestimonialItem item={{title: 'Android'}} />
+					<TestimonialItem item={{title: 'VS Code'}} />
+					<TestimonialItem item={{title: 'Youtube'}} />
+					<TestimonialItem item={{title: 'Monitor'}} />
+				</div>
 			</div>
 			{/*<div className="hidden md:visible sticky top-0 right-0 h-screen md:flex flex-col items-center justify-center">*/}
 			{/*	{whyUsData.items.map((whyUsItem, index) => (*/}

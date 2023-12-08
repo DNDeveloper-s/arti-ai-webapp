@@ -26,7 +26,7 @@ const CTAButton: FC<CTA> = ({className = '', to, children, onClick = () => {}}) 
 				transition: { duration: 0.15 },
 			}} whileTap={{scale: 0.99}} onClick={handleClick} initial={{y: -10, opacity: 0}} animate={{y: 0, opacity: 1}} exit={{y: -10, opacity: 0}}
 			               transition={{type: 'spring', damping: 10}}
-			               className={'cta-button ' + className}>
+			               className={'cta-button breathing-button-primary ' + className}>
 				{children}
 			</motion.button>
 		</AnimatePresence>

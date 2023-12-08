@@ -17,7 +17,7 @@ import ChatGPTMessageItem, {
 	ChatGPTMessageGeneratingAnimation
 } from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
 import ObjectId from 'bson-objectid';
-import MacImage from '@/assets/images/mac-1.png';
+import ScreenImage from '@/assets/images/screen.png';
 import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import useMounted from '@/hooks/useMounted';
@@ -255,120 +255,8 @@ const mock = {
 	},
 	updatedMessages: [
 		{
-			"id": "656ec8a686966c0bc5d4373b",
-			"content": "{\n  \"summary\": \"Baskin' Coffee is a new coffee chain specializing in nitro blends. The nitro blends offer a smooth texture, creamy mouthfeel, and visually appealing frothy head. The target audience includes coffee drinkers in general, with a special focus on the Gen Z crowd. Baskin' Coffee offers a membership program where customers can earn a free drink after purchasing 10 drinks. The objective of the Facebook ads is to attract new customers and promote Baskin' Coffee's nitro blends.\",\n  \"variants\": [\n    {\n      \"confidence\": \"95%\",\n      \"adType\": \"Facebook Ad\",\n      \"variantNo\": \"1\",\n      \"imageUrl\": \"https://example.com/image1.jpg\",\n      \"oneLiner\": \"Escape the Ordinary\",\n      \"imageDescription\": \"The ad features a vibrant and eye-catching image of a cup of Baskin' Coffee's nitro blend with cascading swirls of creaminess. The style is modern and captivating, engaging viewers to experience the extraordinary flavor.\",\n      \"adOrientation\": \"Modern and captivating visuals that stand out.\",\n      \"rationale\": \"This ad makes sense because it showcases the unique qualities of Baskin' Coffee's nitro blends in an engaging and visually appealing manner. The one-liner 'Escape the Ordinary' evokes curiosity and invites viewers to try something extraordinary.\",\n      \"text\": \"Step into a world of extraordinary flavors at Baskin' Coffee. Our nitro blends offer a smooth and creamy mouthfeel that will take your coffee experience to new heights. Join our membership program and earn a free drink after 10 purchases. Visit us in SoHo and escape the ordinary!\"\n    },\n    {\n      \"confidence\": \"90%\",\n      \"adType\": \"Facebook Ad\",\n      \"variantNo\": \"2\",\n      \"imageUrl\": \"https://example.com/image2.jpg\",\n      \"oneLiner\": \"Fuel Your Day with Nitro Magic\",\n      \"imageDescription\": \"The ad features a captivating image of Baskin' Coffee's nitro blend pouring into a cup, creating a mesmerizing visual display. The style is enchanting and engaging, enticing viewers to experience the magic of our nitro blend.\",\n      \"adOrientation\": \"Enchanting visuals that captivate the audience.\",\n      \"rationale\": \"This ad makes sense because it creates a sense of enchantment and magic around Baskin' Coffee's nitro blends. The one-liner 'Fuel Your Day with Nitro Magic' invites viewers to start their day with a powerful and extraordinary coffee experience.\",\n      \"text\": \"Start your day with a touch of magic at Baskin' Coffee. Our nitro blends offer a smooth and powerful kick to fuel your day. Join our membership program and earn a free drink after 10 purchases. Find us in SoHo and experience the magic of Baskin' Coffee!\"\n    }\n  ],\n  \"disclaimer\": \"Disclaimer: The content of these ads is randomly generated and does not reflect any specific information about Baskin' Coffee or its products.\",\n  \"companyName\": \"Baskin' Coffee\",\n  \"adObjective\": \"To attract new customers and promote Baskin' Coffee's nitro blends\"\n}",
-			"role": "assistant",
-			"conversationId": "656ec68f03b0997ed7c52c06",
-			"createdAt": "2023-12-05T06:52:22.621Z",
-			"updatedAt": "2023-12-05T06:52:22.621Z",
-			"adCreatives": [
-				{
-					"id": "656ec8a786966c0bc5d4373c",
-					"conversationId": "656ec68f03b0997ed7c52c06",
-					"adObjective": "To attract new customers and promote Baskin' Coffee's nitro blends",
-					"json": "{\n  \"summary\": \"Baskin' Coffee is a new coffee chain specializing in nitro blends. The nitro blends offer a smooth texture, creamy mouthfeel, and visually appealing frothy head. The target audience includes coffee drinkers in general, with a special focus on the Gen Z crowd. Baskin' Coffee offers a membership program where customers can earn a free drink after purchasing 10 drinks. The objective of the Facebook ads is to attract new customers and promote Baskin' Coffee's nitro blends.\",\n  \"variants\": [\n    {\n      \"confidence\": \"95%\",\n      \"adType\": \"Facebook Ad\",\n      \"variantNo\": \"1\",\n      \"imageUrl\": \"https://example.com/image1.jpg\",\n      \"oneLiner\": \"Escape the Ordinary\",\n      \"imageDescription\": \"The ad features a vibrant and eye-catching image of a cup of Baskin' Coffee's nitro blend with cascading swirls of creaminess. The style is modern and captivating, engaging viewers to experience the extraordinary flavor.\",\n      \"adOrientation\": \"Modern and captivating visuals that stand out.\",\n      \"rationale\": \"This ad makes sense because it showcases the unique qualities of Baskin' Coffee's nitro blends in an engaging and visually appealing manner. The one-liner 'Escape the Ordinary' evokes curiosity and invites viewers to try something extraordinary.\",\n      \"text\": \"Step into a world of extraordinary flavors at Baskin' Coffee. Our nitro blends offer a smooth and creamy mouthfeel that will take your coffee experience to new heights. Join our membership program and earn a free drink after 10 purchases. Visit us in SoHo and escape the ordinary!\"\n    },\n    {\n      \"confidence\": \"90%\",\n      \"adType\": \"Facebook Ad\",\n      \"variantNo\": \"2\",\n      \"imageUrl\": \"https://example.com/image2.jpg\",\n      \"oneLiner\": \"Fuel Your Day with Nitro Magic\",\n      \"imageDescription\": \"The ad features a captivating image of Baskin' Coffee's nitro blend pouring into a cup, creating a mesmerizing visual display. The style is enchanting and engaging, enticing viewers to experience the magic of our nitro blend.\",\n      \"adOrientation\": \"Enchanting visuals that captivate the audience.\",\n      \"rationale\": \"This ad makes sense because it creates a sense of enchantment and magic around Baskin' Coffee's nitro blends. The one-liner 'Fuel Your Day with Nitro Magic' invites viewers to start their day with a powerful and extraordinary coffee experience.\",\n      \"text\": \"Start your day with a touch of magic at Baskin' Coffee. Our nitro blends offer a smooth and powerful kick to fuel your day. Join our membership program and earn a free drink after 10 purchases. Find us in SoHo and experience the magic of Baskin' Coffee!\"\n    }\n  ],\n  \"disclaimer\": \"Disclaimer: The content of these ads is randomly generated and does not reflect any specific information about Baskin' Coffee or its products.\",\n  \"companyName\": \"Baskin' Coffee\",\n  \"adObjective\": \"To attract new customers and promote Baskin' Coffee's nitro blends\"\n}",
-					"companyName": "Baskin' Coffee",
-					"disclaimer": "Disclaimer: The content of these ads is randomly generated and does not reflect any specific information about Baskin' Coffee or its products.",
-					"summary": "Baskin' Coffee is a new coffee chain specializing in nitro blends. The nitro blends offer a smooth texture, creamy mouthfeel, and visually appealing frothy head. The target audience includes coffee drinkers in general, with a special focus on the Gen Z crowd. Baskin' Coffee offers a membership program where customers can earn a free drink after purchasing 10 drinks. The objective of the Facebook ads is to attract new customers and promote Baskin' Coffee's nitro blends.",
-					"createdAt": "2023-12-05T06:52:22.621Z",
-					"updatedAt": "2023-12-05T06:52:22.621Z",
-					"variants": [
-						{
-							"id": "656ec8a786966c0bc5d4373d",
-							"variantNo": "1",
-							"adType": "Facebook Ad",
-							"confidence": null,
-							"image": null,
-							"imageUrl": "https://srs-billing-storage.s3.ap-south-1.amazonaws.com/656ec8a786966c0bc5d4373d_1701759162526.png",
-							"oneLiner": "Escape the Ordinary",
-							"imageDescription": "The ad features a vibrant and eye-catching image of a cup of Baskin' Coffee's nitro blend with cascading swirls of creaminess. The style is modern and captivating, engaging viewers to experience the extraordinary flavor.",
-							"adOrientation": "Modern and captivating visuals that stand out.",
-							"text": "Step into a world of extraordinary flavors at Baskin' Coffee. Our nitro blends offer a smooth and creamy mouthfeel that will take your coffee experience to new heights. Join our membership program and earn a free drink after 10 purchases. Visit us in SoHo and escape the ordinary!",
-							"rationale": "This ad makes sense because it showcases the unique qualities of Baskin' Coffee's nitro blends in an engaging and visually appealing manner. The one-liner 'Escape the Ordinary' evokes curiosity and invites viewers to try something extraordinary.",
-							"adCreativeId": "656ec8a786966c0bc5d4373c",
-							"createdAt": "2023-12-05T06:52:22.621Z",
-							"updatedAt": "2023-12-05T06:52:22.621Z"
-						},
-						{
-							"id": "656ec8a786966c0bc5d4373e",
-							"variantNo": "2",
-							"adType": "Facebook Ad",
-							"confidence": null,
-							"image": null,
-							"imageUrl": "https://srs-billing-storage.s3.ap-south-1.amazonaws.com/656ec8a786966c0bc5d4373e_1701759160697.png",
-							"oneLiner": "Fuel Your Day with Nitro Magic",
-							"imageDescription": "The ad features a captivating image of Baskin' Coffee's nitro blend pouring into a cup, creating a mesmerizing visual display. The style is enchanting and engaging, enticing viewers to experience the magic of our nitro blend.",
-							"adOrientation": "Enchanting visuals that captivate the audience.",
-							"text": "Start your day with a touch of magic at Baskin' Coffee. Our nitro blends offer a smooth and powerful kick to fuel your day. Join our membership program and earn a free drink after 10 purchases. Find us in SoHo and experience the magic of Baskin' Coffee!",
-							"rationale": "This ad makes sense because it creates a sense of enchantment and magic around Baskin' Coffee's nitro blends. The one-liner 'Fuel Your Day with Nitro Magic' invites viewers to start their day with a powerful and extraordinary coffee experience.",
-							"adCreativeId": "656ec8a786966c0bc5d4373c",
-							"createdAt": "2023-12-05T06:52:22.621Z",
-							"updatedAt": "2023-12-05T06:52:22.621Z"
-						}
-					]
-				}
-			],
-			"serialOrder": 8
-		},
-		// {
-		// 	"id": "656ec86786966c0bc5d43737",
-		// 	"content": "{\n  \"summary\": \"Baskin' Coffee is a new coffee chain specializing in nitro blends. The nitro blends offer a smooth texture, creamy mouthfeel, and visually appealing frothy head. The target audience includes coffee drinkers in general, with a special focus on the Gen Z crowd. Baskin' Coffee offers a membership program where customers can earn a free drink after purchasing 10 drinks. The objective of the Facebook ads is to attract new customers and promote Baskin' Coffee's nitro blends.\",\n  \"variants\": [\n    {\n      \"confidence\": \"95%\",\n      \"adType\": \"Facebook Ad\",\n      \"variantNo\": \"1\",\n      \"imageUrl\": \"https://example.com/image1.jpg\",\n      \"oneLiner\": \"Indulge in the Creamiest Nitro Blends!\",\n      \"imageDescription\": \"The ad features a close-up of a frothy nitro coffee with a smooth texture and a creamy mouthfeel, visually highlighting the unique selling point of Baskin' Coffee's nitro blends. The style is vibrant and eye-catching, inviting viewers to experience a delightful coffee moment.\",\n      \"adOrientation\": \"Vibrant and captivating visuals showcasing the signature nitro blends.\",\n      \"rationale\": \"This ad makes sense because it encapsulates the unique qualities of Baskin' Coffee's nitro blends, emphasizing the smooth texture and creamy mouthfeel, which are key selling points. The image and catchy phrase aim to attract attention and create a desire to try the creamiest nitro blends.\",\n      \"text\": \"Discover a new coffee experience at Baskin' Coffee! Our nitro blends are specially crafted to provide a smooth and creamy mouthfeel. Enjoy the rich flavors and visually stunning frothy head. Join our membership program and earn a free drink after 10 purchases. Visit us in SoHo and indulge in the creamiest nitro blends!\"\n    },\n    {\n      \"confidence\": \"90%\",\n      \"adType\": \"Facebook Ad\",\n      \"variantNo\": \"2\",\n      \"imageUrl\": \"https://example.com/image2.jpg\",\n      \"oneLiner\": \"Unlock the Nitro Bliss!\",\n      \"imageDescription\": \"The ad features a group of enthusiastic Gen Z coffee lovers enjoying Baskin' Coffee's nitro blends in a cozy and trendy coffee shop atmosphere. The frame captures the joy and excitement of the coffee-drinking experience, while the subject showcases the frothy nitro blends in the hands of happy customers.\",\n      \"adOrientation\": \"Cozy and trendy coffee shop ambiance evoking a sense of community and enjoyment.\",\n      \"rationale\": \"This ad makes sense because it creates a sense of community and enjoyment around Baskin' Coffee's nitro blends, targeting the Gen Z crowd and their preference for cold drinks. The image and catchy phrase aim to unlock the nitro bliss by inviting viewers to be a part of the coffee-loving community at Baskin' Coffee.\",\n      \"text\": \"Calling all coffee enthusiasts! Experience the bliss of our signature nitro blends at Baskin' Coffee. Sip on the smoothest, creamiest coffee you've ever tasted. Join our membership program and earn a free drink after 10 purchases. Find us in SoHo and unlock the nitro bliss!\"\n    }\n  ],\n  \"disclaimer\": \"Disclaimer: The content of these ads is based on the information provided by James, the owner of Baskin' Coffee. The aim is to engage the target audience and promote the unique qualities of Baskin' Coffee's nitro blends.\",\n  \"companyName\": \"Baskin' Coffee\",\n  \"adObjective\": \"To attract new customers and promote Baskin' Coffee's nitro blends\"\n}",
-		// 	"role": "assistant",
-		// 	"conversationId": "656ec68f03b0997ed7c52c06",
-		// 	"createdAt": "2023-12-05T06:51:19.214Z",
-		// 	"updatedAt": "2023-12-05T06:51:19.214Z",
-		// 	"adCreatives": [
-		// 		{
-		// 			"id": "656ec86786966c0bc5d43738",
-		// 			"conversationId": "656ec68f03b0997ed7c52c06",
-		// 			"adObjective": "To attract new customers and promote Baskin' Coffee's nitro blends",
-		// 			"json": "{\n  \"summary\": \"Baskin' Coffee is a new coffee chain specializing in nitro blends. The nitro blends offer a smooth texture, creamy mouthfeel, and visually appealing frothy head. The target audience includes coffee drinkers in general, with a special focus on the Gen Z crowd. Baskin' Coffee offers a membership program where customers can earn a free drink after purchasing 10 drinks. The objective of the Facebook ads is to attract new customers and promote Baskin' Coffee's nitro blends.\",\n  \"variants\": [\n    {\n      \"confidence\": \"95%\",\n      \"adType\": \"Facebook Ad\",\n      \"variantNo\": \"1\",\n      \"imageUrl\": \"https://example.com/image1.jpg\",\n      \"oneLiner\": \"Indulge in the Creamiest Nitro Blends!\",\n      \"imageDescription\": \"The ad features a close-up of a frothy nitro coffee with a smooth texture and a creamy mouthfeel, visually highlighting the unique selling point of Baskin' Coffee's nitro blends. The style is vibrant and eye-catching, inviting viewers to experience a delightful coffee moment.\",\n      \"adOrientation\": \"Vibrant and captivating visuals showcasing the signature nitro blends.\",\n      \"rationale\": \"This ad makes sense because it encapsulates the unique qualities of Baskin' Coffee's nitro blends, emphasizing the smooth texture and creamy mouthfeel, which are key selling points. The image and catchy phrase aim to attract attention and create a desire to try the creamiest nitro blends.\",\n      \"text\": \"Discover a new coffee experience at Baskin' Coffee! Our nitro blends are specially crafted to provide a smooth and creamy mouthfeel. Enjoy the rich flavors and visually stunning frothy head. Join our membership program and earn a free drink after 10 purchases. Visit us in SoHo and indulge in the creamiest nitro blends!\"\n    },\n    {\n      \"confidence\": \"90%\",\n      \"adType\": \"Facebook Ad\",\n      \"variantNo\": \"2\",\n      \"imageUrl\": \"https://example.com/image2.jpg\",\n      \"oneLiner\": \"Unlock the Nitro Bliss!\",\n      \"imageDescription\": \"The ad features a group of enthusiastic Gen Z coffee lovers enjoying Baskin' Coffee's nitro blends in a cozy and trendy coffee shop atmosphere. The frame captures the joy and excitement of the coffee-drinking experience, while the subject showcases the frothy nitro blends in the hands of happy customers.\",\n      \"adOrientation\": \"Cozy and trendy coffee shop ambiance evoking a sense of community and enjoyment.\",\n      \"rationale\": \"This ad makes sense because it creates a sense of community and enjoyment around Baskin' Coffee's nitro blends, targeting the Gen Z crowd and their preference for cold drinks. The image and catchy phrase aim to unlock the nitro bliss by inviting viewers to be a part of the coffee-loving community at Baskin' Coffee.\",\n      \"text\": \"Calling all coffee enthusiasts! Experience the bliss of our signature nitro blends at Baskin' Coffee. Sip on the smoothest, creamiest coffee you've ever tasted. Join our membership program and earn a free drink after 10 purchases. Find us in SoHo and unlock the nitro bliss!\"\n    }\n  ],\n  \"disclaimer\": \"Disclaimer: The content of these ads is based on the information provided by James, the owner of Baskin' Coffee. The aim is to engage the target audience and promote the unique qualities of Baskin' Coffee's nitro blends.\",\n  \"companyName\": \"Baskin' Coffee\",\n  \"adObjective\": \"To attract new customers and promote Baskin' Coffee's nitro blends\"\n}",
-		// 			"companyName": "Baskin' Coffee",
-		// 			"disclaimer": "Disclaimer: The content of these ads is based on the information provided by James, the owner of Baskin' Coffee. The aim is to engage the target audience and promote the unique qualities of Baskin' Coffee's nitro blends.",
-		// 			"summary": "Baskin' Coffee is a new coffee chain specializing in nitro blends. The nitro blends offer a smooth texture, creamy mouthfeel, and visually appealing frothy head. The target audience includes coffee drinkers in general, with a special focus on the Gen Z crowd. Baskin' Coffee offers a membership program where customers can earn a free drink after purchasing 10 drinks. The objective of the Facebook ads is to attract new customers and promote Baskin' Coffee's nitro blends.",
-		// 			"createdAt": "2023-12-05T06:51:19.214Z",
-		// 			"updatedAt": "2023-12-05T06:51:19.214Z",
-		// 			"variants": [
-		// 				{
-		// 					"id": "656ec86886966c0bc5d43739",
-		// 					"variantNo": "1",
-		// 					"adType": "Facebook Ad",
-		// 					"confidence": null,
-		// 					"image": null,
-		// 					"imageUrl": "https://srs-billing-storage.s3.ap-south-1.amazonaws.com/656ec86886966c0bc5d43739_1701759096921.png",
-		// 					"oneLiner": "Indulge in the Creamiest Nitro Blends!",
-		// 					"imageDescription": "The ad features a close-up of a frothy nitro coffee with a smooth texture and a creamy mouthfeel, visually highlighting the unique selling point of Baskin' Coffee's nitro blends. The style is vibrant and eye-catching, inviting viewers to experience a delightful coffee moment.",
-		// 					"adOrientation": "Vibrant and captivating visuals showcasing the signature nitro blends.",
-		// 					"text": "Discover a new coffee experience at Baskin' Coffee! Our nitro blends are specially crafted to provide a smooth and creamy mouthfeel. Enjoy the rich flavors and visually stunning frothy head. Join our membership program and earn a free drink after 10 purchases. Visit us in SoHo and indulge in the creamiest nitro blends!",
-		// 					"rationale": "This ad makes sense because it encapsulates the unique qualities of Baskin' Coffee's nitro blends, emphasizing the smooth texture and creamy mouthfeel, which are key selling points. The image and catchy phrase aim to attract attention and create a desire to try the creamiest nitro blends.",
-		// 					"adCreativeId": "656ec86786966c0bc5d43738",
-		// 					"createdAt": "2023-12-05T06:51:19.214Z",
-		// 					"updatedAt": "2023-12-05T06:51:19.214Z"
-		// 				},
-		// 				{
-		// 					"id": "656ec86886966c0bc5d4373a",
-		// 					"variantNo": "2",
-		// 					"adType": "Facebook Ad",
-		// 					"confidence": null,
-		// 					"image": null,
-		// 					"imageUrl": "https://srs-billing-storage.s3.ap-south-1.amazonaws.com/656ec86886966c0bc5d4373a_1701759098156.png",
-		// 					"oneLiner": "Unlock the Nitro Bliss!",
-		// 					"imageDescription": "The ad features a group of enthusiastic Gen Z coffee lovers enjoying Baskin' Coffee's nitro blends in a cozy and trendy coffee shop atmosphere. The frame captures the joy and excitement of the coffee-drinking experience, while the subject showcases the frothy nitro blends in the hands of happy customers.",
-		// 					"adOrientation": "Cozy and trendy coffee shop ambiance evoking a sense of community and enjoyment.",
-		// 					"text": "Calling all coffee enthusiasts! Experience the bliss of our signature nitro blends at Baskin' Coffee. Sip on the smoothest, creamiest coffee you've ever tasted. Join our membership program and earn a free drink after 10 purchases. Find us in SoHo and unlock the nitro bliss!",
-		// 					"rationale": "This ad makes sense because it creates a sense of community and enjoyment around Baskin' Coffee's nitro blends, targeting the Gen Z crowd and their preference for cold drinks. The image and catchy phrase aim to unlock the nitro bliss by inviting viewers to be a part of the coffee-loving community at Baskin' Coffee.",
-		// 					"adCreativeId": "656ec86786966c0bc5d43738",
-		// 					"createdAt": "2023-12-05T06:51:19.214Z",
-		// 					"updatedAt": "2023-12-05T06:51:19.214Z"
-		// 				}
-		// 			]
-		// 		}
-		// 	],
-		// 	"serialOrder": 7
-		// },
-		{
 			"id": "656ec82886966c0bc5d43736",
-			"content": "Thanks for providing the additional details, James! I have a clear understanding of your requirements now. Based on the information you've shared, I'm confident in designing engaging Facebook ads for Baskin' Coffee. Here's a summary of our conversation so far:\n\nSummary:\nBaskin' Coffee is a new coffee chain specializing in nitro blends, located in Manhattan. The nitro blends are known for their smooth texture, creamy mouthfeel, and visually appealing frothy head. The unique selling point is the enhanced sweetness and reduced acidity achieved through the infusion of high-quality cold brew coffee with nitrogen gas. The target audience includes coffee drinkers in general, with a special focus on the Gen Z crowd who are more inclined towards cold drinks. Baskin' Coffee has no existing brand logo and is looking to attract customers from surrounding coffee shops in the SoHo area. They offer a membership program where customers can earn a free drink after purchasing 10 drinks.\n\nTo design captivating Facebook ads, I'd like to present two variants for you:\n\nVariant 1:\n- Confidence: 95%\n- Ad Type: Facebook Ad\n- Variant Number: 1\n- Image URL: {Image URL}\n- Catchy phrase: \"Indulge in the Creamiest Nitro Blends!\"\n- Image description: The ad features a close-up of a frothy nitro coffee with a smooth texture and a creamy mouthfeel, visually highlighting the unique selling point of Baskin' Coffee's nitro blends. The style is vibrant and eye-catching, inviting viewers to experience a delightful coffee moment.\n- Ad layout and theme: Vibrant and captivating visuals showcasing the signature nitro blends.\n- Ad copy:\n\"Discover a new coffee experience at Baskin' Coffee! Our nitro blends are specially crafted to provide a smooth and creamy mouthfeel. Enjoy the rich flavors and visually stunning frothy head. Join our membership program and earn a free drink after 10 purchases. Visit us in SoHo and indulge in the creamiest nitro blends!\"\n\nVariant 2:\n- Confidence: 90%\n- Ad Type: Facebook Ad\n- Variant Number: 2\n- Image URL: {Image URL}\n- Catchy phrase: \"Unlock the Nitro Bliss!\"\n- Image description: The ad features a group of enthusiastic Gen Z coffee lovers enjoying Baskin' Coffee's nitro blends in a cozy and trendy coffee shop atmosphere. The frame captures the joy and excitement of the coffee-drinking experience, while the subject showcases the frothy nitro blends in the hands of happy customers.\n- Ad layout and theme: Cozy and trendy coffee shop ambiance evoking a sense of community and enjoyment.\n- Ad copy:\n\"Calling all coffee enthusiasts! Experience the bliss of our signature nitro blends at Baskin' Coffee. Sip on the smoothest, creamiest coffee you've ever tasted. Join our membership program and earn a free drink after 10 purchases. Find us in SoHo and unlock the nitro bliss!\"\n\nDisclaimer: The content of these ads is based on the information provided by James, the owner of Baskin' Coffee. The aim is to engage the target audience and promote the unique qualities of Baskin' Coffee's nitro blends.\n\nCompany Name: Baskin' Coffee\nAd Objective: To attract new customers and promote Baskin' Coffee's nitro blends\n\nPlease note that the image URLs will need to be provided by you. Let me know if you have any further questions or if there's anything else I can assist you with!",
+			"content": "Thanks for providing the additional details, James! I have a clear understanding of your requirements now. Based on the information you've shared, I'm confident in designing engaging Facebook ads for Baskin' Coffee. Here's a summary of our conversation so far:\n\nSummary:\nBaskin' Coffee is a new coffee chain specializing in nitro blends, located in Manhattan. The nitro blends are known for their smooth texture, creamy mouthfeel, and visually appealing frothy head. The unique selling point is the enhanced sweetness and reduced acidity achieved through the infusion of high-quality cold brew coffee with nitrogen gas. The target audience includes coffee drinkers in general, with a special focus on the Gen Z crowd who are more inclined towards cold drinks. Baskin' Coffee has no existing brand logo and is looking to attract customers from surrounding coffee shops in the SoHo area. They offer a membership program where customers can earn a free drink after purchasing 10 drinks.",
 			"role": "assistant",
 			"conversationId": "656ec68f03b0997ed7c52c06",
 			"createdAt": "2023-12-05T06:50:16.053Z",
@@ -780,7 +668,7 @@ const ArtiChatDemo: FC<ArtiChatDemoProps> = ({messages: _messages, isAdCreative,
 
 	return (
 		<div className={`flex h-full overflow-hidden`}>
-			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'} style={{zoom: 0.5}}>
+			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'} style={{zoom: 0.55}}>
 				<>
 					<div className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
 						<Link href="/" className="flex justify-center items-center">
@@ -789,7 +677,7 @@ const ArtiChatDemo: FC<ArtiChatDemoProps> = ({messages: _messages, isAdCreative,
 						</Link>
 					</div>
 					<AnimatePresence mode="wait">
-						<div className={'flex-1 flex flex-col-reverse overflow-auto'}>
+						<div className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
 							{/*<ChatGPTMessageCreatingAd/>*/}
 							{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
 							{/*<div className="text-white whitespace-pre-wrap">*/}
@@ -891,7 +779,7 @@ const ArtiChatDemo: FC<ArtiChatDemoProps> = ({messages: _messages, isAdCreative,
 					</div>
 				</>
 			</div>
-			{adCreative && <RightPane isMock={true} adCreative={adCreative} style={{zoom: 0.36, position: 'relative'}}/>}
+			{adCreative && <RightPane isMock={true} adCreative={adCreative} style={{zoom: 0.41, position: 'relative'}}/>}
 		</div>
 	)
 }
@@ -926,9 +814,9 @@ export default function Services() {
 			</div>
 			<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-screen top-0 flex justify-center items-center">
 				<div className="text-left relative h-min">
-					<div className={"relative w-[550px] h-auto pointer-events-none"}>
-						<Image className="w-full" src={MacImage} alt="Mac Image" />
-						<div className="w-[408px] h-[256px] absolute top-[44px] left-[71px] bg-white bg-opacity-10 border-primary border rounded overflow-hidden">
+					<div className={"relative w-[550px] h-auto"}>
+						<Image className="w-full" src={ScreenImage} alt="Mac Image" />
+						<div className="w-[529px] h-[292px] absolute top-[107px] left-[11px] bg-white bg-opacity-10 border-primary border rounded overflow-hidden">
 							{/*<video loop={true} src={require('../../assets/videos/chat_demo.webm')} autoPlay={true} muted={true}>*/}
 							{/*</video>*/}
 							{isMounted && (
