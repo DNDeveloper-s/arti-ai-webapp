@@ -380,6 +380,23 @@ body {
   }
 }
 
+.testimonial-animation-creative {
+  animation: testimonial_anim_1 25s linear infinite;
+  animation-duration: 25s;
+}
+
+.testimonial-animation-review {
+  animation: testimonial_anim_1 35s linear infinite;
+  animation-duration: 35s;
+  animation-direction: reverse;
+}
+
+@keyframes testimonial_anim_1 {
+  to {
+    transform: translate(calc(-50% - 0.675rem));
+  }
+}
+
 .border-animation {
   position: relative;
   padding: 2px;
@@ -387,14 +404,12 @@ body {
   @apply rounded-xl;
 }
 
-.border-animation::before {
-  /*background-image: conic-gradient(transparent,transparent,transparent,var(--color-primary));*/
-  /*width: 100%;*/
-  /*height: 100%;*/
-  /*position: absolute;*/
-  /*content: "";*/
-  /*animation: loadingbox 5s linear infinite;*/
+.border-animation.paused::before {
+  background-image: conic-gradient(var(--color-primary),var(--color-primary),var(--color-primary),var(--color-primary),var(--color-primary),var(--color-primary));
+  /*animation-play-state: paused;*/
+}
 
+.border-animation::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -402,7 +417,7 @@ body {
   transform: translate(-50%,-50%);
   width: 180%;
   height: 180%;
-  background-image: conic-gradient(transparent,var(--color-primary),transparent,var(--color-primary));
+  background-image: conic-gradient(transparent,transparent,var(--color-primary),transparent,transparent,var(--color-primary),transparent,transparent);
   animation: loadingbox 4s linear infinite;
 }
 
@@ -415,3 +430,8 @@ body {
     transform: translate(-50%,-50%) rotate(360deg);
   }
 }
+
+/*.testimonial-animation-1 {*/
+/*  animation: testimonial_anim 20s linear infinite;*/
+/*  animation-duration: 25s;*/
+/*}*/

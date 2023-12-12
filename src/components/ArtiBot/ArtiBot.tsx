@@ -73,6 +73,7 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
 	const [adCreatives, setAdCreatives] = useState(conversation?.adCreatives ? conversation?.adCreatives : []);
 	const {state, dispatch} = useConversation();
 	const token = useSessionToken();
+	const [isInputInFocus, setIsInputInFocus] = useState(false);
 
 	const showError = useCallback((message: string) => {
 		if(message) return setSnackBarData({status: 'error', message});
@@ -355,11 +356,21 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
 		return adCreative
 	}, [adCreatives]);
 
+	const handleFocusInput = useCallback(() => {
+		setIsInputInFocus(true);
+	}, []);
+
+	const handleBlurInput = useCallback(() => {
+		setIsInputInFocus(false);
+	}, [])
+
 	const enableMessageInput = miniVersion ? !exhausted : !isGeneratingAd && !isGenerating && !saveMessageRef.current && messages?.find(m => m.generating === true) === undefined;
 	const showGetAdNowButton = enableMessageInput && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
 
+	const animationShouldBePaused = miniVersion ? (isInputInFocus || isGenerating || isGeneratingAd) : true;
+
 	return (
-		<div className={`${borderAnimation ? 'border-animation' : ''} flex h-full overflow-hidden`}>
+		<div className={`${borderAnimation ? `border-animation ${animationShouldBePaused ? 'paused' : ''}` : ''} flex h-full overflow-hidden`}>
 			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
 				<>
 					<div className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
@@ -429,6 +440,8 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
 										// 48 is default height of textarea
 										setAreaHeight(e - 48);
 									}}
+									onFocus={handleFocusInput}
+									onBlur={handleBlurInput}
 									minRows={1}
 									maxRows={3}
 									placeholder="Type here..."

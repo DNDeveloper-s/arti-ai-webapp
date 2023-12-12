@@ -141,32 +141,32 @@ export default function WhyUs() {
 					/>
 				))}
 			</div>
-			<div className="flex my-20 overflow-hidden gap-3 mask-black">
-				<div className="flex justify-center gap-3 testimonial-animation">
-					<TestimonialItem item={{title: 'Amazon'}} />
-					<TestimonialItem item={{title: 'Microsoft'}} />
-					<TestimonialItem item={{title: 'Apple'}} />
-					<TestimonialItem item={{title: 'Google'}} />
-					<TestimonialItem item={{title: 'Mendable'}} />
-					<TestimonialItem item={{title: 'Pustack'}} />
-					<TestimonialItem item={{title: 'Facebook'}} />
-					<TestimonialItem item={{title: 'Android'}} />
-					<TestimonialItem item={{title: 'VS Code'}} />
-					<TestimonialItem item={{title: 'Youtube'}} />
-					<TestimonialItem item={{title: 'Monitor'}} />
-					<TestimonialItem item={{title: 'Amazon'}} />
-					<TestimonialItem item={{title: 'Microsoft'}} />
-					<TestimonialItem item={{title: 'Apple'}} />
-					<TestimonialItem item={{title: 'Google'}} />
-					<TestimonialItem item={{title: 'Mendable'}} />
-					<TestimonialItem item={{title: 'Pustack'}} />
-					<TestimonialItem item={{title: 'Facebook'}} />
-					<TestimonialItem item={{title: 'Android'}} />
-					<TestimonialItem item={{title: 'VS Code'}} />
-					<TestimonialItem item={{title: 'Youtube'}} />
-					<TestimonialItem item={{title: 'Monitor'}} />
-				</div>
-			</div>
+			{/*<div className="flex my-20 overflow-hidden gap-3 mask-black">*/}
+			{/*	<div className="flex justify-center gap-3 testimonial-animation">*/}
+			{/*		<TestimonialItem item={{title: 'Amazon'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Microsoft'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Apple'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Google'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Mendable'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Pustack'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Facebook'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Android'}} />*/}
+			{/*		<TestimonialItem item={{title: 'VS Code'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Youtube'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Monitor'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Amazon'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Microsoft'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Apple'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Google'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Mendable'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Pustack'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Facebook'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Android'}} />*/}
+			{/*		<TestimonialItem item={{title: 'VS Code'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Youtube'}} />*/}
+			{/*		<TestimonialItem item={{title: 'Monitor'}} />*/}
+			{/*	</div>*/}
+			{/*</div>*/}
 			{/*<div className="hidden md:visible sticky top-0 right-0 h-screen md:flex flex-col items-center justify-center">*/}
 			{/*	{whyUsData.items.map((whyUsItem, index) => (*/}
 			{/*		<motion.span onClick={() => ref.current && window.scrollTo({top: (index * offset) + ref.current.offsetTop + 41, behavior: 'smooth'})} className="cursor-pointer w-3 h-3 mb-2 rounded-full bg-primaryText bg-opacity-25" initial={{'--tw-bg-opacity': 0.25}} animate={{*/}

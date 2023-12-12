@@ -13,6 +13,7 @@ import useAnalyticsClient from '@/hooks/useAnalyticsClient';
 import {GTM_EVENT, logEvent} from '@/utils/gtm';
 import BgAttachment from '@/components/LandingPage/BgAttachment';
 import TryForFreeButton from '@/components/LandingPage/TryForFreeButton';
+import Testimonials from '@/components/LandingPage/Testimonials';
 
 function calculateScrollDepth() {
 	const scrollHeight = document.documentElement.scrollHeight;
@@ -124,6 +125,7 @@ export default function LandingPage() {
 					</div>
 				</div>
 				<WhyUs />
+				<Testimonials />
 				<Contact />
 				{showTryButton && <TryForFreeButton/>}
 				<Footer />

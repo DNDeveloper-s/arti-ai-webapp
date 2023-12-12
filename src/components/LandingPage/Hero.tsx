@@ -8,6 +8,7 @@ import CTAButton from '@/components/CTAButton';
 import {GTM_EVENT, initGTM, logEvent} from '@/utils/gtm';
 import Image from 'next/image';
 import MobileImage from '@/assets/images/mobile_bg.png';
+import MobileTextImage from '@/assets/images/mobile_bg_text.png';
 
 export default function Hero() {
 	const {scrollY} = useScroll();
@@ -38,16 +39,16 @@ export default function Hero() {
 					<Image src={MobileImage} alt="mobile_image" />
 				</div>
 				<div className="flex gap-[1.6rem] image-animation-2">
-					<Image src={MobileImage} alt="mobile_image" />
-					<Image src={MobileImage} alt="mobile_image" />
-					<Image src={MobileImage} alt="mobile_image" />
+					<Image src={MobileTextImage} alt="mobile_image" />
+					<Image src={MobileTextImage} alt="mobile_image" />
+					<Image src={MobileTextImage} alt="mobile_image" />
 				</div>
 				<div className="flex gap-[1.6rem] image-animation-3">
 					<Image src={MobileImage} alt="mobile_image" />
 					<Image src={MobileImage} alt="mobile_image" />
 				</div>
 			</div>
-			<div className="flex flex-col justify-center items-center h-full px-4 z-10">
+			<div className="flex flex-col justify-center items-center h-auto bg-transparent backdrop-blur-[2px] px-4 z-10">
 				{/*<Logo width={60} height={60} fill={colors.primaryText} />*/}
 				<Logo width={60} height={60} />
 				<p className="text-2xl md:text-3xl font-medium text-white font-giasyr">Arti AI</p>

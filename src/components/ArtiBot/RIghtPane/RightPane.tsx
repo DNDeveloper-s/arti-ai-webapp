@@ -142,7 +142,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative, isMock, style}) => {
 	// }, [adCreative])
 
 	return (
-		<div className={'w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative'} style={{width: width, ...(style ?? {})}} ref={resizeContainerRef}>
+		<div className={'w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative' + (isMock ? ' w-full' : '')} style={{width: !isMock ? width : '100%', ...(style ?? {})}} ref={resizeContainerRef}>
 			<div ref={resizeHandleRef} className="absolute left-0 top-0 h-full w-2 bg-white bg-opacity-20 cursor-col-resize hover:w-2.5 transition-all" onMouseDown={(e) => {
 				console.log('e', e, e.currentTarget)
 			}} />
