@@ -17,6 +17,7 @@ export interface WhyUsItem {
 	overview: string;
 	readMore?: string | WhyUsItem[];
 	icon?: ReactElement<React.SVGProps<SVGSVGElement>>;
+	groupId?: number,
 }
 
 export const whyUsData: WhyUsData = {
@@ -32,6 +33,7 @@ export const whyUsData: WhyUsData = {
 			overview: 'Embrace the dawn of a new era in business innovation with our groundbreaking AI-powered platform. Designed with the dream to reshape strategic planning and creative design, we stand at the forefront of technological evolution.',
 			readMore: 'Our platform isn\'t just a product; it\'s a mission. We envision a world where every business, regardless of size or industry, can harness the power of cutting-edge AI technology to elevate their strategies and visuals. Join us on this transformative journey, where potential meets performance.',
 			icon: RevolutionIcon,
+			groupId: 1,
 		},
 		{
 			id: 2,
@@ -50,6 +52,7 @@ export const whyUsData: WhyUsData = {
 				}
 			],
 			icon: InnovationIcon,
+			groupId: 1,
 		},
 		{
 			id: 3,
@@ -78,6 +81,7 @@ export const whyUsData: WhyUsData = {
 				}
 			],
 			icon: UserCentricIcon,
+			groupId: 2,
 		},
 		{
 			id: 4,
@@ -85,6 +89,7 @@ export const whyUsData: WhyUsData = {
 			overview: 'More than a tool, our platform is a paradigm shift. It\'s about breaking barriers, democratizing access, and enabling businesses to shine brighter.',
 			readMore: 'With AI as our backbone, we\'re redefining what\'s possible in the realms of strategic planning and design. Our platform stands as a beacon for businesses, offering them the tools to make informed decisions, streamline operations, and craft content that leaves a mark. Dive in, and experience the future of business technology today.',
 			icon: FutureIcon,
+			groupId: 2,
 		}
 	]
 }

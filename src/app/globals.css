@@ -381,13 +381,18 @@ body {
 }
 
 .testimonial-animation-creative {
-  animation: testimonial_anim_1 25s linear infinite;
-  animation-duration: 25s;
+  animation: testimonial_anim_1 55s linear infinite;
+  animation-duration: 55s;
+  animation-play-state: running;
+}
+
+.testimonial-animation-creative:hover {
+  animation-play-state: paused;
 }
 
 .testimonial-animation-review {
-  animation: testimonial_anim_1 35s linear infinite;
-  animation-duration: 35s;
+  animation: testimonial_anim_1 85s linear infinite;
+  animation-duration: 85s;
   animation-direction: reverse;
 }
 
