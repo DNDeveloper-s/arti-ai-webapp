@@ -391,8 +391,8 @@ body {
 }
 
 .testimonial-animation-review {
-  animation: testimonial_anim_1 85s linear infinite;
-  animation-duration: 85s;
+  animation: testimonial_anim_1 95s linear infinite;
+  animation-duration: 95s;
   animation-direction: reverse;
 }
 
