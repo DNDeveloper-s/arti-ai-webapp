@@ -34,19 +34,19 @@ export default function Contact() {
 		logEvent({
 			event: GTM_EVENT.CONTACT_FORM_SUBMISSION,
 		})
-		//
-		// setShowError(true);
-		// console.log('errors - ', errors);
-		// if(errors && Object.keys(errors).length > 0) return;
-		//
-		// setIsSubmitting(true);
-		// setShowError(false);
-		//
-		// const response = await axios.post('/api/send-mail', {values});
-		//
-		// setIsSubmitting(false);
-		// reset();
-		// setSnackBarData({message: response.data.message, status: response.data.ok ? 'success' : 'error'});
+
+		setShowError(true);
+		console.log('errors - ', errors);
+		if(errors && Object.keys(errors).length > 0) return;
+
+		setIsSubmitting(true);
+		setShowError(false);
+
+		const response = await axios.post('/api/send-mail', {values});
+
+		setIsSubmitting(false);
+		reset();
+		setSnackBarData({message: response.data.message, status: response.data.ok ? 'success' : 'error'});
 	}
 
 	return (
