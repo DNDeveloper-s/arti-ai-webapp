@@ -29,6 +29,7 @@ export default function LandingPage() {
 	const timeoutRef = useRef<any>(0);
 	const sectionLoggedRef = useRef<Map<string, boolean>>(new Map());
 	const [showTryButton, setShowTryButton] = useState<boolean>(true);
+	const [focusedSection, setFocusedSection] = useState<string>('');
 
 	useEffect(() => {
 		if(!clientId) return;
@@ -62,6 +63,7 @@ export default function LandingPage() {
 				if (entry.isIntersecting) {
 					const sectionIndex = entry.target.dataset.section;
 					console.log(`User scrolled to section ${sectionIndex}`);
+					setFocusedSection(sectionIndex);
 
 					if(sectionIndex === 'hero' || sectionIndex === 'arti_bot') {
 						setShowTryButton(false);
@@ -118,15 +120,15 @@ export default function LandingPage() {
 				<Services />
 
 				{/*<BgAttachment />*/}
-				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black py-20">
+				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black pt-4 pb-10">
 					<div className="landing-page-section px-0 md:px-10">
 						<h2 className="text-3xl mb-10 px-10">Try Arti AI for free</h2>
 						<ArtiBot borderAnimation={true} miniVersion={true} containerClassName="rounded-xl" />
 					</div>
 				</div>
-				<WhyUs />
-				<Testimonials />
+				<WhyUs focusedSection={focusedSection} />
 				<Contact />
+				<Testimonials />
 				{showTryButton && <TryForFreeButton/>}
 				<Footer />
 			</main>

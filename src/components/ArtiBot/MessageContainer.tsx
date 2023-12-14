@@ -49,7 +49,7 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 
 	return (
 		<AnimatePresence mode="wait">
-			<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[35em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-9 md:pb-14' : '')} ref={containerRef}>
+			<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[50vh] md:min-h-[50vh] max-h-[60vh] md:max-h-[60vh] ' : '') + (showGetAdNowButton ? ' pb-9 md:pb-14' : '')} ref={containerRef}>
 				{/*<ChatGPTMessageCreatingAd/>*/}
 				{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
 				<div className="text-white whitespace-pre-wrap">
