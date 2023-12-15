@@ -10,16 +10,17 @@ import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
 import {generateAdCreativeImages, updateVariantImage, useConversation} from '@/context/ConversationContext';
 import {useRouter} from 'next/navigation';
 import VariantItem from '@/components/ArtiBot/VariantItem';
+import {Mock} from '@/constants/servicesData';
 
 interface RightPaneProps {
 	adCreative: IAdCreative;
-	isMock?: boolean;
+	mock?: Mock;
 	style?: React.CSSProperties;
 }
 
 const MIN_WIDTH = 450;
 
-const RightPane: FC<RightPaneProps> = ({adCreative, isMock, style}) => {
+const RightPane: FC<RightPaneProps> = ({adCreative, mock = new Mock(), style}) => {
 	const [activeVariant, setActiveVariant] = useState<AdCreativeVariant>(adCreative.variants[0]);
 	const resizeHandleRef = useRef<HTMLDivElement>(null);
 	const resizeContainerRef = useRef<HTMLDivElement>(null);
@@ -29,7 +30,16 @@ const RightPane: FC<RightPaneProps> = ({adCreative, isMock, style}) => {
 	const router = useRouter();
 	const ranTheGenerationRef = useRef<boolean>(false);
 	const prevVariantListRef = useRef('');
+	const intervalIdRef = useRef<any>(null);
 
+	useEffect(() => {
+		console.log('mock - ', mock);
+
+
+		// intervalIdRef.current = setInterval(() => {
+		//
+		// }, 2300);
+	}, [mock])
 
 	useEffect(() => {
 		if(!resizeHandleRef.current || !resizeContainerRef.current) return;
@@ -76,7 +86,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative, isMock, style}) => {
 	}, []);
 
 	const variantList = useMemo(() => {
-		if(isMock) return adCreative.variants;
+		if(mock.is) return adCreative.variants;
 		const list = getVariantsByAdCreativeId(adCreative.id) || [];
 		// const list = [];
 
@@ -101,7 +111,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative, isMock, style}) => {
 		return list;
 		// const variantIds = adCreative.variants.map(variant => variant.id);
 		// return variant.list.filter(c => variantIds.includes(c.id));
-	}, [getVariantsByAdCreativeId, adCreative.id, isMock]);
+	}, [getVariantsByAdCreativeId, adCreative.id, mock.is]);
 
 	useEffect(() => {
 		variantList.forEach(variant => {
@@ -142,8 +152,8 @@ const RightPane: FC<RightPaneProps> = ({adCreative, isMock, style}) => {
 	// }, [adCreative])
 
 	return (
-		<div className={'w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative' + (isMock ? ' w-full' : '')} style={{width: !isMock ? width : '100%', ...(style ?? {})}} ref={resizeContainerRef}>
-			<div ref={resizeHandleRef} className="absolute left-0 top-0 h-full w-2 bg-white bg-opacity-20 cursor-col-resize hover:w-2.5 transition-all" onMouseDown={(e) => {
+		<div className={'w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative' + (mock.isMobile ? ' w-full' : '')} style={{width: mock.isMobile ? '100%' : width, ...(style ?? {})}} ref={resizeContainerRef}>
+			<div ref={resizeHandleRef} style={{display: mock.is ? 'none' : 'block'}} className="absolute left-0 top-0 h-full w-2 bg-white bg-opacity-20 cursor-col-resize hover:w-2.5 transition-all" onMouseDown={(e) => {
 				console.log('e', e, e.currentTarget)
 			}} />
 			<div className="pb-10 overflow-y-auto overflow-x-visible h-full flex flex-col relative items-center bg-black">
@@ -163,7 +173,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative, isMock, style}) => {
 				</div>
 				<TabView items={variantList} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant} />
 
-				<VariantItem isMock={isMock} activeVariant={activeVariant} width={width} />
+				<VariantItem mock={mock} activeVariant={activeVariant} width={width} />
 
 			</div>
 		</div>

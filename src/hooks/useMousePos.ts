@@ -1,10 +1,8 @@
-import React, {FC, useEffect, useState} from 'react';
+import React, {MutableRefObject, useEffect, useState} from 'react';
 
-interface UseMousePosProps {
+type UseMousePosProps = MutableRefObject<HTMLElement>
 
-}
-
-const UseMousePos: FC<UseMousePosProps> = (elRef) => {
+const UseMousePos = (elRef: UseMousePosProps) => {
 	const [mousePos, setMousePos] = useState({x: 0, y: 0});
 
 	useEffect(() => {
@@ -20,7 +18,7 @@ const UseMousePos: FC<UseMousePosProps> = (elRef) => {
 		}
 
 		// Function to be called on mousemove
-		const mouseMoveHandler = (e) => {
+		const mouseMoveHandler = (e: any) => {
 			const {x, y} = calculatePosition(e);
 			setMousePos({x, y});
 		}

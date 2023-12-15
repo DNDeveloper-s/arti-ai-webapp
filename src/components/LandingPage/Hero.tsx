@@ -17,11 +17,6 @@ export default function Hero() {
 
 	useEffect(() => {
 		initGTM();
-
-		// logEvent({
-		// 	event: GTM_EVENT.VISIT_PAGE,
-		// 	page: 'landing-page'
-		// })
 	}, [])
 
 	useMotionValueEvent(scrollY, "change", (latest) => {
@@ -49,24 +44,14 @@ export default function Hero() {
 				</div>
 			</div>
 			<div className="flex flex-col justify-center items-center h-auto bg-transparent backdrop-blur-[2px] px-4 z-10">
-				{/*<Logo width={60} height={60} fill={colors.primaryText} />*/}
 				<Logo width={60} height={60} />
 				<p className="text-2xl md:text-3xl font-medium text-white font-giasyr">Arti AI</p>
 				<h2 className="text-3xl md:text-5xl max-w-3xl text-center leading-9 md:leading-tight">Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI</h2>
 				<p className="text-md my-2 md:my-4 opacity-50">Discover the Arti Difference</p>
-				{/*<button className="my-4 cta-button" onClick={() => {*/}
-				{/*	router.push('#arti-bot')*/}
-				{/*}}>Try for Free Now</button>*/}
 				<CTAButton onClick={() => router.push('#arti-bot')} className="my-4">
-					<span>Try for Free Now</span>
+					<span>Chat for Free Now</span>
 				</CTAButton>
 			</div>
-
-			{/*<div className="w-[90vw] max-w-[30em] overflow-hidden rounded-xl aspect-video mt-40 md:mt-20 z-20">*/}
-			{/*	<iframe style={{width: '100%', height: '100%'}}*/}
-			{/*	        src="https://www.youtube.com/embed/8vNlssOwI-Y">*/}
-			{/*	</iframe>*/}
-			{/*</div>*/}
 		</div>
 	)
 }

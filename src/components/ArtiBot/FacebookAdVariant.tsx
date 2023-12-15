@@ -11,6 +11,7 @@ import {updateVariantImage, useConversation} from '@/context/ConversationContext
 import Lottie from 'lottie-react';
 import generatingImage from '@/assets/lottie/generating_image.json';
 import errorImage from '@/assets/lottie/error.json';
+import {Mock} from '@/constants/servicesData';
 
 
 export const FacebookAdVariantShimmer = ({style = {}, className = ''}) => {
@@ -52,10 +53,10 @@ interface FacebookAdVariantProps extends React.DetailedHTMLProps<React.HTMLAttri
 	adVariant: IAdVariant;
 	noExpand?: boolean;
 	className?: string;
-	isMock?: boolean;
+	mock?: Mock;
 }
 
-const FacebookAdVariant: FC<FacebookAdVariantProps> = ({isMock, adVariant: _adVariant, noExpand, className, ...props}) => {
+const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVariant: _adVariant, noExpand, className, ...props}) => {
 	const [expand, setExpand] = useState<boolean>(false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
@@ -84,10 +85,10 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({isMock, adVariant: _adVa
 	// 		updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
 	// 	}
 	// }, [adVariant, dispatch, inError, inProcess, noExpand]);
-	const [imageUrl, setImageUrl] = useState<string | null>(isMock ? null : adVariant.imageUrl);
+	const [imageUrl, setImageUrl] = useState<string | null>(mock.is ? null : adVariant.imageUrl);
 
 	useEffect(() => {
-		if(!isMock) return setImageUrl(adVariant.imageUrl);
+		if(!mock.is) return setImageUrl(adVariant.imageUrl);
 		const timeout = setTimeout(() => {
 			setImageUrl(adVariant.imageUrl);
 		}, 3000)
@@ -95,7 +96,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({isMock, adVariant: _adVa
 		return () => {
 			clearTimeout(timeout);
 		}
-	}, [imageUrl, isMock, adVariant.imageUrl])
+	}, [imageUrl, mock.is, adVariant.imageUrl])
 
 	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
 		<Lottie className={"w-32 h-32"} animationData={generatingImage} loop={true} />
@@ -140,7 +141,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({isMock, adVariant: _adVa
 				</div>
 			</div>
 			<hr className="h-px my-[1em] border-0 bg-gray-700"/>
-			<div className="w-full px-[1em] pb-[1em] flex justify-between">
+			<div className="w-full px-[1em] pb-[1em] flex justify-between" style={{zoom: mock.is ? 0.7 : 1}}>
 				<div className="ml-[2em] w-[6.5em] h-[2em] rounded bg-gray-700" />
 				<div className="w-[6.5em] h-[2em] rounded bg-gray-700" />
 				<div className="w-[6.5em] h-[2em] rounded bg-gray-700" />

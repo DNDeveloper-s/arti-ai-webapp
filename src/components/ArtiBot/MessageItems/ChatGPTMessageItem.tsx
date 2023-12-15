@@ -113,15 +113,15 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 	);
 }
 
-function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: {messageItem: ChatGPTMessageObj, setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>, chunksRef?: React.MutableRefObject<string>, doneRef?: React.MutableRefObject<boolean>}) {
+function GeneratingMessageItem({isMock, setMessages, messageItem, chunksRef, doneRef}: {isMock?: boolean, messageItem: ChatGPTMessageObj, setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>, chunksRef?: React.MutableRefObject<string>, doneRef?: React.MutableRefObject<boolean>}) {
 	return (
 		<div className="flex items-start">
 			<p className="whitespace-pre-wrap text-[1em] text-primaryText text-opacity-60 flex-1">
 				<RenderMessageItem setMessages={setMessages} messageItem={messageItem} chunksRef={chunksRef} doneRef={doneRef} />
 			</p>
-			<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
-				<IoIosCopy className="cursor-pointer opacity-0 pointer-events-none justify-self-end text-primary" />
-			</div>
+			{!isMock && <div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
+				<IoIosCopy className="cursor-pointer opacity-0 pointer-events-none justify-self-end text-primary"/>
+			</div>}
 		</div>
 	);
 }
@@ -328,7 +328,7 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 	}
 
 	if(messageItem.generating) {
-		item = <GeneratingMessageItem setMessages={setMessages} messageItem={messageItem} chunksRef={chunksRef} doneRef={doneRef} />
+		item = <GeneratingMessageItem isMock={isMock} setMessages={setMessages} messageItem={messageItem} chunksRef={chunksRef} doneRef={doneRef} />
 	}
 
 	return (

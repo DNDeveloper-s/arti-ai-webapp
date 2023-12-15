@@ -34,29 +34,6 @@ export default function LandingPage() {
 	useEffect(() => {
 		if(!clientId) return;
 
-		// const handleScroll = () => {
-		// 	clearTimeout(timeoutRef.current);
-		//
-		// 	timeoutRef.current = setTimeout(() => {
-		// 		const scrollDepth = calculateScrollDepth();
-		//
-		// 		if (clientId) {
-		// 			logEvent({
-		// 				event: GTM_EVENT.SCROLL_DEPTH,
-		// 				event_category: 'Engagement',
-		// 				event_label: 'Scroll Depth',
-		// 				value: scrollDepth,
-		// 				client_identifier: clientId,
-		// 			});
-		// 		}
-		// 	}, 1000); // 1 second is the debounce time
-		// };
-		//
-		// window.addEventListener('scroll', handleScroll);
-		//
-		// return () => {
-		// 	window.removeEventListener('scroll', handleScroll);
-		// };
 		const handleIntersection = (entries, observer) => {
 			entries.forEach((entry) => {
 				console.log('entry - ', entry);
@@ -127,8 +104,8 @@ export default function LandingPage() {
 					</div>
 				</div>
 				<WhyUs focusedSection={focusedSection} />
-				<Contact />
 				<Testimonials />
+				<Contact />
 				{showTryButton && <TryForFreeButton/>}
 				<Footer />
 			</main>
