@@ -61,6 +61,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
 	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
+	const isLoaded = useRef<Record<string, boolean>>({});
 
 	const adVariant = variant.map && variant.map[_adVariant.id] ? variant.map[_adVariant.id] : _adVariant;
 
@@ -89,7 +90,12 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 
 	useEffect(() => {
 		if(!mock.is) return setImageUrl(adVariant.imageUrl);
+		if(!isLoaded.current[adVariant.id]) setImageUrl(null);
+		else {
+			return setImageUrl(adVariant.imageUrl);
+		}
 		const timeout = setTimeout(() => {
+			isLoaded.current[adVariant.id] = true;
 			setImageUrl(adVariant.imageUrl);
 		}, 3000)
 
@@ -147,7 +153,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 				<div className="w-[6.5em] h-[2em] rounded bg-gray-700" />
 				<div className="w-[2em] h-[2em] rounded-full bg-gray-700" />
 			</div>
-			<motion.div className="px-[3.75em] overflow-hidden" initial={{height: 0}} onAnimationEnd={() => {
+			{!mock.is && <motion.div className="px-[3.75em] overflow-hidden" initial={{height: 0}} onAnimationEnd={() => {
 				headingRef.current && headingRef.current.scrollIntoView({behavior: 'smooth', block: 'start'})
 			}} animate={{height: !noExpand && expand ? 'auto' : 0}}>
 				<ol className="list-decimal">
@@ -156,17 +162,17 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 						<p className="mt-[0.3em] text-[1em] font-diatype opacity-60 leading-[1.5em]">{adVariant.adOrientation}</p>
 					</li>
 					{adVariant.imageDescription && <li className="pl-1 relative">
-						<p className="text-[1.05em] font-medium z-10 relative"><strong>Image Description</strong></p>
-						<p
-							className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 relative z-10 leading-[1.5em]">{adVariant.imageDescription}</p>
+            <p className="text-[1.05em] font-medium z-10 relative"><strong>Image Description</strong></p>
+            <p
+              className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 relative z-10 leading-[1.5em]">{adVariant.imageDescription}</p>
 						{/*<div className="w-full h-full bg-secondaryText bg-opacity-30 rounded animate-pulse absolute top-0 left-0" />*/}
-					</li>}
+          </li>}
 					<li className="pl-1">
 						<p className="text-[1.05em] font-medium"><strong>Rationale</strong></p>
 						<p className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 leading-[1.5em]">{adVariant.rationale}</p>
 					</li>
 				</ol>
-			</motion.div>
+			</motion.div>}
 		</div>
 	)
 }

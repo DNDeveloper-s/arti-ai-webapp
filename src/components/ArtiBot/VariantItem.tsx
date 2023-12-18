@@ -47,7 +47,7 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 				</>
 			)}
 
-			{activeVariant && <FeedBackView variant={activeVariant}/>}
+			{!mock.is && activeVariant && <FeedBackView variant={activeVariant}/>}
 		</>
 	);
 };
