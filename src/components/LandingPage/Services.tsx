@@ -464,15 +464,15 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 					</div>
 				</div>
 			</div>
-			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[50vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
-				<Image style={{width: 'auto', height: '100%'}} src={IphoneImage} alt="Iphone Image" />
+			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[60vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
+				<Image style={{width: 'auto', height: '100%', maxWidth: 'unset'}} src={IphoneImage} alt="Iphone Image" />
 				{adCreative && <div className="absolute" style={{
 					width: 'unset',
 					height: 'calc(100% - 32px)',
 					zoom: 1,
 					top: '50%',
 					left: '49.8%',
-					borderRadius: '18px',
+					borderRadius: '20px',
 					overflow: 'auto',
 					border: 'none',
 					aspectRatio: 0.46,
@@ -534,7 +534,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
                     <div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
                       <div className="h-0.5 mr-5 flex-1 bg-gray-800"/>
                       <div
-                        className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
+                        className="flex justify-center whitespace-nowrap items-center font-light text-sm font-diatype text-white text-opacity-50">
                         <span>Hey</span>
                         <Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
                         <span>, How can Arti Ai help you?</span>
@@ -635,20 +635,6 @@ export default function Services() {
 				{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} key={serviceItem.title} {...serviceItem} />)}
 			</div>
 			<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-screen top-0 flex flex-col gap-3 justify-center items-center">
-				<div className="flex gap-2">
-					{screens.map(screen => (
-						<div key={screen.id} className="flex flex-col items-center justify-center cursor-pointer" onClick={() => handleChangeScreen(screen.value)}>
-							<div className="w-14 h-14 flex justify-center items-center">
-								<screen.Icon fill={viewScreen === screen.value ? colors.primary : '#aaa'} />
-							</div>
-							<span className={'text-xs ' + (viewScreen === screen.value ? 'text-primary' : 'text-gray-400')}>{screen.label}</span>
-						</div>
-					))}
-				</div>
-				{isMounted &&<div className="text-left w-[550px] h-[550px] flex items-center justify-center relative">
-					<ArtiChatDemo.Chat messages={mock.messages} viewScreen={viewScreen} isInView={idInView === 1} />
-					<ArtiChatDemo.AdCreative messages={mock.adCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
-				</div>}
 				<div className="flex gap-2 opacity-0">
 					<div className="flex flex-col items-center justify-center">
 						<div className="w-14 h-14">
@@ -668,6 +654,20 @@ export default function Services() {
 						</div>
 						<span className="text-xs text-gray-400">Laptop</span>
 					</div>
+				</div>
+				{isMounted &&<div className="text-left w-[550px] h-[60vh] flex items-center justify-center relative">
+					<ArtiChatDemo.Chat messages={mock.messages} viewScreen={viewScreen} isInView={idInView === 1} />
+					<ArtiChatDemo.AdCreative messages={mock.adCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
+				</div>}
+				<div className="flex gap-2">
+					{screens.map(screen => (
+						<div key={screen.id} className="flex flex-col items-center justify-center cursor-pointer" onClick={() => handleChangeScreen(screen.value)}>
+							<div className="w-14 h-14 flex justify-center items-center">
+								<screen.Icon fill={viewScreen === screen.value ? colors.primary : '#aaa'} />
+							</div>
+							<span className={'text-xs ' + (viewScreen === screen.value ? 'text-primary' : 'text-gray-400')}>{screen.label}</span>
+						</div>
+					))}
 				</div>
 			</div>
 		</div>
