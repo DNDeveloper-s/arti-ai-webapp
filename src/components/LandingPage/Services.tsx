@@ -610,11 +610,11 @@ export default function Services() {
 	}
 
 	const mockMessages = useMemo(() => {
-		return mock.updatedMessages.sort((a,b) => a.serialOrder - b.serialOrder);
+		return mock.messages.sort((a,b) => a.serialOrder - b.serialOrder);
 	}, []);
 
 	const mockAdCreativeMessages = useMemo(() => {
-		return mock.updatedAdCreativeMessages.sort((a,b) => a.serialOrder - b.serialOrder);
+		return mock.adCreativeMessages.sort((a,b) => a.serialOrder - b.serialOrder);
 	}, []);
 
 	/**
@@ -662,8 +662,8 @@ export default function Services() {
 				{/*	</div>*/}
 				{/*</div>*/}
 				{isMounted &&<div className="text-left w-[550px] h-[70vh] flex items-center justify-center relative">
-					<ArtiChatDemo.Chat messages={mock.messages} viewScreen={viewScreen} isInView={idInView === 1} />
-					<ArtiChatDemo.AdCreative messages={mock.adCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
+					<ArtiChatDemo.Chat messages={mockMessages} viewScreen={viewScreen} isInView={idInView === 1} />
+					<ArtiChatDemo.AdCreative messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
 				</div>}
 				<div className="flex gap-2" style={{zoom: 0.8}}>
 					{screens.map(screen => (
