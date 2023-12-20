@@ -440,3 +440,7 @@ body {
 /*  animation: testimonial_anim 20s linear infinite;*/
 /*  animation-duration: 25s;*/
 /*}*/
+
+.lottie-anim-demo svg {
+  zoom: 0.5
+}

@@ -249,11 +249,12 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 				<Image src={MacImage} alt="Iphone Image" />
 				<div className="w-[427px] h-[285px] absolute top-[29px] left-[61px] rounded-[12px_12px_0_0] bg-white bg-opacity-10 border-primary border overflow-hidden">
 					<div className={`flex h-full overflow-hidden`}>
-						<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}
-						     style={{zoom: 0.55}}>
+						<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
 							<>
 								<div
-									className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
+									className="flex justify-between h-auto py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]"
+									style={{zoom: 0.5}}
+								>
 									<Link href="/" className="flex justify-center items-center">
 										<Logo width={35} className="mr-2" height={35}/>
 										<h3 className="text-lg">Arti AI</h3>
@@ -261,13 +262,17 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 								</div>
 								<AnimatePresence mode="wait">
 									<div
+										style={{zoom: 0.5}}
 										className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
 										{/*<ChatGPTMessageCreatingAd/>*/}
 										{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
 										{/*<div className="text-white whitespace-pre-wrap">*/}
 										{/*	{msg}*/}
 										{/*</div>*/}
-										{isGenerating && <ChatGPTMessageGeneratingAnimation/>}
+										{isGenerating && <div className="w-16 h-8">
+											<ChatGPTMessageGeneratingAnimation mock={mockState}/>
+										</div>}
+										{/*{isGenerating && <ChatGPTMessageGeneratingAnimation mock={mockState}/>}*/}
 										<motion.div variants={framerContainer} animate="show" initial="hidden" exit="hidden">
 											{/*{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}*/}
 											{/*{*/}
@@ -299,14 +304,17 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 									</div>
 								</AnimatePresence>
 								<div
-									className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground">
-									{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton
-                    adGenerated={Boolean(adCreative)}
-                    onClick={async (setLoading: any) => {
-											// await handleGetAdNowButton();
-											setLoading(false);
-										}}
-                  />}
+									style={{zoom: 0.5}}
+									className="flex w-full max-w-[900px] mx-auto h-auto pt-2 relative items-end pb-2 px-3 bg-secondaryBackground">
+									{/*{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton*/}
+									{/*{(<GetAdButton*/}
+									{/*	mock={mockState}*/}
+                  {/*  adGenerated={Boolean(adCreative)}*/}
+                  {/*  onClick={async (setLoading: any) => {*/}
+									{/*		// await handleGetAdNowButton();*/}
+									{/*		setLoading(false);*/}
+									{/*	}}*/}
+                  {/*/>)}*/}
 									<div className={'flex-1 relative rounded-xl bg-background h-[70%] mb-1 mr-3'}>
 										<TextareaAutosize
 											value={inputValue}
@@ -464,11 +472,11 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 					</div>
 				</div>
 			</div>
-			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[60vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
+			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[70vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
 				<Image style={{width: 'auto', height: '100%', maxWidth: 'unset'}} src={IphoneImage} alt="Iphone Image" />
 				{adCreative && <div className="absolute" style={{
 					width: 'unset',
-					height: 'calc(100% - 32px)',
+					height: 'calc(100% - 42px)',
 					zoom: 1,
 					top: '50%',
 					left: '49.8%',
@@ -483,7 +491,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
         </div>}
 				{!adCreative && <div style={{
 					width: 'unset',
-					height: 'calc(100% - 32px)',
+					height: 'calc(100% - 42px)',
 					zoom: 1,
 					top: '50%',
 					left: '49.8%',
@@ -590,8 +598,6 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 export default function Services() {
 	const [idInView, setIdInView] = useState<Props['id']>(0);
 	const isMounted = useMounted();
-	const [keyForOne, setKeyForOne] = useState(0);
-	const [keyForTwo, setKeyForTwo] = useState(9898988);
 	const [viewScreen, setViewScreen] = useState(ViewScreen.MOBILE);
 
 	function handleIdInView(id: Props['id']) {
@@ -635,31 +641,31 @@ export default function Services() {
 				{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} key={serviceItem.title} {...serviceItem} />)}
 			</div>
 			<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-screen top-0 flex flex-col gap-3 justify-center items-center">
-				<div className="flex gap-2 opacity-0">
-					<div className="flex flex-col items-center justify-center">
-						<div className="w-14 h-14">
-							<MacSVG fill="#aaa" />
-						</div>
-						<span className="text-xs text-gray-400">Laptop</span>
-					</div>
-					<div className="flex flex-col items-center justify-center">
-						<div className="w-14 h-14">
-							<IphoneSVG fill="#aaa" />
-						</div>
-						<span className="text-xs text-gray-400">Laptop</span>
-					</div>
-					<div className="flex flex-col items-center justify-center">
-						<div className="w-14 h-14">
-							<ScreenSVG fill="#aaa" />
-						</div>
-						<span className="text-xs text-gray-400">Laptop</span>
-					</div>
-				</div>
-				{isMounted &&<div className="text-left w-[550px] h-[60vh] flex items-center justify-center relative">
+				{/*<div className="flex gap-2 opacity-0">*/}
+				{/*	<div className="flex flex-col items-center justify-center">*/}
+				{/*		<div className="w-14 h-14">*/}
+				{/*			<MacSVG fill="#aaa" />*/}
+				{/*		</div>*/}
+				{/*		<span className="text-xs text-gray-400">Laptop</span>*/}
+				{/*	</div>*/}
+				{/*	<div className="flex flex-col items-center justify-center">*/}
+				{/*		<div className="w-14 h-14">*/}
+				{/*			<IphoneSVG fill="#aaa" />*/}
+				{/*		</div>*/}
+				{/*		<span className="text-xs text-gray-400">Laptop</span>*/}
+				{/*	</div>*/}
+				{/*	<div className="flex flex-col items-center justify-center">*/}
+				{/*		<div className="w-14 h-14">*/}
+				{/*			<ScreenSVG fill="#aaa" />*/}
+				{/*		</div>*/}
+				{/*		<span className="text-xs text-gray-400">Laptop</span>*/}
+				{/*	</div>*/}
+				{/*</div>*/}
+				{isMounted &&<div className="text-left w-[550px] h-[70vh] flex items-center justify-center relative">
 					<ArtiChatDemo.Chat messages={mock.messages} viewScreen={viewScreen} isInView={idInView === 1} />
 					<ArtiChatDemo.AdCreative messages={mock.adCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
 				</div>}
-				<div className="flex gap-2">
+				<div className="flex gap-2" style={{zoom: 0.8}}>
 					{screens.map(screen => (
 						<div key={screen.id} className="flex flex-col items-center justify-center cursor-pointer" onClick={() => handleChangeScreen(screen.value)}>
 							<div className="w-14 h-14 flex justify-center items-center">

@@ -97,7 +97,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 		const timeout = setTimeout(() => {
 			isLoaded.current[adVariant.id] = true;
 			setImageUrl(adVariant.imageUrl);
-		}, 3000)
+		}, 1500)
 
 		return () => {
 			clearTimeout(timeout);

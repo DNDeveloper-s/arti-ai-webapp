@@ -19,6 +19,7 @@ import typingAnimation from '@/assets/lottie/typing.json';
 import {framerItem} from '@/config/framer-motion';
 import useMounted from '@/hooks/useMounted';
 import MarkdownRenderer from '@/components/ArtiBot/MarkdownRenderer';
+import {Mock} from '@/constants/servicesData';
 
 interface ChatGPTMessageItemProps {
 	messageItem: ChatGPTMessageObj;
@@ -229,7 +230,10 @@ export const ChatGPTMessageCreatingAd = ({size = 45}) => {
 	)
 }
 
-export const ChatGPTMessageGeneratingAnimation = () => {
+interface ChatGPTMessageGeneratingAnimationProps {
+	mock?: Mock
+}
+export const ChatGPTMessageGeneratingAnimation: FC<ChatGPTMessageGeneratingAnimationProps> = ({mock = new Mock()}) => {
 
 	return (
 		<AnimatePresence mode="wait">
@@ -239,7 +243,7 @@ export const ChatGPTMessageGeneratingAnimation = () => {
 				transition={{type: 'spring', damping: 10}}
 				className={'w-full'}
 			>
-				<div className="w-full max-w-[900px] h-10 px-3 mx-auto flex flex-end">
+				<div className={'lottie-anim-demo w-full max-w-[900px] px-3 mx-auto flex flex-end ' + (mock.is ? 'h-auto' : 'h-10')}>
 					<Lottie animationData={typingAnimation} loop={true} />
 				</div>
 			</motion.div>

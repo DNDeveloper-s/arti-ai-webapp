@@ -4,13 +4,15 @@ import {motion} from 'framer-motion';
 import Loader from '@/components/Loader';
 import {FcRefresh} from 'react-icons/fc';
 import {HiRefresh} from 'react-icons/hi';
+import {Mock} from '@/constants/servicesData';
 
 interface GetAdButtonProps {
 	onClick?: (setLoading: React.Dispatch<boolean>) => any;
 	adGenerated?: boolean;
+	mock?: Mock
 }
 
-const GetAdButton: FC<GetAdButtonProps> = (props) => {
+const GetAdButton: FC<GetAdButtonProps> = ({mock = new Mock(), ...props}) => {
 	const [loading, setLoading] = useState<boolean>(false);
 
 	return (
@@ -23,7 +25,10 @@ const GetAdButton: FC<GetAdButtonProps> = (props) => {
 			initial={{y: -10, opacity: 0}}
 			animate={{y: 0, opacity: 1}}
 			transition={{type: 'spring', damping: 10}}
-			className={('breathing-button rounded h-10 absolute -top-10 md:-top-12 right-10 md:right-12 ') + (props.adGenerated ? 'w-40' : 'w-36')}
+			style={{
+				// zoom: mock.is ? 0.5 : 1
+			}}
+			className={('breathing-button rounded absolute -top-10 md:-top-12 right-10 md:right-12 ') + (props.adGenerated ? 'w-40' : 'w-36') + (mock.is ? ' h-auto w-24 ' : ' h-10 ')}
 			onClick={() => {
 				console.log('clicking - ');
 				setLoading(true);
@@ -33,7 +38,7 @@ const GetAdButton: FC<GetAdButtonProps> = (props) => {
 			<div className="z-10 border border-gray-600 rounded bg-secondaryBackground w-full h-full flex justify-center items-center text-sm font-diatype">
 				{loading ? <Loader /> : <>
 					{props.adGenerated ? <HiRefresh style={{fontSize: '22px'}}/> : <LuDownload style={{fontSize: '16px'}}/>}
-					<span className="ml-3 md:ml-3">{props.adGenerated ? 'Regenerate Ad' : 'Get Ad Now'}</span>
+					<span className={'ml-3 md:ml-3 ' + (mock.is ? ' ml-1' : '')}>{props.adGenerated ? 'Regenerate Ad' : 'Get Ad Now'}</span>
 				</>}
 			</div>
 		</motion.button>
