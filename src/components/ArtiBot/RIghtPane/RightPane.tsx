@@ -120,10 +120,11 @@ const RightPane: FC<RightPaneProps> = ({adCreative, mock = new Mock(), style}) =
 	}, [getVariantsByAdCreativeId, adCreative.id, mock.is]);
 
 	useEffect(() => {
+		if(mock.is) return;
 		variantList.forEach(variant => {
 			variant.imageUrl && router.prefetch(variant.imageUrl);
 		});
-	}, [router, variantList]);
+	}, [router, mock.is, variantList]);
 
 	useEffect(() => {
 
