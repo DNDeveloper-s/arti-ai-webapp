@@ -352,10 +352,13 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 				<div className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
 					<div className={`flex h-full overflow-hidden`}>
 						<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}
-						     style={{zoom: 0.55}}>
+						     // style={{zoom: 0.55}}
+						>
 							<>
 								<div
-									className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
+									className="flex justify-between h-auto py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]"
+									style={{zoom: 0.5}}
+								>
 									<Link href="/" className="flex justify-center items-center">
 										<Logo width={35} className="mr-2" height={35}/>
 										<h3 className="text-lg">Arti AI</h3>
@@ -363,6 +366,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 								</div>
 								<AnimatePresence mode="wait">
 									<div
+										style={{zoom: 0.5}}
 										className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
 										{/*<ChatGPTMessageCreatingAd/>*/}
 										{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
@@ -401,6 +405,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 									</div>
 								</AnimatePresence>
 								<div
+									style={{zoom: 0.5}}
 									className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground">
 									{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton
                     adGenerated={Boolean(adCreative)}
@@ -427,7 +432,8 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 									{/*	<input type="file" className="absolute w-full h-full z-10 cursor-pointer" hidden/>*/}
 									{/*	<BsFillFileEarmarkFill className="text-xl" />*/}
 									{/*</div>*/}
-									<div className={'flex-1 relative rounded-xl bg-background h-[70%] mb-1 mr-3'}>
+									<div
+									     className="flex w-full max-w-[900px] mx-auto h-auto pt-2 relative items-end pb-2 px-3 bg-secondaryBackground">
 										<TextareaAutosize
 											value={inputValue}
 											ref={areaRef}
@@ -502,11 +508,12 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 					transform: 'translate(-50%, -50%)',
 				}} className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
           <div className={`flex h-full overflow-hidden`}>
-            <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}
-                 style={{zoom: 0.55}}>
+            <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
               <>
                 <div
-                  className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
+                  className="flex justify-between h-auto py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]"
+                  style={{zoom: 0.5}}
+                >
                   <Link href="/" className="flex justify-center items-center">
                     <Logo width={35} className="mr-2" height={35}/>
                     <h3 className="text-lg">Arti AI</h3>
@@ -514,6 +521,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
                 </div>
                 <AnimatePresence mode="wait">
                   <div
+                    style={{zoom: 0.5}}
                     className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
 										{/*<ChatGPTMessageCreatingAd/>*/}
 										{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
@@ -552,6 +560,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
                   </div>
                 </AnimatePresence>
                 <div
+                  style={{zoom: 0.5}}
                   className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground">
 									{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton
                     adGenerated={Boolean(adCreative)}
@@ -560,7 +569,9 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 											setLoading(false);
 										}}
                   />}
-                  <div className={'flex-1 relative rounded-xl bg-background h-[70%] mb-1 mr-3'}>
+                  <div
+                    className="flex w-full max-w-[900px] mx-auto h-auto pt-2 relative items-end pb-2 px-3 bg-secondaryBackground"
+                  >
                     <TextareaAutosize
                       value={inputValue}
                       ref={areaRef}
