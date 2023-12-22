@@ -293,6 +293,17 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 		</div>
 	)
 
+	if(isMock) {
+		item = (
+			<div className="flex items-start">
+				{messageItem.content && <p className="whitespace-pre-wrap text-sm text-primaryText opacity-60 flex-1">
+					{/*{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}*/}
+          <MarkdownRenderer markdownContent={messageItem.content}/>
+        </p>}
+			</div>
+		)
+	}
+
 	if(messageItem.type === 'ad-json') {
 		item = <AdItem messageItem={messageItem} variantFontSize={variantFontSize} />
 	}
