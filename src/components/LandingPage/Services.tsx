@@ -807,16 +807,16 @@ export default function Services() {
 					<ArtiChatDemo.Chat messages={mockMessages} viewScreen={viewScreen} isInView={idInView === 1} />
 					<ArtiChatDemo.AdCreative messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
 				</div>}
-				<div className="flex gap-2" style={{zoom: 0.8}}>
-					{screens.map(screen => (
-						<div key={screen.id} className="flex flex-col items-center justify-center cursor-pointer" onClick={() => handleChangeScreen(screen.value)}>
-							<div className="w-14 h-14 flex justify-center items-center">
-								<screen.Icon fill={viewScreen === screen.value ? colors.primary : '#aaa'} />
-							</div>
-							<span className={'text-xs ' + (viewScreen === screen.value ? 'text-primary' : 'text-gray-400')}>{screen.label}</span>
-						</div>
-					))}
-				</div>
+				{/*<div className="flex gap-2" style={{zoom: 0.8}}>*/}
+				{/*	{screens.map(screen => (*/}
+				{/*		<div key={screen.id} className="flex flex-col items-center justify-center cursor-pointer" onClick={() => handleChangeScreen(screen.value)}>*/}
+				{/*			<div className="w-14 h-14 flex justify-center items-center">*/}
+				{/*				<screen.Icon fill={viewScreen === screen.value ? colors.primary : '#aaa'} />*/}
+				{/*			</div>*/}
+				{/*			<span className={'text-xs ' + (viewScreen === screen.value ? 'text-primary' : 'text-gray-400')}>{screen.label}</span>*/}
+				{/*		</div>*/}
+				{/*	))}*/}
+				{/*</div>*/}
 			</div>
 		</div>
 	)
