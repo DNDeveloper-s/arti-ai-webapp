@@ -315,6 +315,22 @@ body {
   @apply bg-black bg-opacity-50;
 }
 
+.image-animation-sm-1 {
+  animation: anim_image_sm 20s linear infinite;
+  animation-duration: 25s;
+}
+
+.image-animation-sm-2 {
+  animation: anim_image_sm 20s linear infinite;
+  animation-direction: reverse;
+  animation-duration: 35s;
+}
+
+.image-animation-sm-3 {
+  animation: anim_image_sm 20s linear infinite;
+  animation-duration: 60s;
+}
+
 .image-animation-1 {
   animation: anim_image 20s linear infinite;
   animation-duration: 25s;
@@ -334,6 +350,12 @@ body {
 @keyframes anim_image {
   to {
     transform: translate(calc(-100% - 1.6rem));
+  }
+}
+
+@keyframes anim_image_sm {
+  to {
+    transform: translate(calc(-50% - 1.6rem));
   }
 }
 

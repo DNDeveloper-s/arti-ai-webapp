@@ -80,7 +80,7 @@ interface ArtiChatDemoProps {
 	isInView: boolean;
 }
 
-const ArtiChatDemo = {
+export const ArtiChatDemo = {
 	Chat: function({viewScreen, messages, isInView}: ArtiChatDemoProps) {
 		return <Legacy_ArtiChatDemo viewScreen={viewScreen} messages={messages} isAdCreative={false} isInView={isInView} handleEnd={() => {}}/>
 	},
@@ -246,8 +246,8 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 	}, [viewScreen])
 
 	return (
-		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[80vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
-			<Image style={{width: 'auto', height: '100%', maxWidth: 'unset'}} src={IphoneImage} alt="Iphone Image" />
+		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-[80vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
+			<Image className="w-auto h-full max-w-none" src={IphoneImage} alt="Iphone Image" />
 			{mounted && adCreative && <div className="absolute" style={{
 				width: `${(window.innerHeight - 60) * 0.8 * 0.46}px`,
 				height: `${(window.innerHeight - 60) * 0.8}px`,
@@ -376,7 +376,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 
 	return (
 		<>
-			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-auto"} style={{display: !isInView ? 'none' : 'block', opacity: viewScreen === ViewScreen.LAPTOP ? 1 : 0}}>
+			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-auto"} style={{display: !isInView ? 'none' : 'block', opacity: viewScreen === ViewScreen.LAPTOP ? 1 : 0}}>
 				<Image src={MacImage} alt="Iphone Image" />
 				<div className="w-[427px] h-[285px] absolute top-[29px] left-[61px] rounded-[12px_12px_0_0] bg-white bg-opacity-10 border-primary border overflow-hidden">
 					<div className={`flex h-full overflow-hidden`}>
@@ -478,7 +478,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 					</div>
 				</div>
 			</div>
-			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-auto"} style={{display: !isInView ? 'none' : 'block', opacity: viewScreen === ViewScreen.SCREEN ? 1 : 0}}>
+			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-auto"} style={{display: !isInView ? 'none' : 'block', opacity: viewScreen === ViewScreen.SCREEN ? 1 : 0}}>
 				<Image src={LaptopImage} alt="Iphone Image" />
 				<div className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
 					<div className={`flex h-full overflow-hidden`}>
@@ -609,8 +609,8 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 					</div>
 				</div>
 			</div>
-			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[80vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
-				<Image style={{width: 'auto', height: '100%', maxWidth: 'unset'}} src={IphoneImage} alt="Iphone Image" />
+			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-[80vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
+				<Image className="w-auto h-full max-w-none" src={IphoneImage} alt="Iphone Image" />
 				{adCreative && <div className="absolute" style={{
 					width: 'unset',
 					height: 'calc(100% - 42px)',
@@ -803,7 +803,7 @@ export default function Services() {
 				{/*		<span className="text-xs text-gray-400">Laptop</span>*/}
 				{/*	</div>*/}
 				{/*</div>*/}
-				{isMounted &&<div className="text-left w-[550px] h-[80vh] flex items-center justify-center relative">
+				{isMounted &&<div className="text-left w-[90vw] md:w-[550px] h-[80vh] flex items-center justify-center relative">
 					<ArtiChatDemo.Chat messages={mockMessages} viewScreen={viewScreen} isInView={idInView === 1} />
 					<ArtiChatDemo.AdCreative messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
 				</div>}

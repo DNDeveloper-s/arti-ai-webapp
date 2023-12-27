@@ -29,18 +29,18 @@ export default function Hero() {
 	return (
 		<div data-groupid="landing-section" data-section="hero" className="relative text-primaryText h-screen flex items-center justify-center flex-col mt-0 md:mt-0">
 			<div className="absolute w-full h-full top-0 left-0 flex flex-col justify-center gap-[1.2em] items-center hero-image-container overflow-hidden">
-				<div className="flex gap-[1.6rem] image-animation-1">
-					<Image src={MobileImage} alt="mobile_image" />
-					<Image src={MobileImage} alt="mobile_image" />
+				<div className="flex gap-[1.6rem] image-animation-sm-1 md:image-animation-1">
+					<Image src={MobileImage} className="h-[200px] md:h-auto max-w-none w-auto md:w-full" alt="mobile_image" />
+					<Image src={MobileImage} className="h-[200px] md:h-auto max-w-none w-auto md:w-full" alt="mobile_image" />
 				</div>
-				<div className="flex gap-[1.6rem] image-animation-2">
-					<Image src={MobileTextImage} alt="mobile_image" />
-					<Image src={MobileTextImage} alt="mobile_image" />
-					<Image src={MobileTextImage} alt="mobile_image" />
+				<div className="flex gap-[1.6rem] image-animation-sm-2 md:image-animation-2">
+					<Image src={MobileImage} className="h-[200px] md:h-auto max-w-none w-auto md:w-full" alt="mobile_image" />
+					<Image src={MobileImage} className="h-[200px] md:h-auto max-w-none w-auto md:w-full" alt="mobile_image" />
+					<Image src={MobileImage} className="h-[200px] md:h-auto max-w-none w-auto md:w-full" alt="mobile_image" />
 				</div>
-				<div className="flex gap-[1.6rem] image-animation-3">
-					<Image src={MobileImage} alt="mobile_image" />
-					<Image src={MobileImage} alt="mobile_image" />
+				<div className="flex gap-[1.6rem] image-animation-sm-3 md:image-animation-3">
+					<Image src={MobileImage} className="h-[200px] md:h-auto max-w-none w-auto md:w-full" alt="mobile_image" />
+					<Image src={MobileImage} className="h-[200px] md:h-auto max-w-none w-auto md:w-full" alt="mobile_image" />
 				</div>
 			</div>
 			<div className="flex flex-col justify-center items-center h-auto bg-transparent backdrop-blur-[2px] px-4 z-10">

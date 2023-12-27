@@ -14,6 +14,9 @@ import {GTM_EVENT, logEvent} from '@/utils/gtm';
 import BgAttachment from '@/components/LandingPage/BgAttachment';
 import TryForFreeButton from '@/components/LandingPage/TryForFreeButton';
 import Testimonials from '@/components/LandingPage/Testimonials';
+import {useMediaQuery} from 'react-responsive';
+import Services_Sm from '@/components/LandingPage/Services_Sm';
+import useMounted from '@/hooks/useMounted';
 
 function calculateScrollDepth() {
 	const scrollHeight = document.documentElement.scrollHeight;
@@ -30,6 +33,8 @@ export default function LandingPage() {
 	const sectionLoggedRef = useRef<Map<string, boolean>>(new Map());
 	const [showTryButton, setShowTryButton] = useState<boolean>(true);
 	const [focusedSection, setFocusedSection] = useState<string>('');
+	const isSmallScreen = useMediaQuery({query: '(max-width: 500px)'});
+	const isMounted = useMounted();
 
 	useEffect(() => {
 		if(!clientId) return;
@@ -94,7 +99,8 @@ export default function LandingPage() {
 			<main>
 				{/*<Logo />*/}
 				<Hero />
-				<Services />
+				{isMounted && isSmallScreen ? <Services_Sm /> : <Services/>}
+				<Testimonials />
 
 				{/*<BgAttachment />*/}
 				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black pt-4 pb-10">
@@ -104,7 +110,6 @@ export default function LandingPage() {
 					</div>
 				</div>
 				<WhyUs focusedSection={focusedSection} />
-				<Testimonials />
 				<Contact />
 				{showTryButton && <TryForFreeButton/>}
 				<Footer />

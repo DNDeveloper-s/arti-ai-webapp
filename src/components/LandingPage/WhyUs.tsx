@@ -115,7 +115,7 @@ export default function WhyUs({focusedSection}) {
 
 	return (
 		<div className="landing-page-section relative mt-20 py-32" id={'why-us'} ref={ref}>
-			<div data-groupid={"landing-section"} data-section="why_us" className="max-w-[800px] mx-auto grid grid-cols-2 gap-8">
+			<div data-groupid={"landing-section"} data-section="why_us" className="max-w-[800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
 				{whyUsData.items.map((whyUsItem) => (
 					<WhyUsCard
 						key={whyUsItem.id}
