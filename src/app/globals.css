@@ -466,3 +466,14 @@ body {
 .lottie-anim-demo svg {
   zoom: 0.5
 }
+
+.canvasjs-chart-credit {
+  display: none;
+}
+
+.canvasjs-chart-canvas {
+  width: 100% !important;
+  height: 150px !important;
+  background: transparent !important;
+  color: white !important;
+}

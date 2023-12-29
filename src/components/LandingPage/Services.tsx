@@ -19,15 +19,51 @@ import ChatGPTMessageItem, {
 import ObjectId from 'bson-objectid';
 import LaptopImage from '@/assets/images/mac-3.png';
 import MacImage from '@/assets/images/mac-1.png';
-import IphoneImage from '@/assets/images/iphone.png';
+import IphoneImage from '@/assets/images/iphone_2.png';
 import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import useMounted from '@/hooks/useMounted';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';
-import MacSVG from '@/assets/icons/MacSVG';
-import IphoneSVG from '@/assets/icons/IphoneSVG';
-import ScreenSVG from '@/assets/icons/ScreenSVG';
 import {Mock, mockProductOverviewData as mock, screens, ViewScreen} from '@/constants/servicesData';
+import {carouselImage1} from '@/assets/images/carousel-images';
+import {AiOutlineCaretDown} from 'react-icons/ai';
+import CanvasJSReact from '@canvasjs/react-charts';
+import CTAButton from '@/components/CTAButton';
+import AppLoader from '@/components/AppLoader';
+import Loader from '@/components/Loader';
+
+const CanvasJS = CanvasJSReact.CanvasJS;
+const CanvasJSChart = CanvasJSReact.CanvasJSChart;
+
+const options = {
+	theme: 'dark1',
+	animationEnabled: true,
+	title:{
+		// text: "Monthly Sales - 2017"
+	},
+	axisX: {
+		valueFormatString: "MMM"
+	},
+	axisY: {
+		gridThickness: 0,
+		// title: "Sales (in USD)",
+	},
+	data: [{
+		yValueFormatString: "$#,###",
+		xValueFormatString: "MMMM",
+		type: "spline",
+		dataPoints: [
+			{ x: new Date(2017, 0), y: 0.7 },
+			{ x: new Date(2017, 1), y: 1.2 },
+			{ x: new Date(2017, 2), y: 0.85 },
+			{ x: new Date(2017, 3), y: 1.9 },
+			{ x: new Date(2017, 4), y: 1.3 },
+			{ x: new Date(2017, 5), y: 2.4 },
+			{ x: new Date(2017, 6), y: 2 },
+			{ x: new Date(2017, 7), y: 2.8 },
+		]
+	}]
+}
 
 interface Props {
 	id: number | string;
@@ -76,20 +112,25 @@ interface ArtiChatDemoProps {
 	messages: ChatGPTMessageObj[];
 	handleEnd?: () => void;
 	isAdCreative?: boolean;
+	isMetric?: boolean;
 	viewScreen: ViewScreen;
 	isInView: boolean;
+	sm?: boolean;
 }
 
 export const ArtiChatDemo = {
-	Chat: function({viewScreen, messages, isInView}: ArtiChatDemoProps) {
-		return <Legacy_ArtiChatDemo viewScreen={viewScreen} messages={messages} isAdCreative={false} isInView={isInView} handleEnd={() => {}}/>
+	Chat: function({viewScreen, sm, messages, isInView}: ArtiChatDemoProps) {
+		return <Legacy_ArtiChatDemo sm={sm} viewScreen={viewScreen} messages={messages} isAdCreative={false} isInView={isInView} handleEnd={() => {}}/>
 	},
-	AdCreative: function({viewScreen, messages, isInView}: ArtiChatDemoProps) {
-		return <Legacy_ArtiChatDemo viewScreen={viewScreen} messages={messages} isAdCreative={true} isInView={isInView} handleEnd={() => {}}/>
+	AdCreative: function({viewScreen, sm, messages, isInView}: ArtiChatDemoProps) {
+		return <Legacy_ArtiChatDemo sm={sm} viewScreen={viewScreen} messages={messages} isAdCreative={true} isInView={isInView} handleEnd={() => {}}/>
+	},
+	Metrics: function({viewScreen, sm, messages, isInView}: ArtiChatDemoProps) {
+		return <Legacy_ArtiChatDemo sm={sm} viewScreen={viewScreen} messages={messages} isAdCreative={false} isMetric={true} isInView={isInView} handleEnd={() => {}}/>
 	}
 }
 
-const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messages: _messages, isAdCreative, handleEnd}) => {
+const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, isInView, messages: _messages, isAdCreative, handleEnd}) => {
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<ChatGPTMessageObj[]>([..._messages.slice(0, 3)]);
 	const [isGenerating, setIsGenerating] = useState(false);
@@ -97,11 +138,13 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 	const doneRef = useRef(false);
 	const [showGetAdNowButton, setShowGetAdNowButton] = useState(false);
 	const [isGeneratingAd, setIsGeneratingAd] = useState(false);
+	const [publishingAd, setPublishingAd] = useState(false);
 	const [adCreative, setAdCreative] = useState<IAdCreative | null>(null);
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const intervalIds = useRef<NodeJS.Timeout[]>([]);
 	const timeoutIds = useRef<NodeJS.Timeout[]>([]);
 	const rightPaneRef = useRef<HTMLDivElement>(null);
+	const [showMetric, setShowMetric] = useState(false);
 	const mounted = useMounted();
 
 	const wait = useCallback(async (ms: number) => {
@@ -169,6 +212,27 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 		setIsGeneratingAd(false);
 		setInputValue('');
 		setIsGenerating(false);
+		setShowMetric(false);
+		setPublishingAd(false);
+
+		if(isMetric) {
+			setAdCreative(mock.adCreative);
+
+			await wait(1000);
+
+			setPublishingAd(true);
+
+			await wait(2500);
+
+			setPublishingAd(false);
+
+			setShowMetric(true);
+
+			await wait(5000);
+
+			return await demo();
+		}
+
 		if(!(_messages?.length > 0)) return;
 
 
@@ -245,12 +309,156 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, isInView, messa
 		return new Mock(viewScreen);
 	}, [viewScreen])
 
+	/** Metric View **/
+	if (isMetric) return (
+		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] flex justify-center items-center" + (sm ? ' h-[70vh]' : ' h-[80vh]')} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
+			<Image className="w-auto h-full max-w-none" src={IphoneImage} alt="Iphone Image" />
+			{mounted && !showMetric && adCreative && <div className="absolute" style={{
+				width: sm ? 'calc((100% - 42px) * 0.86)' : `${(window.innerHeight - 60) * 0.8 * 0.46}px`,
+				height: sm ? 'calc(100% - 42px)' : `${(window.innerHeight - 60) * 0.8}px`,
+				zoom: 1,
+				top: '50%',
+				left: '49.8%',
+				borderRadius: '20px',
+				overflow: 'auto',
+				border: 'none',
+				// aspectRatio: 0.46,
+				transform: 'translate(-50%, -50%)',
+			}}>
+        <div ref={rightPaneRef}>
+	        <RightPane mock={mockState} adCreative={mock.adCreative} style={{position: 'relative', zoom: 1, paddingLeft: 0}}/>
+	        <div className={'w-full flex justify-center items-center'}>
+            <CTAButton className={'px-0 py-0 flex justify-center items-center h-10 w-36 gap-3 rounded-lg'}>
+	            {publishingAd ? <>
+		            <Loader className={'w-5 h-5'} />
+		            <span className={'text-xs'}>Publishing Ad...</span>
+							</> : <>
+		            <span className={'text-xs'}>Publish Ad</span>
+							</>}
+
+            </CTAButton>
+	        </div>
+        </div>
+      </div>}
+			{showMetric && <div style={{
+				width: 'unset',
+				height: 'calc(100% - 42px)',
+				zoom: 1,
+				top: '50%',
+				left: '49.8%',
+				borderRadius: '22px',
+				overflow: 'hidden',
+				border: 'none',
+				aspectRatio: 0.46,
+				transform: 'translate(-50%, -50%)',
+			}} className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
+        <div className={`flex h-full overflow-hidden`}>
+          <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
+	          <div className={'flex justify-center items-center py-4'}>
+	            <h2 className={'text-lg text-primary'}>Campaign</h2>
+            </div>
+
+	          {/* Campaign Title */}
+	          <div className={'flex px-4 py-2 gap-4 items-center'}>
+		          <div className={'w-20 h-20 rounded flex justify-center items-center border-2 border-white border-opacity-25'}>
+			          <Image className={'object-cover w-full h-full rounded'} src={carouselImage1} alt="Carousel Image" />
+		          </div>
+		          <div className={'flex flex-col justify-center gap-1'}>
+			          <h3 className={'text-base font-semibold text-primary'}>Say Goodbye to Back Pain</h3>
+			          <div className={'flex items-center gap-2'}>
+				          <div className={'w-2 h-2 rounded-full bg-green-300'} />
+				          <span className={'text-xs'}>Active</span>
+			          </div>
+		          </div>
+	          </div>
+
+	          {/*Separator*/}
+	          <div className={'w-full h-1 bg-black my-4'} />
+
+	          {/*Campaign Meta Data*/}
+	          <div className={'px-4 pb-2'}>
+		          <h4 className={'text-lg font-semibold mb-4 text-primary'}>Results</h4>
+
+		          <div className={'flex flex-col gap-1'}>
+                <div className={'flex justify-between items-center'}>
+                  <div>
+                    <span className={'text-sm'}>Link Clicks</span>
+                  </div>
+                  <div>
+                    <span className={'text-sm'}>1,025</span>
+                  </div>
+                </div>
+                <div className={'flex justify-between items-center'}>
+                  <div>
+                    <span className={'text-sm'}>Cost per Link Click</span>
+                  </div>
+                  <div>
+                    <span className={'text-sm'}>$0.79</span>
+                  </div>
+                </div>
+                <div className={'flex justify-between items-center'}>
+                  <div>
+                    <span className={'text-sm'}>Amount spent</span>
+                  </div>
+                  <div>
+                    <span className={'text-sm'}>$812.74</span>
+                  </div>
+                </div>
+		          </div>
+
+              <div className={'flex flex-col gap-1 mt-4'}>
+                <div className={'flex justify-between items-center'}>
+                  <div>
+                    <span className={'text-sm'}>Reach</span>
+                  </div>
+                  <div>
+                    <span className={'text-sm'}>31,038</span>
+                  </div>
+                </div>
+                <div className={'flex justify-between items-center'}>
+                  <div>
+                    <span className={'text-sm'}>Impressions</span>
+                  </div>
+                  <div>
+                    <span className={'text-sm'}>129,073</span>
+                  </div>
+                </div>
+              </div>
+
+		          <div className={'mt-4 flex justify-center items-center gap-1'}>
+			          <AiOutlineCaretDown />
+			          <span className={'text-sm'}>Show more</span>
+		          </div>
+
+	          </div>
+
+	          {/*Separator*/}
+            <div className={'w-full h-3 bg-black my-2'} />
+
+	          {/*Graph*/}
+	          <div className={'px-2 flex flex-col gap-4'}>
+		          <h4>Cost per result is 14% lower than similar ad sets from peers</h4>
+		          <div>
+                <CanvasJSChart
+	                options={options}
+                  containerProps={{height: '150px'}}
+                />
+		          </div>
+	          </div>
+
+          </div>
+        </div>
+      </div>}
+		</div>
+	)
+
+	/** Chat & AdCreative View **/
 	return (
-		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-[80vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
+		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] flex justify-center items-center " + (sm ? ' h-[70vh]' : ' h-[80vh]')} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
 			<Image className="w-auto h-full max-w-none" src={IphoneImage} alt="Iphone Image" />
 			{mounted && adCreative && <div className="absolute" style={{
-				width: `${(window.innerHeight - 60) * 0.8 * 0.46}px`,
-				height: `${(window.innerHeight - 60) * 0.8}px`,
+				width: sm ? 'calc((100% - 42px) * 0.86)' : `${(window.innerHeight - 60) * 0.8 * 0.46}px`,
+				height: sm ? 'calc(100% - 42px)' : `${(window.innerHeight - 60) * 0.8}px`,
 				zoom: 1,
 				top: '50%',
 				left: '49.8%',
@@ -806,6 +1014,7 @@ export default function Services() {
 				{isMounted &&<div className="text-left w-[90vw] md:w-[550px] h-[80vh] flex items-center justify-center relative">
 					<ArtiChatDemo.Chat messages={mockMessages} viewScreen={viewScreen} isInView={idInView === 1} />
 					<ArtiChatDemo.AdCreative messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
+					<ArtiChatDemo.Metrics messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 3} />
 				</div>}
 				{/*<div className="flex gap-2" style={{zoom: 0.8}}>*/}
 				{/*	{screens.map(screen => (*/}

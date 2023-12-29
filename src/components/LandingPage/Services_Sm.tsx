@@ -13,9 +13,10 @@ interface Props {
 	description: string;
 	style?: any;
 	handleIdInView?: (id: Props['id']) => void;
+	isInView?: boolean;
 }
 
-const ServiceCard: React.FC<Props> = ({id, title, description, handleIdInView = (id: Props['id']) => {}}) => {
+const ServiceCard: React.FC<Props> = ({isInView, id, title, description, handleIdInView = (id: Props['id']) => {}}) => {
 	const [expand, setExpand] = useState(false);
 
 	const nodeRef = useCallback((node: any) => {
@@ -38,27 +39,22 @@ const ServiceCard: React.FC<Props> = ({id, title, description, handleIdInView = 
 			})
 			observer.observe(node);
 		}
-	}, [])
+	}, [handleIdInView, id])
 
 	return (
-		<div className="absolute top-0 left-0 flex flex-col items-center justify-center">
-			<div ref={nodeRef} data-id={id}>
-				<h1 className="text-[40px] text-white leading-[45px] font-gilroyBold tracking-[-3.15px]">{title}</h1>
-				<p className="font-gilroyRegular text-white text-opacity-40 text-[13px]">{description.slice(0, 20)}</p>
-			</div>
-		</div>
+		<div ref={nodeRef} data-id={id} className="w-screen h-screen bg-red-300 bg-opacity-20" />
 	)
 }
 
 
 export default function Services_Sm() {
-	const [idInView, setIdInView] = useState<Props['id']>(0);
+	const [idInView, setIdInView] = useState<Props['id']>(1);
 	const isMounted = useMounted();
 	const [viewScreen, setViewScreen] = useState(ViewScreen.MOBILE);
 
-	function handleIdInView(id: Props['id']) {
+	const handleIdInView = useCallback((id: Props['id']) => {
 		setIdInView(id);
-	}
+	}, [])
 
 	function handleEnd(setKey: React.Dispatch<SetStateAction<number>>) {
 		// console.log('handling end --- ')
@@ -86,19 +82,29 @@ export default function Services_Sm() {
 	}, []);
 
 	return (
-		<div className="landing-page-section relative" id={'product-overview'}>
-			<div className="sticky top-0 left-0 w-screen h-screen">
-				<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-screen top-0 flex flex-col gap-3 justify-center items-center">
-					{isMounted &&<div className="text-left w-[90vw] h-[80vh] flex items-center justify-center relative">
-						<ArtiChatDemo.Chat messages={mockMessages} viewScreen={viewScreen} isInView={true} />
-						{/*<ArtiChatDemo.AdCreative messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />*/}
+		<div className="landing-page-section p-0 relative" id={'product-overview'}>
+			<div className="sticky top-[80px] left-0 w-screen h-screen">
+				<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-auto md:h-screen md:top-0 flex flex-col gap-3 justify-center items-center">
+					{isMounted &&<div className="text-left w-[90vw] h-[70vh] flex items-center justify-center relative">
+						<ArtiChatDemo.Chat sm={true} messages={mockMessages} viewScreen={viewScreen} isInView={idInView === 1} />
+						<ArtiChatDemo.AdCreative sm={true} messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
+						<ArtiChatDemo.Metrics sm={true} messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 3} />
 					</div>}
 				</div>
-				<div className="relative">
-					{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} key={serviceItem.title} {...serviceItem} />)}
+				<div className="relative mt-6">
+					{/*{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}*/}
+					{servicesData.cards.map(serviceItem => (
+						<div key={serviceItem.title} className="absolute top-0 left-1/2 transform -translate-x-1/2 flex flex-col items-center justify-center" style={{opacity: idInView === serviceItem.id ? 1 : 0}}>
+							<div>
+								<h1 className="text-[30px] whitespace-nowrap text-white leading-[32px] font-gilroyBold tracking-[-3.15px]">{serviceItem.title}</h1>
+								<p className="font-gilroyRegular text-white text-opacity-40 text-[13px]">{serviceItem.description.slice(0, 50)}</p>
+							</div>
+						</div>
+					))}
 				</div>
 			</div>
-
+			{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}
+			<div className="w-screen h-screen bg-red-300 bg-opacity-20" />
 		</div>
 	)
 }
