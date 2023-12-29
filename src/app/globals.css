@@ -9,6 +9,10 @@
   .landing-page-section {
     @apply w-[100vw] px-10 max-w-[1100px] mx-auto py-10 font-diatype;
   }
+
+  .arti-card {
+    @apply p-[2px] relative bg-gray-800 before:bg-primary rounded-3xl before:absolute before:w-96 before:h-96 before:-left-48 before:-top-48 before:rounded-full before:opacity-0 before:pointer-events-none before:transition-opacity before:duration-500 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] before:hover:opacity-20 before:z-30 before:blur-[100px] after:absolute after:inset-0 after:rounded-[inherit] after:opacity-0 after:hover:opacity-100 after:transition-opacity after:duration-500 after:[background:_radial-gradient(250px_circle_at_var(--mouse-x)_var(--mouse-y),theme(colors.gray.400),transparent)] after:group-hover:opacity-100 after:z-10 overflow-hidden
+  }
 }
 
 @layer utilities {
@@ -32,6 +36,10 @@
   --background-end-rgb: 255, 255, 255;
   --color-primary: #ed02eb;
   scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -80,6 +88,20 @@
   font-style: normal;
   font-weight: 400;
   src: url(../assets/fonts/ABCGaisyr-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-family: 'Gilroy-Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Gilroy-Bold'), url(../assets/fonts/Gilroy-Bold.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Gilroy-Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Gilroy-Regular'), url(../assets/fonts/Gilroy-Regular.woff) format('woff');
 }
 
 body {
@@ -164,7 +186,8 @@ body {
 .breathing-button-primary {
   /*border-color: transparent;*/
   /*padding: 1.5px;*/
-  background: transparent;
+  position: relative;
+  /*background: transparent;*/
 }
 
 .breathing-button-primary::before {
@@ -199,10 +222,10 @@ body {
 
 @keyframes pulse-animation-primary {
   0% {
-    box-shadow: 0 0 0 0px rgb(237 4 235 / 66%);
+    box-shadow: 0 0 0 0px rgb(237 4 235 / 46%);
   }
   100% {
-    box-shadow: 0 0 0 20px rgb(237 4 235 / 5%);
+    box-shadow: 0 0 0 10px rgb(237 4 235 / 5%);
   }
 }
 
@@ -263,6 +286,85 @@ body {
   animation: anim_carousel 650s infinite;
 }
 
+.hero-image-container {
+  -webkit-mask: linear-gradient(
+          90deg,
+          transparent,
+          white 20%,
+          white 80%,
+          transparent
+  );
+  mask: linear-gradient(
+          90deg,
+          transparent,
+          white 20%,
+          white 80%,
+          transparent
+  );
+}
+
+.hero-image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+  height: 100%;
+
+  @apply bg-black bg-opacity-50;
+}
+
+.image-animation-sm-1 {
+  animation: anim_image_sm 20s linear infinite;
+  animation-duration: 25s;
+}
+
+.image-animation-sm-2 {
+  animation: anim_image_sm 20s linear infinite;
+  animation-direction: reverse;
+  animation-duration: 35s;
+}
+
+.image-animation-sm-3 {
+  animation: anim_image_sm 20s linear infinite;
+  animation-duration: 60s;
+}
+
+.image-animation-1 {
+  animation: anim_image 20s linear infinite;
+  animation-duration: 25s;
+}
+
+.image-animation-2 {
+  animation: anim_image 20s linear infinite;
+  animation-direction: reverse;
+  animation-duration: 35s;
+}
+
+.image-animation-3 {
+  animation: anim_image 20s linear infinite;
+  animation-duration: 60s;
+}
+
+@keyframes anim_image {
+  to {
+    transform: translate(calc(-100% - 1.6rem));
+  }
+}
+
+@keyframes anim_image_sm {
+  to {
+    transform: translate(calc(-50% - 1.6rem));
+  }
+}
+
+@keyframes anim_image_1 {
+  to {
+    transform: translate(calc(100% - 1.6rem));
+  }
+}
+
 @keyframes anim_carousel {
   0% {
     transform: translateY(0);
@@ -270,4 +372,108 @@ body {
   100% {
     transform: translateY(-100%);
   }
+}
+
+.mask-black {
+  -webkit-mask: linear-gradient(
+          90deg,
+          transparent,
+          white 20%,
+          white 80%,
+          transparent
+  );
+  mask: linear-gradient(
+          90deg,
+          transparent,
+          white 20%,
+          white 80%,
+          transparent
+  );
+}
+
+.testimonial-animation {
+  animation: testimonial_anim 20s linear infinite;
+  animation-duration: 25s;
+}
+
+@keyframes testimonial_anim {
+  to {
+    transform: translate(calc(-50% - 0.375rem));
+  }
+}
+
+.testimonial-animation-creative {
+  animation: testimonial_anim_1 55s linear infinite;
+  animation-duration: 55s;
+  animation-play-state: running;
+}
+
+.testimonial-animation-creative:hover {
+  animation-play-state: paused;
+}
+
+.testimonial-animation-review {
+  animation: testimonial_anim_1 95s linear infinite;
+  animation-duration: 95s;
+  animation-direction: reverse;
+}
+
+@keyframes testimonial_anim_1 {
+  to {
+    transform: translate(calc(-50% - 0.675rem));
+  }
+}
+
+.border-animation {
+  position: relative;
+  padding: 2px;
+
+  @apply rounded-xl;
+}
+
+.border-animation.paused::before {
+  background-image: conic-gradient(var(--color-primary),var(--color-primary),var(--color-primary),var(--color-primary),var(--color-primary),var(--color-primary));
+  /*animation-play-state: paused;*/
+}
+
+.border-animation::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 100vw;
+  height: 100vw;
+  background-image: conic-gradient(transparent,transparent,var(--color-primary),transparent,transparent,var(--color-primary),transparent,transparent);
+  animation: loadingbox 4s linear infinite;
+}
+
+
+@keyframes loadingbox {
+  0% {
+    transform: translate(-50%,-50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%,-50%) rotate(360deg);
+  }
+}
+
+/*.testimonial-animation-1 {*/
+/*  animation: testimonial_anim 20s linear infinite;*/
+/*  animation-duration: 25s;*/
+/*}*/
+
+.lottie-anim-demo svg {
+  zoom: 0.5
+}
+
+.canvasjs-chart-credit {
+  display: none;
+}
+
+.canvasjs-chart-canvas {
+  width: 100% !important;
+  height: 150px !important;
+  background: transparent !important;
+  color: white !important;
 }

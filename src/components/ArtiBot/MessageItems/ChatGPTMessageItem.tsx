@@ -19,6 +19,7 @@ import typingAnimation from '@/assets/lottie/typing.json';
 import {framerItem} from '@/config/framer-motion';
 import useMounted from '@/hooks/useMounted';
 import MarkdownRenderer from '@/components/ArtiBot/MarkdownRenderer';
+import {Mock} from '@/constants/servicesData';
 
 interface ChatGPTMessageItemProps {
 	messageItem: ChatGPTMessageObj;
@@ -26,6 +27,7 @@ interface ChatGPTMessageItemProps {
 	disableCopy?: boolean;
 	size?: number;
 	variantFontSize?: number;
+	isMock?: boolean;
 	conversationId?: string;
 	chunksRef?: React.MutableRefObject<string>;
 	doneRef?: React.MutableRefObject<boolean>;
@@ -47,7 +49,6 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 
 	useEffect(() => {
 		// if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
-
 		let j = 0;
 		let prevJ = 0;
 		let frame = 0;
@@ -56,7 +57,7 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 			if(!doneRef || !chunksRef || !messageItem || !setMessages) return;
 			// Shift the cursor to next index when the chunks array has more chunks
 			if(chunksRef.current.length >= j && frame === 15) {
-				j += 25;
+				j += 15;
 				frame = 0;
 
 				const message = chunksRef.current.slice(0, j);
@@ -67,8 +68,6 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 				// setMarkdownChunks(c => [...c, message]);
 			}
 			// setItem(c => message);
-
-			console.log('j for joy - ', j);
 
 			// Clear the interval when the chunks array is done and the message is fully typed
 			if(doneRef.current && chunksRef.current.length < j) {
@@ -100,7 +99,7 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 	}, [chunksRef, doneRef, messageItem, setMessages]);
 
 	useEffect(() => {
-		lastItemRef.current && lastItemRef.current.scrollIntoView({behavior: 'smooth'});
+		// lastItemRef.current && lastItemRef.current.scrollIntoView({behavior: 'smooth'});
 	}, [markdownChunks])
 
 	return (
@@ -115,15 +114,15 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 	);
 }
 
-function GeneratingMessageItem({setMessages, messageItem, chunksRef, doneRef}: {messageItem: ChatGPTMessageObj, setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>, chunksRef?: React.MutableRefObject<string>, doneRef?: React.MutableRefObject<boolean>}) {
+function GeneratingMessageItem({isMock, setMessages, messageItem, chunksRef, doneRef}: {isMock?: boolean, messageItem: ChatGPTMessageObj, setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>, chunksRef?: React.MutableRefObject<string>, doneRef?: React.MutableRefObject<boolean>}) {
 	return (
 		<div className="flex items-start">
 			<p className="whitespace-pre-wrap text-[1em] text-primaryText text-opacity-60 flex-1">
 				<RenderMessageItem setMessages={setMessages} messageItem={messageItem} chunksRef={chunksRef} doneRef={doneRef} />
 			</p>
-			<div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
-				<IoIosCopy className="cursor-pointer opacity-0 pointer-events-none justify-self-end text-primary" />
-			</div>
+			{!isMock && <div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
+				<IoIosCopy className="cursor-pointer opacity-0 pointer-events-none justify-self-end text-primary"/>
+			</div>}
 		</div>
 	);
 }
@@ -231,7 +230,10 @@ export const ChatGPTMessageCreatingAd = ({size = 45}) => {
 	)
 }
 
-export const ChatGPTMessageGeneratingAnimation = () => {
+interface ChatGPTMessageGeneratingAnimationProps {
+	mock?: Mock
+}
+export const ChatGPTMessageGeneratingAnimation: FC<ChatGPTMessageGeneratingAnimationProps> = ({mock = new Mock()}) => {
 
 	return (
 		<AnimatePresence mode="wait">
@@ -241,7 +243,7 @@ export const ChatGPTMessageGeneratingAnimation = () => {
 				transition={{type: 'spring', damping: 10}}
 				className={'w-full'}
 			>
-				<div className="w-full max-w-[900px] h-10 px-3 mx-auto flex flex-end">
+				<div className={'lottie-anim-demo w-full max-w-[900px] px-3 mx-auto flex flex-end ' + (mock.is ? 'h-auto' : 'h-10')}>
 					<Lottie animationData={typingAnimation} loop={true} />
 				</div>
 			</motion.div>
@@ -250,7 +252,7 @@ export const ChatGPTMessageGeneratingAnimation = () => {
 }
 
 const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
-	const {setMessages, messageItem: _messageItem, doneRef, chunksRef, isGenerating, disableCopy, size = 45, variantFontSize, conversationId} = props;
+	const {setMessages, isMock, messageItem: _messageItem, doneRef, chunksRef, isGenerating, disableCopy, size = 45, variantFontSize, conversationId} = props;
 	const [showCopyAnimation, setShowCopyAnimation] = useState(false);
 	const [messageItem, setMessageItem] = useState<ChatGPTMessageObj>(_messageItem);
 	const {state, dispatch} = useConversation();
@@ -291,6 +293,17 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 		</div>
 	)
 
+	if(isMock) {
+		item = (
+			<div className="flex items-start">
+				{messageItem.content && <p className="whitespace-pre-wrap text-sm text-primaryText opacity-60 flex-1">
+					{/*{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}*/}
+          <MarkdownRenderer markdownContent={messageItem.content}/>
+        </p>}
+			</div>
+		)
+	}
+
 	if(messageItem.type === 'ad-json') {
 		item = <AdItem messageItem={messageItem} variantFontSize={variantFontSize} />
 	}
@@ -299,7 +312,7 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 		item = <AdItem messageItem={messageItem} variantFontSize={variantFontSize} />
 	}
 
-	if(messageItem.content && conversationId && !isGenerating) {
+	if(messageItem.content && (conversationId || isMock) && !isGenerating) {
 		const jsonObjectInString = getJSONObjectFromAString(messageItem.content);
 		const isJson = isValidJsonWithAdsArray(jsonObjectInString);
 
@@ -330,7 +343,7 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 	}
 
 	if(messageItem.generating) {
-		item = <GeneratingMessageItem setMessages={setMessages} messageItem={messageItem} chunksRef={chunksRef} doneRef={doneRef} />
+		item = <GeneratingMessageItem isMock={isMock} setMessages={setMessages} messageItem={messageItem} chunksRef={chunksRef} doneRef={doneRef} />
 	}
 
 	return (

@@ -49,9 +49,10 @@ interface ArtiBotProps {
 	containerClassName?: string;
 	miniVersion?: boolean;
 	conversation?: IConversation;
+	borderAnimation?: boolean
 }
 
-const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false, conversation}) => {
+const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', miniVersion = false, conversation}) => {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<ChatGPTMessageObj[]>(conversation?.messages ?? []);
@@ -72,6 +73,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 	const [adCreatives, setAdCreatives] = useState(conversation?.adCreatives ? conversation?.adCreatives : []);
 	const {state, dispatch} = useConversation();
 	const token = useSessionToken();
+	const [isInputInFocus, setIsInputInFocus] = useState(false);
 
 	const showError = useCallback((message: string) => {
 		if(message) return setSnackBarData({status: 'error', message});
@@ -354,11 +356,21 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 		return adCreative
 	}, [adCreatives]);
 
+	const handleFocusInput = useCallback(() => {
+		setIsInputInFocus(true);
+	}, []);
+
+	const handleBlurInput = useCallback(() => {
+		setIsInputInFocus(false);
+	}, [])
+
 	const enableMessageInput = miniVersion ? !exhausted : !isGeneratingAd && !isGenerating && !saveMessageRef.current && messages?.find(m => m.generating === true) === undefined;
 	const showGetAdNowButton = enableMessageInput && messages.length >= threshold.getAdNowButtonAfter && conversation?.conversation_type === ConversationType.AD_CREATIVE;
 
+	const animationShouldBePaused = miniVersion ? (isInputInFocus || isGenerating || isGeneratingAd) : true;
+
 	return (
-		<div className={`flex h-full overflow-hidden`}>
+		<div className={`${borderAnimation ? `border-animation ${animationShouldBePaused ? 'paused' : ''}` : ''} flex h-full overflow-hidden`}>
 			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
 				<>
 					<div className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
@@ -428,6 +440,8 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
 										// 48 is default height of textarea
 										setAreaHeight(e - 48);
 									}}
+									onFocus={handleFocusInput}
+									onBlur={handleBlurInput}
 									minRows={1}
 									maxRows={3}
 									placeholder="Type here..."
@@ -456,7 +470,7 @@ const ArtiBot: FC<ArtiBotProps> = ({containerClassName = '', miniVersion = false
           <motion.p variants={framerItem()} className="text-3xl font-medium text-white font-giasyr">Arti</motion.p>
           <motion.p variants={framerItem(.5)} className="text-md my-4">Discover the Arti Difference</motion.p>
           <motion.p variants={framerItem()} className="text-sm max-w-lg text-yellow-500 text-center">You have exhausted the free tier limit. Please register to get the full access</motion.p>
-          <motion.button variants={framerItem()} className="my-4 cta-button" onClick={() => router.push('#contact')}>Contact us for a Demo</motion.button>
+          <motion.button variants={framerItem()} className="my-4 cta-button breathing-button-primary" onClick={() => router.push('#contact')}>Contact us for a Demo</motion.button>
         </motion.div>}
 			</div>
 

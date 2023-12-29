@@ -1,6 +1,4 @@
 import React, {FC, useEffect, Dispatch, useMemo, useRef, useState} from 'react';
-import Lottie from 'lottie-react';
-import typingAnimation from '@/assets/lottie/typing.json';
 import ChatGPTMessageItem, {
 	ChatGPTMessageCreatingAd, ChatGPTMessageGeneratingAnimation,
 	ChatGPTMessageWelcomeMessage
@@ -9,8 +7,6 @@ import {ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
 import WavingHand from '@/assets/images/waving-hand.webp';
 import Image from 'next/image';
 import {useParams} from 'next/navigation';
-import {dummyEssay} from '@/constants/dummy';
-import {botData, dummyUser} from '@/constants/images';
 import {ConversationType} from '@/interfaces/IConversation';
 import {AnimatePresence, motion} from 'framer-motion';
 import {framerContainer} from '@/config/framer-motion';
@@ -34,12 +30,12 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 	const params = useParams();
 
 	useEffect(() => {
-		if(messages) {
-			setTimeout(() => {
-				containerRef.current && console.log('scrollEnd.current.scrollHeight - ', containerRef.current.scrollHeight)
-				containerRef.current && containerRef.current.scrollTo({top: containerRef.current.scrollHeight, behavior: 'smooth'});
-			}, 500)
-		}
+		// if(messages) {
+		// 	setTimeout(() => {
+		// 		containerRef.current && console.log('scrollEnd.current.scrollHeight - ', containerRef.current.scrollHeight)
+		// 		containerRef.current && containerRef.current.scrollTo({top: containerRef.current.scrollHeight, behavior: 'smooth'});
+		// 	}, 500)
+		// }
 	}, [messages])
 
 	const reversedMessages = useMemo(() => {
@@ -51,11 +47,9 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 		});
 	}, [messages])
 
-	console.log('reversedMessages - ', reversedMessages);
-
 	return (
 		<AnimatePresence mode="wait">
-			<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[15em] md:min-h-[35em] max-h-[20em] md:max-h-[40em] ' : '') + (showGetAdNowButton ? ' pb-9 md:pb-14' : '')} ref={containerRef}>
+			<div className={'flex-1 flex flex-col-reverse overflow-auto ' + (miniVersion ? ' min-h-[50vh] md:min-h-[50vh] max-h-[60vh] md:max-h-[60vh] ' : '') + (showGetAdNowButton ? ' pb-9 md:pb-14' : '')} ref={containerRef}>
 				{/*<ChatGPTMessageCreatingAd/>*/}
 				{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
 				<div className="text-white whitespace-pre-wrap">

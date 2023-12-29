@@ -4,7 +4,7 @@ import DynamicAdImage from '@/assets/images/image13.webp';
 import MultiMediaImage from '@/assets/images/image10.webp';
 import RetainImage from '@/assets/images/image4.webp';
 
-export const servicesData = {
+export const legacy_servicesData = {
 	cards: [
 		{
 			id: 1,
@@ -34,6 +34,26 @@ export const servicesData = {
 			title: 'Retain Your Brand Identity',
 			overview: 'Maintain the essence of your brand while scaling new heights. Utilizing AI, we ensure that your brand\'s core values and unique selling propositions are consistently represented across all platforms and campaigns.',
 			learnMore: 'Scaling your business doesn\'t mean losing your brand\'s soul. Our AI-powered tool analyzes your brand\'s key elements and integrates them into every strategic plan and creative output. From color schemes to tone of voice, experience seamless brand consistency like never before with Retain Your Brand Identity.'
+		}
+	]
+}
+
+export const servicesData = {
+	cards: [
+		{
+			id: 1,
+			title: 'Arti Chat',
+			description: 'Experience seamless communication with Arti, your AI-powered business ally. Arti\'s advanced Generative AI algorithms are designed to intuitively grasp your business objectives, enabling fluid conversations and the creation of dynamic advertising strategies. Unlock your business\'s true potential with Arti\'s cutting-edge technology, tailored to understand and elevate your business needs.',
+		},
+		{
+			id: 2,
+			title: 'Dynamic Ad Crafting',
+			description: 'Generate AD creatives with a click of a button. Powered by AI, we design ad content that is not only visually compelling but also deeply resonant with your target audience, creating memorable engagements.',
+		},
+		{
+			id: 3,
+			title: 'Multi-Media Ad Creatives',
+			description: 'Transform your online presence with Digital Content Alchemy. Drawing from AI and design expertise, we conjure up captivating text and imagery tailored for optimal engagement on your social channels and banners.',
 		}
 	]
 }

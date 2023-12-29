@@ -1,4 +1,4 @@
-import {Dispatch, FC, SetStateAction, useEffect, useState} from 'react';
+import {Dispatch, FC, SetStateAction, useEffect, useRef, useState} from 'react';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
 
 interface TabViewProps {
@@ -7,11 +7,28 @@ interface TabViewProps {
 	items: AdCreativeVariant[];
 }
 
+function TabViewItem({container, isActive, label, tabItem, index}) {
+	const ref = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		if(!ref.current || !isActive) return;
+		ref.current.scrollIntoView({
+			behavior: 'smooth',
+			block: 'nearest',
+			inline: 'nearest'
+		});
+	}, [isActive])
+	return (
+		<div ref={ref} {...container} key={tabItem.id}>
+			<span {...label}>{'Variant #' + (index + 1)}</span>
+		</div>
+	)
+}
+
 const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items}) => {
 
 	useEffect(() => {
-		console.log('items - ', items);
-	}, [items])
+		console.log('activeAdTab - ', activeAdTab);
+	}, [activeAdTab])
 
 
 	const tabItemProps = (tabItem: AdCreativeVariant) => {
@@ -36,9 +53,7 @@ const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items}) => {
 				{items.map((tabItem, index) => {
 					const props = tabItemProps(tabItem);
 					return (
-						<div {...props.container} key={tabItem.id}>
-							<span {...props.label}>{'Variant #' + (index + 1)}</span>
-						</div>
+						<TabViewItem isActive={tabItem.id === activeAdTab.id} key={tabItem.id} tabItem={tabItem} container={props.container} label={props.label} index={index} />
 					)
 				})}
 			</div>

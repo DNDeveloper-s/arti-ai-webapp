@@ -1,4 +1,6 @@
+const withVideos = require('next-videos')
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true
@@ -34,9 +36,15 @@ const nextConfig = {
         hostname: 'oaidalleapiprodscus.blob.core.windows.net',
         port: '',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co',
+        port: '',
+        pathname: '/**'
       }
     ]
   }
 }
 
-module.exports = nextConfig
+module.exports = withVideos(nextConfig);

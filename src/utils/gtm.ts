@@ -6,6 +6,7 @@ export enum GTM_EVENT {
 	'TIME_SPENT' = 'time-spent',
 	'SCROLL_DEPTH' = 'scroll-depth',
 	'CONTACT_FORM_SUBMISSION' = 'contact_form_submission',
+	'SECTION_VIEW' = 'section-view',
 }
 
 export const initGTM = () => {

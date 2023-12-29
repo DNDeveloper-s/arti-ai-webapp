@@ -1,3 +1,6 @@
+import {FutureIcon, InnovationIcon, RevolutionIcon, UserCentricIcon} from '@/constants/landingPageData/whyUs/icons';
+import {StaticImport} from 'next/dist/shared/lib/get-img-props';
+import React, {ReactElement} from 'react';
 
 interface WhyUsData {
 	title: string;
@@ -13,8 +16,9 @@ export interface WhyUsItem {
 	title: string;
 	overview: string;
 	readMore?: string | WhyUsItem[];
+	icon?: ReactElement<React.SVGProps<SVGSVGElement>>;
+	groupId?: number,
 }
-
 
 export const whyUsData: WhyUsData = {
 	title: 'Why Arti?',
@@ -28,6 +32,8 @@ export const whyUsData: WhyUsData = {
 			title: 'A Revolution in Digital Strategy & Design',
 			overview: 'Embrace the dawn of a new era in business innovation with our groundbreaking AI-powered platform. Designed with the dream to reshape strategic planning and creative design, we stand at the forefront of technological evolution.',
 			readMore: 'Our platform isn\'t just a product; it\'s a mission. We envision a world where every business, regardless of size or industry, can harness the power of cutting-edge AI technology to elevate their strategies and visuals. Join us on this transformative journey, where potential meets performance.',
+			icon: RevolutionIcon,
+			groupId: 1,
 		},
 		{
 			id: 2,
@@ -45,6 +51,8 @@ export const whyUsData: WhyUsData = {
 					overview: 'Where words end, our Diffusion models take over. With extensive training on diverse image databases, they transform concepts into visuals that not only stand out but also speak volumes.'
 				}
 			],
+			icon: InnovationIcon,
+			groupId: 1,
 		},
 		{
 			id: 3,
@@ -71,13 +79,17 @@ export const whyUsData: WhyUsData = {
 					title: 'Continuous Learning',
 					overview: 'Every interaction makes us better, refining our capabilities to serve you with the latest and the best.'
 				}
-			]
+			],
+			icon: UserCentricIcon,
+			groupId: 2,
 		},
 		{
 			id: 4,
 			title: 'Shaping Tomorrow, Today',
 			overview: 'More than a tool, our platform is a paradigm shift. It\'s about breaking barriers, democratizing access, and enabling businesses to shine brighter.',
 			readMore: 'With AI as our backbone, we\'re redefining what\'s possible in the realms of strategic planning and design. Our platform stands as a beacon for businesses, offering them the tools to make informed decisions, streamline operations, and craft content that leaves a mark. Dive in, and experience the future of business technology today.',
+			icon: FutureIcon,
+			groupId: 2,
 		}
 	]
 }
