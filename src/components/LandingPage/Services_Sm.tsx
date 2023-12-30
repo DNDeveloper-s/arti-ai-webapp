@@ -42,7 +42,7 @@ const ServiceCard: React.FC<Props> = ({isInView, id, title, description, handleI
 	}, [handleIdInView, id])
 
 	return (
-		<div ref={nodeRef} data-id={id} className="w-screen h-screen bg-red-300 bg-opacity-20" />
+		<div ref={nodeRef} data-id={id} className="w-screen h-screen bg-red-300 bg-opacity-0" />
 	)
 }
 
@@ -104,7 +104,7 @@ export default function Services_Sm() {
 				</div>
 			</div>
 			{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}
-			<div className="w-screen h-screen bg-red-300 bg-opacity-20" />
+			<div className="w-screen h-screen bg-red-300 bg-opacity-0" />
 		</div>
 	)
 }

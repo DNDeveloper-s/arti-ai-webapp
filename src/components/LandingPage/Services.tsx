@@ -25,7 +25,7 @@ import {IAdCreative} from '@/interfaces/IAdCreative';
 import useMounted from '@/hooks/useMounted';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';
 import {Mock, mockProductOverviewData as mock, screens, ViewScreen} from '@/constants/servicesData';
-import {carouselImage1} from '@/assets/images/carousel-images';
+import {carouselImage3} from '@/assets/images/carousel-images';
 import {AiOutlineCaretDown} from 'react-icons/ai';
 import CanvasJSReact from '@canvasjs/react-charts';
 import CTAButton from '@/components/CTAButton';
@@ -216,21 +216,22 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 		setPublishingAd(false);
 
 		if(isMetric) {
-			setAdCreative(mock.adCreative);
+			// setAdCreative(mock.adCreative);
 
-			await wait(1000);
-
-			setPublishingAd(true);
-
-			await wait(2500);
-
-			setPublishingAd(false);
-
+			// await wait(1500);
+			//
+			// setPublishingAd(true);
+			//
+			// await wait(4000);
+			//
+			// setPublishingAd(false);
+			//
 			setShowMetric(true);
+			//
+			// await wait(5000);
 
-			await wait(5000);
-
-			return await demo();
+			return;
+			// return await demo();
 		}
 
 		if(!(_messages?.length > 0)) return;
@@ -320,14 +321,14 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 				top: '50%',
 				left: '49.8%',
 				borderRadius: '20px',
-				overflow: 'auto',
+				overflow: 'hidden',
 				border: 'none',
 				// aspectRatio: 0.46,
 				transform: 'translate(-50%, -50%)',
 			}}>
         <div ref={rightPaneRef}>
-	        <RightPane mock={mockState} adCreative={mock.adCreative} style={{position: 'relative', zoom: 1, paddingLeft: 0}}/>
-	        <div className={'w-full flex justify-center items-center'}>
+	        <RightPane mock={mockState} adCreative={mock.adCreative} style={{opacity: 0.3, filter: 'blur(1px)', position: 'relative', zoom: 1, paddingLeft: 0}}/>
+	        <div className={'w-full flex justify-center items-center absolute bottom-7 left-1/2 -translate-x-1/2 z-10'}>
             <CTAButton className={'px-0 py-0 flex justify-center items-center h-10 w-36 gap-3 rounded-lg'}>
 	            {publishingAd ? <>
 		            <Loader className={'w-5 h-5'} />
@@ -354,94 +355,94 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 			}} className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
         <div className={`flex h-full overflow-hidden`}>
           <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
-	          <div className={'flex justify-center items-center py-4'}>
-	            <h2 className={'text-lg text-primary'}>Campaign</h2>
+	          <div className={'flex justify-center items-center py-2'}>
+	            <h2 className={'text-[15px] text-primary'}>Campaign</h2>
             </div>
 
 	          {/* Campaign Title */}
-	          <div className={'flex px-4 py-2 gap-4 items-center'}>
-		          <div className={'w-20 h-20 rounded flex justify-center items-center border-2 border-white border-opacity-25'}>
-			          <Image className={'object-cover w-full h-full rounded'} src={carouselImage1} alt="Carousel Image" />
+	          <div className={'flex px-3 py-1.5 gap-2.5 items-center'}>
+		          <div className={'w-14 h-14 rounded flex justify-center items-center border-2 border-white border-opacity-25'}>
+			          <Image className={'object-cover w-full h-full rounded'} src={carouselImage3} alt="Carousel Image" />
 		          </div>
 		          <div className={'flex flex-col justify-center gap-1'}>
-			          <h3 className={'text-base font-semibold text-primary'}>Say Goodbye to Back Pain</h3>
+			          <h3 className={'text-[13px] font-semibold text-primary'}>Say Goodbye to Back Pain</h3>
 			          <div className={'flex items-center gap-2'}>
-				          <div className={'w-2 h-2 rounded-full bg-green-300'} />
-				          <span className={'text-xs'}>Active</span>
+				          <div className={'w-1 h-1 rounded-full bg-green-300'} />
+				          <span className={'text-[9px]'}>Active</span>
 			          </div>
 		          </div>
 	          </div>
 
 	          {/*Separator*/}
-	          <div className={'w-full h-1 bg-black my-4'} />
+	          <div className={'w-full h-1 bg-black my-1'} />
 
 	          {/*Campaign Meta Data*/}
-	          <div className={'px-4 pb-2'}>
-		          <h4 className={'text-lg font-semibold mb-4 text-primary'}>Results</h4>
+	          <div className={'px-3.5 pb-2'}>
+		          <h4 className={'text-[15px] font-semibold mb-2 text-primary'}>Results</h4>
 
-		          <div className={'flex flex-col gap-1'}>
+		          <div className={'flex flex-col'}>
                 <div className={'flex justify-between items-center'}>
                   <div>
-                    <span className={'text-sm'}>Link Clicks</span>
+                    <span className={'text-[10px]'}>Link Clicks</span>
                   </div>
                   <div>
-                    <span className={'text-sm'}>1,025</span>
+                    <span className={'text-[10px]'}>1,025</span>
                   </div>
                 </div>
                 <div className={'flex justify-between items-center'}>
                   <div>
-                    <span className={'text-sm'}>Cost per Link Click</span>
+                    <span className={'text-[10px]'}>Cost per Link Click</span>
                   </div>
                   <div>
-                    <span className={'text-sm'}>$0.79</span>
+                    <span className={'text-[10px]'}>$0.79</span>
                   </div>
                 </div>
                 <div className={'flex justify-between items-center'}>
                   <div>
-                    <span className={'text-sm'}>Amount spent</span>
+                    <span className={'text-[10px]'}>Amount spent</span>
                   </div>
                   <div>
-                    <span className={'text-sm'}>$812.74</span>
+                    <span className={'text-[10px]'}>$812.74</span>
                   </div>
                 </div>
 		          </div>
 
-              <div className={'flex flex-col gap-1 mt-4'}>
+              <div className={'flex flex-col mt-2'}>
                 <div className={'flex justify-between items-center'}>
                   <div>
-                    <span className={'text-sm'}>Reach</span>
+                    <span className={'text-[10px]'}>Reach</span>
                   </div>
                   <div>
-                    <span className={'text-sm'}>31,038</span>
+                    <span className={'text-[10px]'}>31,038</span>
                   </div>
                 </div>
                 <div className={'flex justify-between items-center'}>
                   <div>
-                    <span className={'text-sm'}>Impressions</span>
+                    <span className={'text-[10px]'}>Impressions</span>
                   </div>
                   <div>
-                    <span className={'text-sm'}>129,073</span>
+                    <span className={'text-[10px]'}>129,073</span>
                   </div>
                 </div>
               </div>
 
-		          <div className={'mt-4 flex justify-center items-center gap-1'}>
+		          <div className={'mt-2 flex justify-center items-center gap-1'}>
 			          <AiOutlineCaretDown />
-			          <span className={'text-sm'}>Show more</span>
+			          <span className={'text-[10px]'}>Show more</span>
 		          </div>
 
 	          </div>
 
 	          {/*Separator*/}
-            <div className={'w-full h-3 bg-black my-2'} />
+            <div className={'w-full h-2 bg-black my-1'} />
 
 	          {/*Graph*/}
-	          <div className={'px-2 flex flex-col gap-4'}>
-		          <h4>Cost per result is 14% lower than similar ad sets from peers</h4>
+	          <div className={'px-2 flex flex-1 justify-evenly flex-col gap-2'}>
+		          <h4 className={'text-[12px]'}>Cost per result is 14% lower than similar ad sets from peers</h4>
 		          <div>
                 <CanvasJSChart
 	                options={options}
-                  containerProps={{height: '150px'}}
+                  containerProps={{height: '100px'}}
                 />
 		          </div>
 	          </div>

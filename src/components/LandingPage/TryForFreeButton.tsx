@@ -1,12 +1,14 @@
 import React, {FC} from 'react';
 import CTAButton from '@/components/CTAButton';
 import Link from 'next/link';
+import {useMediaQuery} from 'react-responsive';
 
 interface TryForFreeButtonProps {
 
 }
 
 const TryForFreeButton: FC<TryForFreeButtonProps> = (props) => {
+	const isSmallScreen = useMediaQuery({query: '(max-width: 640px)'});
 	return (
 		<Link href="/#arti-bot" className="breathing-button-primary z-30 border-2 !fixed bottom-8 right-8 border-primary !bg-primary flex items-center gap-2 py-1.5 px-3 rounded-lg">
 			<svg
@@ -25,7 +27,7 @@ const TryForFreeButton: FC<TryForFreeButtonProps> = (props) => {
 					data-original="#000000"
 				/>
 			</svg>
-			<span>Chat with AI now!</span>
+			{!isSmallScreen && <span>Chat with AI now!</span>}
 		</Link>
 	);
 };
