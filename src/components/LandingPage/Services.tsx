@@ -216,22 +216,21 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 		setPublishingAd(false);
 
 		if(isMetric) {
-			// setAdCreative(mock.adCreative);
+			setAdCreative(mock.adCreative);
 
-			// await wait(1500);
-			//
-			// setPublishingAd(true);
-			//
-			// await wait(4000);
-			//
-			// setPublishingAd(false);
-			//
+			await wait(1500);
+
+			setPublishingAd(true);
+
+			await wait(4000);
+
+			setPublishingAd(false);
+
 			setShowMetric(true);
-			//
-			// await wait(5000);
 
-			return;
-			// return await demo();
+			await wait(5000);
+			// return;
+			return await demo();
 		}
 
 		if(!(_messages?.length > 0)) return;
