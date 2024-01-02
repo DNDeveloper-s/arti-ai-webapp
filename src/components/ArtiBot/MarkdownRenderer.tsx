@@ -18,7 +18,7 @@ const MarkdownRenderer = ({ markdownContent }: { markdownContent: string }) => {
 
 	return <div className="chat-markdown">
 		<Markdown options={{
-			html: true
+			html: true,
 		}} source={markdownContent} />
 	</div>
 

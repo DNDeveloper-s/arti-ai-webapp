@@ -52,8 +52,8 @@ export const servicesData = {
 		},
 		{
 			id: 3,
-			title: 'Multi-Media Ad Creatives',
-			description: 'Transform your online presence with Digital Content Alchemy. Drawing from AI and design expertise, we conjure up captivating text and imagery tailored for optimal engagement on your social channels and banners.',
+			title: 'Streamlined Ad Deployment',
+			description: 'Arti\'s Streamlined Ad Deployment and Analytics tool enhances ad efficiency, offering easy uploads to platforms like Meta, automated scheduling, real-time adjustments, and performance analytics in a user-friendly interface for impactful, audience-targeted advertising.',
 		}
 	]
 }

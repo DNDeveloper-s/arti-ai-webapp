@@ -117,7 +117,7 @@ function RenderMessageItem({chunksRef, doneRef, setMessages, messageItem}: Rende
 function GeneratingMessageItem({isMock, setMessages, messageItem, chunksRef, doneRef}: {isMock?: boolean, messageItem: ChatGPTMessageObj, setMessages: Dispatch<React.SetStateAction<ChatGPTMessageObj[]>>, chunksRef?: React.MutableRefObject<string>, doneRef?: React.MutableRefObject<boolean>}) {
 	return (
 		<div className="flex items-start">
-			<p className="whitespace-pre-wrap text-[1em] text-primaryText text-opacity-60 flex-1">
+			<p className={`whitespace-pre-wrap text-[${isMock ? '11px' : '1em'}] text-primaryText text-opacity-60 flex-1`}>
 				<RenderMessageItem setMessages={setMessages} messageItem={messageItem} chunksRef={chunksRef} doneRef={doneRef} />
 			</p>
 			{!isMock && <div className="w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
@@ -296,7 +296,7 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 	if(isMock) {
 		item = (
 			<div className="flex items-start">
-				{messageItem.content && <p className="whitespace-pre-wrap text-sm text-primaryText opacity-60 flex-1">
+				{messageItem.content && <p className="whitespace-pre-wrap text-[11px] text-primaryText opacity-60 flex-1">
 					{/*{messageItem.content}{messageItem.generating && <span className="w-1 inline-block -mb-1.5 h-5 bg-primary cursor-blink"/>}*/}
           <MarkdownRenderer markdownContent={messageItem.content}/>
         </p>}
@@ -358,7 +358,7 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 				<div key={messageItem.content} className={'group w-full ' + (messageItem.role === ChatGPTRole.ASSISTANT ? '' : 'bg-background bg-opacity-30')}>
 					<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
 						<Image className="rounded-lg mr-[0.3em]" width={size} height={size} src={messageItem.role === ChatGPTRole.ASSISTANT ? botData.image : dummyUser.image} alt=""/>
-						<div className="ml-[0.8em] flex-1">
+						<div className={`ml-[${isMock ? '3.5px' : '0.8em'}] flex-1`}>
 							{item}
 						</div>
 					</div>

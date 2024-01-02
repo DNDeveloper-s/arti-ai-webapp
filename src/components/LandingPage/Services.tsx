@@ -101,7 +101,7 @@ const ServiceCard: React.FC<Props> = ({id, title, description, handleIdInView = 
 	return (
 		<div className="h-screen flex flex-col items-center justify-center">
 			<div ref={nodeRef} data-id={id}>
-				<h1 className="text-[105px] text-white leading-[105px] font-gilroyBold tracking-[-3.15px]">{title}</h1>
+				<h1 className="text-[105px] text-white leading-[105px] font-gilroyBold tracking-[-1.15px]">{title}</h1>
 				<p className="font-gilroyRegular text-white text-opacity-40 text-[18px]">{description}</p>
 			</div>
 		</div>
@@ -222,7 +222,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 
 			setPublishingAd(true);
 
-			await wait(4000);
+			await wait(2000);
 
 			setPublishingAd(false);
 
@@ -354,8 +354,8 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 			}} className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
         <div className={`flex h-full overflow-hidden`}>
           <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
-	          <div className={'flex justify-center items-center py-2'}>
-	            <h2 className={'text-[15px] text-primary'}>Campaign</h2>
+	          <div className={'flex items-center py-2'}>
+              <h2 className="text-xl font-medium font-diatype">Campaign</h2>
             </div>
 
 	          {/* Campaign Title */}
@@ -557,7 +557,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
                       minRows={1}
                       maxRows={4}
                       placeholder="Type here..."
-                      className="relative text-sm outline-none caret-primary resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-4 bottom-0"
+                      className="relative text-[11px] outline-none caret-primary resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-4 bottom-0"
                     />
                   </div>
                 </div>

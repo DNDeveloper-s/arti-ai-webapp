@@ -20,8 +20,8 @@ export default function RootLayout({
 }) {
 
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="dark">
+      <body className="dark:bg-black">
         <SessionProvider>
           <SnackbarContextProvider>
             <ConversationContextProvider {...initConversationState}>
