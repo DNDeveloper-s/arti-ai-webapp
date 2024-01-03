@@ -89,19 +89,20 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 	const [imageUrl, setImageUrl] = useState<string | null>(mock.is ? null : adVariant.imageUrl);
 
 	useEffect(() => {
-		if(!mock.is) return setImageUrl(adVariant.imageUrl);
-		if(!isLoaded.current[adVariant.id]) setImageUrl(null);
-		else {
-			return setImageUrl(adVariant.imageUrl);
-		}
-		const timeout = setTimeout(() => {
-			isLoaded.current[adVariant.id] = true;
-			setImageUrl(adVariant.imageUrl);
-		}, 1500)
-
-		return () => {
-			clearTimeout(timeout);
-		}
+		setImageUrl(adVariant.imageUrl)
+		// if(!mock.is) return setImageUrl(adVariant.imageUrl);
+		// if(!isLoaded.current[adVariant.id]) setImageUrl(null);
+		// else {
+		// 	return setImageUrl(adVariant.imageUrl);
+		// }
+		// const timeout = setTimeout(() => {
+		// 	isLoaded.current[adVariant.id] = true;
+		// 	setImageUrl(adVariant.imageUrl);
+		// }, 1500)
+		//
+		// return () => {
+		// 	clearTimeout(timeout);
+		// }
 	}, [imageUrl, mock.is, adVariant.imageUrl])
 
 	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
