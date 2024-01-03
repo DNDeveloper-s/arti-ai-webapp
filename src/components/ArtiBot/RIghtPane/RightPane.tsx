@@ -143,7 +143,7 @@ const RightPane: FC<RightPaneProps> = ({adCreative, mock = new Mock(), style}) =
 			<div ref={resizeHandleRef} style={{display: mock.is ? 'none' : 'block'}} className="absolute left-0 top-0 h-full w-2 bg-white bg-opacity-20 cursor-col-resize hover:w-2.5 transition-all" onMouseDown={(e) => {
 				console.log('e', e, e.currentTarget)
 			}} />
-			<div className="pb-10 overflow-y-auto overflow-x-visible h-full flex flex-col relative items-center bg-black">
+			<div className={'pb-10 h-full flex flex-col relative items-center bg-black' + (mock.is ? ' overflow-hidden' : ' overflow-y-auto overflow-x-visible')}>
 				<div className="px-4 w-full py-4 flex justify-between items-center">
 					<h2 className="text-xl font-medium font-diatype">Ad Creatives</h2>
 					{mock.is && <motion.div key={activeVariant.id} initial={{

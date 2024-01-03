@@ -11,11 +11,11 @@ function TabViewItem({container, isActive, label, tabItem, index}) {
 	const ref = useRef<HTMLDivElement>(null);
 	useEffect(() => {
 		if(!ref.current || !isActive) return;
-		ref.current.scrollIntoView({
-			behavior: 'smooth',
-			block: 'nearest',
-			inline: 'nearest'
-		});
+		// ref.current.scrollIntoView({
+		// 	behavior: 'smooth',
+		// 	block: 'nearest',
+		// 	inline: 'nearest'
+		// });
 	}, [isActive])
 	return (
 		<div ref={ref} {...container} key={tabItem.id}>

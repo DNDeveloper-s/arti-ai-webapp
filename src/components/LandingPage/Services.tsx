@@ -146,6 +146,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 	const rightPaneRef = useRef<HTMLDivElement>(null);
 	const [showMetric, setShowMetric] = useState(false);
 	const mounted = useMounted();
+	const iphoneImageRef = useRef<HTMLImageElement>(null);
 
 	const wait = useCallback(async (ms: number) => {
 		const {timeoutId, promise} = waitWithCleanup(ms);
@@ -335,7 +336,6 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 							</> : <>
 		            <span className={'text-xs'}>Publish Ad</span>
 							</>}
-
             </CTAButton>
 	        </div>
         </div>
@@ -354,7 +354,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 			}} className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
         <div className={`flex h-full overflow-hidden`}>
           <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
-	          <div className={'flex items-center py-2'}>
+	          <div className={'flex px-3 items-center py-2'}>
               <h2 className="text-xl font-medium font-diatype">Campaign</h2>
             </div>
 
@@ -377,7 +377,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 
 	          {/*Campaign Meta Data*/}
 	          <div className={'px-3.5 pb-2'}>
-		          <h4 className={'text-[15px] font-semibold mb-2 text-primary'}>Results</h4>
+		          <h4 className={'text-[15px] font-semibold mb-2 text-white'}>Results</h4>
 
 		          <div className={'flex flex-col'}>
                 <div className={'flex justify-between items-center'}>
@@ -463,7 +463,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 				top: '50%',
 				left: '49.8%',
 				borderRadius: '20px',
-				overflow: 'auto',
+				overflow: 'hidden',
 				border: 'none',
 				// aspectRatio: 0.46,
 				transform: 'translate(-50%, -50%)',

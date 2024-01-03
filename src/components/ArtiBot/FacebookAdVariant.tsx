@@ -134,7 +134,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 				<SlOptions className="text-[1.5em]" />
 			</div>
 			<div className="mb-[1em] px-[1em]">
-				<span className="text-[1.1em] inline-flex leading-[1.5em]">{adVariant.text}</span>
+				<span className={'text-[1.1em] leading-[1.5em]' + (mock.is ? ' line-clamp-3 text-ellipsis' : ' inline-flex')}>{adVariant.text}</span>
 			</div>
 			<div>
 				{imageContainerJSX}

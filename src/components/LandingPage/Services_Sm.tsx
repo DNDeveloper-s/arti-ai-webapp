@@ -96,7 +96,7 @@ export default function Services_Sm() {
 					{servicesData.cards.map(serviceItem => (
 						<div key={serviceItem.title} className="absolute top-0 left-1/2 transform -translate-x-1/2 flex flex-col items-center justify-center" style={{opacity: idInView === serviceItem.id ? 1 : 0}}>
 							<div>
-								<h1 className="text-[30px] whitespace-nowrap text-white leading-[32px] font-gilroyBold tracking-[-3.15px]">{serviceItem.title}</h1>
+								<h1 className="text-[30px] whitespace-nowrap text-white leading-[32px] font-diatype font-bold tracking-[-1.15px]">{serviceItem.title}</h1>
 								<p className="font-gilroyRegular text-white text-opacity-40 text-[13px]">{serviceItem.description.slice(0, 50)}</p>
 							</div>
 						</div>
