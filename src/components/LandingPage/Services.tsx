@@ -116,21 +116,25 @@ interface ArtiChatDemoProps {
 	viewScreen: ViewScreen;
 	isInView: boolean;
 	sm?: boolean;
-}
-
-export const ArtiChatDemo = {
-	Chat: function({viewScreen, sm, messages, isInView}: ArtiChatDemoProps) {
-		return <Legacy_ArtiChatDemo sm={sm} viewScreen={viewScreen} messages={messages} isAdCreative={false} isInView={isInView} handleEnd={() => {}}/>
-	},
-	AdCreative: function({viewScreen, sm, messages, isInView}: ArtiChatDemoProps) {
-		return <Legacy_ArtiChatDemo sm={sm} viewScreen={viewScreen} messages={messages} isAdCreative={true} isInView={isInView} handleEnd={() => {}}/>
-	},
-	Metrics: function({viewScreen, sm, messages, isInView}: ArtiChatDemoProps) {
-		return <Legacy_ArtiChatDemo sm={sm} viewScreen={viewScreen} messages={messages} isAdCreative={false} isMetric={true} isInView={isInView} handleEnd={() => {}}/>
+	dimensions: {
+		width: number,
+		height: number
 	}
 }
 
-const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, isInView, messages: _messages, isAdCreative, handleEnd}) => {
+export const ArtiChatDemo = {
+	Chat: function({viewScreen, sm, messages, dimensions, isInView}: ArtiChatDemoProps) {
+		return <Legacy_ArtiChatDemo sm={sm} viewScreen={viewScreen} dimensions={dimensions} messages={messages} isAdCreative={false} isInView={isInView} handleEnd={() => {}}/>
+	},
+	AdCreative: function({viewScreen, sm, messages, dimensions, isInView}: ArtiChatDemoProps) {
+		return <Legacy_ArtiChatDemo sm={sm} viewScreen={viewScreen} dimensions={dimensions} messages={messages} isAdCreative={true} isInView={isInView} handleEnd={() => {}}/>
+	},
+	Metrics: function({viewScreen, sm, messages, dimensions, isInView}: ArtiChatDemoProps) {
+		return <Legacy_ArtiChatDemo sm={sm} viewScreen={viewScreen} dimensions={dimensions} messages={messages} isAdCreative={false} isMetric={true} isInView={isInView} handleEnd={() => {}}/>
+	}
+}
+
+const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, dimensions, sm, isMetric, isInView, messages: _messages, isAdCreative, handleEnd}) => {
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<ChatGPTMessageObj[]>([..._messages.slice(0, 3)]);
 	const [isGenerating, setIsGenerating] = useState(false);
@@ -308,157 +312,15 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
 
 	const mockState = useMemo(() => {
 		return new Mock(viewScreen);
-	}, [viewScreen])
+	}, [viewScreen]);
 
-	/** Metric View **/
-	if (isMetric) return (
-		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] flex justify-center items-center" + (sm ? ' h-[70vh]' : ' h-[80vh]')} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
-			<Image className="w-auto h-full max-w-none" src={IphoneImage} alt="Iphone Image" />
-			{mounted && !showMetric && adCreative && <div className="absolute" style={{
-				width: sm ? 'calc((100% - 42px) * 0.86)' : `${(window.innerHeight - 60) * 0.8 * 0.46}px`,
-				height: sm ? 'calc(100% - 42px)' : `${(window.innerHeight - 60) * 0.8}px`,
-				zoom: 1,
-				top: '50%',
-				left: '49.8%',
-				borderRadius: '20px',
-				overflow: 'hidden',
-				border: 'none',
-				// aspectRatio: 0.46,
-				transform: 'translate(-50%, -50%)',
-			}}>
-        <div ref={rightPaneRef}>
-	        <RightPane mock={mockState} adCreative={mock.adCreative} style={{opacity: 0.3, filter: 'blur(1px)', position: 'relative', zoom: 1, paddingLeft: 0}}/>
-	        <div className={'w-full flex justify-center items-center absolute bottom-7 left-1/2 -translate-x-1/2 z-10'}>
-            <CTAButton className={'px-0 py-0 flex justify-center items-center h-10 w-36 gap-3 rounded-lg'}>
-	            {publishingAd ? <>
-		            <Loader className={'w-5 h-5'} />
-		            <span className={'text-xs'}>Publishing Ad...</span>
-							</> : <>
-		            <span className={'text-xs'}>Publish Ad</span>
-							</>}
-            </CTAButton>
-	        </div>
-        </div>
-      </div>}
-			{showMetric && <div style={{
-				width: 'unset',
-				height: 'calc(100% - 42px)',
-				zoom: 1,
-				top: '50%',
-				left: '49.8%',
-				borderRadius: '22px',
-				overflow: 'hidden',
-				border: 'none',
-				aspectRatio: 0.46,
-				transform: 'translate(-50%, -50%)',
-			}} className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
-        <div className={`flex h-full overflow-hidden`}>
-          <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
-	          <div className={'flex px-3 items-center py-2'}>
-              <h2 className="text-xl font-medium font-diatype">Campaign</h2>
-            </div>
-
-	          {/* Campaign Title */}
-	          <div className={'flex px-3 py-1.5 gap-2.5 items-center'}>
-		          <div className={'w-14 h-14 rounded flex justify-center items-center border-2 border-white border-opacity-25'}>
-			          <Image className={'object-cover w-full h-full rounded'} src={carouselImage3} alt="Carousel Image" />
-		          </div>
-		          <div className={'flex flex-col justify-center gap-1'}>
-			          <h3 className={'text-[13px] font-semibold text-primary'}>Say Goodbye to Back Pain</h3>
-			          <div className={'flex items-center gap-2'}>
-				          <div className={'w-1 h-1 rounded-full bg-green-300'} />
-				          <span className={'text-[9px]'}>Active</span>
-			          </div>
-		          </div>
-	          </div>
-
-	          {/*Separator*/}
-	          <div className={'w-full h-1 bg-black my-1'} />
-
-	          {/*Campaign Meta Data*/}
-	          <div className={'px-3.5 pb-2'}>
-		          <h4 className={'text-[15px] font-semibold mb-2 text-white'}>Results</h4>
-
-		          <div className={'flex flex-col'}>
-                <div className={'flex justify-between items-center'}>
-                  <div>
-                    <span className={'text-[10px]'}>Link Clicks</span>
-                  </div>
-                  <div>
-                    <span className={'text-[10px]'}>1,025</span>
-                  </div>
-                </div>
-                <div className={'flex justify-between items-center'}>
-                  <div>
-                    <span className={'text-[10px]'}>Cost per Link Click</span>
-                  </div>
-                  <div>
-                    <span className={'text-[10px]'}>$0.79</span>
-                  </div>
-                </div>
-                <div className={'flex justify-between items-center'}>
-                  <div>
-                    <span className={'text-[10px]'}>Amount spent</span>
-                  </div>
-                  <div>
-                    <span className={'text-[10px]'}>$812.74</span>
-                  </div>
-                </div>
-		          </div>
-
-              <div className={'flex flex-col mt-2'}>
-                <div className={'flex justify-between items-center'}>
-                  <div>
-                    <span className={'text-[10px]'}>Reach</span>
-                  </div>
-                  <div>
-                    <span className={'text-[10px]'}>31,038</span>
-                  </div>
-                </div>
-                <div className={'flex justify-between items-center'}>
-                  <div>
-                    <span className={'text-[10px]'}>Impressions</span>
-                  </div>
-                  <div>
-                    <span className={'text-[10px]'}>129,073</span>
-                  </div>
-                </div>
-              </div>
-
-		          <div className={'mt-2 flex justify-center items-center gap-1'}>
-			          <AiOutlineCaretDown />
-			          <span className={'text-[10px]'}>Show more</span>
-		          </div>
-
-	          </div>
-
-	          {/*Separator*/}
-            <div className={'w-full h-2 bg-black my-1'} />
-
-	          {/*Graph*/}
-	          <div className={'px-2 flex flex-1 justify-evenly flex-col gap-2'}>
-		          <h4 className={'text-[12px]'}>Cost per result is 14% lower than similar ad sets from peers</h4>
-		          <div>
-                <CanvasJSChart
-	                options={options}
-                  containerProps={{height: '100px'}}
-                />
-		          </div>
-	          </div>
-
-          </div>
-        </div>
-      </div>}
-		</div>
-	)
-
-	/** Chat & AdCreative View **/
-	return (
-		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] flex justify-center items-center " + (sm ? ' h-[70vh]' : ' h-[80vh]')} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
-			<Image className="w-auto h-full max-w-none" src={IphoneImage} alt="Iphone Image" />
+	let content = (
+		<div style={{display: !isInView ? 'none' : 'flex'}}>
 			{mounted && adCreative && <div className="absolute" style={{
-				width: sm ? 'calc((100% - 42px) * 0.86)' : `${(window.innerHeight - 60) * 0.8 * 0.46}px`,
-				height: sm ? 'calc(100% - 42px)' : `${(window.innerHeight - 60) * 0.8}px`,
+				// width: sm ? 'calc((100% - 42px) * 0.86)' : `${(window.innerHeight - 60) * 0.8 * 0.46}px`,
+				// height: sm ? 'calc(100% - 42px)' : `${(window.innerHeight - 60) * 0.8}px`,
+				width: dimensions.width,
+				height: dimensions.height,
 				zoom: 1,
 				top: '50%',
 				left: '49.8%',
@@ -472,8 +334,10 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
         </div>
       </div>}
 			{!adCreative && <div style={{
-				width: 'unset',
-				height: 'calc(100% - 42px)',
+				// width: 'unset',
+				// height: 'calc(100% - 42px)',
+				width: dimensions.width,
+				height: dimensions.height,
 				zoom: 1,
 				top: '50%',
 				left: '49.8%',
@@ -551,9 +415,9 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
                       value={inputValue}
                       ref={areaRef}
                       onChange={(e) => {
-			                  areaRef.current && areaRef.current.scrollTo({top: 20000, left: 0});
-			                  setInputValue(e.target.value);
-		                  }}
+												areaRef.current && areaRef.current.scrollTo({top: 20000, left: 0});
+												setInputValue(e.target.value);
+											}}
                       minRows={1}
                       maxRows={4}
                       placeholder="Type here..."
@@ -581,6 +445,161 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, sm, isMetric, i
       </div>}
 		</div>
 	)
+
+	/** Metric View **/
+	if (isMetric) {
+		content = (
+			<div style={{display: !isInView ? 'none' : 'flex'}}>
+				{mounted && !showMetric && adCreative && <div className="absolute" style={{
+					// width: sm ? 'calc((100% - 42px) * 0.86)' : `${(window.innerHeight - 60) * 0.8 * 0.46}px`,
+					// height: sm ? 'calc(100% - 42px)' : `${(window.innerHeight - 60) * 0.8}px`,
+					width: dimensions.width,
+					height: dimensions.height,
+					zoom: 1,
+					top: '50%',
+					left: '49.8%',
+					borderRadius: '20px',
+					overflow: 'hidden',
+					border: 'none',
+					// aspectRatio: 0.46,
+					transform: 'translate(-50%, -50%)',
+				}}>
+          <div ref={rightPaneRef}>
+            <RightPane mock={mockState} adCreative={mock.adCreative} style={{opacity: 0.3, filter: 'blur(1px)', position: 'relative', zoom: 1, paddingLeft: 0}}/>
+            <div className={'w-full flex justify-center items-center absolute bottom-7 left-1/2 -translate-x-1/2 z-10'}>
+              <CTAButton className={'px-0 py-0 flex justify-center items-center h-10 w-36 gap-3 rounded-lg'}>
+								{publishingAd ? <>
+									<Loader className={'w-5 h-5'} />
+									<span className={'text-xs'}>Publishing Ad...</span>
+								</> : <>
+									<span className={'text-xs'}>Publish Ad</span>
+								</>}
+              </CTAButton>
+            </div>
+          </div>
+        </div>}
+				{showMetric && <div style={{
+					// width: 'unset',
+					// height: 'calc(100% - 42px)',
+					width: dimensions.width,
+					height: dimensions.height,
+					zoom: 1,
+					top: '50%',
+					left: '49.8%',
+					borderRadius: '22px',
+					overflow: 'hidden',
+					border: 'none',
+					aspectRatio: 0.46,
+					transform: 'translate(-50%, -50%)',
+				}} className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
+          <div className={`flex h-full overflow-hidden`}>
+            <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
+              <div className={'flex px-3 items-center py-2'}>
+                <h2 className="text-xl font-medium font-diatype">Campaign</h2>
+              </div>
+
+							{/* Campaign Title */}
+              <div className={'flex px-3 py-1.5 gap-2.5 items-center'}>
+                <div className={'w-14 h-14 rounded flex justify-center items-center border-2 border-white border-opacity-25'}>
+                  <Image className={'object-cover w-full h-full rounded'} src={carouselImage3} alt="Carousel Image" />
+                </div>
+                <div className={'flex flex-col justify-center gap-1'}>
+                  <h3 className={'text-[13px] font-semibold text-primary'}>Say Goodbye to Back Pain</h3>
+                  <div className={'flex items-center gap-2'}>
+                    <div className={'w-1 h-1 rounded-full bg-green-300'} />
+                    <span className={'text-[9px]'}>Active</span>
+                  </div>
+                </div>
+              </div>
+
+							{/*Separator*/}
+              <div className={'w-full h-1 bg-black my-1'} />
+
+							{/*Campaign Meta Data*/}
+              <div className={'px-3.5 pb-2'}>
+                <h4 className={'text-[15px] font-semibold mb-2 text-white'}>Results</h4>
+
+                <div className={'flex flex-col'}>
+                  <div className={'flex justify-between items-center'}>
+                    <div>
+                      <span className={'text-[10px]'}>Link Clicks</span>
+                    </div>
+                    <div>
+                      <span className={'text-[10px]'}>1,025</span>
+                    </div>
+                  </div>
+                  <div className={'flex justify-between items-center'}>
+                    <div>
+                      <span className={'text-[10px]'}>Cost per Link Click</span>
+                    </div>
+                    <div>
+                      <span className={'text-[10px]'}>$0.79</span>
+                    </div>
+                  </div>
+                  <div className={'flex justify-between items-center'}>
+                    <div>
+                      <span className={'text-[10px]'}>Amount spent</span>
+                    </div>
+                    <div>
+                      <span className={'text-[10px]'}>$812.74</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={'flex flex-col mt-2'}>
+                  <div className={'flex justify-between items-center'}>
+                    <div>
+                      <span className={'text-[10px]'}>Reach</span>
+                    </div>
+                    <div>
+                      <span className={'text-[10px]'}>31,038</span>
+                    </div>
+                  </div>
+                  <div className={'flex justify-between items-center'}>
+                    <div>
+                      <span className={'text-[10px]'}>Impressions</span>
+                    </div>
+                    <div>
+                      <span className={'text-[10px]'}>129,073</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={'mt-2 flex justify-center items-center gap-1'}>
+                  <AiOutlineCaretDown />
+                  <span className={'text-[10px]'}>Show more</span>
+                </div>
+
+              </div>
+
+							{/*Separator*/}
+              <div className={'w-full h-2 bg-black my-1'} />
+
+							{/*Graph*/}
+              <div className={'px-2 flex flex-1 justify-evenly flex-col gap-2'}>
+                <h4 className={'text-[12px]'}>Cost per result is 14% lower than similar ad sets from peers</h4>
+                <div>
+                  <CanvasJSChart
+                    options={options}
+                    containerProps={{height: '100px'}}
+                  />
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>}
+			</div>
+		)
+	}
+
+	return content;
+	// return (
+	// 	// <div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] flex justify-center items-center" + (sm ? ' h-[70vh]' : ' h-[80vh]')} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
+	// 	// 	<Image className="w-auto h-full max-w-none" src={IphoneImage} ref={iphoneImageRef} alt="Iphone Image" />
+	// 		content
+	// 	// </div>
+	// )
 
 	return (
 		<>
@@ -949,6 +968,8 @@ export default function Services() {
 	const [idInView, setIdInView] = useState<Props['id']>(0);
 	const isMounted = useMounted();
 	const [viewScreen, setViewScreen] = useState(ViewScreen.MOBILE);
+	const mounted = useMounted();
+	const iphoneImageRef = useRef<HTMLImageElement>(null);
 
 	function handleIdInView(id: Props['id']) {
 		setIdInView(id);
@@ -985,6 +1006,27 @@ export default function Services() {
 		setViewScreen(screen);
 	}, []);
 
+	const dimensions = useMemo(() => {
+		console.log('mounted - ', mounted, iphoneImageRef.current);
+		if(!mounted) return {
+			width: 100,
+			height: 100
+		}
+
+		if(!iphoneImageRef?.current) return {
+			width: 100,
+			height: 100
+		}
+
+		const rect = iphoneImageRef.current.getBoundingClientRect();
+		console.log('mounted - ', mounted, rect);
+
+		return {
+			width: rect.width - 30,
+			height: rect.height - 30
+		}
+	}, [mounted]);
+
 	return (
 		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-20 mt-40" id={'product-overview'}>
 			<div>
@@ -1011,11 +1053,14 @@ export default function Services() {
 				{/*		<span className="text-xs text-gray-400">Laptop</span>*/}
 				{/*	</div>*/}
 				{/*</div>*/}
-				{isMounted &&<div className="text-left w-[90vw] md:w-[550px] h-[80vh] flex items-center justify-center relative">
-					<ArtiChatDemo.Chat messages={mockMessages} viewScreen={viewScreen} isInView={idInView === 1} />
-					<ArtiChatDemo.AdCreative messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
-					<ArtiChatDemo.Metrics messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 3} />
-				</div>}
+				<div className="text-left w-[90vw] md:w-[550px] h-[80vh] flex items-center justify-center relative">
+          <div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] flex justify-center items-center h-[80vh]"}>
+            <Image className="w-auto h-full max-w-none" src={IphoneImage} ref={iphoneImageRef} alt="Iphone Image" />
+            <ArtiChatDemo.Chat dimensions={dimensions} messages={mockMessages} viewScreen={viewScreen} isInView={idInView === 1} />
+            <ArtiChatDemo.AdCreative dimensions={dimensions} messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 2} />
+            <ArtiChatDemo.Metrics dimensions={dimensions} messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 3} />
+          </div>
+				</div>
 				{/*<div className="flex gap-2" style={{zoom: 0.8}}>*/}
 				{/*	{screens.map(screen => (*/}
 				{/*		<div key={screen.id} className="flex flex-col items-center justify-center cursor-pointer" onClick={() => handleChangeScreen(screen.value)}>*/}
