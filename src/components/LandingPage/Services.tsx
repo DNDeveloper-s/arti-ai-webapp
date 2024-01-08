@@ -222,7 +222,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, dimensions, sm,
 
 		if(isMetric) {
 			setAdCreative(mock.adCreative);
-
+			// return;
 			await wait(1500);
 
 			setPublishingAd(true);
@@ -465,14 +465,14 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, dimensions, sm,
 					transform: 'translate(-50%, -50%)',
 				}}>
           <div ref={rightPaneRef}>
-            <RightPane mock={mockState} adCreative={mock.adCreative} style={{opacity: 0.3, filter: 'blur(1px)', position: 'relative', zoom: 1, paddingLeft: 0}}/>
-            <div className={'w-full flex justify-center items-center absolute bottom-7 left-1/2 -translate-x-1/2 z-10'}>
-              <CTAButton className={'px-0 py-0 flex justify-center items-center h-10 w-36 gap-3 rounded-lg'}>
+            <RightPane mock={mockState} adCreative={mock.adCreative} style={{opacity: publishingAd ? 0.3 : 1, filter: `blur(${publishingAd ? 1 : 0}px)`, position: 'relative', zoom: 1, paddingLeft: 0}}/>
+            <div className={'w-full flex justify-center items-center absolute bottom-2 left-1/2 -translate-x-1/2 z-10'}>
+              <CTAButton className={'px-0 py-0 flex justify-center items-center h-8 w-36 gap-3 rounded-lg'}>
 								{publishingAd ? <>
 									<Loader className={'w-5 h-5'} />
-									<span className={'text-xs'}>Publishing Ad...</span>
+									<span className={'text-[12px]'}>Publishing Ad...</span>
 								</> : <>
-									<span className={'text-xs'}>Publish Ad</span>
+									<span className={'text-[12px]'}>Publish Ad</span>
 								</>}
               </CTAButton>
             </div>

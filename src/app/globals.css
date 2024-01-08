@@ -7,7 +7,7 @@
     @apply px-8 py-4 rounded-xl bg-primary cursor-pointer disabled:cursor-not-allowed;
   }
   .landing-page-section {
-    @apply w-[100vw] px-10 max-w-[1100px] mx-auto py-10 font-diatype;
+    @apply w-[100vw] px-10 max-w-[1100px] mx-auto py-10 font-diatype bg-black text-white;
   }
 
   .arti-card {
@@ -36,10 +36,8 @@
   --background-end-rgb: 255, 255, 255;
   --color-primary: #ed02eb;
   scroll-behavior: smooth;
-}
-
-body {
-  overflow-x: hidden;
+  color: white;
+  background: black;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,6 +45,28 @@ body {
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
+  }
+
+  body {
+    overflow-x: hidden;
+    color: white;
+    background: black;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+    color: white;
+    background: black;
+  }
+
+  body {
+    overflow-x: hidden;
+    color: white;
+    background: black;
   }
 }
 

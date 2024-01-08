@@ -56,9 +56,8 @@ export default function Contact() {
 	// }} />
 
 	return (
-		<div data-groupid={"landing-section"} data-section="contact_us" className="relative" id="contact" style={{
+		<div data-groupid={"landing-section"} data-section="contact_us" className="relative bg-[length:auto_100vh] md:bg-cover" id="contact" style={{
 			backgroundImage: 'url(/assets/images/bg_image1.png)',
-			backgroundSize: 'cover',
 			backgroundAttachment: 'fixed',
 			backgroundPosition: 'center center'
 		}}>

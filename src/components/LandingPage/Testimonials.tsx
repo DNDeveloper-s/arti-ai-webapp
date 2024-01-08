@@ -152,7 +152,7 @@ const Testimonials: FC<TestimonialsProps> = (props) => {
 		<div className="pt-10 pb-20">
 			<div className="flex flex-col items-center justify-center">
 				{/*<h4 className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-[#ed02eb] to-[#dcd6fe] pb-3">Experience the Evolution of Our Ad Creatives</h4>*/}
-				<h2 className="text-4xl font-medium bg-clip-text !text-transparent bg-gradient-to-r from-gray-200/60 via-gray-200 to-gray-200/60 pb-4">Actual Ad Creatives for our customers</h2>
+				<h2 className="text-4xl px-2 font-medium bg-clip-text !text-transparent bg-gradient-to-r from-gray-200/60 via-gray-200 to-gray-200/60 pb-4">Actual Ad Creatives for our customers</h2>
 			</div>
 			<div className="h-[372px] relative z-[5] mt-[10px] flex items-center">
 				<div className="flex gap-5 w-full items-center overflow-hidden md:mask-black">

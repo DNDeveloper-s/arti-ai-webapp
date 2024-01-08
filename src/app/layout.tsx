@@ -21,7 +21,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="dark">
-      <body className="dark:bg-black">
+      <body className="bg-black">
         <SessionProvider>
           <SnackbarContextProvider>
             <ConversationContextProvider {...initConversationState}>

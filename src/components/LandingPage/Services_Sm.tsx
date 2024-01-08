@@ -124,10 +124,10 @@ export default function Services_Sm() {
 				<div className="relative mt-6">
 					{/*{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}*/}
 					{servicesData.cards.map(serviceItem => (
-						<div key={serviceItem.title} className="absolute top-0 left-1/2 transform -translate-x-1/2 flex flex-col items-center justify-center" style={{opacity: idInView === serviceItem.id ? 1 : 0}}>
+						<div key={serviceItem.title} className="absolute top-0 left-1/2 w-[80vw] transform -translate-x-1/2 flex flex-col items-center justify-center" style={{opacity: idInView === serviceItem.id ? 1 : 0}}>
 							<div>
-								<h1 className="text-[30px] whitespace-nowrap text-white leading-[32px] font-diatype font-bold tracking-[-1.15px]">{serviceItem.title}</h1>
-								<p className="font-gilroyRegular text-white text-opacity-40 text-[13px]">{serviceItem.description.slice(0, 50)}</p>
+								<h1 className="text-[30px] text-center text-white leading-[32px] font-diatype font-bold tracking-[-1.15px]">{serviceItem.title}</h1>
+								<p className="font-gilroyRegular text-white text-opacity-40 mt-1 text-[14px]">{serviceItem.description.slice(0, 50)}</p>
 							</div>
 						</div>
 					))}
