@@ -105,7 +105,7 @@ export default function LandingPage() {
 				{/*<BgAttachment />*/}
 				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black pt-4 pb-10">
 					<div className="landing-page-section px-0 md:px-10">
-						<h2 className="text-3xl mb-10 px-10">Try Arti AI for free</h2>
+						<h2 className="text-3xl mb-10 px-10 text-center">Try Arti AI for free</h2>
 						<ArtiBot borderAnimation={true} miniVersion={true} containerClassName="rounded-xl" />
 					</div>
 				</div>

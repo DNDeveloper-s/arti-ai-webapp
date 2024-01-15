@@ -8,6 +8,7 @@ import {mockProductOverviewData as mock, screens, ViewScreen} from '@/constants/
 import {ArtiChatDemo} from '@/components/LandingPage/Services';
 import Image from 'next/image';
 import IphoneImage from '@/assets/images/iphone_2.png';
+import {useMotionValueEvent, useScroll} from 'framer-motion';
 
 interface Props {
 	id: number | string;
@@ -55,6 +56,26 @@ export default function Services_Sm() {
 	const [viewScreen, setViewScreen] = useState(ViewScreen.MOBILE);
 	const mounted = useMounted();
 	const iphoneImageRef = useRef<HTMLImageElement>(null);
+	const {scrollY} = useScroll();
+	const sectionRef = useRef<HTMLDivElement>(null);
+
+	useMotionValueEvent(scrollY, 'change', (latest: number) => {
+		if(!sectionRef.current) return;
+		console.log('latest - ', latest);
+		// Check the sectionRef which is MutableRefObject<HTMLDivElement>, how much is it from the scroll Top
+		// if it is less than 0, then set the viewScreen to ViewScreen.MOBILE
+		// if it is greater than 0 and less than 1, then set the viewScreen to ViewScreen.TABLET
+		// if it is greater than 1, then set the viewScreen to ViewScreen.DESKTOP
+		const fromTop = sectionRef.current.offsetTop;
+
+		const scrolledInSection = latest - fromTop;
+
+		console.log('scrolledInSection - ', scrolledInSection);
+
+		if(scrolledInSection < 500) setIdInView(1);
+		if(scrolledInSection > 500 && scrolledInSection < 1000) setIdInView(2);
+		if(scrolledInSection > 1000) setIdInView(3);
+	});
 
 	const handleIdInView = useCallback((id: Props['id']) => {
 		setIdInView(id);
@@ -106,7 +127,7 @@ export default function Services_Sm() {
 	}, [mounted]);
 
 	return (
-		<div className="landing-page-section p-0 relative" id={'product-overview'}>
+		<div className="landing-page-section p-0 relative" id={'product-overview'} ref={sectionRef}>
 			<div className="sticky top-[80px] left-0 w-screen h-screen">
 				<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-auto md:h-screen md:top-0 flex flex-col gap-3 justify-center items-center">
 					<div className="text-left w-[90vw] h-[70vh] flex items-center justify-center relative">
@@ -126,14 +147,15 @@ export default function Services_Sm() {
 					{servicesData.cards.map(serviceItem => (
 						<div key={serviceItem.title} className="absolute top-0 left-1/2 w-[80vw] transform -translate-x-1/2 flex flex-col items-center justify-center" style={{opacity: idInView === serviceItem.id ? 1 : 0}}>
 							<div>
-								<h1 className="text-[30px] text-center text-white leading-[32px] font-diatype font-bold tracking-[-1.15px]">{serviceItem.title}</h1>
-								<p className="font-gilroyRegular text-white text-opacity-40 mt-1 text-[14px]">{serviceItem.description.slice(0, 50)}</p>
+								<h1 className="text-[33px] text-center text-white leading-[38px] font-diatype font-medium">{serviceItem.title}</h1>
+								{/*<p className="font-gilroyRegular text-white text-opacity-40 mt-1 text-[14px]">{serviceItem.description.slice(0, 50)}</p>*/}
 							</div>
 						</div>
 					))}
 				</div>
 			</div>
-			{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}
+			{/*{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}*/}
+			<div className="w-screen h-screen bg-red-300 bg-opacity-0" />
 			<div className="w-screen h-screen bg-red-300 bg-opacity-0" />
 		</div>
 	)

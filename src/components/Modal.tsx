@@ -9,11 +9,12 @@ interface ModalProps {
 	children?: ReactElement;
 	PaperProps?: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 	BackdropProps?: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
-	setOpen: React.Dispatch<ModalDispatchAction<any>>;
+	setOpen?: React.Dispatch<ModalDispatchAction<any>>;
+	handleClose?: () => void;
 	open: ModalDispatchAction<any>;
 }
 
-const Modal: FC<ModalProps> = ({BackdropProps, open, setOpen, children, PaperProps}) => {
+const Modal: FC<ModalProps> = ({BackdropProps, open, handleClose, setOpen, children, PaperProps}) => {
 
 	const props: any = {
 		BackdropProps: {
@@ -29,7 +30,10 @@ const Modal: FC<ModalProps> = ({BackdropProps, open, setOpen, children, PaperPro
 	return (
 			<Portal>
 				<AnimatePresence mode="wait">
-					{open && <motion.div key={1} onClick={() => setOpen(false)} initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}} {...props.BackdropProps} />}
+					{open && <motion.div key={1} onClick={() => {
+						setOpen && setOpen(false)
+						handleClose && handleClose();
+					}} initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}} {...props.BackdropProps} />}
 				</AnimatePresence>
 				<AnimatePresence mode="wait">
 					{open && <motion.div transition={{ease: 'linear', duration: 0.2}} key={2} initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}} {...props.PaperProps}>

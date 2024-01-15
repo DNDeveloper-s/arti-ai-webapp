@@ -601,367 +601,367 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, dimensions, sm,
 	// 	// </div>
 	// )
 
-	return (
-		<>
-			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-auto"} style={{display: !isInView ? 'none' : 'block', opacity: viewScreen === ViewScreen.LAPTOP ? 1 : 0}}>
-				<Image src={MacImage} alt="Iphone Image" />
-				<div className="w-[427px] h-[285px] absolute top-[29px] left-[61px] rounded-[12px_12px_0_0] bg-white bg-opacity-10 border-primary border overflow-hidden">
-					<div className={`flex h-full overflow-hidden`}>
-						<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
-							<>
-								<div
-									className="flex justify-between h-auto py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]"
-									style={{zoom: 0.5}}
-								>
-									<Link href="/" className="flex justify-center items-center">
-										<Logo width={35} className="mr-2" height={35}/>
-										<h3 className="text-lg">Arti AI</h3>
-									</Link>
-								</div>
-								<AnimatePresence mode="wait">
-									<div
-										style={{zoom: 0.5}}
-										className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
-										{/*<ChatGPTMessageCreatingAd/>*/}
-										{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
-										{/*<div className="text-white whitespace-pre-wrap">*/}
-										{/*	{msg}*/}
-										{/*</div>*/}
-										{isGenerating && <div className="w-16 h-8">
-											<ChatGPTMessageGeneratingAnimation mock={mockState}/>
-										</div>}
-										{/*{isGenerating && <ChatGPTMessageGeneratingAnimation mock={mockState}/>}*/}
-										<motion.div variants={framerContainer} animate="show" initial="hidden" exit="hidden">
-											{/*{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}*/}
-											{/*{*/}
-											{messageList.map((messageItem: ChatGPTMessageObj) => (
-												<ChatGPTMessageItem
-													chunksRef={chunksRef}
-													doneRef={doneRef}
-													isGenerating={isGenerating}
-													// conversationId={params.conversation_id as string}
-													isMock={true}
-													key={messageItem.id}
-													setMessages={setMessages}
-													messageItem={messageItem}
-													disableCopy
-												/>
-											))}
-											{/*}*/}
-										</motion.div>
-										<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
-											<div className="h-0.5 mr-5 flex-1 bg-gray-800"/>
-											<div
-												className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
-												<span>Hey</span>
-												<Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
-												<span>, How can Arti Ai help you?</span>
-											</div>
-											<div className="h-0.5 ml-5 flex-1 bg-gray-800"/>
-										</div>
-									</div>
-								</AnimatePresence>
-								<div
-									style={{zoom: 0.5}}
-									className="flex w-full max-w-[900px] mx-auto h-auto pt-2 relative items-end pb-2 px-3 bg-secondaryBackground">
-									{/*{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton*/}
-									{/*{(<GetAdButton*/}
-									{/*	mock={mockState}*/}
-                  {/*  adGenerated={Boolean(adCreative)}*/}
-                  {/*  onClick={async (setLoading: any) => {*/}
-									{/*		// await handleGetAdNowButton();*/}
-									{/*		setLoading(false);*/}
-									{/*	}}*/}
-                  {/*/>)}*/}
-									<div className={'flex-1 relative rounded-xl bg-background h-[70%] mb-1 mr-3'}>
-										<TextareaAutosize
-											value={inputValue}
-											ref={areaRef}
-											onChange={(e) => {
-												areaRef.current && areaRef.current.scrollTo({top: 20000, left: 0});
-												setInputValue(e.target.value);
-											}}
-											minRows={1}
-											maxRows={4}
-											placeholder="Type here..."
-											className="outline-none caret-primary resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-4 absolute bottom-0"
-										/>
-									</div>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width={19}
-										height={19}
-										fill={colors.primary}
-										className="mb-[1.25rem] cursor-pointer"
-									>
-										<path
-											d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
-										/>
-									</svg>
-								</div>
-							</>
-						</div>
-						{adCreative && <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={adCreative} style={{zoom: 0.41, position: 'relative'}}/></div>}
-					</div>
-				</div>
-			</div>
-			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-auto"} style={{display: !isInView ? 'none' : 'block', opacity: viewScreen === ViewScreen.SCREEN ? 1 : 0}}>
-				<Image src={LaptopImage} alt="Iphone Image" />
-				<div className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
-					<div className={`flex h-full overflow-hidden`}>
-						<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}
-						     // style={{zoom: 0.55}}
-						>
-							<>
-								<div
-									className="flex justify-between h-auto py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]"
-									style={{zoom: 0.5}}
-								>
-									<Link href="/" className="flex justify-center items-center">
-										<Logo width={35} className="mr-2" height={35}/>
-										<h3 className="text-lg">Arti AI</h3>
-									</Link>
-								</div>
-								<AnimatePresence mode="wait">
-									<div
-										style={{zoom: 0.5}}
-										className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
-										{/*<ChatGPTMessageCreatingAd/>*/}
-										{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
-										{/*<div className="text-white whitespace-pre-wrap">*/}
-										{/*	{msg}*/}
-										{/*</div>*/}
-										{isGenerating && <ChatGPTMessageGeneratingAnimation/>}
-										<motion.div variants={framerContainer} animate="show" initial="hidden" exit="hidden">
-											{/*{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}*/}
-											{/*{*/}
-											{messageList.map((messageItem: ChatGPTMessageObj) => (
-												<ChatGPTMessageItem
-													chunksRef={chunksRef}
-													doneRef={doneRef}
-													isGenerating={isGenerating}
-													// conversationId={params.conversation_id as string}
-													isMock={true}
-													key={messageItem.id}
-													setMessages={setMessages}
-													messageItem={messageItem}
-													disableCopy
-												/>
-											))}
-											{/*}*/}
-										</motion.div>
-										<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
-											<div className="h-0.5 mr-5 flex-1 bg-gray-800"/>
-											<div
-												className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
-												<span>Hey</span>
-												<Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
-												<span>, How can Arti Ai help you?</span>
-											</div>
-											<div className="h-0.5 ml-5 flex-1 bg-gray-800"/>
-										</div>
-									</div>
-								</AnimatePresence>
-								<div
-									style={{zoom: 0.5}}
-									className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground">
-									{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton
-                    adGenerated={Boolean(adCreative)}
-                    onClick={async (setLoading: any) => {
-											// await handleGetAdNowButton();
-											setLoading(false);
-										}}
-                  />}
-									{/*<label htmlFor="file" className="cursor-pointer mr-2 mb-[1.15rem]">*/}
-									{/*	<input onChange={e => {*/}
-									{/*		const files = e.currentTarget.files;*/}
-									{/*		setFiles(c => {*/}
-									{/*			if(!files) return c;*/}
-									{/*			console.log('Array.from(e.currentTarget.files) - ', Array.from(files));*/}
-									{/*			const filesArr = Array.from(files);*/}
-									{/*			if(!c) return filesArr;*/}
-									{/*			// @ts-ignore*/}
-									{/*			return [...c, ...filesArr];*/}
-									{/*		});*/}
-									{/*	}} type="file" multiple accept="image/*, .pdf, .docx, .doc, .txt" id="file" className="hidden"/>*/}
-									{/*	<AiFillPlusCircle className="text-primary text-2xl" />*/}
-									{/*</label>*/}
-									{/*<div className="relative mb-[1.25rem]">*/}
-									{/*	<input type="file" className="absolute w-full h-full z-10 cursor-pointer" hidden/>*/}
-									{/*	<BsFillFileEarmarkFill className="text-xl" />*/}
-									{/*</div>*/}
-									<div
-									     className="flex w-full max-w-[900px] mx-auto h-auto pt-2 relative items-end pb-2 px-3 bg-secondaryBackground">
-										<TextareaAutosize
-											value={inputValue}
-											ref={areaRef}
-											onChange={(e) => {
-												areaRef.current && areaRef.current.scrollTo({top: 20000, left: 0});
-												setInputValue(e.target.value);
-											}}
-											onKeyDown={e => {
-												// if(e.key === 'Enter' && !e.shiftKey) {
-												// e.preventDefault();
-												// handleSubmitMessage();
-												// }
-												// if(e.key === 'Enter' && e.shiftKey) {
-												// 	areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
-												// }
-											}}
-											onHeightChange={e => {
-												// 48 is default height of textarea
-												// setAreaHeight(e - 48);
-											}}
-											minRows={1}
-											maxRows={4}
-											placeholder="Type here..."
-											className="outline-none caret-primary resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-4 absolute bottom-0"
-										/>
-									</div>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width={19}
-										height={19}
-										fill={colors.primary}
-										className="mb-[1.25rem] cursor-pointer"
-									>
-										<path
-											d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
-										/>
-									</svg>
-								</div>
-							</>
-						</div>
-						{adCreative && <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={adCreative} style={{zoom: 0.41, position: 'relative'}}/></div>}
-					</div>
-				</div>
-			</div>
-			<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-[80vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
-				<Image className="w-auto h-full max-w-none" src={IphoneImage} alt="Iphone Image" />
-				{adCreative && <div className="absolute" style={{
-					width: 'unset',
-					height: 'calc(100% - 42px)',
-					zoom: 1,
-					top: '50%',
-					left: '49.8%',
-					borderRadius: '20px',
-					overflow: 'auto',
-					border: 'none',
-					aspectRatio: 0.46,
-					transform: 'translate(-50%, -50%)',
-				}}>
-          <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={mock.adCreative} style={{position: 'relative', zoom: 0.85, paddingLeft: 0}}/>
-          </div>
-        </div>}
-				{!adCreative && <div style={{
-					width: 'unset',
-					height: 'calc(100% - 42px)',
-					zoom: 1,
-					top: '50%',
-					left: '49.8%',
-					borderRadius: '18px',
-					overflow: 'hidden',
-					border: 'none',
-					aspectRatio: 0.46,
-					transform: 'translate(-50%, -50%)',
-				}} className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
-          <div className={`flex h-full overflow-hidden`}>
-            <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
-              <>
-                <div
-                  className="flex justify-between h-auto py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]"
-                  style={{zoom: 0.5}}
-                >
-                  <Link href="/" className="flex justify-center items-center">
-                    <Logo width={35} className="mr-2" height={35}/>
-                    <h3 className="text-lg">Arti AI</h3>
-                  </Link>
-                </div>
-                <AnimatePresence mode="wait">
-                  <div
-                    style={{zoom: 0.5}}
-                    className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
-										{/*<ChatGPTMessageCreatingAd/>*/}
-										{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
-										{/*<div className="text-white whitespace-pre-wrap">*/}
-										{/*	{msg}*/}
-										{/*</div>*/}
-										{isGenerating && <ChatGPTMessageGeneratingAnimation/>}
-                    <motion.div variants={framerContainer} animate="show" initial="hidden" exit="hidden">
-											{/*{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}*/}
-											{/*{*/}
-											{messageList.map((messageItem: ChatGPTMessageObj) => (
-												<ChatGPTMessageItem
-													chunksRef={chunksRef}
-													doneRef={doneRef}
-													isGenerating={isGenerating}
-													// conversationId={params.conversation_id as string}
-													isMock={true}
-													key={messageItem.id}
-													setMessages={setMessages}
-													messageItem={messageItem}
-													disableCopy
-												/>
-											))}
-											{/*}*/}
-                    </motion.div>
-                    <div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
-                      <div className="h-0.5 mr-5 flex-1 bg-gray-800"/>
-                      <div
-                        className="flex justify-center whitespace-nowrap items-center font-light text-sm font-diatype text-white text-opacity-50">
-                        <span>Hey</span>
-                        <Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
-                        <span>, How can Arti Ai help you?</span>
-                      </div>
-                      <div className="h-0.5 ml-5 flex-1 bg-gray-800"/>
-                    </div>
-                  </div>
-                </AnimatePresence>
-                <div
-                  style={{zoom: 0.5}}
-                  className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground">
-									{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton
-                    adGenerated={Boolean(adCreative)}
-                    onClick={async (setLoading: any) => {
-											// await handleGetAdNowButton();
-											setLoading(false);
-										}}
-                  />}
-                  <div
-                    className="flex w-full max-w-[900px] mx-auto h-auto pt-2 relative items-end pb-2 px-3 bg-secondaryBackground"
-                  >
-                    <TextareaAutosize
-                      value={inputValue}
-                      ref={areaRef}
-                      onChange={(e) => {
-												areaRef.current && areaRef.current.scrollTo({top: 20000, left: 0});
-												setInputValue(e.target.value);
-											}}
-                      minRows={1}
-                      maxRows={4}
-                      placeholder="Type here..."
-                      className="outline-none caret-primary resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-4 absolute bottom-0"
-                    />
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={19}
-                    height={19}
-                    fill={colors.primary}
-                    className="mb-[1.25rem] cursor-pointer"
-                  >
-                    <path
-                      d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
-                    />
-                  </svg>
-                </div>
-              </>
-            </div>
-          </div>
-        </div>}
-			</div>
-		</>
-	)
+	// return (
+	// 	<>
+	// 		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-auto"} style={{display: !isInView ? 'none' : 'block', opacity: viewScreen === ViewScreen.LAPTOP ? 1 : 0}}>
+	// 			<Image src={MacImage} alt="Iphone Image" />
+	// 			<div className="w-[427px] h-[285px] absolute top-[29px] left-[61px] rounded-[12px_12px_0_0] bg-white bg-opacity-10 border-primary border overflow-hidden">
+	// 				<div className={`flex h-full overflow-hidden`}>
+	// 					<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
+	// 						<>
+	// 							<div
+	// 								className="flex justify-between h-auto py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]"
+	// 								style={{zoom: 0.5}}
+	// 							>
+	// 								<Link href="/" className="flex justify-center items-center">
+	// 									<Logo width={35} className="mr-2" height={35}/>
+	// 									<h3 className="text-lg">Arti AI</h3>
+	// 								</Link>
+	// 							</div>
+	// 							<AnimatePresence mode="wait">
+	// 								<div
+	// 									style={{zoom: 0.5}}
+	// 									className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
+	// 									{/*<ChatGPTMessageCreatingAd/>*/}
+	// 									{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
+	// 									{/*<div className="text-white whitespace-pre-wrap">*/}
+	// 									{/*	{msg}*/}
+	// 									{/*</div>*/}
+	// 									{isGenerating && <div className="w-16 h-8">
+	// 										<ChatGPTMessageGeneratingAnimation mock={mockState}/>
+	// 									</div>}
+	// 									{/*{isGenerating && <ChatGPTMessageGeneratingAnimation mock={mockState}/>}*/}
+	// 									<motion.div variants={framerContainer} animate="show" initial="hidden" exit="hidden">
+	// 										{/*{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}*/}
+	// 										{/*{*/}
+	// 										{messageList.map((messageItem: ChatGPTMessageObj) => (
+	// 											<ChatGPTMessageItem
+	// 												chunksRef={chunksRef}
+	// 												doneRef={doneRef}
+	// 												isGenerating={isGenerating}
+	// 												// conversationId={params.conversation_id as string}
+	// 												isMock={true}
+	// 												key={messageItem.id}
+	// 												setMessages={setMessages}
+	// 												messageItem={messageItem}
+	// 												disableCopy
+	// 											/>
+	// 										))}
+	// 										{/*}*/}
+	// 									</motion.div>
+	// 									<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
+	// 										<div className="h-0.5 mr-5 flex-1 bg-gray-800"/>
+	// 										<div
+	// 											className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
+	// 											<span>Hey</span>
+	// 											<Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
+	// 											<span>, How can Arti Ai help you?</span>
+	// 										</div>
+	// 										<div className="h-0.5 ml-5 flex-1 bg-gray-800"/>
+	// 									</div>
+	// 								</div>
+	// 							</AnimatePresence>
+	// 							<div
+	// 								style={{zoom: 0.5}}
+	// 								className="flex w-full max-w-[900px] mx-auto h-auto pt-2 relative items-end pb-2 px-3 bg-secondaryBackground">
+	// 								{/*{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton*/}
+	// 								{/*{(<GetAdButton*/}
+	// 								{/*	mock={mockState}*/}
+  //                 {/*  adGenerated={Boolean(adCreative)}*/}
+  //                 {/*  onClick={async (setLoading: any) => {*/}
+	// 								{/*		// await handleGetAdNowButton();*/}
+	// 								{/*		setLoading(false);*/}
+	// 								{/*	}}*/}
+  //                 {/*/>)}*/}
+	// 								<div className={'flex-1 relative rounded-xl bg-background h-[70%] mb-1 mr-3'}>
+	// 									<TextareaAutosize
+	// 										value={inputValue}
+	// 										ref={areaRef}
+	// 										onChange={(e) => {
+	// 											areaRef.current && areaRef.current.scrollTo({top: 20000, left: 0});
+	// 											setInputValue(e.target.value);
+	// 										}}
+	// 										minRows={1}
+	// 										maxRows={4}
+	// 										placeholder="Type here..."
+	// 										className="outline-none caret-primary resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-4 absolute bottom-0"
+	// 									/>
+	// 								</div>
+	// 								<svg
+	// 									xmlns="http://www.w3.org/2000/svg"
+	// 									width={19}
+	// 									height={19}
+	// 									fill={colors.primary}
+	// 									className="mb-[1.25rem] cursor-pointer"
+	// 								>
+	// 									<path
+	// 										d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
+	// 									/>
+	// 								</svg>
+	// 							</div>
+	// 						</>
+	// 					</div>
+	// 					{adCreative && <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={adCreative} style={{zoom: 0.41, position: 'relative'}}/></div>}
+	// 				</div>
+	// 			</div>
+	// 		</div>
+	// 		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-auto"} style={{display: !isInView ? 'none' : 'block', opacity: viewScreen === ViewScreen.SCREEN ? 1 : 0}}>
+	// 			<Image src={LaptopImage} alt="Iphone Image" />
+	// 			<div className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
+	// 				<div className={`flex h-full overflow-hidden`}>
+	// 					<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}
+	// 					     // style={{zoom: 0.55}}
+	// 					>
+	// 						<>
+	// 							<div
+	// 								className="flex justify-between h-auto py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]"
+	// 								style={{zoom: 0.5}}
+	// 							>
+	// 								<Link href="/" className="flex justify-center items-center">
+	// 									<Logo width={35} className="mr-2" height={35}/>
+	// 									<h3 className="text-lg">Arti AI</h3>
+	// 								</Link>
+	// 							</div>
+	// 							<AnimatePresence mode="wait">
+	// 								<div
+	// 									style={{zoom: 0.5}}
+	// 									className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
+	// 									{/*<ChatGPTMessageCreatingAd/>*/}
+	// 									{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
+	// 									{/*<div className="text-white whitespace-pre-wrap">*/}
+	// 									{/*	{msg}*/}
+	// 									{/*</div>*/}
+	// 									{isGenerating && <ChatGPTMessageGeneratingAnimation/>}
+	// 									<motion.div variants={framerContainer} animate="show" initial="hidden" exit="hidden">
+	// 										{/*{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}*/}
+	// 										{/*{*/}
+	// 										{messageList.map((messageItem: ChatGPTMessageObj) => (
+	// 											<ChatGPTMessageItem
+	// 												chunksRef={chunksRef}
+	// 												doneRef={doneRef}
+	// 												isGenerating={isGenerating}
+	// 												// conversationId={params.conversation_id as string}
+	// 												isMock={true}
+	// 												key={messageItem.id}
+	// 												setMessages={setMessages}
+	// 												messageItem={messageItem}
+	// 												disableCopy
+	// 											/>
+	// 										))}
+	// 										{/*}*/}
+	// 									</motion.div>
+	// 									<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
+	// 										<div className="h-0.5 mr-5 flex-1 bg-gray-800"/>
+	// 										<div
+	// 											className="flex justify-center items-center font-light text-sm font-diatype text-white text-opacity-50">
+	// 											<span>Hey</span>
+	// 											<Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
+	// 											<span>, How can Arti Ai help you?</span>
+	// 										</div>
+	// 										<div className="h-0.5 ml-5 flex-1 bg-gray-800"/>
+	// 									</div>
+	// 								</div>
+	// 							</AnimatePresence>
+	// 							<div
+	// 								style={{zoom: 0.5}}
+	// 								className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground">
+	// 								{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton
+  //                   adGenerated={Boolean(adCreative)}
+  //                   onClick={async (setLoading: any) => {
+	// 										// await handleGetAdNowButton();
+	// 										setLoading(false);
+	// 									}}
+  //                 />}
+	// 								{/*<label htmlFor="file" className="cursor-pointer mr-2 mb-[1.15rem]">*/}
+	// 								{/*	<input onChange={e => {*/}
+	// 								{/*		const files = e.currentTarget.files;*/}
+	// 								{/*		setFiles(c => {*/}
+	// 								{/*			if(!files) return c;*/}
+	// 								{/*			console.log('Array.from(e.currentTarget.files) - ', Array.from(files));*/}
+	// 								{/*			const filesArr = Array.from(files);*/}
+	// 								{/*			if(!c) return filesArr;*/}
+	// 								{/*			// @ts-ignore*/}
+	// 								{/*			return [...c, ...filesArr];*/}
+	// 								{/*		});*/}
+	// 								{/*	}} type="file" multiple accept="image/*, .pdf, .docx, .doc, .txt" id="file" className="hidden"/>*/}
+	// 								{/*	<AiFillPlusCircle className="text-primary text-2xl" />*/}
+	// 								{/*</label>*/}
+	// 								{/*<div className="relative mb-[1.25rem]">*/}
+	// 								{/*	<input type="file" className="absolute w-full h-full z-10 cursor-pointer" hidden/>*/}
+	// 								{/*	<BsFillFileEarmarkFill className="text-xl" />*/}
+	// 								{/*</div>*/}
+	// 								<div
+	// 								     className="flex w-full max-w-[900px] mx-auto h-auto pt-2 relative items-end pb-2 px-3 bg-secondaryBackground">
+	// 									<TextareaAutosize
+	// 										value={inputValue}
+	// 										ref={areaRef}
+	// 										onChange={(e) => {
+	// 											areaRef.current && areaRef.current.scrollTo({top: 20000, left: 0});
+	// 											setInputValue(e.target.value);
+	// 										}}
+	// 										onKeyDown={e => {
+	// 											// if(e.key === 'Enter' && !e.shiftKey) {
+	// 											// e.preventDefault();
+	// 											// handleSubmitMessage();
+	// 											// }
+	// 											// if(e.key === 'Enter' && e.shiftKey) {
+	// 											// 	areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
+	// 											// }
+	// 										}}
+	// 										onHeightChange={e => {
+	// 											// 48 is default height of textarea
+	// 											// setAreaHeight(e - 48);
+	// 										}}
+	// 										minRows={1}
+	// 										maxRows={4}
+	// 										placeholder="Type here..."
+	// 										className="outline-none caret-primary resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-4 absolute bottom-0"
+	// 									/>
+	// 								</div>
+	// 								<svg
+	// 									xmlns="http://www.w3.org/2000/svg"
+	// 									width={19}
+	// 									height={19}
+	// 									fill={colors.primary}
+	// 									className="mb-[1.25rem] cursor-pointer"
+	// 								>
+	// 									<path
+	// 										d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
+	// 									/>
+	// 								</svg>
+	// 							</div>
+	// 						</>
+	// 					</div>
+	// 					{adCreative && <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={adCreative} style={{zoom: 0.41, position: 'relative'}}/></div>}
+	// 				</div>
+	// 			</div>
+	// 		</div>
+	// 		<div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] h-[80vh] flex justify-center items-center"} style={{display: !isInView ? 'none' : 'flex', opacity: viewScreen === ViewScreen.MOBILE ? 1 : 0}}>
+	// 			<Image className="w-auto h-full max-w-none" src={IphoneImage} alt="Iphone Image" />
+	// 			{adCreative && <div className="absolute" style={{
+	// 				width: 'unset',
+	// 				height: 'calc(100% - 42px)',
+	// 				zoom: 1,
+	// 				top: '50%',
+	// 				left: '49.8%',
+	// 				borderRadius: '20px',
+	// 				overflow: 'auto',
+	// 				border: 'none',
+	// 				aspectRatio: 0.46,
+	// 				transform: 'translate(-50%, -50%)',
+	// 			}}>
+  //         <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={mock.adCreative} style={{position: 'relative', zoom: 0.85, paddingLeft: 0}}/>
+  //         </div>
+  //       </div>}
+	// 			{!adCreative && <div style={{
+	// 				width: 'unset',
+	// 				height: 'calc(100% - 42px)',
+	// 				zoom: 1,
+	// 				top: '50%',
+	// 				left: '49.8%',
+	// 				borderRadius: '18px',
+	// 				overflow: 'hidden',
+	// 				border: 'none',
+	// 				aspectRatio: 0.46,
+	// 				transform: 'translate(-50%, -50%)',
+	// 			}} className="w-[443px] h-[263px] absolute top-[99px] left-[53px] rounded-[3px] bg-white bg-opacity-10 border-primary border overflow-hidden">
+  //         <div className={`flex h-full overflow-hidden`}>
+  //           <div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden'}>
+  //             <>
+  //               <div
+  //                 className="flex justify-between h-auto py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]"
+  //                 style={{zoom: 0.5}}
+  //               >
+  //                 <Link href="/" className="flex justify-center items-center">
+  //                   <Logo width={35} className="mr-2" height={35}/>
+  //                   <h3 className="text-lg">Arti AI</h3>
+  //                 </Link>
+  //               </div>
+  //               <AnimatePresence mode="wait">
+  //                 <div
+  //                   style={{zoom: 0.5}}
+  //                   className={'flex-1 flex flex-col-reverse overflow-auto' + (showGetAdNowButton ? ' pb-9 md:pb-10' : '')}>
+	// 									{/*<ChatGPTMessageCreatingAd/>*/}
+	// 									{isGeneratingAd && <ChatGPTMessageCreatingAd/>}
+	// 									{/*<div className="text-white whitespace-pre-wrap">*/}
+	// 									{/*	{msg}*/}
+	// 									{/*</div>*/}
+	// 									{isGenerating && <ChatGPTMessageGeneratingAnimation/>}
+  //                   <motion.div variants={framerContainer} animate="show" initial="hidden" exit="hidden">
+	// 										{/*{conversationType && <ChatGPTMessageWelcomeMessage type={conversationType}/>}*/}
+	// 										{/*{*/}
+	// 										{messageList.map((messageItem: ChatGPTMessageObj) => (
+	// 											<ChatGPTMessageItem
+	// 												chunksRef={chunksRef}
+	// 												doneRef={doneRef}
+	// 												isGenerating={isGenerating}
+	// 												// conversationId={params.conversation_id as string}
+	// 												isMock={true}
+	// 												key={messageItem.id}
+	// 												setMessages={setMessages}
+	// 												messageItem={messageItem}
+	// 												disableCopy
+	// 											/>
+	// 										))}
+	// 										{/*}*/}
+  //                   </motion.div>
+  //                   <div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
+  //                     <div className="h-0.5 mr-5 flex-1 bg-gray-800"/>
+  //                     <div
+  //                       className="flex justify-center whitespace-nowrap items-center font-light text-sm font-diatype text-white text-opacity-50">
+  //                       <span>Hey</span>
+  //                       <Image width={20} height={20} src={WavingHand} alt="Arti AI welcomes you"/>
+  //                       <span>, How can Arti Ai help you?</span>
+  //                     </div>
+  //                     <div className="h-0.5 ml-5 flex-1 bg-gray-800"/>
+  //                   </div>
+  //                 </div>
+  //               </AnimatePresence>
+  //               <div
+  //                 style={{zoom: 0.5}}
+  //                 className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground">
+	// 								{(showGetAdNowButton && !isGeneratingAd) && <GetAdButton
+  //                   adGenerated={Boolean(adCreative)}
+  //                   onClick={async (setLoading: any) => {
+	// 										// await handleGetAdNowButton();
+	// 										setLoading(false);
+	// 									}}
+  //                 />}
+  //                 <div
+  //                   className="flex w-full max-w-[900px] mx-auto h-auto pt-2 relative items-end pb-2 px-3 bg-secondaryBackground"
+  //                 >
+  //                   <TextareaAutosize
+  //                     value={inputValue}
+  //                     ref={areaRef}
+  //                     onChange={(e) => {
+	// 											areaRef.current && areaRef.current.scrollTo({top: 20000, left: 0});
+	// 											setInputValue(e.target.value);
+	// 										}}
+  //                     minRows={1}
+  //                     maxRows={4}
+  //                     placeholder="Type here..."
+  //                     className="outline-none caret-primary resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-4 absolute bottom-0"
+  //                   />
+  //                 </div>
+  //                 <svg
+  //                   xmlns="http://www.w3.org/2000/svg"
+  //                   width={19}
+  //                   height={19}
+  //                   fill={colors.primary}
+  //                   className="mb-[1.25rem] cursor-pointer"
+  //                 >
+  //                   <path
+  //                     d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
+  //                   />
+  //                 </svg>
+  //               </div>
+  //             </>
+  //           </div>
+  //         </div>
+  //       </div>}
+	// 		</div>
+	// 	</>
+	// )
 }
 
 export default function Services() {

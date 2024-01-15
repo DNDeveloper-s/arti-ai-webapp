@@ -1,9 +1,10 @@
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
 import {PiCaretRightBold} from 'react-icons/pi';
 import Image from 'next/image';
 import {SlOptions} from 'react-icons/sl';
 import useMousePos from '@/hooks/useMousePos';
 import {carouselImage1, carouselImage2, carouselImage3, carouselImage4} from '@/assets/images/carousel-images';
+import Modal from '@/components/Modal';
 
 const testimonialsData = {
 	adCreatives: [
@@ -79,15 +80,39 @@ const testimonialsData = {
 interface TestimonialsProps {
 }
 const Testimonial = {
-	AdCreative: function({description, oneLiner, src}) {
+	AdCreative: function({onClick, id, description, oneLiner, src, isModal = false}) {
 		const artiCardRef = useRef<HTMLDivElement>(null);
 		const mousePos = useMousePos(artiCardRef);
 
+		const classes = {
+			container: {
+				normal: 'arti-card hover:scale-x-105 transition-transform flex-shrink-0 rounded-lg cursor-default',
+				modal: 'arti-card transition-transform flex-shrink-0 rounded-lg cursor-default'
+			},
+			inner: {
+				normal: 'p-3 relative h-full bg-gray-950 w-64 rounded-[inherit] z-20 overflow-hidden scale-100 font-diatype group',
+				modal: 'p-3 relative h-full bg-gray-950 w-96 rounded-[inherit] z-20 overflow-hidden scale-100 font-diatype'
+			},
+			head: {
+				normal: 'group-hover:max-h-[300px] max-h-0 overflow-hidden transition-all',
+				modal: 'max-h-[300px]'
+			},
+			bottom: {
+				normal: 'group-hover:max-h-[100px] max-h-0 overflow-hidden transition-all',
+				modal: 'max-h-[100px]'
+			}
+		}
+
+		const getClassName = (key: keyof typeof classes) => {
+			if(!isModal) return classes[key].normal;
+			return classes[key].modal;
+		}
+
 		return (
-			<div className="arti-card hover:scale-x-105 transition-transform flex-shrink-0 rounded-lg cursor-default" ref={artiCardRef} style={{'--mouse-x': `${mousePos.x}px`, '--mouse-y': `${mousePos.y}px`}}>
-				<div className="p-3 relative h-full bg-gray-950 w-64 rounded-[inherit] z-20 overflow-hidden scale-100 font-diatype group">
+			<div onClick={() => onClick(id)} className={getClassName('container')} ref={artiCardRef} style={{'--mouse-x': `${mousePos.x}px`, '--mouse-y': `${mousePos.y}px`}}>
+				<div className={getClassName('inner')}>
 					{/* Head Section */}
-					<div className="group-hover:max-h-[300px] max-h-0 overflow-hidden transition-all">
+					<div className={getClassName('head')}>
 						<div className={"flex justify-between items-center mb-1 pt-1"}>
 							<div className="flex items-center gap-1">
 								<div className="w-5 h-5 rounded-full bg-gray-700" />
@@ -114,7 +139,7 @@ const Testimonial = {
 							<span className="cursor-pointer rounded bg-gray-700 px-2 py-1 text-[0.55em]">Learn More</span>
 						</div>
 					</div>
-					<div className="group-hover:max-h-[100px] max-h-0 overflow-hidden transition-all">
+					<div className={getClassName('bottom')}>
 						<hr className="h-px my-2 border-0 bg-gray-700"/>
 						<div className="w-full flex justify-between">
 							<div className="ml-2 w-9 h-3 rounded-[3px] bg-gray-700" />
@@ -148,28 +173,42 @@ const Testimonial = {
 }
 
 const Testimonials: FC<TestimonialsProps> = (props) => {
+	const [activeAdCreativeId, setAdCreativeId] = useState<string | null>(null);
+	const handleAdCreativePreview = (id: string) => {
+		setAdCreativeId(id);
+	}
+	const activeAdCreative = useMemo(() => {
+		if(!activeAdCreativeId) return null;
+		return testimonialsData.adCreatives.find(adCreative => adCreative.id === activeAdCreativeId);
+	}, [activeAdCreativeId])
+
 	return (
 		<div className="pt-10 pb-20">
+			<Modal PaperProps={{className: 'bg-transparent'}} handleClose={() => setAdCreativeId(null)} open={!!activeAdCreative}>
+				<div>
+					{activeAdCreative && <Testimonial.AdCreative onClick={() => null} isModal={true} key={activeAdCreative?.id} {...activeAdCreative} />}
+				</div>
+			</Modal>
 			<div className="flex flex-col items-center justify-center">
 				{/*<h4 className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-[#ed02eb] to-[#dcd6fe] pb-3">Experience the Evolution of Our Ad Creatives</h4>*/}
-				<h2 className="text-4xl px-2 font-medium bg-clip-text !text-transparent bg-gradient-to-r from-gray-200/60 via-gray-200 to-gray-200/60 pb-4">Actual Ad Creatives for our customers</h2>
+				<h2 className="text-4xl px-2 text-center font-medium bg-clip-text !text-transparent bg-gradient-to-r from-gray-200/60 via-gray-200 to-gray-200/60 pb-4">Actual Ad Creatives for our customers</h2>
 			</div>
 			<div className="h-[372px] relative z-[5] mt-[10px] flex items-center">
 				<div className="flex gap-5 w-full items-center overflow-hidden md:mask-black">
 					{/*<div className="flex gap-5 items-center">*/}
-					<div className="flex gap-5 items-center testimonial-animation-creative">
+					<div className={'flex gap-5 items-center testimonial-animation-creative ' + (activeAdCreative ? '![animation-play-state:paused]' : '[animation-play-state:running]')}>
 						{testimonialsData.adCreatives.map(adCreative => (
-							<Testimonial.AdCreative key={adCreative.id} {...adCreative} />
+							<Testimonial.AdCreative key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
 						))}
 						{testimonialsData.adCreatives.map(adCreative => (
-							<Testimonial.AdCreative key={adCreative.id} {...adCreative} />
+							<Testimonial.AdCreative key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
 						))}
 						<div className="flex gap-5 items-center">
 							{testimonialsData.adCreatives.map(adCreative => (
-								<Testimonial.AdCreative key={adCreative.id} {...adCreative} />
+								<Testimonial.AdCreative key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
 							))}
 							{testimonialsData.adCreatives.map(adCreative => (
-								<Testimonial.AdCreative key={adCreative.id} {...adCreative} />
+								<Testimonial.AdCreative key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
 							))}
 						</div>
 					</div>

@@ -1,5 +1,5 @@
 'use client'
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useMemo, useRef, useState} from 'react';
 import IdeaSvg from '@/assets/images/Idea.svg';
 import Image from 'next/image';
 import axios from 'axios';
@@ -9,6 +9,7 @@ import Snackbar from '@/components/Snackbar';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import Loader from '@/components/Loader';
 import {GTM_EVENT, initGTM, logEvent} from '@/utils/gtm';
+import useAnalyticsClient from '@/hooks/useAnalyticsClient';
 
 
 
@@ -23,21 +24,41 @@ export default function Contact() {
 	const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 	const [showError, setShowError] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const touchedRef = useRef<boolean>(false);
+	const {clientId} = useAnalyticsClient();
 
 	function isFormValid() {
 
 	}
 
+	function handleChange(key, value) {
+		onChange(key, value);
+		if(!touchedRef.current) {
+			logEvent({
+				event: GTM_EVENT.CONTACT_FORM_TOUCHED,
+				event_category: 'Engagement',
+				event_label: 'Contact Form',
+				value: true,
+				client_identifier: clientId,
+			});
+		}
+		touchedRef.current = true;
+	}
+
 	async function handleSubmit() {
 		// initGTM();
-
-		logEvent({
-			event: GTM_EVENT.CONTACT_FORM_SUBMISSION,
-		})
 
 		setShowError(true);
 		console.log('errors - ', errors);
 		if(errors && Object.keys(errors).length > 0) return;
+
+		logEvent({
+			event: GTM_EVENT.CONTACT_FORM_SUBMISSION,
+			event_category: 'Engagement',
+			event_label: 'Contact Form',
+			value: true,
+			client_identifier: clientId,
+		});
 
 		setIsSubmitting(true);
 		setShowError(false);

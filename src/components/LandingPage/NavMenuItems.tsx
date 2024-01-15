@@ -48,14 +48,14 @@ const NavMenuItems: FC<NavMenuItemsProps> = () => {
 			</div>
 			{/*Mobile Menu Items*/}
 			<motion.div animate={{x: expand ? 0 : '100%'}} transition={{type: 'linear'}}
-			            className="md:hidden visible w-full h-full bg-background overflow-hidden fixed top-[72px] left-0">
+			            className="md:hidden visible w-full h-full bg-background overflow-hidden fixed top-[60px] left-0">
 				<ul
 					className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
 					{navbarData.navItems.map(item => (
 						<li
 							key={item.id} onClick={() => setExpand(c => !c)}>
 							<Link href={item.href}
-							      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
+							      className="text-xl transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
 							      aria-current="page">{item.label}</Link>
 						</li>
 					))}
