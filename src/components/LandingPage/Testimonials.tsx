@@ -100,6 +100,14 @@ const Testimonial = {
 			bottom: {
 				normal: 'group-hover:max-h-[100px] max-h-0 overflow-hidden transition-all',
 				modal: 'max-h-[100px]'
+			},
+			description: {
+				normal: "text-[0.7em] leading-[1.3em] line-clamp-3",
+				modal: "text-[1.1em] leading-[1.6em] line-clamp-3"
+			},
+			oneLiner: {
+				normal: "text-[0.75em] leading-[1.35em]",
+				modal: "text-[1.15em] leading-[1.7em]"
 			}
 		}
 
@@ -124,7 +132,7 @@ const Testimonial = {
 							<SlOptions className="text-xs" />
 						</div>
 						<div className="mt-2 mb-2">
-							<span className="text-[0.7em] leading-[1.3em] line-clamp-3">{description}</span>
+							<span className={getClassName('description')}>{description}</span>
 						</div>
 					</div>
 
@@ -134,7 +142,7 @@ const Testimonial = {
 					</div>
 					{/*<h3 className={"text-xs font-medium text-gray-100 mt-3"}>Empower Your Farming with Precision Technology</h3>*/}
 					<div className={"flex justify-between gap-2 items-center mt-3"}>
-						<span className={"text-[0.75em] leading-[1.35em]"}>{oneLiner}</span>
+						<span className={getClassName('oneLiner')}>{oneLiner}</span>
 						<div className="flex-shrink-0">
 							<span className="cursor-pointer rounded bg-gray-700 px-2 py-1 text-[0.55em]">Learn More</span>
 						</div>

@@ -101,7 +101,6 @@ export default function LandingPage() {
 				<Hero />
 				{isMounted && isSmallScreen ? <Services_Sm /> : <Services/>}
 				<Testimonials />
-
 				{/*<BgAttachment />*/}
 				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black pt-4 pb-10">
 					<div className="landing-page-section px-0 md:px-10">

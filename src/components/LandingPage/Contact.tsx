@@ -98,7 +98,7 @@ export default function Contact() {
 								</div>
 							)
 						})}
-						<button id={"contact-submit-id"} onClick={handleSubmit} disabled={false && errors && Object.keys(errors).length > 0} className="disabled:opacity-30 h-14 cta-button w-full flex items-center justify-center rounded-xl">
+						<button id={"contact-submit-id"} onClick={handleSubmit} disabled={errors && Object.keys(errors).length > 0} className="disabled:opacity-30 h-14 cta-button w-full flex items-center justify-center rounded-xl">
 							{isSubmitting ? <Loader /> : <span>Submit</span>}
 						</button>
 					</div>

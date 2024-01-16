@@ -136,7 +136,17 @@ const AdCampaignStepTwo: FC<AdCampaignStepOneProps> = (props) => {
 
 	return (
 		<AdCampaignWrapper buttonProps={[{label: 'Previous', variant: 'secondary'}, {label: 'Next', variant: 'primary'}]} activeStep={activeStep} handleStep={setActiveStep}>
-			{inputItems.stepOne.map(item => <AdCampaignInput key={item.id} label={item.label} value={item.value} Icon={item.Icon} />)}
+			{inputItems.stepTwo.map(item => <AdCampaignInput key={item.id} label={item.label} value={item.value} Icon={item.Icon} />)}
+		</AdCampaignWrapper>
+	)
+};
+
+const AdCampaignStepThree: FC<AdCampaignStepOneProps> = (props) => {
+	const [activeStep, setActiveStep] = React.useState(2);
+
+	return (
+		<AdCampaignWrapper buttonProps={[{label: 'Previous', variant: 'secondary'}, {label: 'Review', variant: 'primary'}]} activeStep={activeStep} handleStep={setActiveStep}>
+			{inputItems.stepThree.map(item => <AdCampaignInput key={item.id} label={item.label} value={item.value} Icon={item.Icon} />)}
 		</AdCampaignWrapper>
 	)
 };
