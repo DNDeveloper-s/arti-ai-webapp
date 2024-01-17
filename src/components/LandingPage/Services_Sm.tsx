@@ -129,7 +129,7 @@ export default function Services_Sm() {
 	return (
 		<div className="landing-page-section p-0 relative" id={'product-overview'} ref={sectionRef}>
 			<div className="sticky top-[80px] flex flex-col left-0 w-screen h-[100dvh]">
-				<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-[60%] md:h-screen md:top-0 flex flex-col gap-3 justify-center items-center">
+				<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-[70%] md:h-screen md:top-0 flex flex-col gap-3 justify-center items-center">
 					<div className="text-left w-[90vw] h-full flex items-center justify-center relative">
             <div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] flex justify-center items-center h-full"}>
               <Image className="w-auto h-full max-w-none" src={IphoneImage} ref={iphoneImageRef} alt="Iphone Image" />

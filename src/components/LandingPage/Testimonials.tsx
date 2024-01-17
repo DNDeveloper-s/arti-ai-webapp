@@ -5,6 +5,7 @@ import {SlOptions} from 'react-icons/sl';
 import useMousePos from '@/hooks/useMousePos';
 import {carouselImage1, carouselImage2, carouselImage3, carouselImage4} from '@/assets/images/carousel-images';
 import Modal from '@/components/Modal';
+import {CloseIcon} from 'next/dist/client/components/react-dev-overlay/internal/icons/CloseIcon';
 
 const testimonialsData = {
 	adCreatives: [
@@ -103,11 +104,15 @@ const Testimonial = {
 			},
 			description: {
 				normal: "text-[0.7em] leading-[1.3em] line-clamp-3",
-				modal: "text-[1.1em] leading-[1.6em] line-clamp-3"
+				modal: "text-[1.1em] leading-[1.4em] line-clamp-3"
 			},
 			oneLiner: {
 				normal: "text-[0.75em] leading-[1.35em]",
 				modal: "text-[1.15em] leading-[1.7em]"
+			},
+			learnMore: {
+				normal: "cursor-pointer rounded bg-gray-700 px-2 py-1 text-[0.55em]",
+				modal: "cursor-pointer rounded bg-gray-700 px-2 py-1 text-[0.85em]"
 			}
 		}
 
@@ -118,6 +123,9 @@ const Testimonial = {
 
 		return (
 			<div onClick={() => onClick(id)} className={getClassName('container')} ref={artiCardRef} style={{'--mouse-x': `${mousePos.x}px`, '--mouse-y': `${mousePos.y}px`}}>
+				{/*{isModal && <div className="absolute top-2 right-3 p-1 bg-gray-200 text-white rounded-full">*/}
+				{/*	<CloseIcon/>*/}
+				{/*</div>}*/}
 				<div className={getClassName('inner')}>
 					{/* Head Section */}
 					<div className={getClassName('head')}>
@@ -129,7 +137,8 @@ const Testimonial = {
 									<div className="w-16 h-2 rounded bg-gray-700" />
 								</div>
 							</div>
-							<SlOptions className="text-xs" />
+							{isModal ? <CloseIcon className="text-xs"/> :
+							<SlOptions className="text-xs" />}
 						</div>
 						<div className="mt-2 mb-2">
 							<span className={getClassName('description')}>{description}</span>
@@ -144,7 +153,7 @@ const Testimonial = {
 					<div className={"flex justify-between gap-2 items-center mt-3"}>
 						<span className={getClassName('oneLiner')}>{oneLiner}</span>
 						<div className="flex-shrink-0">
-							<span className="cursor-pointer rounded bg-gray-700 px-2 py-1 text-[0.55em]">Learn More</span>
+							<span className={getClassName('learnMore')}>Learn More</span>
 						</div>
 					</div>
 					<div className={getClassName('bottom')}>
