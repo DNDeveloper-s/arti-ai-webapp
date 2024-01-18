@@ -474,7 +474,7 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
         </motion.div>}
 			</div>
 
-			{!miniVersion && adCreative && <RightPane adCreative={adCreative} isAdCampaign={true} />}
+			{!miniVersion && adCreative && <RightPane adCreative={adCreative} isAdCampaign={false} />}
 			<Snackbar />
 		</div>
 	)

@@ -12,6 +12,8 @@ import Lottie from 'lottie-react';
 import generatingImage from '@/assets/lottie/generating_image.json';
 import errorImage from '@/assets/lottie/error.json';
 import {Mock} from '@/constants/servicesData';
+import {RiAiGenerate} from 'react-icons/ri';
+import Loader from '@/components/Loader';
 
 
 export const FacebookAdVariantShimmer = ({style = {}, className = ''}) => {
@@ -134,15 +136,51 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 				</div>
 				<SlOptions className="text-[1.5em]" />
 			</div>
-			<div className="mb-[1em] px-[1em]">
-				<span className={'text-[1.1em] leading-[1.5em]' + (mock.is ? ' line-clamp-3 text-ellipsis' : ' inline-flex')}>{adVariant.text}</span>
+			{/*<div className="mb-[1em] px-[1em]">*/}
+			<div className="mb-[1em] text-[1.1em] leading-[1.6] py-[0.6em] px-[1em] relative">
+				<div className="absolute top-0 left-0 w-full h-full rounded bg-black bg-opacity-40 flex items-center justify-center gap-1 cursor-pointer">
+					<div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-gray-200 rounded"} />
+					{/*<RiAiGenerate className="text-[1.6em]" />*/}
+					{/*<span className={"text-[1.5em]"}>Regenerate Ad Description</span>*/}
+					<Loader className={'w-4 h-4'} />
+					<span className={"text-[1.5em]"}>Generating Ad Description</span>
+				</div>
+				<span className={'' + (mock.is ? ' line-clamp-3 text-ellipsis' : ' inline-flex')}>{adVariant.text}</span>
 			</div>
-			<div>
+			<div className="w-full px-2 py-2">
+				<div className="text-[1.3em] leading-[1.35em]">
+					<span>Generated Suggestions:</span>
+				</div>
+				<div>
+					<div className="text-[1.25em] leading-[1.4em] px-2 py-1.5 border border-gray-300 bg-black">
+						<span>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.</span>
+					</div>
+					<div className="text-[1.25em] leading-[1.4em]">
+						<span>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.</span>
+					</div>
+					<div className="text-[1.25em] leading-[1.4em]">
+						<span>If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet.</span>
+					</div>
+				</div>
+			</div>
+			<div className="relative">
+				<div className="absolute top-0 left-0 w-full h-full rounded bg-black bg-opacity-40 flex items-center justify-center gap-1 cursor-pointer">
+					<div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-gray-200 rounded"} />
+					<RiAiGenerate className="text-[1.6em]" />
+					<span className={"text-[1.5em]"}>Regenerate Ad Image</span>
+				</div>
 				{imageContainerJSX}
 				{/*<Image width={600} height={100} className="mb-[0.5em] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />*/}
 			</div>
 			<div className={"flex justify-between gap-[.8em] items-center px-[1em] mt-[1em]"}>
-				<span className={"text-[1.25em] leading-[1.3em]"}>{adVariant.oneLiner}</span>
+				<div className="relative px-2 py-2 text-[1.25em] leading-[1.3em] flex-1">
+					<div className="absolute top-0 left-0 w-full h-full rounded bg-black bg-opacity-40 flex items-center justify-center gap-1 cursor-pointer">
+						<div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-gray-200 rounded"} />
+						<RiAiGenerate className="text-[1.2em]" />
+						<span className={"text-[1.17em]"}>Regenerate One Liner</span>
+					</div>
+					<span>{adVariant.oneLiner}</span>
+				</div>
 				<div className="flex-shrink-0">
 					<span className="cursor-pointer rounded bg-gray-700 px-[0.6em] py-[0.5em] text-[1em]" onClick={() => setExpand(c => !c)}>Learn More</span>
 				</div>

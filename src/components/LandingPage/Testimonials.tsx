@@ -6,6 +6,7 @@ import useMousePos from '@/hooks/useMousePos';
 import {carouselImage1, carouselImage2, carouselImage3, carouselImage4} from '@/assets/images/carousel-images';
 import Modal from '@/components/Modal';
 import {CloseIcon} from 'next/dist/client/components/react-dev-overlay/internal/icons/CloseIcon';
+import {handle} from 'mdast-util-to-markdown/lib/handle';
 
 const testimonialsData = {
 	adCreatives: [
@@ -81,7 +82,7 @@ const testimonialsData = {
 interface TestimonialsProps {
 }
 const Testimonial = {
-	AdCreative: function({onClick, id, description, oneLiner, src, isModal = false}) {
+	AdCreative: function({handleClose, onClick, id, description, oneLiner, src, isModal = false}) {
 		const artiCardRef = useRef<HTMLDivElement>(null);
 		const mousePos = useMousePos(artiCardRef);
 
@@ -137,7 +138,16 @@ const Testimonial = {
 									<div className="w-16 h-2 rounded bg-gray-700" />
 								</div>
 							</div>
-							{isModal ? <CloseIcon className="text-xs"/> :
+							{isModal ?
+								<div
+									onClick={() => {
+										console.log('handleClose - ');
+										handleClose && handleClose();
+									}}
+									className="cursor-pointer text-xs"
+								>
+									<CloseIcon />
+								</div> :
 							<SlOptions className="text-xs" />}
 						</div>
 						<div className="mt-2 mb-2">
@@ -195,15 +205,21 @@ const Testimonials: FC<TestimonialsProps> = (props) => {
 		setAdCreativeId(id);
 	}
 	const activeAdCreative = useMemo(() => {
-		if(!activeAdCreativeId) return null;
+		if(!activeAdCreativeId) {
+			document.body.style.overflow = 'auto';
+			return null;
+		}
+		document.body.style.overflow = 'hidden';
 		return testimonialsData.adCreatives.find(adCreative => adCreative.id === activeAdCreativeId);
 	}, [activeAdCreativeId])
 
+	const handleClose = () => setAdCreativeId(null)
+
 	return (
 		<div className="pt-10 pb-20">
-			<Modal PaperProps={{className: 'bg-transparent'}} handleClose={() => setAdCreativeId(null)} open={!!activeAdCreative}>
+			<Modal PaperProps={{className: 'bg-transparent'}} handleClose={handleClose} open={!!activeAdCreative}>
 				<div>
-					{activeAdCreative && <Testimonial.AdCreative onClick={() => null} isModal={true} key={activeAdCreative?.id} {...activeAdCreative} />}
+					{activeAdCreative && <Testimonial.AdCreative handleClose={handleClose} onClick={() => null} isModal={true} key={activeAdCreative?.id} {...activeAdCreative} />}
 				</div>
 			</Modal>
 			<div className="flex flex-col items-center justify-center">
@@ -215,17 +231,17 @@ const Testimonials: FC<TestimonialsProps> = (props) => {
 					{/*<div className="flex gap-5 items-center">*/}
 					<div className={'flex gap-5 items-center testimonial-animation-creative ' + (activeAdCreative ? '![animation-play-state:paused]' : '[animation-play-state:running]')}>
 						{testimonialsData.adCreatives.map(adCreative => (
-							<Testimonial.AdCreative key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
+							<Testimonial.AdCreative handleClose={handleClose} key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
 						))}
 						{testimonialsData.adCreatives.map(adCreative => (
-							<Testimonial.AdCreative key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
+							<Testimonial.AdCreative handleClose={handleClose} key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
 						))}
 						<div className="flex gap-5 items-center">
 							{testimonialsData.adCreatives.map(adCreative => (
-								<Testimonial.AdCreative key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
+								<Testimonial.AdCreative handleClose={handleClose} key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
 							))}
 							{testimonialsData.adCreatives.map(adCreative => (
-								<Testimonial.AdCreative key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
+								<Testimonial.AdCreative handleClose={handleClose} key={adCreative.id} onClick={handleAdCreativePreview} {...adCreative} />
 							))}
 						</div>
 					</div>
