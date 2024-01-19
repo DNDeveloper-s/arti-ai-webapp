@@ -22,7 +22,12 @@ your-nextjs-app/
 │ │ │ ├── index.ts
 │ │ ├── landingPageData/
 │ │ │ ├── navbar.ts
-│ │ │ ├── services.ts
+│ │ │ ├── 
+
+
+
+
+services.ts
 │ │ │ ├── whyUs/
 │ │ │ │ ├── whyUs.ts
 │ │ └── ...

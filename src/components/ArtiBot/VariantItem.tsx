@@ -43,7 +43,7 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 					</div>
 					<div className={'flex justify-end w-[80%] mt-2 items-center gap-1 text-xs'}>
 						<span className="text-white text-opacity-50">Explore Options:</span>
-						<button className="text-primary cursor-pointer">Customize Your Ad</button>
+						<button className="text-primary cursor-pointer">Edit Your Ad</button>
 					</div>
 					<div ref={variantRef} className={"mt-2 w-[80%]"}>
 						<FacebookAdVariant mock={mock} adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>

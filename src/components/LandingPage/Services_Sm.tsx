@@ -128,8 +128,8 @@ export default function Services_Sm() {
 
 	return (
 		<div className="landing-page-section p-0 relative" id={'product-overview'} ref={sectionRef}>
-			<div className="sticky top-[80px] flex flex-col left-0 w-screen h-[100dvh]">
-				<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-[70%] md:h-screen md:top-0 flex flex-col gap-3 justify-center items-center">
+			<div className="sticky top-[80px] flex flex-col left-0 w-screen h-screen">
+				<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-[80vh] md:h-screen md:top-0 flex flex-col gap-3 justify-center items-center">
 					<div className="text-left w-[90vw] h-full flex items-center justify-center relative">
             <div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] flex justify-center items-center h-full"}>
               <Image className="w-auto h-full max-w-none" src={IphoneImage} ref={iphoneImageRef} alt="Iphone Image" />
@@ -142,10 +142,10 @@ export default function Services_Sm() {
 						{/*<ArtiChatDemo.Metrics sm={true} messages={mockAdCreativeMessages} viewScreen={viewScreen} isInView={idInView === 3} />*/}
 					</div>
 				</div>
-				<div className="relative mt-6">
+				<div className="mt-6 absolute left-1/2 bottom-[250px] bg-white">
 					{/*{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}*/}
 					{servicesData.cards.map(serviceItem => (
-						<div key={serviceItem.title} className="absolute top-0 left-1/2 w-[80vw] transform -translate-x-1/2 flex flex-col items-center justify-center" style={{opacity: idInView === serviceItem.id ? 1 : 0}}>
+						<div key={serviceItem.title} className="absolute top-0 left-1/2 w-[80vw] bg-black bg-opacity-40 backdrop-blur-[1px] transform -translate-x-1/2 flex flex-col items-center justify-center" style={{opacity: idInView === serviceItem.id ? 1 : 0}}>
 							<div>
 								<h1 className="text-[33px] text-center text-white leading-[38px] font-diatype font-medium">{serviceItem.title}</h1>
 								{/*<p className="font-gilroyRegular text-white text-opacity-40 mt-1 text-[14px]">{serviceItem.description.slice(0, 50)}</p>*/}
