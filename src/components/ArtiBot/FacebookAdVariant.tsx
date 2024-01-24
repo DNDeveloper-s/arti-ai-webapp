@@ -183,12 +183,25 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 	)
 }
 
-const EditFacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVariant: _adVariant, noExpand, className, ...props}) => {
+enum REGENERATE_SECTION {
+	'DESCRIPTION' = 'description',
+	'IMAGE' = 'image',
+	'ONE_LINER' = 'oneLiner'
+}
+
+interface RegenerateMap {
+	selected?: REGENERATE_SECTION;
+}
+
+export const EditFacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVariant: _adVariant, noExpand, className, ...props}) => {
 	const [expand, setExpand] = useState<boolean>(false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
 	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
 	const isLoaded = useRef<Record<string, boolean>>({});
+	const [regenerateMap, setRegenerateMap] = useState<RegenerateMap | null>({
+		selected: REGENERATE_SECTION.DESCRIPTION
+	});
 
 	const adVariant = variant.map && variant.map[_adVariant.id] ? variant.map[_adVariant.id] : _adVariant;
 
@@ -262,50 +275,62 @@ const EditFacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), a
 				<SlOptions className="text-[1.5em]" />
 			</div>
 			{/*<div className="mb-[1em] px-[1em]">*/}
-			<div className="mb-[1em] text-[1.1em] leading-[1.6] py-[0.6em] px-[1em] relative">
-				<div className="absolute top-0 left-0 w-full h-full rounded bg-black bg-opacity-40 flex items-center justify-center gap-1 cursor-pointer">
-					<div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-gray-200 rounded"} />
-					{/*<RiAiGenerate className="text-[1.6em]" />*/}
-					{/*<span className={"text-[1.5em]"}>Regenerate Ad Description</span>*/}
-					<Loader className={'w-4 h-4'} />
-					<span className={"text-[1.5em]"}>Generating Ad Description</span>
+			<div className="text-[1.1em] leading-[1.6] py-[0.6em] px-[1em] relative group">
+				<div className="absolute top-0 left-0 w-full h-full rounded bg-black group-hover:bg-opacity-40 bg-opacity-0 transition-all flex items-center justify-center gap-1 cursor-pointer">
+					<div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-200 rounded"} />
+					<RiAiGenerate className="group-hover:opacity-100 opacity-0 transition-opacity text-[1.6em]" />
+					<span className={"group-hover:opacity-100 opacity-0 transition-opacity text-[1.5em]"}>Regenerate Ad Description</span>
+
+					{/*<Loader className={'w-4 h-4'} />*/}
+					{/*<span className={"text-[1.5em]"}>Generating Ad Description</span>*/}
+
+					{/*<span className={"text-[1.5em] text-gray-200"}>Choose Suggestions for Preview</span>*/}
 				</div>
 				<span className={'' + (mock.is ? ' line-clamp-3 text-ellipsis' : ' inline-flex')}>{adVariant.text}</span>
 			</div>
-			<div className="w-full px-3 py-2 border-2 border-gray-400 bg-gray-700 rounded divide-y divide-gray-600">
-				<div className="text-[1.6em] leading-[1.55em] mt-1 mb-2">
+			<div className="my-[1em] w-full px-3 py-2 border-2 border-gray-400 bg-gray-700 rounded divide-y divide-gray-600">
+				<div className="text-[1.5em] leading-[1.55em] mt-1 mb-2 text-white text-opacity-60 font-medium">
 					<span>Generated Suggestions:</span>
 				</div>
 				<div className="flex gap-1 flex-col mt-2 py-3">
-					<div className="text-[1.32em] leading-[1.45em] px-2 py-1.5 bg-red-200 rounded">
+					<div className="text-[1.32em] leading-[1.45em] px-2 py-1.5 bg-slate-600 rounded cursor-pointer">
 						<span>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.</span>
 					</div>
-					<div className="text-[1.32em] leading-[1.45em] px-2 py-1.5 bg-red-200 rounded">
+					<div className="text-[1.32em] leading-[1.45em] px-2 py-1.5 bg-slate-600 rounded cursor-pointer">
 						<span>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.</span>
 					</div>
-					<div className="text-[1.32em] leading-[1.45em] px-2 py-1.5 bg-red-200 rounded">
+					<div className="text-[1.32em] leading-[1.45em] px-2 py-1.5 bg-slate-600 rounded cursor-pointer">
 						<span>If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet.</span>
 					</div>
 				</div>
-				<div className="w-full flex pt-3">
-					<input type="text" className="border border-gray-500 rounded text-xs focus:border-primary focus-visible:outline-none focus:outline-none flex-1 bg-black px-2 py-1 placeholder:text-xs" placeholder="What would you like to generate? (Optional)"/>
+				<div className="w-full pt-3">
+					<div className="text-[1.46em] leading-[1.55em] mb-2 text-white text-opacity-60 font-medium">
+						<span>Customize and Regenerate Suggestions:</span>
+					</div>
+					<div className="w-full flex">
+						<input type="text" className="border border-gray-500 rounded text-xs focus:border-primary focus-visible:outline-none focus:outline-none flex-1 bg-black px-2 py-1 placeholder:text-xs" placeholder="What would you like to generate? (Optional)"/>
+					</div>
+					<div className="my-3 flex justify-end">
+						<button className="bg-primary text-white text-xs px-4 py-1.5 leading-[16px] rounded cursor-pointer">Regenerate</button>
+						<button className="text-white text-xs px-4 py-1.5 leading-[16px] rounded cursor-pointer">Cancel</button>
+					</div>
 				</div>
 			</div>
-			<div className="relative">
-				<div className="absolute top-0 left-0 w-full h-full rounded bg-black bg-opacity-40 flex items-center justify-center gap-1 cursor-pointer">
-					<div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-gray-200 rounded"} />
-					<RiAiGenerate className="text-[1.6em]" />
-					<span className={"text-[1.5em]"}>Regenerate Ad Image</span>
+			<div className="relative group">
+				<div className="absolute top-0 left-0 w-full h-full rounded bg-black group-hover:bg-opacity-40 bg-opacity-0 transition-all flex items-center justify-center gap-1 cursor-pointer">
+					<div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-200 rounded"} />
+					<RiAiGenerate className="group-hover:opacity-100 opacity-0 transition-opacity text-[1.6em]" />
+					<span className={"group-hover:opacity-100 opacity-0 transition-opacity text-[1.5em]"}>Regenerate Ad Image</span>
 				</div>
 				{imageContainerJSX}
 				{/*<Image width={600} height={100} className="mb-[0.5em] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />*/}
 			</div>
 			<div className={"flex justify-between gap-[.8em] items-center px-[1em] mt-[1em]"}>
-				<div className="relative px-2 py-2 text-[1.25em] leading-[1.3em] flex-1">
-					<div className="absolute top-0 left-0 w-full h-full rounded bg-black bg-opacity-40 flex items-center justify-center gap-1 cursor-pointer">
-						<div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-gray-200 rounded"} />
-						<RiAiGenerate className="text-[1.2em]" />
-						<span className={"text-[1.17em]"}>Regenerate One Liner</span>
+				<div className="relative px-2 py-2 text-[1.25em] leading-[1.3em] flex-1 group">
+					<div className="absolute top-0 left-0 w-full h-full rounded bg-black group-hover:bg-opacity-40 bg-opacity-0 transition-all flex items-center justify-center gap-1 cursor-pointer">
+						<div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-200 rounded"} />
+						<RiAiGenerate className="group-hover:opacity-100 opacity-0 transition-opacity text-[1.2em]" />
+						<span className={"group-hover:opacity-100 opacity-0 transition-opacity text-[1.17em]"}>Regenerate One Liner</span>
 					</div>
 					<span>{adVariant.oneLiner}</span>
 				</div>

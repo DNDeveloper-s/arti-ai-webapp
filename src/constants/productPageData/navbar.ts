@@ -4,7 +4,7 @@ export const navbarData = {
 	navItems: [
 		{
 			id: '1',
-			href: '#',
+			href: '/#home',
 			label: 'Home'
 		},{
 			id: '2',

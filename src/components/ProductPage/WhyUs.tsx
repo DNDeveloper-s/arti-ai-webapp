@@ -1,6 +1,6 @@
 'use client';
 import React, {useEffect, useRef, useState} from 'react';
-import {whyUsData, WhyUsItem} from '@/constants/landingPageData/whyUs/whyUs';
+import {whyUsData, WhyUsItem} from '@/constants/productPageData/whyUs/whyUs';
 import {PiCaretRightBold} from 'react-icons/pi';
 
 interface WhyUsCardProps {

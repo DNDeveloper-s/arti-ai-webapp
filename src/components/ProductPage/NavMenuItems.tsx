@@ -4,12 +4,13 @@ import Link from 'next/link';
 import {motion} from 'framer-motion';
 import React, {FC, useState} from 'react';
 import CTAButton from '@/components/CTAButton';
-import {navbarData} from '@/constants/landingPageData/navbar';
+import {navbarData} from '@/constants/productPageData/navbar';
 
 interface NavMenuItemsProps {
+	data: typeof navbarData;
 }
 
-const NavMenuItems: FC<NavMenuItemsProps> = () => {
+const NavMenuItems: FC<NavMenuItemsProps> = ({data = navbarData}) => {
 	const [expand, setExpand] = useState(false);
 
 	return (
@@ -17,7 +18,7 @@ const NavMenuItems: FC<NavMenuItemsProps> = () => {
 			<div className="absolute right-4 flex md:order-2">
 				<Link className="breathing-button-primary rounded-lg" href={navbarData.cta.href}>
 					<CTAButton className=" px-4 py-2 text-sm rounded-lg">
-						{navbarData.cta.label}
+						{data.cta.label}
 					</CTAButton>
 				</Link>
 				<button onClick={() => {
@@ -36,7 +37,7 @@ const NavMenuItems: FC<NavMenuItemsProps> = () => {
 			<div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
 				<ul
 					className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
-					{navbarData.navItems.map(item => (
+					{data.navItems.map(item => (
 						<li
 							key={item.id}>
 							<Link href={item.href}
@@ -51,7 +52,7 @@ const NavMenuItems: FC<NavMenuItemsProps> = () => {
 			            className="md:hidden visible w-full h-full bg-background overflow-hidden fixed top-[60px] left-0">
 				<ul
 					className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
-					{navbarData.navItems.map(item => (
+					{data.navItems.map(item => (
 						<li
 							key={item.id} onClick={() => setExpand(c => !c)}>
 							<Link href={item.href}

@@ -80,10 +80,11 @@ export default function Contact() {
 		<div data-groupid={"landing-section"} data-section="contact_us" className="relative bg-[length:auto_100vh] md:bg-cover" id="contact" style={{
 			backgroundImage: 'url(/assets/images/bg_image1.png)',
 			backgroundAttachment: 'fixed',
-			backgroundPosition: 'center center'
+			backgroundPosition: 'center center',
+			backgroundColor: 'transparent'
 		}}>
 			<div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70" />
-			<div className="relative text-primaryText landing-page-section font-diatype">
+			<div className="relative text-primaryText landing-page-section !bg-transparent font-diatype">
 				<div className="grid gap-10 grid-cols-1 md:grid-cols-[1fr_500px]">
 					<div className="hidden md:visible w-max-[300px] md:flex items-center">
 						<Image className="h-[28rem]" src={IdeaSvg} alt={'Contact ArtiBot'} />

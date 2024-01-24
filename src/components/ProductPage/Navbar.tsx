@@ -1,5 +1,5 @@
 import Logo from '@/components/Logo';
-import NavMenuItems from '@/components/LandingPage/NavMenuItems';
+import NavMenuItems from '@/components/ProductPage/NavMenuItems';
 
 export default function Navbar() {
 

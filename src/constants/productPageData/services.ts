@@ -38,6 +38,9 @@ export const legacy_servicesData = {
 	]
 }
 
+/**
+ * @description {This services is for the product landing page which is more technical}
+ */
 export const servicesData = {
 	cards: [
 		{

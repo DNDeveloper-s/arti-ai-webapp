@@ -1,11 +1,11 @@
 'use client';
 
 import React, {FC, SetStateAction, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {servicesData} from '@/constants/landingPageData/services';
+import {servicesData} from '@/constants/productPageData/services';
 import {ChatGPTMessageObj} from '@/interfaces/IArtiBot';
 import useMounted from '@/hooks/useMounted';
 import {mockProductOverviewData as mock, screens, ViewScreen} from '@/constants/servicesData';
-import {ArtiChatDemo} from '@/components/LandingPage/Services';
+import {ArtiChatDemo} from '@/components/ProductPage/Services';
 import Image from 'next/image';
 import IphoneImage from '@/assets/images/iphone_2.png';
 import {useMotionValueEvent, useScroll} from 'framer-motion';

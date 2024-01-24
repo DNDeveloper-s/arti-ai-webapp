@@ -1,4 +1,4 @@
-import {FutureIcon, InnovationIcon, RevolutionIcon, UserCentricIcon} from '@/constants/landingPageData/whyUs/icons';
+import {FutureIcon, InnovationIcon, RevolutionIcon, UserCentricIcon} from '@/constants/productPageData/whyUs/icons';
 import {StaticImport} from 'next/dist/shared/lib/get-img-props';
 import React, {ReactElement} from 'react';
 

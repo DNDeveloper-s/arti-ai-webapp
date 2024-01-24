@@ -1,6 +1,6 @@
 // import {useSession} from 'next-auth/react';
 import AppLoader from '@/components/AppLoader';
-// import LandingPage from '@/components/LandingPage';
+// import ProductPage from '@/components/ProductPage';
 // import Dashboard from '@/components/Dashboard';
 import React from 'react';
 import {redirect} from 'next/navigation';

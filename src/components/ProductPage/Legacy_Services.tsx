@@ -2,7 +2,7 @@
 
 import React, {useState} from 'react';
 import Image, {StaticImageData} from 'next/image';
-import {legacy_servicesData} from "@/constants/landingPageData/services";
+import {legacy_servicesData} from "@/constants/productPageData/services";
 import {motion} from 'framer-motion';
 
 interface Props {
