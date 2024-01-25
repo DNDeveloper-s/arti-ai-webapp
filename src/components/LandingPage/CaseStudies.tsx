@@ -51,9 +51,9 @@ const CaseStudies: FC<CaseStudiesProps> = (props) => {
 		<div id="case-studies" className="landing-page-section py-12">
 			<Element content={caseStudiesData.headLine} type={'h2'} className="text-2xl text-gray-500" />
 			<Element content={caseStudiesData.subHeadLine} type={'h6'} />
-			<div className="flex py-24 justify-center">
+			<div className="flex-col-reverse gap-10 md:gap-1 flex md:flex-row py-10 md:py-24 justify-center">
 				<>
-					<div className={'flex flex-col justify-between w-[40%]'}>
+					<div className={'flex flex-col  justify-between w-full md:w-[40%]'}>
 						<SwipeableViews
 							axis="x"
 							index={activeTab}
@@ -80,7 +80,7 @@ const CaseStudies: FC<CaseStudiesProps> = (props) => {
 							</div>
 						</div>
 					</div>
-					<div className={'w-[60%]'}>
+					<div className={'w-full md:w-[60%]'}>
 						<SwipeableViews
 							axis="x"
 							index={activeTab}

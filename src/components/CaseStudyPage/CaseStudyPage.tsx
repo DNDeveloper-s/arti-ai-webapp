@@ -28,11 +28,11 @@ interface CaseStudyItemProps {
 const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 	return (
 		<div>
-			<div className='relative w-full py-20'>
+			<div className='relative w-full py-10 md:py-20'>
 				<div className='w-full h-full absolute top-0 left-0' style={{backgroundSize: 'cover', backgroundImage: 'url(/assets/images/landing-page/case_study_bg.png)'}} />
 				<div className='landing-page-section z-10 bg-transparent relative'>
-					<Element content={item.clientDetails.name} type={'h3'} className="text-2xl font-medium mt-3 text-gray-400" />
-					<Element content={item.oneLiner} type={'h2'} className="text-6xl font-medium leading-normal text-primary mt-2" />
+					<Element content={item.clientDetails.name} type={'h3'} className="text-xl md:text-2xl font-medium mt-3 text-gray-400" />
+					<Element content={item.oneLiner} type={'h2'} className="text-3xl md:text-6xl font-medium leading-normal text-primary mt-2" />
 				</div>
 			</div>
 			<div className={'landing-page-section'}>
@@ -67,7 +67,7 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 							<li>Cost efficiency was significantly improved, with expenses cut to a <strong className="text-white">third of the previous amount</strong>.</li>
 						</ul>
 					</div>
-					<div className="flex gap-4 justify-center my-5">
+					<div className="flex flex-col md:flex-row gap-4 justify-center my-5">
 						<OutcomeItem label={'7x Website Visits'} />
 						<OutcomeItem label={'4x Leads'} />
 						<OutcomeItem label={'2x Cheaper'} />

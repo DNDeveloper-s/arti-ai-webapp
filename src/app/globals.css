@@ -8,7 +8,7 @@
   }
 
   .landing-page-section {
-    @apply w-[100vw] px-10 max-w-[1100px] mx-auto py-10 font-diatype bg-black text-white;
+    @apply w-[100vw] px-6 md:px-10 max-w-[1100px] mx-auto py-10 font-diatype bg-black text-white;
   }
 
   .arti-card {
