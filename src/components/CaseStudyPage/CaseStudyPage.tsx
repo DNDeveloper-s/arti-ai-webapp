@@ -60,7 +60,7 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 					<h4 className="text-3xl font-light mt-10">Outcomes</h4>
 					<div className="text-gray-400 text-lg mt-5 leading-7">
 						<p>The result were dramatic:</p>
-						<ul className="list-disc list-inside">
+						<ul className="list-disc list-inside leading-10">
 							<li>Reduction in ad volume with a focus on quality, producing <strong className="text-white">5 high-impact ads</strong> compared to the previous 30.</li>
 							<li>A surge in engagement, evidenced by an increase from <strong className="text-white">15 to 450 link clicks</strong>.</li>
 							<li>A breakthrough in conversions, achieving <strong className="text-white">12 compared to none</strong> previously, within a span of 5 days.</li>
