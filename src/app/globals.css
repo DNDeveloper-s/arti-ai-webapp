@@ -18,6 +18,10 @@
   .arti-card-primary {
     @apply p-[2px] relative bg-gray-600 before:bg-primary rounded-3xl before:absolute before:w-96 before:h-96 before:-left-48 before:-top-48 before:rounded-full before:opacity-0 before:pointer-events-none before:transition-opacity before:duration-500 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] before:hover:opacity-20 before:z-30 before:blur-[100px] after:absolute after:inset-0 after:rounded-[inherit] after:opacity-0 after:hover:opacity-100 after:transition-opacity after:duration-500 after:[background:_radial-gradient(250px_circle_at_var(--mouse-x)_var(--mouse-y),theme(colors.gray.400),transparent)] after:group-hover:opacity-100 after:z-10 overflow-hidden
   }
+
+  .landing-page-title {
+    @apply text-white text-4xl font-extrabold;
+  }
 }
 
 @layer utilities {

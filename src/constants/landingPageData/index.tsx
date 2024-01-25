@@ -9,6 +9,10 @@ import {
 	carouselImage4,
 	carouselImage5
 } from '@/assets/images/carousel-images';
+import adAnalysisImage from '@/assets/images/landing-page/services/ad_analysis.svg';
+import adCreationImage from '@/assets/images/landing-page/services/ad_creation.svg';
+import socialMediaImage from '@/assets/images/landing-page/services/social_media.svg';
+
 import LogoImage from '@/assets/images/Logo.png'
 import caseStudies from '@/components/LandingPage/CaseStudies';
 
@@ -19,26 +23,26 @@ export const numbersData = {
 	items: [
 		{
 			id: '1',
-			headLine: '4x cost savings',
-			subHeadLine: '',
-			icon: RiCoinsLine
+			headLine: '4x',
+			subHeadLine: 'cost savings',
+			icon: RiCoinsLine,
 		},
 		{
 			id: '2',
-			headLine: '5x more effective lead generation',
-			subHeadLine: '',
-			icon:FaMagnifyingGlassChart
+			headLine: '5x',
+			subHeadLine: 'more effective lead generation',
+			icon: FaMagnifyingGlassChart
 		},
 		{
 			id: '3',
-			headLine: '150% increase in website traffic',
-			subHeadLine: '',
+			headLine: '150%',
+			subHeadLine: 'increase in website traffic',
 			icon: BsGraphUpArrow
 		},
 		{
 			id: '4',
-			headLine: '95% of our clients LOVE US',
-			subHeadLine: '',
+			headLine: '95%',
+			subHeadLine: 'of our clients LOVE US',
 			icon: GiSelfLove
 		},
 	]
@@ -60,19 +64,31 @@ export const servicesData = {
 			id: '1',
 			headLine: 'AD Creation',
 			description: 'Drive business growth and reach your target audience through highly effective AD creatives. Our AI will craft personalized and attention-catching creatives that captivate user attention.',
-			imageSrc: carouselImage3,
+			imageSrc: adCreationImage,
+			theme: {
+				backgroundColor: 'rgba(20,5,0,.92)',
+				bgUrl: '/assets/images/landing-page/services/ad_creation_bg.webp',
+			}
 		},
 		{
 			id: '2',
 			headLine: 'Social Media Management',
 			description: 'Harnessing a decade of social media expertise, our team powers AI-driven campaigns that precisely target and captivate your audience. We turn insights into impact, ensuring your message resonates with your audience.',
-			imageSrc: carouselImage2
+			imageSrc: socialMediaImage,
+			theme: {
+				backgroundColor: 'rgba(0,24,21,.92)',
+				bgUrl: '/assets/images/landing-page/services/social_media_bg.webp',
+			}
 		},
 		{
-			id: '2',
+			id: '3',
 			headLine: 'AD Performance Analysis & Iteration',
 			description: 'Watch your ads soar: Our AI meticulously analyzes and iterates, ensuring steadily enhanced results.',
-			imageSrc: carouselImage1
+			imageSrc: adAnalysisImage,
+			theme: {
+				backgroundColor: 'rgba(2,0,24,.92)',
+				bgUrl: '/assets/images/landing-page/services/ad_analysis_bg.webp',
+			}
 		},
 	]
 }

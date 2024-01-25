@@ -13,9 +13,9 @@ import caseStudies from '@/components/LandingPage/CaseStudies';
 function CaseStudyContent({item}: {item: CaseStudyItem}) {
 	return (
 		<div className={"divide-y divide-gray-800 p-4"}>
-			<Element content={item.clientDetails.name} type={'h3'} className={"text-2xl pb-1"} />
-			<Element content={item.oneLiner} type={'p'} className="pt-4 text-gray-400"/>
-			<CTAButton className="py-2 px-4 text-sm rounded mt-5" to={"/case-study"}>VIEW CASE STUDY</CTAButton>
+			<Element content={item.clientDetails.name} type={'h3'} className={"text-3xl font-extrabold pb-4"} />
+			<Element content={item.oneLiner} type={'p'} className="pt-9 text-gray-400"/>
+			<CTAButton className="py-2 px-4 text-sm rounded mt-12" to={"/case-study"}>VIEW CASE STUDY</CTAButton>
 		</div>
 	)
 }
@@ -48,10 +48,10 @@ const CaseStudies: FC<CaseStudiesProps> = (props) => {
 	}
 
 	return (
-		<div id="case-studies" className="landing-page-section">
+		<div id="case-studies" className="landing-page-section py-12">
 			<Element content={caseStudiesData.headLine} type={'h2'} className="text-2xl text-gray-500" />
 			<Element content={caseStudiesData.subHeadLine} type={'h6'} />
-			<div className="flex py-12 justify-center">
+			<div className="flex py-24 justify-center">
 				<>
 					<div className={'flex flex-col justify-between w-[40%]'}>
 						<SwipeableViews
