@@ -6,10 +6,10 @@ import CTAButton from '@/components/CTAButton';
 const ServiceItem = ({item, index}: {item: ServiceCard, index: number}) => {
 	const isEven = (index % 2) === 0;
 	return (
-		<div className={`w-full relative before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-[--before-bg] py-20`} style={{
-			backgroundImage: `url(${item.theme.bgUrl})`,
-			backgroundSize: 'cover',
-			'--before-bg': item.theme.backgroundColor
+		<div className={`w-full relative before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-[--before-bg] py-5 md:py-20`} style={{
+			// backgroundImage: `url(${item.theme.bgUrl})`,
+			// backgroundSize: 'cover',
+			// '--before-bg': item.theme.backgroundColor
 		}}>
 			<div className={'landing-page-section bg-transparent flex flex-col gap-6 relative z-20 ' + (isEven ? 'md:flex-row' : 'md:flex-row-reverse')}>
 				<div className={'w-[80vw] h-auto md:h-[400px] md:w-auto flex-shrink-0'}>
@@ -19,7 +19,7 @@ const ServiceItem = ({item, index}: {item: ServiceCard, index: number}) => {
 					<div>
 						<div className={"divide-y divide-gray-700"}>
 							<h2 className="max-w-[320px] landing-page-title mb-4">{item.headLine}</h2>
-							<p className="max-w-[340px] text-gray-400 leading-6 text-sm pt-3">{item.description}</p>
+							<p className="max-w-[340px] text-gray-400 leading-6 text-sm md:text-base pt-3">{item.description}</p>
 						</div>
 						<CTAButton className="py-2 px-4 text-sm rounded mt-5">EXPLORE</CTAButton>
 					</div>

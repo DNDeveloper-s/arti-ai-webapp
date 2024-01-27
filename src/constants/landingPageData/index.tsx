@@ -12,6 +12,8 @@ import {
 import adAnalysisImage from '@/assets/images/landing-page/services/ad_analysis.svg';
 import adCreationImage from '@/assets/images/landing-page/services/ad_creation.svg';
 import socialMediaImage from '@/assets/images/landing-page/services/social_media.svg';
+import group1 from '@/assets/images/landing-page/group_1.png';
+import group2 from '@/assets/images/landing-page/group_2.png';
 
 import LogoImage from '@/assets/images/Logo.png'
 import caseStudies from '@/components/LandingPage/CaseStudies';
@@ -23,25 +25,29 @@ export const numbersData = {
 	items: [
 		{
 			id: '1',
-			headLine: '4x',
+			number: 4,
+			headLine: 'x',
 			subHeadLine: 'cost savings',
 			icon: RiCoinsLine,
 		},
 		{
 			id: '2',
-			headLine: '5x',
+			number: 5,
+			headLine: 'x',
 			subHeadLine: 'more effective lead generation',
 			icon: FaMagnifyingGlassChart
 		},
 		{
 			id: '3',
-			headLine: '150%',
+			number: 150,
+			headLine: '%',
 			subHeadLine: 'increase in website traffic',
 			icon: BsGraphUpArrow
 		},
 		{
 			id: '4',
-			headLine: '95%',
+			number: 95,
+			headLine: '%',
 			subHeadLine: 'of our clients LOVE US',
 			icon: GiSelfLove
 		},
@@ -109,10 +115,9 @@ export const caseStudiesData = {
 				name: 'Midtown East'
 			},
 			oneLiner: 'Revitalizing Digital Marketing for Midtown East Physical Therapy',
-			images: [
-				{id: 'image-1', imageSrc: carouselImage1, label: 'Before'},
-				{id: 'image-2', imageSrc: carouselImage2, label: 'After'}
-			],
+			image: {
+				imageSrc: group1,
+			},
 			sections: [
 				{
 					id: 'background_and_challenge',
@@ -176,10 +181,9 @@ export const caseStudiesData = {
 				name: 'Amplified EMS'
 			},
 			oneLiner: 'Increase leads generation by 4x through personalized AD creatives and optimizing social media ad delivery for Amplified EMS.',
-			images: [
-				{id: 'image-1', imageSrc: carouselImage3, label: 'Before'},
-				{id: 'image-2', imageSrc: carouselImage4, label: 'After'}
-			],
+			image: {
+				imageSrc: group2,
+			},
 			sections: [
 				{
 					id: 'background_and_challenge',
