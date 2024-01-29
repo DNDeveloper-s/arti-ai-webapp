@@ -81,6 +81,22 @@
 
 @font-face {
   font-display: swap;
+  font-family: Salsa Regular;
+  font-style: normal;
+  font-weight: 500;
+  src: url(../assets/fonts/Salsa-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: swap;
+  font-family: Mali Regular;
+  font-style: normal;
+  font-weight: 500;
+  src: url(../assets/fonts/Mali-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: swap;
   font-family: ABC Diatype;
   font-style: normal;
   font-weight: 400;

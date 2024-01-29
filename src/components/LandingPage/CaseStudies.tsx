@@ -10,6 +10,8 @@ import CTAButton from '@/components/CTAButton';
 import {AiOutlineCaretLeft, AiOutlineCaretRight} from 'react-icons/ai';
 import caseStudies from '@/components/LandingPage/CaseStudies';
 import {RxCaretLeft, RxCaretRight} from 'react-icons/rx';
+import AdPreview, {AdPreview2} from '@/components/LandingPage/AdPreview';
+import adSnapshot from '@/assets/images/case-study/ad_snapshot.png';
 
 function CaseStudyContent({item}: {item: CaseStudyItem}) {
 	return (
@@ -23,8 +25,18 @@ function CaseStudyContent({item}: {item: CaseStudyItem}) {
 
 function CaseStudyImage({item}: {item: CaseStudyItem}) {
 	return (
-		<Element content={item.image.imageSrc} type={'div'} className="w-full">
-			<Image src={item.image.imageSrc} alt={'Image Item'} />
+		<Element content={item.image.imageSrc} type={'div'} className="w-full flex">
+			{/*<Image src={item.image.imageSrc} alt={'Image Item'} />*/}
+			{/*<div className={'w-[350px] scale-75'}>*/}
+			<div className={'w-[320px] h-[567px] scale-75'}>
+				<AdPreview />
+			</div>
+			<div className={'w-[350px] scale-75'}>
+				<AdPreview2 />
+			</div>
+			{/*<div className={'w-[240px] h-auto'}>*/}
+			{/*	<Image src={adSnapshot} alt={'Ad Snapshot'} />*/}
+			{/*</div>*/}
 		</Element>
 	)
 	// return (item.images.map(imageItem => (

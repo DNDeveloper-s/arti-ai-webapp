@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from '@/components/ProductPage/Navbar';
-import Hero from '@/components/ProductPage/Hero';
+import Hero from '@/components/LandingPage/Hero';
 import Services from '@/components/ProductPage/Services';
 import WhyUs from '@/components/ProductPage/WhyUs';
 import ArtiBot from '@/components/ArtiBot/ArtiBot';
@@ -17,6 +17,8 @@ import Testimonials from '@/components/ProductPage/Testimonials';
 import {useMediaQuery} from 'react-responsive';
 import Services_Sm from '@/components/ProductPage/Services_Sm';
 import useMounted from '@/hooks/useMounted';
+import Numbers from '@/components/LandingPage/Numbers';
+import CaseStudies from '@/components/LandingPage/CaseStudies';
 
 function calculateScrollDepth() {
 	const scrollHeight = document.documentElement.scrollHeight;
@@ -100,6 +102,8 @@ export default function ProductLandingPage() {
 				{/*<Logo />*/}
 				<Hero />
 				{isMounted && isSmallScreen ? <Services_Sm /> : <Services/>}
+				<Numbers />
+				<CaseStudies />
 				<Testimonials />
 				{/*<BgAttachment />*/}
 				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black pt-4 pb-10">

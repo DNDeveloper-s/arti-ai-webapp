@@ -25,28 +25,40 @@ export const numbersData = {
 	items: [
 		{
 			id: '1',
-			number: 4,
+			number: {
+				value: 4,
+				duration: 4
+			},
 			headLine: 'x',
 			subHeadLine: 'cost savings',
 			icon: RiCoinsLine,
 		},
 		{
 			id: '2',
-			number: 5,
+			number: {
+				value: 5,
+				duration: 4
+			},
 			headLine: 'x',
 			subHeadLine: 'more effective lead generation',
 			icon: FaMagnifyingGlassChart
 		},
 		{
 			id: '3',
-			number: 150,
+			number: {
+				value: 150,
+				duration: 2
+			},
 			headLine: '%',
 			subHeadLine: 'increase in website traffic',
 			icon: BsGraphUpArrow
 		},
 		{
 			id: '4',
-			number: 95,
+			number: {
+				value: 95,
+				duration: 2
+			},
 			headLine: '%',
 			subHeadLine: 'of our clients LOVE US',
 			icon: GiSelfLove
