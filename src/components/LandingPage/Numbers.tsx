@@ -20,7 +20,7 @@ const NumberCard = ({card} : {card: NumberCard}) => {
 				</div>
 				<div className={'flex-1 flex flex-col items-start justify-center md:justify-start h-full py-6'}>
 					<div>
-						<Counter className={'text-3xl md:text-6xl font-bold text-primary'} from={0} to={card.number.value} duration={card.number.duration} />
+						<Counter className={'text-5xl md:text-6xl font-bold text-primary'} from={0} to={card.number.value} duration={card.number.duration} />
 						<span className={'text-lg md:text-2xl font-bold text-primary max-w-[200px] leading-tight'}>{card.headLine}</span>
 					</div>
 					{card.subHeadLine && <span className={'text-sm leading-normal'}>{card.subHeadLine}</span>}
