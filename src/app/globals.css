@@ -22,6 +22,11 @@
   .landing-page-title {
     @apply text-white text-3xl md:text-5xl font-extrabold;
   }
+
+  .ad-preview-card {
+    @apply overflow-hidden rounded-lg;
+    box-shadow: var(--shadow);
+  }
 }
 
 @layer utilities {

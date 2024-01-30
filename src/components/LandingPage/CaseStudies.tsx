@@ -2,7 +2,7 @@
 
 import React, {FC, useRef, useState} from 'react';
 import Element from '@/components/shared/renderers/Element';
-import {caseStudiesData, CaseStudyItem} from '@/constants/landingPageData';
+import {brands, caseStudiesData, CaseStudyItem} from '@/constants/landingPageData';
 import {carouselImage1, carouselImage2} from '@/assets/images/carousel-images';
 import Image from 'next/image';
 import SwipeableViews from 'react-swipeable-views';
@@ -10,30 +10,38 @@ import CTAButton from '@/components/CTAButton';
 import {AiOutlineCaretLeft, AiOutlineCaretRight} from 'react-icons/ai';
 import caseStudies from '@/components/LandingPage/CaseStudies';
 import {RxCaretLeft, RxCaretRight} from 'react-icons/rx';
-import AdPreview, {AdPreview2} from '@/components/LandingPage/AdPreview';
-import adSnapshot from '@/assets/images/case-study/ad_snapshot.png';
+import adPreviewImage from '@/assets/images/case-study/midtowneast/preview_images.png';
+import AdPreview, {AdPreview2, AdPreview3} from '@/components/LandingPage/AdPreview';
+import adSnapshot from '@/assets/images/case-study/midtowneast/ad_creative.png';
 
 function CaseStudyContent({item}: {item: CaseStudyItem}) {
+	console.log('item - ', item);
 	return (
 		<div className={"h-full flex flex-col justify-center divide-y divide-gray-800 p-4"}>
-			<Element content={item.clientDetails.name} type={'h3'} className={"text-3xl font-extrabold pb-4"} />
-			<Element content={item.oneLiner} type={'p'} className="pt-9 text-gray-400"/>
-			<CTAButton className="py-2 px-4 text-sm rounded mt-12" to={"/case-study"}>VIEW CASE STUDY</CTAButton>
+			<Element content={item.brief.client_name} type={'h3'} className={"text-3xl font-extrabold pb-4"} />
+			<Element content={item.brief.oneLiner} type={'p'} className="pt-9 leading-relaxed text-gray-400"/>
+			<CTAButton className="py-2 px-4 text-sm rounded mt-12" to={"/case-study/" + item.id}>VIEW CASE STUDY</CTAButton>
 		</div>
 	)
 }
 
 function CaseStudyImage({item}: {item: CaseStudyItem}) {
 	return (
-		<Element content={item.image.imageSrc} type={'div'} className="w-full flex">
+		<Element content={item.images.preview_image} type={'div'} className="w-full flex items-center gap-7">
 			{/*<Image src={item.image.imageSrc} alt={'Image Item'} />*/}
 			{/*<div className={'w-[350px] scale-75'}>*/}
-			<div className={'w-[320px] h-[567px] scale-75'}>
-				<AdPreview />
-			</div>
-			<div className={'w-[350px] scale-75'}>
-				<AdPreview2 />
-			</div>
+			{/*<div className={'w-[320px] h-[567px] flex-shrink-0'}>*/}
+			{/*	<AdPreview brand={brands.ant} />*/}
+			{/*</div>*/}
+			{/*<div className={'flex flex-col gap-7'}>*/}
+			{/*	<div className={'w-[550px]'}>*/}
+			{/*		<AdPreview3 brand={brands.ant} />*/}
+			{/*	</div>*/}
+			{/*	<div className={'w-[350px] flex-shrink-0'}>*/}
+			{/*		<AdPreview2 brand={brands.ant} />*/}
+			{/*	</div>*/}
+			{/*</div>*/}
+			<Image src={item.images.preview_image} alt={'Ad Preview Image'} />
 			{/*<div className={'w-[240px] h-auto'}>*/}
 			{/*	<Image src={adSnapshot} alt={'Ad Snapshot'} />*/}
 			{/*</div>*/}
@@ -66,15 +74,17 @@ const CaseStudies: FC<CaseStudiesProps> = (props) => {
 	}
 
 	return (
-		<div id="case-studies" className="landing-page-section py-12 md:py-16">
-			<Element content={caseStudiesData.headLine} type={'h2'} className="text-3xl text-center" />
+		<div id="case-studies" className="px-3 py-12 md:py-16">
+			<Element content={caseStudiesData.headLine} type={'h2'} className="md:pl-24 text-2xl text-left">
+				<span className={'bg-gray-800 py-2 px-6 rounded'}>{caseStudiesData.headLine}</span>
+			</Element>
 			<Element content={caseStudiesData.subHeadLine} type={'h6'} />
-			<div className="flex-col-reverse gap-10 md:gap-1 flex md:flex-row py-10 md:py-20 justify-center">
+			<div className="flex-col-reverse pl-0 md:pl-14 gap-10 md:gap-1 flex md:flex-row py-10 md:py-20 pt-0 md:pt-0 justify-center">
 				<>
-					<div className={'flex flex-col relative justify-between w-full md:w-[40%] px-6'}>
+					<div className={'flex flex-col relative justify-between w-full md:w-[40%] md:max-w-[520px] px-6'}>
 						<div className={'absolute top-1/2 -left-2 transform -translate-y-1/2 flex items-center gap-2 group cursor-pointer'} onClick={() => handleChange(-1)}>
 							<div>
-								<RxCaretLeft className={'text-5xl'} />
+								<RxCaretLeft className={'text-5xl transition-all ' + (activeTab === 0 ? 'text-gray-700' : '')} />
 							</div>
 							{/*<span className="text-gray-400 group-hover:text-gray-200">PREV</span>*/}
 						</div>
@@ -93,11 +103,11 @@ const CaseStudies: FC<CaseStudiesProps> = (props) => {
 						<div className={'absolute top-1/2 -right-2 transform -translate-y-1/2 flex items-center gap-2 group cursor-pointer'} onClick={() => handleChange(1)}>
 							{/*<span className="text-gray-400 group-hover:text-gray-200">NEXT</span>*/}
 							<div>
-								<RxCaretRight className={'text-5xl'} />
+								<RxCaretRight className={'text-5xl transition-all ' + (activeTab === caseStudiesData.items.length - 1 ? 'text-gray-700' : '')} />
 							</div>
 						</div>
 					</div>
-					<div className={'w-full md:w-[60%]'}>
+					<div className={'w-full'}>
 						<SwipeableViews
 							axis="x"
 							index={activeTab}

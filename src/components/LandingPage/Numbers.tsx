@@ -18,7 +18,7 @@ const NumberCard = ({card} : {card: NumberCard}) => {
 						<card.icon className={"w-full h-full text-gray-400 fill-gray-400 stroke-gray-400"} />
 					</div>
 				</div>
-				<div className={'flex-1 flex flex-col items-start h-full py-6'}>
+				<div className={'flex-1 flex flex-col items-start justify-center md:justify-start h-full py-6'}>
 					<div>
 						<Counter className={'text-3xl md:text-6xl font-bold text-primary'} from={0} to={card.number.value} duration={card.number.duration} />
 						<span className={'text-lg md:text-2xl font-bold text-primary max-w-[200px] leading-tight'}>{card.headLine}</span>
