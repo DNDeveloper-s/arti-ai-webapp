@@ -132,7 +132,7 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 				<div className={'mt-8 md:mt-16 py-10 md:py-24'}>
 					{/*<h4 className="text-xl font-medium">Client Quote</h4>*/}
 					<div className={'text-3xl md:text-5xl !leading-snug text-white font-giasyr'}>
-						"{item.clientQuote?.description}"
+						{item.clientQuote?.description}
 					</div>
 					{item.clientQuote?.author && <div className={'flex justify-end items-center mt-10 gap-5'}>
 						<div className={'h-0.5 bg-gray-500 bg-opacity-60 w-[100px]'}/>

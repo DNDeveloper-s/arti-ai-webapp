@@ -277,7 +277,7 @@ export const caseStudiesData = {
 			},
 			clientQuote: {
 				headLine: 'Client Quote',
-				description: <span>Arti AI can help me grow from <span className="text-primary">80 to 95 patients</span>, and scale my business to medium scale, thank you guys!</span>,
+				description: <span>"Arti AI can help me grow from <span className="text-primary">80 to 95 patients</span>, and scale my business to medium scale, thank you guys!"</span>,
 				author: 'Greg, Midtown East Co-Owner',
 			},
 			lowerSections: [
