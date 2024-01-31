@@ -31,13 +31,16 @@ import antPreviewImage from '@/assets/images/case-study/ant/preview_images.png';
 // Raw Images
 import amplifiedRawImage1 from '@/assets/images/case-study/amplified/raw_1.jpeg';
 import amplifiedRawImage2 from '@/assets/images/case-study/amplified/raw_2.png';
+import amplifiedRawImage3 from '@/assets/images/case-study/amplified/raw_3.jpeg';
 
 import midtownEastRawImage1 from '@/assets/images/case-study/midtowneast/raw_1.png';
 import midtownEastRawImage2 from '@/assets/images/case-study/midtowneast/raw_2.png';
+import midtownEastRawImage3 from '@/assets/images/case-study/midtowneast/raw_3.png';
 
 import antRawImage1 from '@/assets/images/case-study/ant/raw_1.png';
 import antSideImage from '@/assets/images/case-study/ant/side.png';
 import React from 'react';
+import {FacebookAdPreview} from '@/components/LandingPage/AdPreview';
 
 export type NumberCard = typeof numbersData.items[0];
 export const numbersData = {
@@ -77,7 +80,7 @@ export const numbersData = {
 		{
 			id: '4',
 			number: {
-				value: 95,
+				value: 100,
 				duration: 2
 			},
 			headLine: '%',
@@ -131,6 +134,71 @@ export const servicesData = {
 		},
 	]
 }
+
+
+export interface BrandVariant {
+	id: string;
+	image: StaticImageData;
+	description: string;
+	oneLiner: string;
+}
+
+export interface Brand {
+	logo: StaticImageData;
+	adCreative: StaticImageData;
+	variant: BrandVariant[];
+	label: string;
+	offer: string;
+	offerDescription: string;
+	subOffer?: string;
+	cta: string;
+}
+
+
+/**
+ * @description {'Brands for case study section in the landing page'}
+ */
+export const brands: Record<'amplified' | 'midTownEast' | 'ant', Brand> = {
+	amplified: {
+		logo: amplifiedLogo,
+		adCreative: amplifiedAdCreative,
+		label: 'AmplifiedEMS',
+		offer: 'Claim Your FREE Week!',
+		variant: [
+			{id: '1', image: amplifiedRawImage1, description: 'Don\'t let back pain keep you on the sidelines. Our expert physical therapists empower you to lift the burden of discomfort. With personalized care and cutting-edge techniques, we\'ll help you strengthen your back, improve flexibility, and reclaim your active lifestyle. Take control and elevate your well-being—start your journey to a stronger back today!', oneLiner: 'Say Goodbye to Back Pain'},
+			{id: '2', image: amplifiedRawImage2, description: 'Visualize the best version of yourself with just 20 minutes a week using our state-of-the-art EMS technology! We harness the power of electrical muscle stimulation to maximize your workouts, sculpting your physique efficiently and effectively. Say goodbye to endless hours at the gym and hello to rapid, visible results. Join the fitness revolution and experience the transformation with us – your journey to a fitter, stronger you awaits!', oneLiner: 'Unlock Your Potential: Transform with EMS Fitness!'},
+			{id: '3', image: amplifiedRawImage3, description: 'This included competitor benchmarking and market trends evaluation to identify key areas of improvement. We then harnessed generative AI to design and execute a series of captivating, targeted ads (image and text), each crafted to resonate with the clinic\'s audience.', oneLiner: 'Revitalizing Digital Marketing for Midtown East Physical Therapy'}
+		],
+		offerDescription: 'New Year, New You! 🎉 Kickstart your fitness journey with our exclusive FREE WEEK TRIAL! Embrace a healthier, stronger version of yourself in 2024.',
+		subOffer: 'Reach your goals faster!',
+		cta: 'Get Offer',
+	},
+	midTownEast: {
+		logo: amplifiedLogo,
+		adCreative: midtownEastAdCreative,
+		variant: [
+			{id: '1', image: midtownEastRawImage3, description: 'Don\'t let back pain keep you on the sidelines. Our expert physical therapists empower you to lift the burden of discomfort. With personalized care and cutting-edge techniques, we\'ll help you strengthen your back, improve flexibility, and reclaim your active lifestyle. Take control and elevate your well-being—start your journey to a stronger back today!', oneLiner: 'Say Goodbye to Back Pain'},
+			{id: '2', image: midtownEastRawImage1, description: 'Bid farewell to knee pain with expert physical therapy services. Our tailored programs are designed to strengthen, heal, and enhance mobility. Embrace a life of movement and comfort—book your consultation today and take the first step towards a pain-free tomorrow!', oneLiner: 'Sign up Today!'},
+			{id: '3', image: midtownEastRawImage2, description: 'This included competitor benchmarking and market trends evaluation to identify key areas of improvement. We then harnessed generative AI to design and execute a series of captivating, targeted ads (image and text), each crafted to resonate with the clinic\'s audience.', oneLiner: 'Revitalizing Digital Marketing for Midtown East Physical Therapy'}
+		],
+		label: 'Midtown East',
+		offer: 'Claim Your FREE Week!',
+		offerDescription: 'New Year, New You! 🎉 Kickstart your fitness journey with our exclusive FREE WEEK TRIAL! Embrace a healthier, stronger version of yourself in 2024.',
+		subOffer: 'Reach your goals faster!',
+		cta: 'Get Offer',
+	},
+	ant: {
+		logo: amplifiedLogo,
+		adCreative: antAdCreative,
+		label: 'AnT - A Streetwear Revolution',
+		offer: 'Claim Your FREE Week!',
+		offerDescription: 'In the ever-evolving landscape of streetwear fashion, AnT stands as a beacon for the young and the bold. Our brand is a celebration of the individual, a tribute to the unique. We are the future of fashion.',
+		subOffer: 'Reach your goals faster!',
+		cta: 'Get Offer',
+		variant: []
+	},
+}
+
 
 export type CaseStudyItem = typeof caseStudiesData.items[0];
 export enum CaseStudy {
@@ -217,15 +285,26 @@ export const caseStudiesData = {
 					id: 'conclusion',
 					headLine: 'Conclusion',
 					description: 'This case is a testament to the power of intelligent and targeted digital marketing. Through our strategic approach, Midtown East Physical Therapy not only enhanced their online presence but also achieved substantial business growth, marking a new era in their digital journey.',
-					serialOrder: 1,
+					serialOrder: 2,
 				},
 				{
 					id: 'engage_with_us',
 					headLine: 'Engage with Us',
 					description: 'Are you facing similar challenges in your digital marketing efforts? Connect with us to explore how our cutting-edge solutions can transform your online presence and drive tangible business growth.',
 					containsCta: true,
-					serialOrder: 2,
+					serialOrder: 1,
 				}
+			],
+			previews: [
+				{id: '1', el: <div key={'1'} className={'w-[320px] flex-shrink-0'}>
+						<FacebookAdPreview variant={brands.midTownEast.variant[0]} />
+					</div>},
+				{id: '2', el: <div key={'2'} className={'w-[320px] flex-shrink-0'}>
+						<FacebookAdPreview variant={brands.midTownEast.variant[1]} />
+					</div>},
+				{id: '3', el: <div key={'3'} className={'w-[320px] flex-shrink-0'}>
+						<FacebookAdPreview variant={brands.midTownEast.variant[2]} />
+					</div>}
 			]
 		},
 		{
@@ -307,15 +386,26 @@ export const caseStudiesData = {
 					id: 'conclusion',
 					headLine: 'Conclusion',
 					description: 'This case study exemplifies the transformative impact of a well-strategized and executed digital marketing campaign. By focusing on the unique benefits of Amplified EMS\'s services and employing a blend of visual and informational content, we significantly enhanced their online presence and lead generation capabilities, setting a new benchmark in digital marketing efficiency and effectiveness',
-					serialOrder: 1,
+					serialOrder: 2,
 				},
 				{
 					id: 'engage_with_us',
 					headLine: 'Engage with Us',
 					description: 'Struggling with digital marketing for your innovative services? Connect with us to discover how our tailored, AI-driven marketing solutions can revolutionize your online presence and drive your business growth.',
 					containsCta: true,
-					serialOrder: 2,
+					serialOrder: 1,
 				}
+			],
+			previews: [
+				{id: '1', el: <div key={'1'} className={'w-[320px] flex-shrink-0'}>
+						<FacebookAdPreview variant={brands.amplified.variant[0]} />
+					</div>},
+				{id: '2', el: <div key={'2'} className={'w-[320px] flex-shrink-0'}>
+						<FacebookAdPreview variant={brands.amplified.variant[1]} />
+					</div>},
+				{id: '3', el: <div key={'3'} className={'w-[320px] flex-shrink-0'}>
+						<FacebookAdPreview variant={brands.amplified.variant[2]} />
+					</div>}
 			]
 		},
 		{
@@ -399,14 +489,14 @@ export const caseStudiesData = {
 					id: 'conclusion',
 					headLine: 'Conclusion',
 					description: 'This collaboration is more than a case study; it\'s a testament to the power of understanding your audience and delivering content that resonates. [Your Brand Name] is not just selling clothes; they\'re selling a culture, and we\'re proud to have played a part in their journey.',
-					serialOrder: 1,
+					serialOrder: 2,
 				},
 				{
 					id: 'engage_with_us',
 					headLine: 'Engage with Us',
 					description: 'Ready to redefine your brand\'s digital narrative? Contact us and let\'s create a revolution together.',
 					containsCta: true,
-					serialOrder: 2,
+					serialOrder: 1,
 				}
 			]
 		},
@@ -444,47 +534,4 @@ export const navbarData = {
 		href: '/#contact',
 		label: 'Schedule a call for free'
 	}
-}
-
-export interface Brand {
-	logo: StaticImageData;
-	adCreative: StaticImageData;
-	label: string;
-	offer: string;
-	offerDescription: string;
-	subOffer?: string;
-	cta: string;
-}
-
-/**
- * @description {'Brands for case study section in the landing page'}
- */
-export const brands: Record<'amplified' | 'midTownEast' | 'ant', Brand> = {
-	amplified: {
-		logo: amplifiedLogo,
-		adCreative: amplifiedAdCreative,
-		label: 'AmplifiedEMS',
-		offer: 'Claim Your FREE Week!',
-		offerDescription: 'New Year, New You! 🎉 Kickstart your fitness journey with our exclusive FREE WEEK TRIAL! Embrace a healthier, stronger version of yourself in 2024.',
-		subOffer: 'Reach your goals faster!',
-		cta: 'Get Offer',
-	},
-	midTownEast: {
-		logo: amplifiedLogo,
-		adCreative: midtownEastAdCreative,
-		label: 'Midtown East',
-		offer: 'Claim Your FREE Week!',
-		offerDescription: 'New Year, New You! 🎉 Kickstart your fitness journey with our exclusive FREE WEEK TRIAL! Embrace a healthier, stronger version of yourself in 2024.',
-		subOffer: 'Reach your goals faster!',
-		cta: 'Get Offer',
-	},
-	ant: {
-		logo: amplifiedLogo,
-		adCreative: antAdCreative,
-		label: 'AnT - A Streetwear Revolution',
-		offer: 'Claim Your FREE Week!',
-		offerDescription: 'In the ever-evolving landscape of streetwear fashion, AnT stands as a beacon for the young and the bold. Our brand is a celebration of the individual, a tribute to the unique. We are the future of fashion.',
-		subOffer: 'Reach your goals faster!',
-		cta: 'Get Offer',
-	},
 }

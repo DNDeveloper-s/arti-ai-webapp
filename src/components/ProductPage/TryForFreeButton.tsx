@@ -4,13 +4,13 @@ import Link from 'next/link';
 import {useMediaQuery} from 'react-responsive';
 
 interface TryForFreeButtonProps {
-
+	label?: string;
 }
 
-const TryForFreeButton: FC<TryForFreeButtonProps> = (props) => {
+const TryForFreeButton: FC<TryForFreeButtonProps> = ({label = 'Schedule a free call'}) => {
 	const isSmallScreen = useMediaQuery({query: '(max-width: 640px)'});
 	return (
-		<Link href="/#arti-bot" className="breathing-button-primary z-30 border-2 !fixed bottom-8 right-8 border-primary !bg-primary flex items-center gap-2 py-1.5 px-3 rounded-lg">
+		<Link href="/#contact" className="breathing-button-primary z-30 border-2 !fixed bottom-8 right-8 border-primary !bg-primary flex items-center gap-2 py-1.5 px-3 rounded-lg">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				xmlSpace="preserve"
@@ -27,7 +27,7 @@ const TryForFreeButton: FC<TryForFreeButtonProps> = (props) => {
 					data-original="#000000"
 				/>
 			</svg>
-			{!isSmallScreen && <span>Chat with AI now!</span>}
+			{!isSmallScreen && <span>{label}</span>}
 		</Link>
 	);
 };

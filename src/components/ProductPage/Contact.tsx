@@ -90,7 +90,7 @@ export default function Contact() {
 						<Image className="h-[28rem]" src={IdeaSvg} alt={'Contact ArtiBot'} />
 					</div>
 					<div>
-						<h3 className="text-3xl mb-6">Contact Us</h3>
+						<h3 className="landing-page-grad-title inline-block text-left pl-0">Contact Us</h3>
 						{contactData.formFields.map(formField => {
 							return (
 								<div key={formField.name} className="mb-3">

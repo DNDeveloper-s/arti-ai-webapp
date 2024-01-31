@@ -1028,7 +1028,7 @@ export default function Services() {
 	}, [mounted]);
 
 	return (
-		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-20 mt-40" id={'product-overview'}>
+		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-20 mt-40" id={'services'}>
 			<div>
 				{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} key={serviceItem.title} {...serviceItem} />)}
 			</div>

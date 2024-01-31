@@ -4,7 +4,6 @@ import React, {FC, useRef} from 'react';
 import {NumberCard, numbersData} from '@/constants/landingPageData';
 import useMousePos from '@/hooks/useMousePos';
 import Counter from '@/components/shared/renderers/Counter';
-import CountUp from 'react-countup';
 
 const NumberCard = ({card} : {card: NumberCard}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -35,9 +34,9 @@ interface NumbersProps {
 }
 const Numbers: FC<NumbersProps> = (props) => {
 	return (
-		<div id="numbers" className="landing-page-section py-40 flex flex-col gap-10 justify-center">
-			<div className="flex flex-col gap-5 justify-center flex-1">
-				<h2 className="landing-page-title font-diatype">{numbersData.headLine}</h2>
+		<div id="numbers" data-groupid="landing-section" className="landing-page-section py-40 flex flex-col gap-10 justify-center">
+			<div className="flex flex-col gap-5 justify-center items-center flex-1">
+				<h2 className="landing-page-grad-title inline-block">{numbersData.headLine}</h2>
 				<p className="text-base font-light font-diatype text-gray-400 max-w-[400px]">{numbersData.subHeadLine}</p>
 			</div>
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">

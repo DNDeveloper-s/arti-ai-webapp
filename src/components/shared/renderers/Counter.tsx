@@ -25,9 +25,6 @@ const Counter: FC<CounterProps> = ({from, to, duration, className}) => {
 
 	const containerRef = useCallback((node: any) => {
 		if (node !== null) {
-			// node.addEventListener('scroll', handleScroll);
-			// Visibility
-			// IntersectionObserver
 			const observer = new IntersectionObserver((entries) => {
 				entries.forEach(entry => {
 					if(entry.isIntersecting) {

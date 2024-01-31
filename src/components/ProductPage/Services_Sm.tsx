@@ -127,7 +127,7 @@ export default function Services_Sm() {
 	}, [mounted]);
 
 	return (
-		<div className="landing-page-section p-0 relative" id={'product-overview'} ref={sectionRef}>
+		<div className="landing-page-section p-0 relative" id={'services'} ref={sectionRef}>
 			<div className="sticky top-[80px] flex flex-col left-0 w-screen h-screen">
 				<div className="mt-6 absolute left-1/2 top-[-20px] bg-white">
 					{/*{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}*/}

@@ -5,6 +5,7 @@ import Dashboard from '@/components/Dashboard/Dashboard';
 import {getServerSession} from 'next-auth/next';
 import {authOptions} from '@/app/api/auth/[...nextauth]/route';
 import LandingPage from '@/components/LandingPage/LandingPage';
+import ProductLandingPage from '@/components/ProductPage/ProductLandingPage';
 
 export default async function Home() {
   // const {data, status} = useSession();
@@ -13,7 +14,7 @@ export default async function Home() {
 
   let jsx = <AppLoader />
 
-  if(!session)  jsx = <LandingPage />
+  if(!session)  jsx = <ProductLandingPage />
 
   if(session)  jsx = <Dashboard />
 

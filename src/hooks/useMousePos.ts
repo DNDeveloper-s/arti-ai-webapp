@@ -1,6 +1,6 @@
 import React, {MutableRefObject, useEffect, useState} from 'react';
 
-type UseMousePosProps = MutableRefObject<HTMLElement>
+type UseMousePosProps = MutableRefObject<any>
 
 const UseMousePos = (elRef: UseMousePosProps) => {
 	const [mousePos, setMousePos] = useState({x: 0, y: 0});

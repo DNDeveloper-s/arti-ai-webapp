@@ -5,9 +5,50 @@ import {motion} from 'framer-motion';
 import React, {FC, useState} from 'react';
 import CTAButton from '@/components/CTAButton';
 import {navbarData} from '@/constants/productPageData/navbar';
+import {AiFillCaretDown} from 'react-icons/ai';
 
 interface NavMenuItemsProps {
 	data: typeof navbarData;
+}
+
+const NavMobileItem = ({item, handleClose}: {item: typeof navbarData.navItems[0], handleClose: () => void}) => {
+	const [expand, setExpand] = useState(false);
+	const hasChildren = item.children && item.children.length > 0;
+	return (
+		<li key={item.id} className={''}>
+			<div
+				key={item.id} onClick={() => {
+				hasChildren ? setExpand(c => !c) : handleClose();
+			}}
+				className={'flex items-center justify-between relative'}
+			>
+				<Link href={item.href}
+				      className="text-xl transition-all block py-2 pl-3 pr-4 text-primaryText rounded md:p-0 dark:text-primaryText "
+				      aria-current="page">{item.label}</Link>
+				{hasChildren && <AiFillCaretDown className={'transition-all'} style={{transform: `rotate(${expand ? 180 : 0}deg)`}} />}
+			</div>
+			{hasChildren && <div
+        className={'p-2 overflow-hidden transition-all'}
+        style={{
+					maxHeight: !expand ? 0 : '400px',
+					boxShadow: 'rgb(193 193 193 / 10%) 0px 20px 25px -5px, rgb(163 163 163 / 4%) 0px 10px 10px -5px'
+				}}
+      >
+        <ul className={'divide-y divide-gray-800'}>
+					{item.children.map(child => (
+						<li
+							className={'whitespace-nowrap py-2 pl-3 pr-8 text-base'}
+							onClick={handleClose}
+							key={child.id}>
+							<Link href={child.href}
+							      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
+							      aria-current="page">{child.label}</Link>
+						</li>
+					))}
+        </ul>
+      </div>}
+		</li>
+	)
 }
 
 const NavMenuItems: FC<NavMenuItemsProps> = ({data = navbarData}) => {
@@ -39,10 +80,29 @@ const NavMenuItems: FC<NavMenuItemsProps> = ({data = navbarData}) => {
 					className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
 					{data.navItems.map(item => (
 						<li
+							className={'relative group'}
 							key={item.id}>
 							<Link href={item.href}
-							      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
+							      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded group-hover:bg-gray-100 md:hover:bg-transparent md:group-hover:text-primary md:p-0 md:dark:group-hover:text-primary dark:text-primaryText dark:group-hover:text-primary md:dark:group-hover:bg-transparent dark:border-gray-700"
 							      aria-current="page">{item.label}</Link>
+							{item.children && item.children?.length > 0 && <div
+                className={'group-hover:opacity-100 opacity-0 pointer-events-none group-hover:pointer-events-auto absolute top-[100%] -left-2 rounded bg-black p-2'}
+                style={{
+									boxShadow: 'rgb(193 193 193 / 10%) 0px 20px 25px -5px, rgb(163 163 163 / 4%) 0px 10px 10px -5px'
+								}}
+              >
+                <ul className={'divide-y divide-gray-800'}>
+									{item.children.map(child => (
+										<li
+											className={'whitespace-nowrap py-2 pl-3 pr-8 text-sm'}
+											key={child.id}>
+											<Link href={child.href}
+											      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
+											      aria-current="page">{child.label}</Link>
+										</li>
+									))}
+                </ul>
+              </div>}
 						</li>
 					))}
 				</ul>
@@ -53,12 +113,7 @@ const NavMenuItems: FC<NavMenuItemsProps> = ({data = navbarData}) => {
 				<ul
 					className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0">
 					{data.navItems.map(item => (
-						<li
-							key={item.id} onClick={() => setExpand(c => !c)}>
-							<Link href={item.href}
-							      className="text-xl transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"
-							      aria-current="page">{item.label}</Link>
-						</li>
+						<NavMobileItem item={item} key={item.id} handleClose={() => setExpand(false)} />
 					))}
 				</ul>
 			</motion.div>
