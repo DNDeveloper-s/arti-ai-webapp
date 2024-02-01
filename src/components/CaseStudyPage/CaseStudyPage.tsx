@@ -14,6 +14,7 @@ import CTAButton from '@/components/CTAButton';
 import Footer from '@/components/ProductPage/Footer';
 import {AnimatedAdPreview} from '@/components/LandingPage/CaseStudies';
 import TryForFreeButton from '@/components/ProductPage/TryForFreeButton';
+import {useMediaQuery} from 'react-responsive';
 
 interface NumberValue {
 	value: number;
@@ -52,6 +53,7 @@ interface CaseStudyItemProps {
 }
 
 const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
+	const isSmallScreen = useMediaQuery({query: '(max-width: 500px)'});
 	return (
 		<div>
 			<div className='relative w-full py-10 md:py-20 flex items-center max-h-[70vh]' style={{aspectRatio: 2 / 1}}>
@@ -82,7 +84,7 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 						</div>
 						<div className="flex flex-wrap gap-6">
 							{service.items.map((item, index) => (
-								<div className='py-1 px-3 text-lg rounded-full border border-primary' key={index}>
+								<div className='py-1 px-3 text-lg rounded-full border border-white' key={index}>
 									<span>{item}</span>
 								</div>
 							))}
@@ -102,12 +104,12 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 					</div>
 				))}
 			</Element>
-			<Element content={item.images?.raw && item.images?.raw.length > 0} type={'div'} className={'landing-page-section'}>
+			<Element content={item.images?.raw && item.images?.raw.length > 0} type={'div'} className={'landing-page-section md:max-w-[1300px]'}>
 				<div className={'w-full'}>
-					<div className="flex justify-center gap-6 my-10">
+					<div className="flex flex-col md:flex-row justify-end gap-14 my-2 md:my-10">
 						{item.images?.raw?.map((image, index) => (
 							<>
-								<div style={{width: `calc(100% / ${item.images.raw.length})`}}>
+								<div style={{width: isSmallScreen ? '100%' : `calc(100% / ${item.images.raw.length})`}}>
 									<Image className={'w-full h-auto'} src={image} alt={"Arti AI"} />
 								</div>
 							</>
@@ -140,9 +142,9 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 					</div>}
 				</div>
 			</Element>
-			<Element content={item.previews} type={'div'} className={'landing-page-section h-[600px] flex gap-4 p-3 justify-center items-center'}>
+			{/* <Element content={item.previews} type={'div'} className={'landing-page-section h-[600px] flex gap-4 p-3 justify-center items-center'}>
 				<AnimatedAdPreview isActive={true} previews={item.previews ?? []} />
-			</Element>
+			</Element> */}
 			<Element content={item.lowerSections} type={'div'} className={'landing-page-section'}>
 				<div className={'grid grid-cols-1 md:grid-cols-2 mt-20 gap-10'}>
 					{item.lowerSections?.sort((a,b) => (a.serialOrder ?? 0) - (b.serialOrder ?? 0))?.map((section, index) => (

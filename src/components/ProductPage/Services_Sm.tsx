@@ -121,8 +121,8 @@ export default function Services_Sm() {
 		console.log('mounted - ', mounted, rect);
 
 		return {
-			width: rect.width - 20,
-			height: rect.height - 20
+			width: rect.width - 40,
+			height: rect.height - 30
 		}
 	}, [mounted]);
 
@@ -140,7 +140,7 @@ export default function Services_Sm() {
 						</div>
 					))}
 				</div>
-				<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative md:sticky h-[70vh] md:h-screen top-[100px] flex flex-col gap-3 justify-center items-center">
+				<div data-groupid={"landing-section"} data-section={"product_overview"} className="relative lg:sticky h-[70vh] lg:h-screen top-[100px] flex flex-col gap-3 justify-center items-center">
 					<div className="text-left w-[90vw] h-full flex items-center justify-center relative">
             <div className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] md:w-[550px] flex justify-center items-center h-full"}>
               <Image className="w-auto h-full max-w-none" src={IphoneImage} ref={iphoneImageRef} alt="Iphone Image" />

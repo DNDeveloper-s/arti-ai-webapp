@@ -31,6 +31,7 @@ export const waitWithCleanup = (duration: number) => {
 	});
 
 	// Return both the timeoutId and the promise
+
 	return { timeoutId, promise } as {timeoutId: NodeJS.Timeout | undefined, promise: Promise<void>};
 }
 

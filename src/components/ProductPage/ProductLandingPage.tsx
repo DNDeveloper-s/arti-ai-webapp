@@ -35,19 +35,20 @@ export default function ProductLandingPage() {
 	const sectionLoggedRef = useRef<Map<string, boolean>>(new Map());
 	const [showTryButton, setShowTryButton] = useState<boolean>(true);
 	const [focusedSection, setFocusedSection] = useState<string>('');
-	const isSmallScreen = useMediaQuery({query: '(max-width: 500px)'});
+	const isSmallScreen = useMediaQuery({query: '(max-width: 768px)'});
+	const isPortrait = useMediaQuery({orientation: 'portrait'});
 	const isMounted = useMounted();
 
 	useEffect(() => {
 		if(!clientId) return;
 
-		const handleIntersection = (entries, observer) => {
+		const handleIntersection = (entries: IntersectionObserverEntry[]) => {
 			entries.forEach((entry) => {
 				console.log('entry - ', entry);
 				if (entry.isIntersecting) {
-					const sectionIndex = entry.target.dataset.section;
+					const sectionIndex = (entry.target as HTMLElement).dataset.section;
 					console.log(`User scrolled to section ${sectionIndex}`);
-					setFocusedSection(sectionIndex);
+					setFocusedSection(sectionIndex || '');
 
 					if(sectionIndex === 'hero' || sectionIndex === 'arti_bot') {
 						setShowTryButton(false);
@@ -101,7 +102,7 @@ export default function ProductLandingPage() {
 			<main>
 				{/*<Logo />*/}
 				<Hero />
-				{isMounted && isSmallScreen ? <Services_Sm /> : <Services/>}
+				{isMounted && (isSmallScreen || isPortrait) ? <Services_Sm /> : <Services/>}
 				<Numbers />
 				<CaseStudies />
 				<Testimonials />

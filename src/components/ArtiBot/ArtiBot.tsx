@@ -284,8 +284,12 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
 						id: ObjectId().toHexString(),
 						role: ChatGPTRole.ASSISTANT,
 						content: result.data.data,
+						adCreatives: [], // Add the missing properties
+						conversationId: '', // Add the missing properties
+						createdAt: '', // Add the missing properties
+						updatedAt: '', // Add the missing properties
 					}
-				])
+				]);
 				chunksRef.current = result.data.data;
 				saveMessageRef.current = true;
 			} else {

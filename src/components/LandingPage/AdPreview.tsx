@@ -396,7 +396,7 @@ export const FacebookAdPreview:FC<FacebookAdPreviewProps> = ({variant}) => {
 		},
 		description: {
 			normal: "text-[0.7em] leading-[1.3em] line-clamp-3",
-			modal: "text-[0.85em] leading-[1.4em] line-clamp-3"
+			modal: "text-[0.85em] leading-[1.5em] line-clamp-3"
 		},
 		oneLiner: {
 			normal: "text-[0.75em] leading-[1.35em]",
@@ -430,7 +430,7 @@ export const FacebookAdPreview:FC<FacebookAdPreviewProps> = ({variant}) => {
 						</div>
 						<SlOptions className="text-xs" />
 					</div>
-					<div className="mt-2 mb-2">
+					<div className="my-4">
 						<span className={getClassName('description')}>{variant.description}</span>
 					</div>
 				</div>
@@ -440,19 +440,19 @@ export const FacebookAdPreview:FC<FacebookAdPreviewProps> = ({variant}) => {
 					<Image width={640} height={640} src={variant.image} alt="Image" />
 				</div>
 				{/*<h3 className={"text-xs font-medium text-gray-100 mt-3"}>Empower Your Farming with Precision Technology</h3>*/}
-				<div className={"flex justify-between gap-2 items-center mt-3"}>
+				<div className={"flex justify-between gap-2 items-center my-3"}>
 					<span className={getClassName('oneLiner')}>{variant.oneLiner}</span>
 					<div className="flex-shrink-0">
 						<span className={getClassName('learnMore')}>Learn More</span>
 					</div>
 				</div>
 				<div className={getClassName('bottom')}>
-					<hr className="h-px my-2 border-0 bg-gray-700"/>
+					<hr className="h-px my-3 border-0 bg-gray-700"/>
 					<div className="w-full flex justify-between">
-						<div className="ml-2 w-9 h-3 rounded-[3px] bg-gray-700" />
-						<div className="w-9 h-3 rounded-[3px] bg-gray-700" />
-						<div className="w-9 h-3 rounded-[3px] bg-gray-700" />
-						<div className="w-3 h-3 rounded-full bg-gray-700" />
+						<div className="ml-2 w-10 h-4 rounded-[3px] bg-gray-700" />
+						<div className="w-10 h-4 rounded-[3px] bg-gray-700" />
+						<div className="w-10 h-4 rounded-[3px] bg-gray-700" />
+						<div className="w-4 h-4 rounded-full bg-gray-700" />
 					</div>
 				</div>
 			</div>
@@ -483,7 +483,7 @@ export const FacebookAdPreview2:FC<FacebookAdPreviewProps> = ({variant}) => {
 		},
 		description: {
 			normal: "text-[0.7em] leading-[1.3em] line-clamp-3",
-			modal: "text-[0.85em] text-gray-400 leading-[1.4em] line-clamp-3"
+			modal: "text-[0.85em] leading-[1.5em] line-clamp-3"
 		},
 		oneLiner: {
 			normal: "text-[0.75em] leading-[1.35em]",
@@ -519,7 +519,7 @@ export const FacebookAdPreview2:FC<FacebookAdPreviewProps> = ({variant}) => {
 					</div>
 				</div>
 				<div className={'flex items-center gap-4 my-4'}>
-					<div className='overflow-hidden rounded h-[120px] w-auto flex-shrink-0'>
+					<div className='overflow-hidden rounded h-[140px] w-auto flex-shrink-0'>
 						{/*<Image width={640} height={640} src="https://srs-billing-storage.s3.ap-south-1.amazonaws.com/65642ff3b3a0408e7192e933_1701064709413.png" alt="Image" />*/}
 						<Image className={'h-full w-auto'} src={variant.image} alt="Image" />
 					</div>
@@ -545,6 +545,93 @@ export const FacebookAdPreview2:FC<FacebookAdPreviewProps> = ({variant}) => {
 						<div className="w-12 h-5 rounded-[3px] bg-gray-700" />
 						<div className="w-12 h-5 rounded-[3px] bg-gray-700" />
 						<div className="w-5 h-5 rounded-full bg-gray-700" />
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+export const FacebookAdPreviewMini:FC<FacebookAdPreviewProps> = ({variant}) => {
+	const artiCardRef = useRef<HTMLDivElement>(null);
+	const mousePos = useMousePos(artiCardRef);
+
+	const classes = {
+		container: {
+			normal: 'arti-card hover:scale-x-105 transition-transform flex-shrink-0 rounded-lg cursor-default',
+			modal: 'arti-card transition-transform flex-shrink-0 rounded-lg cursor-default'
+		},
+		inner: {
+			normal: 'p-3 relative h-full bg-gray-950 w-64 rounded-[inherit] z-20 overflow-hidden scale-100 font-diatype group',
+			modal: 'p-3 relative h-full bg-gray-950 w-auto rounded-[inherit] z-20 overflow-hidden scale-100 font-diatype'
+		},
+		head: {
+			normal: 'group-hover:max-h-[300px] max-h-0 overflow-hidden transition-all',
+			modal: 'max-h-[300px]'
+		},
+		bottom: {
+			normal: 'group-hover:max-h-[100px] max-h-0 overflow-hidden transition-all',
+			modal: 'max-h-[100px]'
+		},
+		description: {
+			normal: "text-[0.7em] leading-[1.3em] line-clamp-3",
+			modal: "text-[0.75em] leading-[1.45em] line-clamp-3"
+		},
+		oneLiner: {
+			normal: "text-[0.75em] leading-[1.35em]",
+			modal: "text-[0.75em] leading-[1.35em]"
+		},
+		learnMore: {
+			normal: "cursor-pointer rounded bg-gray-700 px-2 py-1 text-[0.55em]",
+			modal: "cursor-pointer rounded bg-gray-700 px-2 py-1 text-[0.75em]"
+		}
+	}
+
+	const getClassName = (key: keyof typeof classes) => {
+		return classes[key].modal;
+	}
+
+	return (
+		<div className={getClassName('container')} ref={artiCardRef} style={{boxShadow: '0 0 50px #bebebe45', '--mouse-x': `${mousePos.x}px`, '--mouse-y': `${mousePos.y}px`}}>
+			{/*{isModal && <div className="absolute top-2 right-3 p-1 bg-gray-200 text-white rounded-full">*/}
+			{/*	<CloseIcon/>*/}
+			{/*</div>}*/}
+			<div className={getClassName('inner')}>
+				{/* Head Section */}
+				<div className={getClassName('head')}>
+					<div className={"flex justify-between items-center mb-1 pt-1"}>
+						<div className="flex items-center gap-1">
+							<div className="w-5 h-5 rounded-full bg-gray-700" />
+							<div>
+								<div className="w-12 h-2 mb-1 rounded bg-gray-700" />
+								<div className="w-16 h-2 rounded bg-gray-700" />
+							</div>
+						</div>
+						<SlOptions className="text-xs" />
+					</div>
+					<div className="my-2">
+						<span className={getClassName('description')}>{variant.description}</span>
+					</div>
+				</div>
+
+				<div className='overflow-hidden rounded w-full h-auto'>
+					{/*<Image width={640} height={640} src="https://srs-billing-storage.s3.ap-south-1.amazonaws.com/65642ff3b3a0408e7192e933_1701064709413.png" alt="Image" />*/}
+					<Image width={640} height={640} src={variant.image} alt="Image" />
+				</div>
+				{/*<h3 className={"text-xs font-medium text-gray-100 mt-3"}>Empower Your Farming with Precision Technology</h3>*/}
+				<div className={"flex justify-between gap-2 items-center my-2"}>
+					<span className={getClassName('oneLiner')}>{variant.oneLiner}</span>
+					<div className="flex-shrink-0">
+						<span className={getClassName('learnMore')}>Learn More</span>
+					</div>
+				</div>
+				<div className={getClassName('bottom')}>
+					<hr className="h-px my-2 border-0 bg-gray-700"/>
+					<div className="w-full flex justify-between">
+						<div className="ml-2 w-10 h-4 rounded-[3px] bg-gray-700" />
+						<div className="w-10 h-4 rounded-[3px] bg-gray-700" />
+						<div className="w-10 h-4 rounded-[3px] bg-gray-700" />
+						<div className="w-4 h-4 rounded-full bg-gray-700" />
 					</div>
 				</div>
 			</div>

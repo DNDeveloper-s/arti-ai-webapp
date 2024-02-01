@@ -85,7 +85,7 @@ export default function Contact() {
 		}}>
 			<div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70" />
 			<div className="relative text-primaryText landing-page-section !bg-transparent font-diatype">
-				<div className="grid gap-10 grid-cols-1 md:grid-cols-[1fr_500px]">
+				<div className="grid gap-10 grid-cols-1 md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_500px]">
 					<div className="hidden md:visible w-max-[300px] md:flex items-center">
 						<Image className="h-[28rem]" src={IdeaSvg} alt={'Contact ArtiBot'} />
 					</div>

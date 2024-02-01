@@ -166,8 +166,8 @@ export const brands: Record<'amplified' | 'midTownEast' | 'ant', Brand> = {
 		offer: 'Claim Your FREE Week!',
 		variant: [
 			{id: '1', image: amplifiedRawImage1, description: 'Don\'t let back pain keep you on the sidelines. Our expert physical therapists empower you to lift the burden of discomfort. With personalized care and cutting-edge techniques, we\'ll help you strengthen your back, improve flexibility, and reclaim your active lifestyle. Take control and elevate your well-being—start your journey to a stronger back today!', oneLiner: 'Say Goodbye to Back Pain'},
-			{id: '2', image: amplifiedRawImage2, description: 'Visualize the best version of yourself with just 20 minutes a week using our state-of-the-art EMS technology! We harness the power of electrical muscle stimulation to maximize your workouts, sculpting your physique efficiently and effectively. Say goodbye to endless hours at the gym and hello to rapid, visible results. Join the fitness revolution and experience the transformation with us – your journey to a fitter, stronger you awaits!', oneLiner: 'Unlock Your Potential: Transform with EMS Fitness!'},
-			{id: '3', image: amplifiedRawImage3, description: 'This included competitor benchmarking and market trends evaluation to identify key areas of improvement. We then harnessed generative AI to design and execute a series of captivating, targeted ads (image and text), each crafted to resonate with the clinic\'s audience.', oneLiner: 'Revitalizing Digital Marketing for Midtown East Physical Therapy'}
+			{id: '2', image: amplifiedRawImage3, description: 'This included competitor benchmarking and market trends evaluation to identify key areas of improvement. We then harnessed generative AI to design and execute a series of captivating, targeted ads (image and text), each crafted to resonate with the clinic\'s audience.', oneLiner: 'Revitalizing Digital Marketing for Midtown East Physical Therapy'},
+			{id: '3', image: amplifiedRawImage2, description: 'Visualize the best version of yourself with just 20 minutes a week using our state-of-the-art EMS technology! We harness the power of electrical muscle stimulation to maximize your workouts, sculpting your physique efficiently and effectively. Say goodbye to endless hours at the gym and hello to rapid, visible results. Join the fitness revolution and experience the transformation with us – your journey to a fitter, stronger you awaits!', oneLiner: 'Unlock Your Potential: Transform with EMS Fitness!'},
 		],
 		offerDescription: 'New Year, New You! 🎉 Kickstart your fitness journey with our exclusive FREE WEEK TRIAL! Embrace a healthier, stronger version of yourself in 2024.',
 		subOffer: 'Reach your goals faster!',
@@ -190,12 +190,16 @@ export const brands: Record<'amplified' | 'midTownEast' | 'ant', Brand> = {
 	ant: {
 		logo: amplifiedLogo,
 		adCreative: antAdCreative,
+		variant: [
+			{id: '1', image: antSideImage, description: 'Don\'t let back pain keep you on the sidelines. Our expert physical therapists empower you to lift the burden of discomfort. With personalized care and cutting-edge techniques, we\'ll help you strengthen your back, improve flexibility, and reclaim your active lifestyle. Take control and elevate your well-being—start your journey to a stronger back today!', oneLiner: 'Say Goodbye to Back Pain'},
+			{id: '2', image: antRawImage1, description: 'Bid farewell to knee pain with expert physical therapy services. Our tailored programs are designed to strengthen, heal, and enhance mobility. Embrace a life of movement and comfort—book your consultation today and take the first step towards a pain-free tomorrow!', oneLiner: 'Sign up Today!'},
+			{id: '3', image: midtownEastRawImage3, description: 'This included competitor benchmarking and market trends evaluation to identify key areas of improvement. We then harnessed generative AI to design and execute a series of captivating, targeted ads (image and text), each crafted to resonate with the clinic\'s audience.', oneLiner: 'Revitalizing Digital Marketing for Midtown East Physical Therapy'}
+		],
 		label: 'AnT - A Streetwear Revolution',
 		offer: 'Claim Your FREE Week!',
 		offerDescription: 'In the ever-evolving landscape of streetwear fashion, AnT stands as a beacon for the young and the bold. Our brand is a celebration of the individual, a tribute to the unique. We are the future of fashion.',
 		subOffer: 'Reach your goals faster!',
 		cta: 'Get Offer',
-		variant: []
 	},
 }
 
@@ -221,7 +225,7 @@ export const caseStudiesData = {
 				name: 'Midtown East',
 			},
 			brief: {
-				client_name: 'Revitalizing Digital Marketing for Midtown East Physical Therapy',
+				client_name: 'Midtown East',
 				oneLiner: <span>
 					After a year of unsuccessful advertising, Midtown East Physical Therapy experienced a <span className={'text-primary'}>10x surge</span> in website traffic and gained <span className="text-primary">20+ leads in 2 weeks</span>, thanks to our tailored ad strategy.
 				</span>,
@@ -285,14 +289,14 @@ export const caseStudiesData = {
 					id: 'conclusion',
 					headLine: 'Conclusion',
 					description: 'This case is a testament to the power of intelligent and targeted digital marketing. Through our strategic approach, Midtown East Physical Therapy not only enhanced their online presence but also achieved substantial business growth, marking a new era in their digital journey.',
-					serialOrder: 2,
+					serialOrder: 1,
 				},
 				{
 					id: 'engage_with_us',
 					headLine: 'Engage with Us',
 					description: 'Are you facing similar challenges in your digital marketing efforts? Connect with us to explore how our cutting-edge solutions can transform your online presence and drive tangible business growth.',
 					containsCta: true,
-					serialOrder: 1,
+					serialOrder: 2,
 				}
 			],
 			previews: [
@@ -314,7 +318,7 @@ export const caseStudiesData = {
 				name: 'Amplified EMS',
 			},
 			brief: {
-				client_name: 'Amplifying online presence for Next-gen Amplified EMS gym',
+				client_name: 'Amplified EMS',
 				oneLiner: <span>
 					Our refined advertising approach, focusing on clear messaging and targeted audiences, yielded <span className="text-primary">2x leads at 4x less cost</span> compared to traditional gym advertising techniques.
 				</span>,
@@ -386,14 +390,14 @@ export const caseStudiesData = {
 					id: 'conclusion',
 					headLine: 'Conclusion',
 					description: 'This case study exemplifies the transformative impact of a well-strategized and executed digital marketing campaign. By focusing on the unique benefits of Amplified EMS\'s services and employing a blend of visual and informational content, we significantly enhanced their online presence and lead generation capabilities, setting a new benchmark in digital marketing efficiency and effectiveness',
-					serialOrder: 2,
+					serialOrder: 1,
 				},
 				{
 					id: 'engage_with_us',
 					headLine: 'Engage with Us',
 					description: 'Struggling with digital marketing for your innovative services? Connect with us to discover how our tailored, AI-driven marketing solutions can revolutionize your online presence and drive your business growth.',
 					containsCta: true,
-					serialOrder: 1,
+					serialOrder: 2,
 				}
 			],
 			previews: [
@@ -415,7 +419,7 @@ export const caseStudiesData = {
 				name: 'AnT - A Streetwear Revolution',
 			},
 			brief: {
-				client_name: 'AD Revolution for an upcoming, novel streetwear brand - AnT',
+				client_name: 'AnT- Streetwear',
 				oneLiner: <span>
 					Revolutionizing streetwear marketing, our innovative campaign <span className="text-primary font-bold">doubled returns</span> while <span className="text-primary font-bold">reducing costs by 25%</span>, capturing the essence of youth culture for the digital era.
 				</span>,
@@ -489,14 +493,14 @@ export const caseStudiesData = {
 					id: 'conclusion',
 					headLine: 'Conclusion',
 					description: 'This collaboration is more than a case study; it\'s a testament to the power of understanding your audience and delivering content that resonates. [Your Brand Name] is not just selling clothes; they\'re selling a culture, and we\'re proud to have played a part in their journey.',
-					serialOrder: 2,
+					serialOrder: 1,
 				},
 				{
 					id: 'engage_with_us',
 					headLine: 'Engage with Us',
 					description: 'Ready to redefine your brand\'s digital narrative? Contact us and let\'s create a revolution together.',
 					containsCta: true,
-					serialOrder: 1,
+					serialOrder: 2,
 				}
 			]
 		},

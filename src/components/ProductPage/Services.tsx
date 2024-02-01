@@ -101,7 +101,7 @@ const ServiceCard: React.FC<Props> = ({id, title, description, handleIdInView = 
 	return (
 		<div className="h-screen flex flex-col items-center justify-center">
 			<div ref={nodeRef} data-id={id}>
-				<h1 className="text-[105px] text-white leading-[105px] font-gilroyBold tracking-[-1.15px]">{title}</h1>
+				<h1 className="lg:text-[65px] 2xl:text-[105px] text-white lg:leading-[70px] 2xl:leading-[105px] font-gilroyBold tracking-[-1.15px]">{title}</h1>
 				<p className="font-gilroyRegular text-white text-opacity-40 text-[18px]">{description}</p>
 			</div>
 		</div>
@@ -1028,7 +1028,7 @@ export default function Services() {
 	}, [mounted]);
 
 	return (
-		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-20 mt-40" id={'services'}>
+		<div className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] lg:gap-10 xl:gap-20 mt-40" id={'services'}>
 			<div>
 				{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} key={serviceItem.title} {...serviceItem} />)}
 			</div>
