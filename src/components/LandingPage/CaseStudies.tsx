@@ -264,7 +264,7 @@ const CaseStudies: FC<CaseStudiesProps> = (props) => {
 									<CaseStudyImage item={item} />
 								</div>
 							)) : Object.values(previewsObj).map((previews, ind) => (
-								<CardAnimation ContainerClassName='h-[450px]' autoPlay={activeTab === ind} items={previews} />
+								<CardAnimation key={ind} ContainerClassName='h-[450px]' autoPlay={activeTab === ind} items={previews} />
 							))}
 						</SwipeableViews>
 					</div>
