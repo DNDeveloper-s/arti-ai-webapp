@@ -6,7 +6,7 @@ import useMousePos from '@/hooks/useMousePos';
 import {carouselImage1, carouselImage2, carouselImage3, carouselImage4} from '@/assets/images/carousel-images';
 import Modal from '@/components/Modal';
 import {CloseIcon} from 'next/dist/client/components/react-dev-overlay/internal/icons/CloseIcon';
-import {handle} from 'mdast-util-to-markdown/lib/handle';
+import { antRawImage1, antSideImage, midTownEastRawImage1 } from '@/assets/images/case-study';
 
 const testimonialsData = {
 	adCreatives: [
@@ -33,6 +33,18 @@ const testimonialsData = {
 			description: 'Visualize the best version of yourself with just 20 minutes a week using our state-of-the-art EMS technology! We harness the power of electrical muscle stimulation to maximize your workouts, sculpting your physique efficiently and effectively. Say goodbye to endless hours at the gym and hello to rapid, visible results. Join the fitness revolution and experience the transformation with us – your journey to a fitter, stronger you awaits!',
 			oneLiner: 'Unlock Your Potential: Transform with EMS Fitness!',
 			src: carouselImage4
+		},
+		{
+			id: '5',
+			description: 'Visualize the best version of yourself with just 20 minutes a week using our state-of-the-art EMS technology! We harness the power of electrical muscle stimulation to maximize your workouts, sculpting your physique efficiently and effectively. Say goodbye to endless hours at the gym and hello to rapid, visible results. Join the fitness revolution and experience the transformation with us – your journey to a fitter, stronger you awaits!',
+			oneLiner: 'AnT - Streetwear Fashion',
+			src: antRawImage1
+		},
+		{
+			id: '6',
+			description: 'Visualize the best version of yourself with just 20 minutes a week using our state-of-the-art EMS technology! We harness the power of electrical muscle stimulation to maximize your workouts, sculpting your physique efficiently and effectively. Say goodbye to endless hours at the gym and hello to rapid, visible results. Join the fitness revolution and experience the transformation with us – your journey to a fitter, stronger you awaits!',
+			oneLiner: 'Revolutionizing streetwear marketing!',
+			src: antSideImage
 		}
 	],
 	reviews: [
@@ -141,7 +153,6 @@ const Testimonial = {
 							{isModal ?
 								<div
 									onClick={() => {
-										console.log('handleClose - ');
 										handleClose && handleClose();
 									}}
 									className="cursor-pointer text-xs"
@@ -155,9 +166,9 @@ const Testimonial = {
 						</div>
 					</div>
 
-					<div className='overflow-hidden rounded w-full h-auto'>
+					<div className='overflow-hidden rounded w-full h-auto aspect-square bg-gray-700'>
 						{/*<Image width={640} height={640} src="https://srs-billing-storage.s3.ap-south-1.amazonaws.com/65642ff3b3a0408e7192e933_1701064709413.png" alt="Image" />*/}
-						<Image width={640} height={640} src={src} alt="Image" />
+						<Image width={640} height={640} src={src} className='w-full h-full object-cover active:object-contain' alt="Image" />
 					</div>
 					{/*<h3 className={"text-xs font-medium text-gray-100 mt-3"}>Empower Your Farming with Precision Technology</h3>*/}
 					<div className={"flex justify-between gap-2 items-center mt-3"}>

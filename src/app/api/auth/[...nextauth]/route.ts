@@ -11,7 +11,6 @@ import {JWT} from 'next-auth/jwt';
 const prisma = new PrismaClient();
 
 function generateNewToken(token: JWT) {
-	console.log('jwt - ', token);
 	// Set your JWT secret and options
 	const secret = 'thisisasecretkey'; // Replace with your secret key
 	const accessTokenExpires = moment().add(
@@ -46,7 +45,6 @@ export const authOptions: AuthOptions = {
 				email: {label: 'Email', type: 'email'},
 			},
 			async authorize(credentials){
-				console.log('credentials - ', credentials);
 				if(!credentials?.email || !credentials?.password) return null;
 
 				const user = await prisma.user.findUnique({
@@ -67,9 +65,6 @@ export const authOptions: AuthOptions = {
 	callbacks: {
 		async signIn({user, account, profile}) {
 			// TODO: REFACTOR THIS CODE
-			console.log('user - ', user);
-			console.log('account - ', account);
-			console.log('profile - ', profile);
 
 
 			if (account?.provider === 'google' && profile?.name) {
@@ -80,11 +75,10 @@ export const authOptions: AuthOptions = {
 				const existingUser = await prisma.user.findUnique({
 					where: { email: user.email },
 				});
-				console.log('Line 61: - ');
 
 				if (existingUser) {
 					// Update the user's first_name and last_name
-					console.log('Line 65: - ');
+
 					const accountObject = {
 						type: account.type as string,
 						id_token: account.id_token,
@@ -131,7 +125,6 @@ export const authOptions: AuthOptions = {
 						});
 					}
 
-					console.log('Line 112: - ');
 					await prisma.user.update({
 						where: { email: user.email },
 						data: { accounts: {
@@ -173,7 +166,6 @@ export const authOptions: AuthOptions = {
 			return true;
 		},
 		async redirect({ url, baseUrl }) {
-			console.log('url - ', url, baseUrl);
 			return baseUrl
 		},
 		async session({ session, user, token }) {
@@ -222,8 +214,6 @@ export const authOptions: AuthOptions = {
 	jwt: {
 		encode: async ({ secret, token, maxAge }) => {
 			if(!token) return '';
-
-			console.log('generating new token 1 - ', token);
 			const accessTokenExpires = moment().add(
 				60,
 				"minutes"
@@ -240,7 +230,6 @@ export const authOptions: AuthOptions = {
 			}, 'thisisasecretkey');
 		},
 		decode: async ({ secret, token }) => {
-			console.log('token - ', jwt.decode(token));
 			return {
 				...jwt.decode(token),
 				accessToken: token

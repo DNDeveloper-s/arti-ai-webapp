@@ -14,7 +14,6 @@ export default async function ArtiBot() {
 	const session = await getServerSession(authOptions)
 	// const router = useRouter();
 	const status = '';
-	console.log('session - ', session);
 
 
 	let jsx = <AppLoader />

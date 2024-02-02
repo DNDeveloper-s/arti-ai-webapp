@@ -7,6 +7,7 @@ import React from 'react';
 import {SessionProvider} from 'next-auth/react';
 import {ConversationContextProvider, initConversationState} from '@/context/ConversationContext';
 import { Analytics } from '@vercel/analytics/react';
+import {EditVariantContextProvider} from '@/context/EditVariantContext';
 
 const metadata: Metadata = {
   title: 'Arti AI',
@@ -25,10 +26,12 @@ export default function RootLayout({
         <SessionProvider>
           <SnackbarContextProvider>
             <ConversationContextProvider {...initConversationState}>
-              <>
-                {children}
-                <div id='myportal' className="z-[999] fixed top-0 left-0" />
-              </>
+              <EditVariantContextProvider>
+                <>
+                  {children}
+                  <div id='myportal' className="z-[999] fixed top-0 left-0" />
+                </>
+              </EditVariantContextProvider>
             </ConversationContextProvider>
           </SnackbarContextProvider>
         </SessionProvider>

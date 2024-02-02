@@ -34,7 +34,6 @@ app.post('/text-stream', bodyParser.json(), async (req, res, next) => {
   // Send initial data to the client
   res.write('data: Initial data\n\n');
 
-  console.log('messages - ', req);
 
   const completion = await openai.chat.completions.create({
     messages: messages ?? [{ role: 'user', content: 'Say this is a test' }],

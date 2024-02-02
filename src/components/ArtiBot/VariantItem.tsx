@@ -1,9 +1,12 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
-import FacebookAdVariant, {EditFacebookAdVariant} from '@/components/ArtiBot/FacebookAdVariant';
+import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
 import FeedBackView from '@/components/ArtiBot/RIghtPane/FeedBackView';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
 import {timeSince} from '@/helpers';
 import {Mock} from '@/constants/servicesData';
+import { EditFacebookAdVariant } from './EditAdVariant/EditAdVariant';
+import {startEditingVariant, useEditVariant} from '@/context/EditVariantContext';
+import {useConversation} from '@/context/ConversationContext';
 
 interface VariantTabProps {
 	activeVariant: AdCreativeVariant;
@@ -20,6 +23,7 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 	const variantRef = useRef<HTMLDivElement>(null);
 	const [fontSize, setFontSize] = useState<number>(8.5);
 	const [mode, setMode] = useState<AD_VARIANT_MODE>(AD_VARIANT_MODE.VIEW);
+	const {dispatch} = useEditVariant();
 
 	useEffect(() => {
 		if(!variantRef.current) return;
@@ -48,7 +52,8 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 					<div className={'flex justify-end w-[80%] mt-2 items-center gap-1 text-xs'}>
 						<span className="text-white text-opacity-50">Explore Options:</span>
 						<button onClick={() => {
-							setMode(AD_VARIANT_MODE.EDIT);
+							// setMode(AD_VARIANT_MODE.EDIT);
+							startEditingVariant(dispatch, activeVariant);
 						}} className="bg-primary text-white px-3 py-1 leading-[14px] rounded cursor-pointer">Edit Your Ad</button>
 					</div>
 					<div ref={variantRef} className={"mt-2 w-[80%]"}>

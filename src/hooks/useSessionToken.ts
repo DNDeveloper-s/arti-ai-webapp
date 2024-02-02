@@ -7,7 +7,6 @@ export default function useSessionToken() {
 	const session = useSession();
 
 	useLayoutEffect(() => {
-		console.log('session?.data?.user?.token?.accessToken - ', session?.data?.user?.token?.accessToken);
 		if(session?.data?.user?.token?.accessToken) {
 			localStorage.setItem('token', session?.data?.user?.token?.accessToken);
 		} else {

@@ -105,7 +105,6 @@ export default function CardSection() {
 	const [activeTabItem, setActiveTabItem] = useState<TabItem>(tabItems[0]);
 
 	useEffect(() => {
-		console.log('state.error - ', state.error);
 		if(state.error && state.error.message) {
 			setSnackBarData({status: 'error', message: state.error.message});
 			clearError(dispatch);
@@ -125,8 +124,6 @@ export default function CardSection() {
 	}
 
 	// Group the adCreatives by conversationId
-
-	console.log('state - ', state.loading, state.conversation, state.conversation?.list);
 
 
 	// Merge the variants of adCreatives per conversationId

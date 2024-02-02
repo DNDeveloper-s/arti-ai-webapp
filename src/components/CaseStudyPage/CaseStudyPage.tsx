@@ -2,7 +2,7 @@
 
 import React, {FC, useRef} from 'react';
 import Element from '@/components/shared/renderers/Element';
-import {caseStudiesData, CaseStudyItem, navbarData} from '@/constants/landingPageData';
+import {brands, caseStudiesData, CaseStudyItem, navbarData} from '@/constants/landingPageData';
 import {carouselImage1, carouselImage2} from '@/assets/images/carousel-images';
 import Image from 'next/image';
 import useMousePos from '@/hooks/useMousePos';
@@ -12,9 +12,10 @@ import {BsArrowDown, BsArrowUp} from 'react-icons/bs';
 import Counter from '@/components/shared/renderers/Counter';
 import CTAButton from '@/components/CTAButton';
 import Footer from '@/components/ProductPage/Footer';
-import {AnimatedAdPreview} from '@/components/LandingPage/CaseStudies';
+import {AnimatedAdPreview, previewsObj} from '@/components/LandingPage/CaseStudies';
 import TryForFreeButton from '@/components/ProductPage/TryForFreeButton';
 import {useMediaQuery} from 'react-responsive';
+import CardAnimation from '../shared/renderers/CardAnimation';
 
 interface NumberValue {
 	value: number;
@@ -30,19 +31,19 @@ interface OutcomeItemProps {
 
 function OutcomeItem({label, number, decrease}: OutcomeItemProps) {
 	return (
-		<div className={'grid grid-cols-2 md:grid-cols-[130px_1fr] gap-10'}>
-			<div className='whitespace-nowrap flex flex-col px-10 md:px-1'>
+		<div className={'grid grid-cols-1 md:grid-cols-[130px_1fr] gap-4 md:gap-10'}>
+			<div className='md:whitespace-nowrap flex flex-col px-1 md:px-1'>
 				<div>
-					<span className='text-7xl mb-4 block text-primary font-giasyr'>
+					<span className='text-6xl md:text-7xl mb-4 block text-primary font-giasyr'>
 						<Counter from={number.from} to={number.value} duration={number.duration} />
-						<span className='text-4xl ml-1 text-primary font-giasyr'>{number.postString}</span>
+						<span className='text-3xl md:text-4xl ml-1 text-primary font-giasyr'>{number.postString}</span>
 					</span>
-					<p className={'font-light block text-left text-gray-400'}>{label}</p>
+					<p className={'text-sm md:text-base font-light block text-left text-gray-400'}>{label}</p>
 				</div>
 			</div>
-			<div className={'flex flex-col justify-end'}>
+			<div className={'flex flex-row md:flex-col gap-2 items-start justify-start md:justify-end'}>
 				{decrease ? <BsArrowDown /> : <BsArrowUp/>}
-				<span className={'text-xs text-gray-400 mt-2'}>{decrease ? 'Decrease' : 'Increase'}</span>
+				<span className={'text-xs text-gray-400'}>{decrease ? 'Decrease' : 'Increase'}</span>
 			</div>
 		</div>
 	)
@@ -63,6 +64,7 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 					<Element content={item.oneLiner} type={'h2'} className="font-giasyr text-4xl md:text-7xl font-medium !leading-snug text-primary mt-10" />
 				</div>
 			</div>
+			<CardAnimation items={previewsObj['ant-streetwear']} autoPlay={true} />
 			<Element content={item.images?.main_image && item.images?.main_image.length > 0} type={'div'} className={'landing-page-section'}>
 				<div className={'w-full'}>
 					<div className="flex justify-center gap-6 my-10">
@@ -78,13 +80,13 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 			</Element>
 			<Element content={item.service_info} type={'div'} className={'landing-page-section flex flex-col gap-14'}>
 				{item.service_info?.map((service, index) => (
-					<div className="flex flex-col gap-8 md:gap-6 md:flex-row items-start" key={index}>
+					<div className="flex flex-col gap-5 md:gap-6 md:flex-row items-start" key={index}>
 						<div className={'h-full text-xl md:min-w-[300px]'}>
 							<span>{service.title}</span>
 						</div>
-						<div className="flex flex-wrap gap-6">
+						<div className="flex flex-wrap gap-4 md:gap-6">
 							{service.items.map((item, index) => (
-								<div className='py-1 px-3 text-lg rounded-full border border-white' key={index}>
+								<div className='py-1 px-3 text-base rounded-full border border-white' key={index}>
 									<span>{item}</span>
 								</div>
 							))}
@@ -94,17 +96,17 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 			</Element>
 			<Element content={item.sections} type={'div'} className={'landing-page-section'}>
 				{item.sections.sort((a,b) => (a.serialOrder ?? 0) - (b.serialOrder ?? 0))?.map((section, index) => (
-					<div className={'grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-5 mt-20'} key={index}>
+					<div className={'grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-5 mt-14 md:mt-20'} key={index}>
 						{index % 2 !== 0 && <div className={section.sideContent ? '' : 'hidden md:block'}>{section.sideContent ?? null}</div>}
 						<div>
-							<h4 className="text-4xl font-medium">{section.headLine}</h4>
-							<p className="text-gray-400 text-lg mt-8 leading-8">{section.description}</p>
+							<h4 className="text-3xl md:text-4xl font-medium">{section.headLine}</h4>
+							<p className="text-gray-400 text-base md:text-lg mt-6 md:mt-8 leading-8">{section.description}</p>
 						</div>
 						{index % 2 === 0 && <div className={section.sideContent ? '' : 'hidden md:block'}>{section.sideContent ?? null}</div>}
 					</div>
 				))}
 			</Element>
-			<Element content={item.images?.raw && item.images?.raw.length > 0} type={'div'} className={'landing-page-section md:max-w-[1300px]'}>
+			{/* <Element content={item.images?.raw && item.images?.raw.length > 0} type={'div'} className={'landing-page-section md:max-w-[1300px]'}>
 				<div className={'w-full'}>
 					<div className="flex flex-col md:flex-row justify-end gap-14 my-2 md:my-10">
 						{item.images?.raw?.map((image, index) => (
@@ -116,14 +118,15 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 						))}
 					</div>
 				</div>
-			</Element>
+			</Element> */}
+			<CardAnimation ContainerClassName='h-[450px] mt-20' items={previewsObj[item.id]} autoPlay={true} />
 			<Element content={item.outcomes} type={'div'} className={'landing-page-section'}>
-				<div className='flex flex-col md:flex-row gap-4 md:gap-10 mt-20'>
+				<div className='flex flex-col md:flex-row gap-4 md:gap-10 mt-10 md:mt-20'>
 					<div>
-						<h4 className="text-4xl font-medium">{item.outcomes?.headLine}</h4>
+						<h4 className="text-3xl md:text-4xl font-medium">{item.outcomes?.headLine}</h4>
 						{item.outcomes?.description}
 					</div>
-					<div className="flex flex-col gap-6 justify-center my-5">
+					<div className="flex flex-row md:flex-col gap-6 justify-center my-5">
 						{item.outcomes?.outcomeData.map((outcome, index) => (
 							<OutcomeItem label={outcome.label} number={outcome.number} key={index} decrease={outcome.decrease} />
 						))}
@@ -146,11 +149,11 @@ const CaseStudyItem: FC<CaseStudyItemProps> = ({item}) => {
 				<AnimatedAdPreview isActive={true} previews={item.previews ?? []} />
 			</Element> */}
 			<Element content={item.lowerSections} type={'div'} className={'landing-page-section'}>
-				<div className={'grid grid-cols-1 md:grid-cols-2 mt-20 gap-10'}>
+				<div className={'grid grid-cols-1 md:grid-cols-2 mt-14 md:mt-20 gap-10'}>
 					{item.lowerSections?.sort((a,b) => (a.serialOrder ?? 0) - (b.serialOrder ?? 0))?.map((section, index) => (
 							<div key={section.id}>
-								<h4 className="text-4xl font-medium">{section.headLine}</h4>
-								<p className="text-gray-400 text-lg mt-8 mb-3 leading-8">{section.description}</p>
+								<h4 className="text-3xl md:text-4xl font-medium">{section.headLine}</h4>
+								<p className="text-gray-400 text-base md:text-lg mt-6 md:mt-8 mb-3 leading-8">{section.description}</p>
 								{section.containsCta && <CTAButton>
 	                <span>Try it free for 2 weeks</span>
 	              </CTAButton>}

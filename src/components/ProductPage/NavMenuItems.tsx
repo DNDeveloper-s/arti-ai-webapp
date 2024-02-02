@@ -37,7 +37,7 @@ const NavMobileItem = ({item, handleClose}: {item: typeof navbarData.navItems[0]
         <ul className={'divide-y divide-gray-800'}>
 					{item.children.map(child => (
 						<li
-							className={'whitespace-nowrap py-2 pl-3 pr-8 text-base'}
+							className={'whitespace-nowrap py-2 pl-2 pr-2 text-base'}
 							onClick={handleClose}
 							key={child.id}>
 							<Link href={child.href}
@@ -94,7 +94,7 @@ const NavMenuItems: FC<NavMenuItemsProps> = ({data = navbarData}) => {
                 <ul className={'divide-y divide-gray-800'}>
 									{item.children.map(child => (
 										<li
-											className={'whitespace-nowrap py-2 pl-3 pr-8 text-sm'}
+											className={'whitespace-nowrap py-2 pl-2 pr-2 text-sm'}
 											key={child.id}>
 											<Link href={child.href}
 											      className="transition-all block py-2 pl-3 pr-4 text-primaryText rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary md:p-0 md:dark:hover:text-primary dark:text-primaryText dark:hover:text-primary md:dark:hover:bg-transparent dark:border-gray-700"

@@ -1007,7 +1007,6 @@ export default function Services() {
 	}, []);
 
 	const dimensions = useMemo(() => {
-		console.log('mounted - ', mounted, iphoneImageRef.current);
 		if(!mounted) return {
 			width: 100,
 			height: 100
@@ -1019,7 +1018,6 @@ export default function Services() {
 		}
 
 		const rect = iphoneImageRef.current.getBoundingClientRect();
-		console.log('mounted - ', mounted, rect);
 
 		return {
 			width: rect.width - 30,

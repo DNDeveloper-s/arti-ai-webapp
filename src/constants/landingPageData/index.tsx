@@ -44,8 +44,9 @@ import {FacebookAdPreview} from '@/components/LandingPage/AdPreview';
 
 export type NumberCard = typeof numbersData.items[0];
 export const numbersData = {
-	headLine: 'Our Performance in Numbers',
-	subHeadLine: 'Significantly improved AD performance for our clients',
+	headLine: 'Our Performance',
+	subHeadLine: null,
+	// subHeadLine: 'Significantly improved AD performance for our clients',
 	items: [
 		{
 			id: '1',
@@ -226,6 +227,7 @@ export const caseStudiesData = {
 			},
 			brief: {
 				client_name: 'Midtown East',
+				client_sector: 'Physical Therapy',
 				oneLiner: <span>
 					After a year of unsuccessful advertising, Midtown East Physical Therapy experienced a <span className={'text-primary'}>10x surge</span> in website traffic and gained <span className="text-primary">20+ leads in 2 weeks</span>, thanks to our tailored ad strategy.
 				</span>,
@@ -239,7 +241,7 @@ export const caseStudiesData = {
 				]
 			},
 			service_info: [
-				{id: '1', title: 'Service and Offer', items: ['AD Creation', 'Social Media Management', 'AD Analytics']},
+				{id: '1', title: 'Service and Offer', items: ['AD Creation', 'AD Analytics', 'Social Media Management']},
 				{id: '2', title: 'Sector', items: ['Physical Therapy']},
 			],
 			sections: [
@@ -264,7 +266,7 @@ export const caseStudiesData = {
 			],
 			outcomes: {
 				headLine: 'Outcomes',
-				description: <div className="text-gray-400 text-lg mt-5 leading-7">
+				description: <div className="text-gray-400 text-base md:text-lg mt-5 md:leading-7">
 					<p>The result were dramatic:</p>
 					<ul className="flex flex-col list-disc list-outside px-6 gap-2 mt-4">
 						<li>Reduction in ad volume with a focus on quality, producing <strong className="text-white">5 high-impact ads</strong> compared to the previous 30.</li>
@@ -319,6 +321,7 @@ export const caseStudiesData = {
 			},
 			brief: {
 				client_name: 'Amplified EMS',
+				client_sector: 'Gym',
 				oneLiner: <span>
 					Our refined advertising approach, focusing on clear messaging and targeted audiences, yielded <span className="text-primary">2x leads at 4x less cost</span> compared to traditional gym advertising techniques.
 				</span>,
@@ -419,7 +422,8 @@ export const caseStudiesData = {
 				name: 'AnT - A Streetwear Revolution',
 			},
 			brief: {
-				client_name: 'AnT- Streetwear',
+				client_name: 'AnT Streetwear',
+				client_sector: 'Fashion',
 				oneLiner: <span>
 					Revolutionizing streetwear marketing, our innovative campaign <span className="text-primary font-bold">doubled returns</span> while <span className="text-primary font-bold">reducing costs by 25%</span>, capturing the essence of youth culture for the digital era.
 				</span>,

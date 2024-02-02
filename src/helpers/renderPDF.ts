@@ -203,7 +203,6 @@ export class PDF {
 		const page = this.pdfDoc.addPage([this.pageSize.width, this.pageSize.height]);
 		// const pngUrl = 'https://i.ibb.co/ft4JHH3/pngwing-5.png';
 		const url = getAbsoluteUrl() + '/assets/images/background-pattern-2.jpg';
-		console.log('url 0 ', url);
 		const image = await this.loadJpg(url);
 		const dims = image.scale(1);
 

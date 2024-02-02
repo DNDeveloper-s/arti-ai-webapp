@@ -579,7 +579,7 @@ export const FacebookAdPreviewMini:FC<FacebookAdPreviewProps> = ({variant}) => {
 		},
 		oneLiner: {
 			normal: "text-[0.75em] leading-[1.35em]",
-			modal: "text-[0.75em] leading-[1.35em]"
+			modal: "text-[0.75em] truncate leading-[1.35em]"
 		},
 		learnMore: {
 			normal: "cursor-pointer rounded bg-gray-700 px-2 py-1 text-[0.55em]",
@@ -614,9 +614,9 @@ export const FacebookAdPreviewMini:FC<FacebookAdPreviewProps> = ({variant}) => {
 					</div>
 				</div>
 
-				<div className='overflow-hidden rounded w-full h-auto'>
+				<div className='overflow-hidden rounded w-full h-auto aspect-square bg-gray-700'>
 					{/*<Image width={640} height={640} src="https://srs-billing-storage.s3.ap-south-1.amazonaws.com/65642ff3b3a0408e7192e933_1701064709413.png" alt="Image" />*/}
-					<Image width={640} height={640} src={variant.image} alt="Image" />
+					<Image width={640} height={640} src={variant.image} alt="Image" className='w-full h-full active:object-contain object-cover' />
 				</div>
 				{/*<h3 className={"text-xs font-medium text-gray-100 mt-3"}>Empower Your Farming with Precision Technology</h3>*/}
 				<div className={"flex justify-between gap-2 items-center my-2"}>

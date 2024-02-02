@@ -13,7 +13,6 @@ export default async function ConversationID() {
 	const session = await getServerSession(authOptions)
 	// const router = useRouter();
 	const status = '';
-	console.log('session - ', session);
 
 	let jsx = <AppLoader />
 

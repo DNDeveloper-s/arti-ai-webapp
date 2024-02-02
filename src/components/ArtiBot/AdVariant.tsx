@@ -17,7 +17,6 @@ export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: I
 	const [reactionState, setReactionState] = useState<REACTION>();
 	const {state: {variant}, dispatch} = useConversation();
 
-	console.log('useConversation - ', variant);
 
 	function handleLike() {
 		setReactionState(c => c === REACTION.LIKED ? REACTION.NEUTRAL : REACTION.LIKED);
@@ -42,7 +41,6 @@ export default function AdVariant({adVariant, noExpand, ...props}: {adVariant: I
 		? <Image width={500} height={100} className="mb-[1.3em] w-full max-w-[30em]" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />
 		: lottieAnimationJSX;
 
-	console.log('variant - ', variant);
 
 	return (
 		<div key={adVariant['One liner']} className="ad-variant text-xs md:text-base" {...props}>

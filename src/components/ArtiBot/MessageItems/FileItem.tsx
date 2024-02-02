@@ -10,7 +10,6 @@ interface FileItemProps {
 	setFiles: React.Dispatch<React.SetStateAction<File[] | null>>;
 }
 const FileItem: React.FC<FileItemProps> = ({fileObj, setFiles}) => {
-	console.log('fileObj - ', fileObj);
 
 	if(fileObj.type.includes('image/')) {
 		return (

@@ -114,7 +114,7 @@ export default function WhyUs({focusedSection}) {
 	}, [expandGroup, focusedSection])
 
 	return (
-		<div className="landing-page-section relative mt-20 py-32" id={'why-us'} ref={ref}>
+		<div className="landing-page-section relative py-16" id={'why-us'} ref={ref}>
 			<div className={'block text-center w-full mb-6'}>
 				<h3 className="landing-page-grad-title inline-block pl-0">Why Us</h3>
 			</div>

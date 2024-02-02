@@ -104,7 +104,6 @@ export function isValidJsonWithAdsArray(inputString: string, isIndentedString?: 
 	try {
 		const jsonObject = JSON.parse(inputString);
 
-		console.log('inputString - ', jsonObject);
 
 		return (
 			typeof jsonObject === 'object' &&

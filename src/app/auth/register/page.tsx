@@ -72,7 +72,6 @@ export default function Auth() {
 		if(!usersString) return false;
 		try {
 			const users = JSON.parse(usersString);
-			console.log('users - ', users);
 			if(!(users instanceof Array)) return false;
 			return users.some(c => c.email === email);
 		} catch(e) {
@@ -103,7 +102,6 @@ export default function Auth() {
 		try {
 			const response = await axios.post('/api/auth/register', {values: formValues});
 
-			console.log('response - ', response)
 			// Check for the email if it already registered or not
 			// const doesExist = await isEmailAlreadyRegistered(formValues.email);
 			// console.log('doesExist - ', doesExist);

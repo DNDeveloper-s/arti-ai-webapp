@@ -237,7 +237,6 @@ function mergeStateRecord<T extends {id: string}>(state: StateRecord<T>, record:
 
 function conversationReducer(state: IConversationState, action: ConversationAction): IConversationState {
 	const { type, payload } = action;
-	console.log('Action - ', action, state);
 	switch (type) {
 		case CONVERSATION_ACTION_TYPE.UPDATE_VARIANT_IMAGE_SUCCESS:
 			const conversations = state.conversations;
@@ -246,7 +245,6 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 			// }
 			const variant12 = addKeyToStateRecord(state.variant, payload.variant);
 			// const _variantMap = {...state.variant.map};
-			console.log('state.variantMap - ', state.variantMap);
 			// if(!_variantMap[payload.variantId]) {
 			// 	_variantMap[payload.variantId] = {};
 			// }
@@ -396,9 +394,7 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 			}
 		case CONVERSATION_ACTION_TYPE.GET_ADCREATIVES_SUCCESS:
 			// Prepare the variantMap and adCreativeMap
-			console.log('addKeyToStateRecord(acc?.adCreative, adCreative) -  | payload.adCreatives - ', payload.adCreatives)
 			const maps2 = payload.adCreatives.reduce((acc: Omit<StateRecordEnum, 'conversation'>, adCreative: IAdCreative) => {
-				console.log('addKeyToStateRecord(acc?.adCreative, adCreative) - ', addKeyToStateRecord(acc?.adCreative, adCreative));
 				acc.adCreative = addKeyToStateRecord(acc?.adCreative, adCreative);
 				const {variant} = extractFromAdCreative(adCreative, acc.variant);
 				acc.variant = variant;
@@ -414,7 +410,6 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 				variant: mergeStateRecord(state.variant, maps2.variant),
 			};
 		case CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS:
-			console.log('getting conversations - - ')
 			return {
 				...state,
 				loading: updateLoadingState(state, {conversations: true}),
@@ -428,8 +423,6 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 				return acc;
 			}, {variant: {}, adCreative: {}, conversation: {}});
 
-			console.log('maps - ', maps);
-
 			return {
 				...state,
 				loading: updateLoadingState(state, {conversations: false}),
@@ -439,7 +432,6 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 				variant: mergeStateRecord(state.variant, maps.variant),
 			};
 		case CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE:
-			console.log('action.payload.message - ', action.payload.message);
 			return {
 				...state,
 				error: {
@@ -447,7 +439,6 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 				},
 			}
 		case CONVERSATION_ACTION_TYPE.CLEAR_ERROR:
-			console.log('action.payload.message - ', action.payload.message);
 			return {
 				...state,
 				error: undefined,
@@ -458,7 +449,6 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 				loading: updateLoadingState(state, {conversation: true}),
 			}
 		case CONVERSATION_ACTION_TYPE.GET_CONVERSATION_SUCCESS:
-			console.log('state.loading.conversation - ', updateLoadingState(state, {conversation: false}))
 			if(!payload.conversation) {
 				return {
 					...state,
@@ -466,7 +456,6 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 				}
 			}
 
-			console.log('state.loading.conversation - ', updateLoadingState(state, {conversation: false}))
 
 			const conversation1 = addKeyToStateRecord(state.conversation, payload.conversation);
 			const _initial1 = {variant: {map: {}, list: []}, adCreative: {map: {}, list: []}};
@@ -533,7 +522,6 @@ const useConversationContext = (initState: IConversationState) => {
 	const session = useSession({required: false});
 	
 	useLayoutEffect(() => {
-		console.log('session?.data?.user?.token?.accessToken - ', session?.data?.user?.token?.accessToken);
 		if(session?.data?.user?.token?.accessToken) {
 			localStorage.setItem('token', session?.data?.user?.token?.accessToken);
 		} else {
@@ -626,11 +614,9 @@ async function updateVariantImage(dispatch: (a: ConversationAction) => void, tex
 		if(response.data.ok) {
 			dispatch({type: CONVERSATION_ACTION_TYPE.UPDATE_VARIANT_IMAGE_SUCCESS, payload: {variantId, variant: response.data.data}});
 		} else {
-			console.log('setting error - ', response.data?.message);
 			dispatch({type: CONVERSATION_ACTION_TYPE.ERROR_IN_UPDATING_VARIANT_IMAGE, payload: {variantId}});
 		}
 	} catch (error: any) {
-		console.log('setting error - ');
 		dispatch({type: CONVERSATION_ACTION_TYPE.ERROR_IN_UPDATING_VARIANT_IMAGE, payload: {variantId}});
 	}
 }
@@ -653,11 +639,9 @@ async function generateAdCreativeImages(dispatch: (a: ConversationAction) => voi
 		if(response.data.ok) {
 			dispatch({type: CONVERSATION_ACTION_TYPE.GEN_AD_CREATIVE_IMAGES_SUCCESS, payload: {conversationId, response: response.data.data.response}});
 		} else {
-			console.log('setting error - ', response.data?.message);
 			dispatch({type: CONVERSATION_ACTION_TYPE.ERROR_IN_GENERATING_CREATIVE_IMAGES, payload: {conversationId}});
 		}
 	} catch (error: any) {
-		console.log('setting error - ');
 		dispatch({type: CONVERSATION_ACTION_TYPE.ERROR_IN_GENERATING_CREATIVE_IMAGES, payload: {conversationId}});
 	}
 
@@ -691,15 +675,12 @@ async function getConversations(dispatch: (a: ConversationAction) => void, maxRe
 			if(response.data.ok) {
 				return dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS_SUCCESS, payload: {conversations: response.data.data}});
 			}
-			console.log('retrying - ');
 			await new Promise(resolve => setTimeout(resolve, 1000));
 		} catch (error: any) {
-			console.log('retrying - ');
 			await new Promise(resolve => setTimeout(resolve, 1000));
 		}
 	}
 
-	console.log('setting error - ');
 	dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversations. Please try again!'}});
 }
 
@@ -736,15 +717,11 @@ async function getConversation(dispatch: (a: ConversationAction) => void, conver
 				'Authorization': 'Bearer ' + localStorage.getItem('token')
 			}
 		});
-		console.log('state.loading.conversation - ', response);
 		if(response.data.ok) {
 			return dispatch({type: CONVERSATION_ACTION_TYPE.GET_CONVERSATION_SUCCESS, payload: {conversation: response.data.data}});
 		}
-		console.log('setting error - ');
 		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversation. Please try again!'}});
 	} catch (error: any) {
-		console.log('state.error - ', error);
-		console.log('setting error - ');
 		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to fetch the conversation. Please try again!'}});
 	}
 }
@@ -810,11 +787,9 @@ async function saveMessages(dispatch: (a: ConversationAction) => void, messages:
 			}
 		})
 		if(!response?.data?.ok) {
-			console.log('setting error - ');
 			dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: response?.data?.message ?? 'Unable to save your message. Please try again later.'}});
 		}
 	} catch(error: any) {
-		console.log('setting error - ');
 		dispatch({type: CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE, payload: {message: 'Unable to save your message. Please try again later.'}});
 	}
 }
@@ -872,7 +847,6 @@ async function saveAdCreativeMessage(dispatch: (a: ConversationAction) => void, 
 }
 
 function clearError(dispatch: (a: ConversationAction) => void) {
-	console.log('clearing error - ');
 	dispatch({
 		type: CONVERSATION_ACTION_TYPE.CLEAR_ERROR,
 		payload: {}

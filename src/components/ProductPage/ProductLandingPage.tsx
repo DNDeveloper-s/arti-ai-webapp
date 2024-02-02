@@ -44,10 +44,8 @@ export default function ProductLandingPage() {
 
 		const handleIntersection = (entries: IntersectionObserverEntry[]) => {
 			entries.forEach((entry) => {
-				console.log('entry - ', entry);
 				if (entry.isIntersecting) {
 					const sectionIndex = (entry.target as HTMLElement).dataset.section;
-					console.log(`User scrolled to section ${sectionIndex}`);
 					setFocusedSection(sectionIndex || '');
 
 					if(sectionIndex === 'hero' || sectionIndex === 'arti_bot') {
@@ -83,7 +81,6 @@ export default function ProductLandingPage() {
 
 		const sections = document.querySelectorAll('main [data-groupid="landing-section"]');
 
-		console.log('sections - ', sections);
 
 		sections.forEach((section, index) => {
 			observer.observe(section);
@@ -102,12 +99,12 @@ export default function ProductLandingPage() {
 			<main>
 				{/*<Logo />*/}
 				<Hero />
-				{isMounted && (isSmallScreen || isPortrait) ? <Services_Sm /> : <Services/>}
+				{/* {isMounted && (isSmallScreen || isPortrait) ? <Services_Sm /> : <Services/>} */}
 				<Numbers />
 				<CaseStudies />
 				<Testimonials />
 				{/*<BgAttachment />*/}
-				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black pt-4 pb-10">
+				<div data-groupid={'landing-section'} data-section="arti_bot" id="arti-bot" className="bg-black pt-8 pb-10">
 					<div className="landing-page-section px-0 md:px-10">
 						<div className={'w-full text-center'}>
 							<h2 className="landing-page-grad-title text-center inline-block">Try Arti AI for free</h2>

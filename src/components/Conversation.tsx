@@ -7,6 +7,7 @@ import {redirect, useParams, useSearchParams} from 'next/navigation';
 import {ConversationType, IConversation} from '@/interfaces/IConversation';
 import {createConversation, getConversation, useConversation} from '@/context/ConversationContext';
 import useSessionToken from '@/hooks/useSessionToken';
+import ArtiBotPage from './ArtiBot/ConversationPage';
 
 // Fetch the conversation from the database
 // If the conversation doesn't exist, create a new conversation
@@ -36,7 +37,6 @@ export default function Conversation({type = ConversationType.AD_CREATIVE}: {typ
 	}, [dispatch, token, params.conversation_id])
 
 	useEffect(() => {
-		console.log('state.loading.conversation - ', state.loading.conversation, state.conversation)
 		if(state.loading.conversation || !dispatch || !params.conversation_id) return;
 
 		if(!state.conversation.map || !state.conversation.map[params.conversation_id]) {
@@ -63,7 +63,7 @@ export default function Conversation({type = ConversationType.AD_CREATIVE}: {typ
 				{/*<div className="bg-background">*/}
 
 				{/*</div>*/}
-				<ArtiBot conversation={state.conversation.map[params.conversation_id]}/>
+				<ArtiBotPage conversation={state.conversation.map[params.conversation_id.toString()]} />
 			</div>
 		</main>
 	)

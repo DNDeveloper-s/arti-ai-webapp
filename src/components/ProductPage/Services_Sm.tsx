@@ -61,7 +61,6 @@ export default function Services_Sm() {
 
 	useMotionValueEvent(scrollY, 'change', (latest: number) => {
 		if(!sectionRef.current) return;
-		console.log('latest - ', latest);
 		// Check the sectionRef which is MutableRefObject<HTMLDivElement>, how much is it from the scroll Top
 		// if it is less than 0, then set the viewScreen to ViewScreen.MOBILE
 		// if it is greater than 0 and less than 1, then set the viewScreen to ViewScreen.TABLET
@@ -70,7 +69,6 @@ export default function Services_Sm() {
 
 		const scrolledInSection = latest - fromTop;
 
-		console.log('scrolledInSection - ', scrolledInSection);
 
 		if(scrolledInSection < 500) setIdInView(1);
 		if(scrolledInSection > 500 && scrolledInSection < 1000) setIdInView(2);
@@ -118,7 +116,6 @@ export default function Services_Sm() {
 		}
 
 		const rect = iphoneImageRef.current.getBoundingClientRect();
-		console.log('mounted - ', mounted, rect);
 
 		return {
 			width: rect.width - 40,

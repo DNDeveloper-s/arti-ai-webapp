@@ -113,7 +113,6 @@ export default function Hero() {
 	const [typistKey, setTypistKey] = useState(0);
 
 	useEffect(() => {
-		console.log('photos - ', photos);
 		initGTM();
 	}, [])
 

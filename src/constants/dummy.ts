@@ -223,10 +223,17 @@ The cultural and economic significance of cows extends beyond their traditional 
 In conclusion, the cow is a remarkable creature that has played an integral role in human history and continues to be essential to our lives today. From the early days of agriculture to the modern dairy and meat industries, cows have been a cornerstone of human sustenance and economic activity. They hold a revered position in numerous cultures and religions, symbolizing qualities of purity, motherhood, and abundance. While their environmental impact is a subject of concern, cows can also play a role in sustainable agriculture. The cow, as both a source of sustenance and a symbol of cultural and religious significance, continues to be a central figure in the tapestry of human existence. It is our responsibility to balance the various aspects of the cow's significance, promoting sustainable practices that respect both the animal and the environment.
 `
 
+export const dummySuggestions = [
+	'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don\'t look even slightly believable.',
+	'Despite these environmental concerns, cows also play a vital role in sustainable agriculture. Traditional and sustainable farming methods often involve the use of cattle in a way that minimizes negative environmental impacts. They can help fertilize fields and manage vegetation',
+	'If you are going to use a passage of Lorem Ipsum, you need to be sure there isn\'t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet.'
+]
+
 export const dummy: Dummy = {
 	Ad_Creatives,
 	Conversations,
 	DConversations,
 	DAd_Creatives,
+	dummySuggestions,
 	Messages
 }

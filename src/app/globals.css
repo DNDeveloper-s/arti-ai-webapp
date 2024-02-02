@@ -31,6 +31,10 @@
   .landing-page-grad-title {
     @apply text-4xl px-2 text-center font-medium bg-clip-text !text-transparent bg-gradient-to-r from-gray-200/60 via-gray-200 to-gray-200/60 pb-4
   }
+  
+  .disable-editting {
+    @apply pointer-events-none blur-sm opacity-60 cursor-none;
+  }
 }
 
 @layer utilities {

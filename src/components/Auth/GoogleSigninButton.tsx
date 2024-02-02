@@ -15,7 +15,7 @@ const GoogleSignInButton: FC<GoogleSignInButtonProps> = ({label}) => {
 			if(googleLoading) return;
 			setGoogleLoading(true);
 			const response = await signIn('google', {callbackUrl: '/'});
-			console.log('response - ', response);
+
 		} catch (e) {
 			console.log('e - ', e);
 		}

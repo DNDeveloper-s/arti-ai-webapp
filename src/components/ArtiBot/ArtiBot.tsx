@@ -35,6 +35,7 @@ import axios, {AxiosError} from 'axios';
 import {ROUTES} from '@/config/api-config';
 import Snackbar from '@/components/Snackbar';
 import {GTM_EVENT, logEvent} from '@/utils/gtm';
+import { IAdCreative } from '@/interfaces/IAdCreative';
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',
@@ -49,10 +50,12 @@ interface ArtiBotProps {
 	containerClassName?: string;
 	miniVersion?: boolean;
 	conversation?: IConversation;
-	borderAnimation?: boolean
+	borderAnimation?: boolean;
+	adCreatives?: IAdCreative[];
+	setAdCreatives?: (c: IAdCreative[]) => void;
 }
 
-const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', miniVersion = false, conversation}) => {
+const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCreatives = () => {}, containerClassName = '', miniVersion = false, conversation}) => {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<ChatGPTMessageObj[]>(conversation?.messages ?? []);
@@ -70,7 +73,6 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
 	// Track if the json was asked on demand by the get ad now button
 	const onDemandRef = useRef(false);
 	const [msg, setMsg] = useState('');
-	const [adCreatives, setAdCreatives] = useState(conversation?.adCreatives ? conversation?.adCreatives : []);
 	const {state, dispatch} = useConversation();
 	const token = useSessionToken();
 	const [isInputInFocus, setIsInputInFocus] = useState(false);
@@ -78,7 +80,6 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
 	const showError = useCallback((message: string) => {
 		if(message) return setSnackBarData({status: 'error', message});
 		if(state.error && state.error.message) {
-			console.log('state.error - ', state.error);
 			setSnackBarData({status: 'error', message: state.error.message});
 			clearError(dispatch);
 		}
@@ -99,13 +100,11 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
 	}, [messages, miniVersion]);
 
 	useEffect(() => {
-		console.log('conversation - ', conversation);
 		setMessages(conversation?.messages ?? []);
 	}, [conversation])
 
 	useEffect(() => {
 		const adCreatives = state.adCreative.list?.filter(a => a.conversationId === conversation?.id) ?? [];
-		console.log('state.adCreative - ', state.adCreative);
 		setAdCreatives(adCreatives);
 	}, [state.adCreative.list, conversation]);
 
@@ -185,7 +184,6 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
 	}
 
 	function handleMessageResponse(args: HandleChunkArgs) {
-		console.log('args - ', args);
 		if(!args?.is_ad_json && args.done !== undefined && args.index !== undefined) {
 			// if the response is not ad json
 			handleChunk(args.chunk, args.done, args.index);
@@ -330,7 +328,6 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
 
 		const response = await messageService.send(transformedMessages, handleMessageResponse, conversation?.id, conversation?.conversation_type, conversation?.project_name, generate_ad, miniVersion, showError);
 
-		console.log('response - ', response);
 
 		if(response && !response.ok) setSnackBarData({message: 'We are unable to process the request right now!', status: 'error'});
 		setIsGenerating(false);
@@ -477,8 +474,6 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, containerClassName = '', mi
           <motion.button variants={framerItem()} className="my-4 cta-button breathing-button-primary" onClick={() => router.push('#contact')}>Contact us for a Demo</motion.button>
         </motion.div>}
 			</div>
-
-			{!miniVersion && adCreative && <RightPane adCreative={adCreative} isAdCampaign={false} />}
 			<Snackbar />
 		</div>
 	)

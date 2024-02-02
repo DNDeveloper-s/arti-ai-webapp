@@ -21,12 +21,15 @@ import AdPreview, {
 import adSnapshot from '@/assets/images/case-study/midtowneast/ad_creative.png';
 import {AnimatePresence, motion} from 'framer-motion';
 import {useMediaQuery} from 'react-responsive';
+import CardAnimation from '../shared/renderers/CardAnimation';
 
 function CaseStudyContent({item}: {item: CaseStudyItem}) {
-	console.log('item - ', item);
 	return (
 		<div className={"h-full flex flex-col justify-center md:justify-center divide-y divide-gray-800 p-4"}>
-			<Element content={item.brief.client_name} type={'h3'} className={"text-3xl font-extrabold pb-4"} />
+			<Element content={item.brief.client_name} type='div' className='pb-4'>
+				<Element content={item.brief.client_name} type={'h3'} className={"text-3xl font-extrabold pb-1"} />
+				<Element content={item.brief.client_sector} type={'p'} className={"text-base text-primary"} />
+			</Element>
 			<Element content={item.brief.oneLiner} type={'p'} className="pt-3 md:pt-9 text-sm leading-relaxed text-gray-400"/>
 			<CTAButton className="py-2 px-4 text-sm rounded mt-4 md:mt-12" to={"/case-study/" + item.id}>Read More</CTAButton>
 		</div>
@@ -40,7 +43,8 @@ interface PreviewObj {
 	el: JSX.Element;
 }
 
-const previewsObj: Record<CaseStudy, PreviewObj[]> = {
+
+export const previewsObj: Record<CaseStudy, PreviewObj[]> = {
 	[CaseStudy.MIDTOWN_EAST]: [
 		{id: '1', el: <div key={'1'} className={'w-[240px] flex-shrink-0'}>
 				<FacebookAdPreviewMini variant={brands.midTownEast.variant[0]} />
@@ -260,9 +264,7 @@ const CaseStudies: FC<CaseStudiesProps> = (props) => {
 									<CaseStudyImage item={item} />
 								</div>
 							)) : Object.values(previewsObj).map((previews, ind) => (
-								<div key={ind} className={'h-full flex gap-4 p-3 justify-center items-center overflow-hidden'}>
-									<AnimatedAdPreview isActive={activeTab === ind} previews={previews} />
-								</div>
+								<CardAnimation ContainerClassName='h-[450px]' autoPlay={activeTab === ind} items={previews} />
 							))}
 						</SwipeableViews>
 					</div>
@@ -273,3 +275,6 @@ const CaseStudies: FC<CaseStudiesProps> = (props) => {
 };
 
 export default CaseStudies;
+// <div key={ind} className={'h-full flex gap-4 p-3 justify-center items-center overflow-hidden'}>
+// 	<AnimatedAdPreview isActive={activeTab === ind} previews={previews} />
+// </div>

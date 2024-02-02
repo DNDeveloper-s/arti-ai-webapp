@@ -17,7 +17,6 @@ export class MessageService {
 				},
 				body: JSON.stringify({messages, generate_ad, conversationId, conversationType, project_name})
 			})
-			console.log('response - ', response);
 
 			if(!response.ok) {
 				showError && showError('You message is not sent. Please try again later!');
@@ -37,7 +36,6 @@ export class MessageService {
 			while (true) {
 				// console.log('reader - ', await reader.read());
 				const {value, done} = await reader.read();
-				console.log('Received = ', value, done);
 				handleChunk({chunk: value, done, index: i});
 				i++;
 				if (done) break;

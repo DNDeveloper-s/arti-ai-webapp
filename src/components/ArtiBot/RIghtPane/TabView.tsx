@@ -26,10 +26,6 @@ function TabViewItem({container, isActive, label, tabItem, index}) {
 
 const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items}) => {
 
-	useEffect(() => {
-		console.log('activeAdTab - ', activeAdTab);
-	}, [activeAdTab])
-
 
 	const tabItemProps = (tabItem: AdCreativeVariant) => {
 		const isActive = tabItem.id === activeAdTab.id;

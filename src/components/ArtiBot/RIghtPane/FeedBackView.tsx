@@ -29,8 +29,6 @@ const FeedBackKeyItem: FC<FeedBackKeyItemProps> = ({feedBackKey, feedback, varia
 
 	const hasFeedbackValue = feedbackMessage.trim().length > 0;
 
-	console.log('state -–-df-sd-f-sdf-s-df -s-df  ', state);
-
 	async function handleSave(val: string) {
 		await wait(1000);
 		setFeedbackMessage(val);
