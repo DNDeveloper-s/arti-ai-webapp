@@ -49,13 +49,13 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 							<span className="text-white text-opacity-80 text-xs">{timeSince(activeVariant.updatedAt) + ' ago'}</span>
 						</span>}
 					</div>
-					<div className={'flex justify-end w-[80%] mt-2 items-center gap-1 text-xs'}>
+					{!mock.is && <div className={'flex justify-end w-[80%] mt-2 items-center gap-1 text-xs'}>
 						<span className="text-white text-opacity-50">Explore Options:</span>
 						<button onClick={() => {
 							// setMode(AD_VARIANT_MODE.EDIT);
 							startEditingVariant(dispatch, activeVariant);
 						}} className="bg-primary text-white px-3 py-1 leading-[14px] rounded cursor-pointer">Edit Your Ad</button>
-					</div>
+					</div>}
 					<div ref={variantRef} className={"mt-2 w-[80%]"}>
 						{mode === AD_VARIANT_MODE.VIEW ? <FacebookAdVariant mock={mock} adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/> : (
 							<EditFacebookAdVariant mock={mock} adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>

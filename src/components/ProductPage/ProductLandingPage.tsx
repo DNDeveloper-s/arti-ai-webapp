@@ -99,7 +99,7 @@ export default function ProductLandingPage() {
 			<main>
 				{/*<Logo />*/}
 				<Hero />
-				{/* {isMounted && (isSmallScreen || isPortrait) ? <Services_Sm /> : <Services/>} */}
+				{isMounted && (isSmallScreen || isPortrait) ? <Services_Sm /> : <Services/>}
 				<Numbers />
 				<CaseStudies />
 				<Testimonials />
