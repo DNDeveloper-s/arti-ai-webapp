@@ -137,7 +137,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 				<SlOptions className="text-[1.5em]" />
 			</div>
 			{/*<div className="mb-[1em] px-[1em]">*/}
-			<div className="mb-[1em] text-[1.1em] leading-[1.6] py-[0.6em] px-[1em] relative">
+			<div className="mb-[1em] text-[1.6em] leading-[1.6] py-[0.6em] px-[1em] relative">
 				<span className={'' + (mock.is ? ' line-clamp-3 text-ellipsis' : ' inline-flex')}>{adVariant.text}</span>
 			</div>
 			<div className="relative">
@@ -145,7 +145,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVar
 				{/*<Image width={600} height={100} className="mb-[0.5em] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />*/}
 			</div>
 			<div className={"flex justify-between gap-[.8em] items-center px-[1em] mt-[1em]"}>
-				<div className="relative px-2 py-2 text-[1.25em] leading-[1.3em] flex-1">
+				<div className="relative px-2 py-2 text-[1.75em] leading-[1.3em] flex-1">
 					<span>{adVariant.oneLiner}</span>
 				</div>
 				<div className="flex-shrink-0">

@@ -13,10 +13,10 @@ import Lottie from 'lottie-react';
 import {useConversation} from '@/context/ConversationContext';
 import { SlOptions } from 'react-icons/sl';
 import Loader from '@/components/Loader';
-import EditControl from './EditControl';
+import EditControl, { CONTROL_STATE } from './EditControl';
 
 
-enum REGENERATE_SECTION {
+export enum REGENERATE_SECTION {
 	'DESCRIPTION' = 'text',
 	'IMAGE' = 'imageUrl',
 	'ONE_LINER' = 'oneLiner'
@@ -65,15 +65,18 @@ export const EditFacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mo
 			? <Image width={600} height={100} className="mb-[0.5em] w-full" src={imageUrl ? imageUrl : dummyImage} alt="Ad Image" />
 			: lottieAnimationJSX;
 
-	async function handleGenerate(key: string, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>) {
+
+	async function handleEdit(cs: CONTROL_STATE, key: string, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>) {
 		setRegenerateMap(c => ({...c, selected: key as REGENERATE_SECTION}));
-		setLoading(true);
-		setShowSuggestions(false);
+		if(cs === CONTROL_STATE.GENERATE) {
+			setLoading(true);
+			setShowSuggestions(false);
 
-		await wait(2000);
+			await wait(2000);
 
-		setLoading(false);
-		setShowSuggestions(true);
+			setLoading(false);
+			setShowSuggestions(true);
+		}
 	}
 
 	function getBlurClassName(key: REGENERATE_SECTION) {
@@ -97,16 +100,14 @@ export const EditFacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mo
 				<SlOptions className="text-[1.5em]" />
 			</div>
 			{/*<div className="mb-[1em] px-[1em]">*/}
-			<EditControl handleClose={handleClose} controlKey={REGENERATE_SECTION.DESCRIPTION} containerClassName={'text-[1.1em] leading-[1.6] py-[0.6em] px-[1em] group my-2 ' + getBlurClassName(REGENERATE_SECTION.DESCRIPTION)} handleGenerate={handleGenerate}>
-				<span className={'inline-flex'}>{adVariant.text}</span>
-			</EditControl>
-			<EditControl handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'group ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleGenerate={handleGenerate}>
+			<EditControl type={'text'} handleClose={handleClose} inputEditable={true} content={adVariant.text} controlKey={REGENERATE_SECTION.DESCRIPTION} containerClassName={'text-[1.6em] leading-[1.6] py-[0.6em] px-[1em] group my-2 ' + getBlurClassName(REGENERATE_SECTION.DESCRIPTION)} handleEdit={handleEdit} />
+			<EditControl type={'image'} handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'group text-[1.6em] ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleEdit={handleEdit}>
 				{imageContainerJSX}
 			</EditControl>
 			<div className={"flex justify-between gap-[.8em] items-center px-[1em] mt-[1em]"}>
-				<EditControl handleClose={handleClose} controlKey={REGENERATE_SECTION.ONE_LINER} containerClassName={'relative px-2 py-2 text-[1.25em] leading-[1.3em] flex-1 group ' + getBlurClassName(REGENERATE_SECTION.ONE_LINER)} handleGenerate={handleGenerate}>
-					<span>{adVariant.oneLiner}</span>
-				</EditControl>
+				<div className="flex-1">
+					<EditControl rows={2} type={'text'} inputEditable={true} content={adVariant.oneLiner} handleClose={handleClose} controlKey={REGENERATE_SECTION.ONE_LINER} containerClassName={'relative px-2 py-2 text-[1.75em] leading-[1.3em] group ' + getBlurClassName(REGENERATE_SECTION.ONE_LINER)} handleEdit={handleEdit} />
+				</div>
 				<div className="flex-shrink-0">
 					<span className="cursor-pointer rounded bg-gray-700 px-[0.6em] py-[0.5em] text-[1em]" onClick={() => setExpand(c => !c)}>Learn More</span>
 				</div>

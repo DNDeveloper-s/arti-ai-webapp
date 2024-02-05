@@ -1,6 +1,6 @@
 'use client';
 
-import React, {FC, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {FC, ReactComponentElement, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {colors} from '@/config/theme';
 import TextareaAutosize from 'react-textarea-autosize';
 import {motion} from 'framer-motion'
@@ -36,6 +36,8 @@ import {ROUTES} from '@/config/api-config';
 import Snackbar from '@/components/Snackbar';
 import {GTM_EVENT, logEvent} from '@/utils/gtm';
 import { IAdCreative } from '@/interfaces/IAdCreative';
+import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
+import {CollapsedComponent, CollapsedComponentProps} from '@/components/ArtiBot/ConversationPage';
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',
@@ -53,9 +55,11 @@ interface ArtiBotProps {
 	borderAnimation?: boolean;
 	adCreatives?: IAdCreative[];
 	setAdCreatives?: (c: IAdCreative[]) => void;
+	collapsed?: boolean;
+	toggleCollapse?: (expand?: boolean) => void;
 }
 
-const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCreatives = () => {}, containerClassName = '', miniVersion = false, conversation}) => {
+const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCreatives = () => {}, containerClassName = '', miniVersion = false, conversation, collapsed, toggleCollapse}) => {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<ChatGPTMessageObj[]>(conversation?.messages ?? []);
@@ -76,6 +80,7 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCrea
 	const {state, dispatch} = useConversation();
 	const token = useSessionToken();
 	const [isInputInFocus, setIsInputInFocus] = useState(false);
+	const [latestSummary, setLatestSummary] = useState<string | null>(null);
 
 	const showError = useCallback((message: string) => {
 		if(message) return setSnackBarData({status: 'error', message});
@@ -105,8 +110,18 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCrea
 
 	useEffect(() => {
 		const adCreatives = state.adCreative.list?.filter(a => a.conversationId === conversation?.id) ?? [];
+
+		const latestAdCreative = adCreatives.sort((a, b) => {
+			if(a.createdAt > b.createdAt) return -1;
+			if(a.createdAt < b.createdAt) return 1;
+			return 0;
+		});
+
+		setLatestSummary(latestAdCreative[0]?.summary ?? null);
+
 		setAdCreatives(adCreatives);
-	}, [state.adCreative.list, conversation]);
+
+	}, [state.adCreative.list, conversation, setAdCreatives]);
 
 	useEffect(() => {
 		miniVersion && setMessages(JSON.parse(localStorage.getItem('messages') ?? '[]'));
@@ -388,82 +403,86 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCrea
 							<span className="text-white text-opacity-50">Dashboard</span>
 						</div>}
 					</div>
-					<MessageContainer isGeneratingAd={isGeneratingAd} conversationType={conversation?.conversation_type} chunksRef={chunksRef} doneRef={doneRef} msg={msg} messages={messages} setMessages={setMessages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
-					<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
-						{(showGetAdNowButton) && <GetAdButton
-							adGenerated={Boolean(adCreative)}
-							onClick={async (setLoading) => {
-								await handleGetAdNowButton();
-								setLoading(false);
-							}}
-						/>}
-						{/*<label htmlFor="file" className="cursor-pointer mr-2 mb-[1.15rem]">*/}
-						{/*	<input onChange={e => {*/}
-						{/*		const files = e.currentTarget.files;*/}
-						{/*		setFiles(c => {*/}
-						{/*			if(!files) return c;*/}
-						{/*			console.log('Array.from(e.currentTarget.files) - ', Array.from(files));*/}
-						{/*			const filesArr = Array.from(files);*/}
-						{/*			if(!c) return filesArr;*/}
-						{/*			// @ts-ignore*/}
-						{/*			return [...c, ...filesArr];*/}
-						{/*		});*/}
-						{/*	}} type="file" multiple accept="image/*, .pdf, .docx, .doc, .txt" id="file" className="hidden"/>*/}
-						{/*	<AiFillPlusCircle className="text-primary text-2xl" />*/}
-						{/*</label>*/}
-						{/*<div className="relative mb-[1.25rem]">*/}
-						{/*	<input type="file" className="absolute w-full h-full z-10 cursor-pointer" hidden/>*/}
-						{/*	<BsFillFileEarmarkFill className="text-xl" />*/}
-						{/*</div>*/}
-						<div className={'flex-1 relative rounded-xl bg-background h-[70%] mb-1 mx-3 ' + (!enableMessageInput ? ' opacity-60 pointer-events-none cursor-none' : '')}>
-							{selectedFiles ? <div className="w-full h-[200px] p-3 px-6 flex absolute bottom-0 bg-background rounded-xl overflow-x-auto">
-									{selectedFiles.map(fileObj => (
-										<FileItem key={fileObj.id} setFiles={setFiles} fileObj={fileObj} />
-									))}
-								</div> :
-								<TextareaAutosize
-									ref={areaRef}
-									value={inputValue}
-									onChange={(e) => {
-										areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
-										setInputValue(e.target.value);
-									}}
-									onKeyDown={e => {
-										if(e.key === 'Enter' && !e.shiftKey) {
-											e.preventDefault();
-											handleSubmitMessage();
-										}
-										if(e.key === 'Enter' && e.shiftKey) {
+					{!collapsed ? <>
+						<MessageContainer isGeneratingAd={isGeneratingAd} conversationType={conversation?.conversation_type} chunksRef={chunksRef} doneRef={doneRef} msg={msg} messages={messages} setMessages={setMessages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
+						<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>
+							{(showGetAdNowButton) && <GetAdButton
+                adGenerated={Boolean(adCreative)}
+                onClick={async (setLoading) => {
+									await handleGetAdNowButton();
+									setLoading(false);
+								}}
+              />}
+							{/*<label htmlFor="file" className="cursor-pointer mr-2 mb-[1.15rem]">*/}
+							{/*	<input onChange={e => {*/}
+							{/*		const files = e.currentTarget.files;*/}
+							{/*		setFiles(c => {*/}
+							{/*			if(!files) return c;*/}
+							{/*			console.log('Array.from(e.currentTarget.files) - ', Array.from(files));*/}
+							{/*			const filesArr = Array.from(files);*/}
+							{/*			if(!c) return filesArr;*/}
+							{/*			// @ts-ignore*/}
+							{/*			return [...c, ...filesArr];*/}
+							{/*		});*/}
+							{/*	}} type="file" multiple accept="image/*, .pdf, .docx, .doc, .txt" id="file" className="hidden"/>*/}
+							{/*	<AiFillPlusCircle className="text-primary text-2xl" />*/}
+							{/*</label>*/}
+							{/*<div className="relative mb-[1.25rem]">*/}
+							{/*	<input type="file" className="absolute w-full h-full z-10 cursor-pointer" hidden/>*/}
+							{/*	<BsFillFileEarmarkFill className="text-xl" />*/}
+							{/*</div>*/}
+							<div className={'flex-1 relative rounded-xl bg-background h-[70%] mb-1 mx-3 ' + (!enableMessageInput ? ' opacity-60 pointer-events-none cursor-none' : '')}>
+								{selectedFiles ? <div className="w-full h-[200px] p-3 px-6 flex absolute bottom-0 bg-background rounded-xl overflow-x-auto">
+										{selectedFiles.map(fileObj => (
+											<FileItem key={fileObj.id} setFiles={setFiles} fileObj={fileObj} />
+										))}
+									</div> :
+									<TextareaAutosize
+										ref={areaRef}
+										value={inputValue}
+										onChange={(e) => {
 											areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
-										}
-									}}
-									onHeightChange={e => {
-										// 48 is default height of textarea
-										setAreaHeight(e - 48);
-									}}
-									onFocus={handleFocusInput}
-									onBlur={handleBlurInput}
-									minRows={1}
-									maxRows={3}
-									placeholder="Type here..."
-									className="outline-none caret-primary placeholder-gray-500 resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-6 absolute bottom-0"
+											setInputValue(e.target.value);
+										}}
+										onKeyDown={e => {
+											if(e.key === 'Enter' && !e.shiftKey) {
+												e.preventDefault();
+												handleSubmitMessage();
+											}
+											if(e.key === 'Enter' && e.shiftKey) {
+												areaRef.current && areaRef.current.scrollTo({top: areaRef.current.scrollTop + 10, left: 0});
+											}
+										}}
+										onHeightChange={e => {
+											// 48 is default height of textarea
+											setAreaHeight(e - 48);
+										}}
+										onFocus={handleFocusInput}
+										onBlur={handleBlurInput}
+										minRows={1}
+										maxRows={3}
+										placeholder="Type here..."
+										className="outline-none caret-primary placeholder-gray-500 resize-none whitespace-pre-wrap active:outline-none placeholder-gray-200 bg-background rounded-xl w-full h-full p-3 px-6 absolute bottom-0"
+									/>
+									// <input type="text" className="outline-none active:outline-none bg-transparent w-full h-full p-3 px-6" placeholder="Type here..."/>
+								}
+							</div>
+							<svg
+								onClick={() => handleSubmitMessage()}
+								xmlns="http://www.w3.org/2000/svg"
+								width={19}
+								height={19}
+								fill={colors.primary}
+								className="mb-[1.25rem] cursor-pointer"
+							>
+								<path
+									d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
 								/>
-								// <input type="text" className="outline-none active:outline-none bg-transparent w-full h-full p-3 px-6" placeholder="Type here..."/>
-							}
+							</svg>
 						</div>
-						<svg
-							onClick={() => handleSubmitMessage()}
-							xmlns="http://www.w3.org/2000/svg"
-							width={19}
-							height={19}
-							fill={colors.primary}
-							className="mb-[1.25rem] cursor-pointer"
-						>
-							<path
-								d="M18.57 8.793 1.174.083A.79.79 0 0 0 .32.18.792.792 0 0 0 .059.97l2.095 7.736h8.944v1.584H2.153L.027 18.002A.793.793 0 0 0 .818 19c.124-.001.246-.031.356-.088l17.396-8.71a.791.791 0 0 0 0-1.409Z"
-							/>
-						</svg>
-					</div>
+					</> : <div className={'overflow-auto'}>
+						<CollapsedComponent content={latestSummary ?? ''} />
+					</div>}
 				</>
 				{exhausted && <motion.div variants={framerContainer} initial={'hidden'} animate={'show'} className="flex z-10 px-4 w-full absolute h-full flex-col items-center justify-center bg-background bg-opacity-80">
           {/*<Logo width={60} height={60} fill={colors.primaryText}/>*/}

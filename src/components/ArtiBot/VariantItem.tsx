@@ -21,7 +21,7 @@ export enum AD_VARIANT_MODE {
 
 const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVariant}) => {
 	const variantRef = useRef<HTMLDivElement>(null);
-	const [fontSize, setFontSize] = useState<number>(8.5);
+	const [fontSize, setFontSize] = useState<number>(10);
 	const [mode, setMode] = useState<AD_VARIANT_MODE>(AD_VARIANT_MODE.VIEW);
 	const {dispatch} = useEditVariant();
 
@@ -64,7 +64,7 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 				</>
 			)}
 
-			{!mock.is && activeVariant && <FeedBackView variant={activeVariant}/>}
+			{/*{!mock.is && activeVariant && <FeedBackView variant={activeVariant}/>}*/}
 		</>
 	);
 };

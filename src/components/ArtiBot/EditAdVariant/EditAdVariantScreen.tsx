@@ -6,6 +6,7 @@ import { CloseIcon } from 'next/dist/client/components/react-dev-overlay/interna
 import CTAButton from '@/components/CTAButton';
 import Modal from '@/components/Modal';
 import FacebookAdVariant from '../FacebookAdVariant';
+import {Tooltip} from 'react-tooltip';
 
 interface EditAdVariantScreenProps {
 	adVariant: IAdVariant;
@@ -41,6 +42,7 @@ const EditAdVariantScreen: FC<EditAdVariantScreenProps> = (props) => {
 			<div className={'w-[80%] mx-auto'}>
 				<EditFacebookAdVariant adVariant={props.adVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '9px'}} />
 			</div>
+			<Tooltip id='edit-ad-variant-tooltip' />
 		</div>
 	);
 };
