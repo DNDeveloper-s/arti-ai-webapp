@@ -175,7 +175,7 @@ export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType
 				<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
 				<div className="ml-[0.8em] flex-1">
 					<div className="flex items-start">
-						<p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
+						<p className="whitespace-pre-wrap text-[15px] leading-[1.8] text-primaryText opacity-60 flex-1">
 							{welcomeMessage[type]}
 						</p>
 						<div className="opacity-0 pointer-events-none w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
