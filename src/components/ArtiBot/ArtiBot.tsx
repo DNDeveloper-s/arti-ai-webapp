@@ -389,19 +389,19 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCrea
 		<div className={`${borderAnimation ? `border-animation ${animationShouldBePaused ? 'paused' : ''}` : ''} flex h-full overflow-hidden`}>
 			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
 				<>
-					<div className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
-						{!miniVersion && <div className="flex items-center cursor-pointer" onClick={() => router.push('/')}>
+					<div className="flex justify-center h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
+						{/* {!miniVersion && <div className="flex items-center cursor-pointer" onClick={() => router.push('/')}>
 							<MdArrowBackIos style={{fontSize: '21px'}}/>
 							<span className="ml-0.5 -mb-0.5 text-white text-opacity-60">Dashboard</span>
-						</div>}
+						</div>} */}
 						<Link href="/" className="flex justify-center items-center">
 							<Logo width={35} className="mr-2" height={35} />
 							<h3 className="text-lg">Arti AI</h3>
 						</Link>
-						{!miniVersion && <div className="flex items-center opacity-0 pointer-events-none">
+						{/* {!miniVersion && <div className="flex items-center opacity-0 pointer-events-none">
 							<MdArrowBackIos/>
 							<span className="text-white text-opacity-50">Dashboard</span>
-						</div>}
+						</div>} */}
 					</div>
 					{!collapsed ? <>
 						<MessageContainer isGeneratingAd={isGeneratingAd} conversationType={conversation?.conversation_type} chunksRef={chunksRef} doneRef={doneRef} msg={msg} messages={messages} setMessages={setMessages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />

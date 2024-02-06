@@ -10,11 +10,12 @@ import FacebookAdVariant, {
 import {timeSince} from '@/helpers';
 import {IConversation} from '@/interfaces/IConversation';
 import {useConversation} from '@/context/ConversationContext';
+import useAdCreatives from '@/hooks/useAdCreatives';
 
 interface AdCreativeCardProps {
 	onClick: (val: IAdCreative) => void;
 	adCreatives: IAdCreative[];
-	conversationId?: IConversation['id'];
+	conversationId: IConversation['id'];
 }
 
 export const AdCreativeCardShimmer = () => {
@@ -55,7 +56,7 @@ const AdCreativeCard:React.FC<AdCreativeCardProps> = ({conversationId, adCreativ
 			}
 		}
 		return acc;
-	}, {} as IAdCreative);
+	}, {} as IAdCreative)
 
 	const lastUpdated = state.conversation.map[conversationId ?? '']?.lastAdCreativeCreatedAt ?? state.conversation.map[conversationId ?? '']?.updatedAt ?? adCreative.updatedAt;
 

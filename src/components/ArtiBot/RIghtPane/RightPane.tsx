@@ -9,7 +9,7 @@ import {IAdCreative, AdCreativeVariant} from '@/interfaces/IAdCreative';
 import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
 import {generateAdCreativeImages, updateVariantImage, useConversation} from '@/context/ConversationContext';
 import {useRouter} from 'next/navigation';
-import VariantItem from '@/components/ArtiBot/VariantItem';
+import VariantItem, { AD_VARIANT_MODE } from '@/components/ArtiBot/VariantItem';
 import {Mock} from '@/constants/servicesData';
 import {colors} from '@/config/theme';
 import AdCampaignStepOne from '@/components/ArtiBot/RIghtPane/AdCampaignFlow/AdCampaignStepOne';
@@ -32,6 +32,8 @@ const RightPane: FC<RightPaneProps> = ({isAdCampaign, adCreative, mock = new Moc
 	const ranTheGenerationRef = useRef<boolean>(false);
 	const prevVariantListRef = useRef('');
 	const intervalIdRef = useRef<any>(null);
+	const [mode, setMode] = useState<AD_VARIANT_MODE>(AD_VARIANT_MODE.VIEW);
+	const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
 	useEffect(() => {
 
@@ -126,9 +128,9 @@ const RightPane: FC<RightPaneProps> = ({isAdCampaign, adCreative, mock = new Moc
 					{/*	<span>Generating PDF</span>*/}
 					{/*</motion.button>*/}
 				</div>
-				<TabView items={variantList} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant}/>
+				<TabView setShowConfirmModal={setShowConfirmModal} mode={mode} items={variantList} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant}/>
 
-				<VariantItem mock={mock} activeVariant={activeVariant} width={width}/>
+				<VariantItem showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} mode={mode} setMode={setMode} mock={mock} activeVariant={activeVariant} width={width}/>
 			</>}
 
 		</div>

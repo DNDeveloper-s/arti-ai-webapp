@@ -56,6 +56,7 @@ export interface FacebookAdVariantProps extends React.DetailedHTMLProps<React.HT
 	noExpand?: boolean;
 	className?: string;
 	mock?: Mock;
+	handleEditVariantClose?: () => void;
 }
 
 const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVariant: _adVariant, noExpand, className, ...props}) => {

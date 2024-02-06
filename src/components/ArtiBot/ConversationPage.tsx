@@ -12,6 +12,9 @@ import {useEditVariant} from '@/context/EditVariantContext';
 import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
 import {ChatGPTRole} from '@/interfaces/IArtiBot';
 import {AiOutlineCaretDown, AiOutlineCaretUp} from 'react-icons/ai';
+import { Tooltip } from 'react-tooltip';
+import LeftPane from './LeftPane/LeftPane';
+import { useSearchParams } from 'next/navigation';
 
 export interface CollapsedComponentProps {
 	content: string;
@@ -40,6 +43,7 @@ export default function ArtiBotPage({conversation}: {conversation: IConversation
 	const {state, dispatch} = useConversation();
 	const {state: editVariantState} = useEditVariant();
 	const [isConversationCollapsible, setIsConversationCollapsible] = useState<boolean>(false);
+	const search = useSearchParams();
 
     const adCreative = useMemo(() => {
 		// Merge all the variants into one adCreative object within one conversation
@@ -63,55 +67,69 @@ export default function ArtiBotPage({conversation}: {conversation: IConversation
 		setIsConversationCollapsible(c => !c);
 	}
 
+	
+	useEffect(() => {
+		setIsConversationCollapsible(search.get('ad_creative') === 'expand');
+	}, [search])
+
+
 	return (
-		<div className={'bg-secondaryBackground flex flex-col h-full w-full overflow-hidden'}>
-			<div className={'transition-all w-full overflow-hidden relative ' + (isConversationCollapsible ? 'h-[180px] ' : 'h-full flex-1 ')}>
-				<div className={'w-full max-w-[700px] mx-auto h-full overflow-hidden'}>
-					<ArtiBot toggleCollapse={toggleCollapse} collapsed={isConversationCollapsible} conversation={conversation} adCreatives={adCreatives} setAdCreatives={setAdCreatives}/>
-				</div>
+		<div className='w-full h-full overflow-hidden flex'>
+			<div>
+				<LeftPane />
 			</div>
-			<div onClick={toggleCollapse} className={'h-4 cursor-pointer text-primary max-w-[700px] mx-auto text-xs gap-1 flex-grow-0 w-full bg-gray-800 flex justify-center items-center'}>
-				{isConversationCollapsible ? <AiOutlineCaretDown /> : <AiOutlineCaretUp />}
-				<span className={'text-[10px]'}>{isConversationCollapsible ? 'Expand Chat' : 'Expand Ad Preview'}</span>
-			</div>
-			<div className={'transition-all w-full overflow-hidden ' + (isConversationCollapsible ? 'h-full flex-1 ' : 'h-[110px]')}>
-				<div className={'w-full max-w-[700px] mx-auto h-full overflow-hidden'}>
-					{adCreative && (editVariantState.variant ? <EditAdVariantScreen adVariant={editVariantState.variant} /> : <RightPane adCreative={adCreative} isAdCampaign={false}/>)}
+			<div className={'bg-secondaryBackground flex flex-col h-full flex-1 overflow-hidden'}>
+				<div className={'transition-all w-full overflow-hidden relative ' + (isConversationCollapsible ? 'h-[180px] ' : 'h-full flex-1 ')}>
+					<div className={'w-full max-w-[900px] mx-auto h-full overflow-hidden'}>
+						<ArtiBot toggleCollapse={toggleCollapse} collapsed={isConversationCollapsible} conversation={conversation} adCreatives={adCreatives} setAdCreatives={setAdCreatives}/>
+					</div>
 				</div>
+				{adCreative && <>
+					<div onClick={toggleCollapse} className={'h-4 cursor-pointer text-primary max-w-[900px] mx-auto text-xs gap-1 flex-grow-0 w-full bg-gray-800 flex justify-center items-center'}>
+						{isConversationCollapsible ? <AiOutlineCaretDown /> : <AiOutlineCaretUp />}
+						<span className={'text-[10px]'}>{isConversationCollapsible ? 'Expand Chat' : 'Expand Ad Preview'}</span>
+					</div>
+					<div className={'transition-all w-full overflow-hidden ' + (isConversationCollapsible ? 'h-full flex-1 ' : 'h-[110px]')}>
+						<div className={'w-full max-w-[900px] mx-auto h-full overflow-hidden'}>
+							{editVariantState.variant ? <EditAdVariantScreen adVariant={editVariantState.variant} /> : <RightPane adCreative={adCreative} isAdCampaign={false}/>}
+						</div>
+					</div>
+				</>}
+				<Tooltip id='edit-ad-variant-tooltip' />
 			</div>
 		</div>
 	)
 
-	return (
-		<PanelGroup autoSaveId={'conversation-panel'} direction='horizontal'>
-			<Panel defaultSize={40} minSize={30} order={1}>
-				<ArtiBot conversation={conversation} adCreatives={adCreatives} setAdCreatives={setAdCreatives}/>
-			</Panel>
-			<PanelResizeHandle className='w-2 bg-gray-600' />
-			<Panel minSize={20} defaultSize={20} order={2}>
-				{adCreative && <RightPane adCreative={adCreative} isAdCampaign={false} />}
-				<EditAdVariantScreen adVariant={editVariantState.variant} />
-			</Panel>
-			{editVariantState.variant && <>
-        <PanelResizeHandle className='w-2 bg-gray-600' />
-        <Panel minSize={20} defaultSize={20} order={3}>
-          <EditAdVariantScreen adVariant={editVariantState.variant} />
-        </Panel>
-      </>}
-		</PanelGroup>
-	)
+	// return (
+	// 	<PanelGroup autoSaveId={'conversation-panel'} direction='horizontal'>
+	// 		<Panel defaultSize={40} minSize={30} order={1}>
+	// 			<ArtiBot conversation={conversation} adCreatives={adCreatives} setAdCreatives={setAdCreatives}/>
+	// 		</Panel>
+	// 		<PanelResizeHandle className='w-2 bg-gray-600' />
+	// 		<Panel minSize={20} defaultSize={20} order={2}>
+	// 			{adCreative && <RightPane adCreative={adCreative} isAdCampaign={false} />}
+	// 			<EditAdVariantScreen adVariant={editVariantState.variant} />
+	// 		</Panel>
+	// 		{editVariantState.variant && <>
+    //     <PanelResizeHandle className='w-2 bg-gray-600' />
+    //     <Panel minSize={20} defaultSize={20} order={3}>
+    //       <EditAdVariantScreen adVariant={editVariantState.variant} />
+    //     </Panel>
+    //   </>}
+	// 	</PanelGroup>
+	// )
 
-    return (
-        <div className={'flex h-full overflow-hidden'}>
-            <div className={'flex-1'}>
-                <ArtiBot conversation={conversation} adCreatives={adCreatives} setAdCreatives={setAdCreatives}/>
-            </div>
-            {adCreative && <RightPane adCreative={adCreative} isAdCampaign={false} />}
-			<ResizeAble containerClassName='h-full flex-1 bg-secondaryBackground'>
-				<div className='h-full'>
-					<p>There we can have other things in total.</p>
-				</div>
-			</ResizeAble>
-        </div>
-    )
+    // return (
+    //     <div className={'flex h-full overflow-hidden'}>
+    //         <div className={'flex-1'}>
+    //             <ArtiBot conversation={conversation} adCreatives={adCreatives} setAdCreatives={setAdCreatives}/>
+    //         </div>
+    //         {adCreative && <RightPane adCreative={adCreative} isAdCampaign={false} />}
+	// 		<ResizeAble containerClassName='h-full flex-1 bg-secondaryBackground'>
+	// 			<div className='h-full'>
+	// 				<p>There we can have other things in total.</p>
+	// 			</div>
+	// 		</ResizeAble>
+    //     </div>
+    // )
 }

@@ -137,7 +137,7 @@ const EditControl: FC<EditControlProps> = (props) => {
                 </div> : <span>{props.content}</span>}
 
                 {(controlState === CONTROL_STATE.EDIT && props.type === 'image') && <>
-                    <div className='absolute text-primary right-full flex text-xl flex-col gap-0.5 top-0 w-10 h-auto bg-gray-800'>
+                    {/* <div className='absolute text-primary right-full flex text-xl flex-col gap-0.5 top-0 w-10 h-auto bg-gray-800'>
                         <label for="upload-image-control" data-tooltip-id={'edit-ad-variant-tooltip'} data-tooltip-content="Upload Image" className='w-full aspect-square flex justify-center items-center bg-gray-900 cursor-pointer'>
                             <input onChange={handleChangeImage} type="file" hidden id="upload-image-control" />
                             <FaUpload />
@@ -145,7 +145,7 @@ const EditControl: FC<EditControlProps> = (props) => {
                         <div data-tooltip-id={'edit-ad-variant-tooltip'} data-tooltip-content="Regenerate Image" className='w-full aspect-square flex justify-center items-center bg-gray-900 cursor-pointer'>
                             <RiRefreshLine />
                         </div>
-                    </div>
+                    </div> */}
                     <div className='flex justify-end px-4 items-center gap-3' onClick={() => {}}>
                         <button onClick={handleSaveEdit} className="bg-primary text-white text-xs px-4 py-1.5 leading-[16px] rounded cursor-pointer">Save</button>
                         <button onClick={handleCloseEdit} className=''>Cancel</button>

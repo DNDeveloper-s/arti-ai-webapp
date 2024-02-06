@@ -117,7 +117,7 @@ export function isValidJsonWithAdsArray(inputString: string, isIndentedString?: 
 }
 
 export const getConversationURL = (id: IConversation['id'], conversationParams: IConversation | IConversation['conversation_type']) => {
-	if(typeof conversationParams === 'string') return `/artibot/${endPoint}/${id}`;
+	if(typeof conversationParams === 'string') return `/artibot/${conversationParams}/${id}`;
 	const endPoint = conversationParams.conversation_type === 'strategy' ? 'strategy' : 'ad_creative';
 	return `/artibot/${endPoint}/${id}`;
 }

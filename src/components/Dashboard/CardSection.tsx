@@ -25,6 +25,8 @@ import useSessionToken from '@/hooks/useSessionToken';
 import Snackbar from '@/components/Snackbar';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import {ChatGPTRole} from '@/interfaces/IArtiBot';
+import useAdCreatives from '@/hooks/useAdCreatives';
+import useConversations from '@/hooks/useConversations';
 
 enum EmptySectionType {
 	CONVERSATION = 'conversation',
@@ -103,6 +105,8 @@ export default function CardSection() {
 	const token = useSessionToken();
 	const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 	const [activeTabItem, setActiveTabItem] = useState<TabItem>(tabItems[0]);
+	const {adVariantsByConversationId, sortedConversationIds} = useAdCreatives();
+	const {conversations, isConversationLoading} = useConversations();
 
 	useEffect(() => {
 		if(state.error && state.error.message) {
@@ -123,36 +127,6 @@ export default function CardSection() {
 		signOut();
 	}
 
-	// Group the adCreatives by conversationId
-
-
-	// Merge the variants of adCreatives per conversationId
-	const adVariantsByConversationId = useMemo(() => {
-		if(!state.conversation.map || !state.adCreative.map) return {};
-		return state.adCreative.list?.reduce((acc: Record<string, {list: IAdCreative[], updatedAt?: string}>, adCreative: IAdCreative) => {
-			if(!acc[adCreative.conversationId]) {
-				acc[adCreative.conversationId] = {
-					list: []
-				};
-			}
-			acc[adCreative.conversationId].list.push(adCreative);
-			acc[adCreative.conversationId].updatedAt = state.conversation.map[adCreative.conversationId]?.lastAdCreativeCreatedAt;
-			return acc;
-		}, {} as Record<string, {list: IAdCreative[], updatedAt?: string}>) ?? {};
-	}, [state.conversation.map, state.adCreative.map, state.adCreative.list])
-
-	let sortedKeys: string[] = [];
-
-	if(adVariantsByConversationId) {
-		sortedKeys = Object.keys(adVariantsByConversationId).sort((a, b) => {
-			if(!adVariantsByConversationId || !adVariantsByConversationId[a] || !adVariantsByConversationId[b]) return 0;
-			if(!adVariantsByConversationId[a].updatedAt) return 1;
-			if(!adVariantsByConversationId[b].updatedAt) return -1;
-			if(adVariantsByConversationId[a].updatedAt > adVariantsByConversationId[b].updatedAt) return -1;
-			if(adVariantsByConversationId[a].updatedAt < adVariantsByConversationId[b].updatedAt) return 1;
-			return 0;
-		});
-	}
 
 	function handleAdCreativeClick(adCreativeItem: IAdCreative) {
 		// setOpen(true);
@@ -169,34 +143,8 @@ export default function CardSection() {
 		setActiveTabItem(tabItem)
 	}
 
-	function isActiveConversation(conversation: IConversation) {
-		// We can check if the conversation is active or not
-		// by checking the messages array and if the message has been received by the user
-		return conversation.messages.some(message => message.role === ChatGPTRole.ASSISTANT)
-	}
-
-	const conversations = useMemo(() => {
-		if(!state.conversation.list) return null;
-		const _conversations = state.conversation.list;
-
-		// sort the list with the key updatedAt which holds the ISO String
-		// if(activeTabItem.id === ConversationType.STRATEGY) {
-		// 	return _conversations.filter((c: IConversation) => c.conversation_type === ConversationType.STRATEGY && isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
-		// 		if(a.updatedAt > b.updatedAt) return -1;
-		// 		if(a.updatedAt < b.updatedAt) return 1;
-		// 		return 0;
-		// 	});
-		// }
-		return _conversations.filter((c: IConversation) => isActiveConversation(c)).sort((a: IConversation, b: IConversation) => {
-			if(a.updatedAt > b.updatedAt) return -1;
-			if(a.updatedAt < b.updatedAt) return 1;
-			return 0;
-		});
-	}, [activeTabItem.id, state.conversation.list])
-
-	const conversationLoadingCondition = (state.loading.conversations && conversations?.length === 0) && (!state.conversation?.list || state.conversation?.list?.length === 0);
 	function renderConversations() {
-		if(conversationLoadingCondition) return <div className="w-full flex gap-4 overflow-hidden">
+		if(isConversationLoading) return <div className="w-full flex gap-4 overflow-hidden">
 			<ConversationCardShimmer />
 			<ConversationCardShimmer />
 			<ConversationCardShimmer />
@@ -214,7 +162,7 @@ export default function CardSection() {
 	}
 
 	function renderAdCreatives() {
-		if(conversationLoadingCondition || state.loading.adCreatives && (!state.adCreative?.list || state.adCreative?.list?.length === 0)) {
+		if(isConversationLoading || state.loading.adCreatives && (!state.adCreative?.list || state.adCreative?.list?.length === 0)) {
 			return (
 				<section className="mb-10 w-full">
 					<h2 className="mb-3">Past Ad Creatives</h2>
@@ -234,7 +182,7 @@ export default function CardSection() {
 				{state.adCreative.list && state.adCreative.list.length > 0 && <section className="mb-10 w-full">
           <h2 className="mb-3">Past Ad Creatives</h2>
           <div className="flex gap-4 w-full overflow-x-auto">
-						{sortedKeys.map((conversationId: string) => <AdCreativeCard key={conversationId} adCreatives={adVariantsByConversationId[conversationId].list} onClick={handleAdCreativeClick}/>)}
+						{sortedConversationIds.map((conversationId: string) => <AdCreativeCard key={conversationId} adCreatives={adVariantsByConversationId[conversationId].list} onClick={handleAdCreativeClick}/>)}
           </div>
         </section>}
 			</>

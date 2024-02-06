@@ -1,10 +1,13 @@
 import {Dispatch, FC, SetStateAction, useEffect, useRef, useState} from 'react';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
+import { AD_VARIANT_MODE } from '../VariantItem';
 
 interface TabViewProps {
 	activeAdTab: AdCreativeVariant,
 	setActiveAdTab: Dispatch<SetStateAction<AdCreativeVariant>>,
 	items: AdCreativeVariant[];
+	mode: AD_VARIANT_MODE;
+	setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function TabViewItem({container, isActive, label, tabItem, index}) {
@@ -24,7 +27,7 @@ function TabViewItem({container, isActive, label, tabItem, index}) {
 	)
 }
 
-const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items}) => {
+const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items, mode, setShowConfirmModal}) => {
 
 
 	const tabItemProps = (tabItem: AdCreativeVariant) => {
@@ -32,7 +35,13 @@ const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items}) => {
 		return ({
 			container: {
 				className: 'flex py-3 px-4 rounded-t-lg cursor-pointer hover:scale-[1.04] transition-all flex-col-reverse items-center ' + (isActive ? ' bg-primary ' : ' bg-secondaryBackground '),
-				onClick: () => setActiveAdTab(tabItem)
+				onClick: () => {
+					if(mode === AD_VARIANT_MODE.EDIT) {
+						setShowConfirmModal(true);
+						return;
+					}
+					setActiveAdTab(tabItem)
+				}
 			},
 			label: {
 				className: 'text-xs text-white whitespace-nowrap' + (isActive ? ' text-opacity-100' : ' text-opacity-60')
