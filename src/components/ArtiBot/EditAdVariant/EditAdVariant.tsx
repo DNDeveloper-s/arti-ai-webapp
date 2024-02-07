@@ -22,6 +22,8 @@ import { FaUpload } from 'react-icons/fa6';
 import { LuRefreshCw } from 'react-icons/lu';
 import { RxFontFamily, RxText } from 'react-icons/rx';
 import { IoMdColorPalette } from 'react-icons/io';
+import { staticGenerationAsyncStorage } from 'next/dist/client/components/static-generation-async-storage.external';
+import { useEditVariant } from '@/context/EditVariantContext';
 
 
 export enum REGENERATE_SECTION {
@@ -44,6 +46,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
 	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
+	const {state: editVariantState} = useEditVariant();
 	const isLoaded = useRef<Record<string, boolean>>({});
 	const [regenerateMap, setRegenerateMap] = useState<RegenerateMap | null>({});
 	const [showPreview, setShowPreview] = useState<boolean>(false);
@@ -77,20 +80,20 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 
 	const imageContainerJSX =
 		imageUrl
-			? <Image width={600} height={100} className="mb-[0.5em] w-full" src={imageUrl ? imageUrl : dummyImage} alt="Ad Image" />
+			? <Image key={editVariantState?.variant?.imageUrl ?? imageUrl} width={600} height={100} className="mb-[0.5em] w-full" src={editVariantState?.variant?.imageUrl ?? imageUrl ?? dummyImage} alt="Ad Image" />
 			: lottieAnimationJSX;
 
 
-	async function handleEdit(cs: CONTROL_STATE, key: REGENERATE_SECTION, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>) {
+	async function handleEdit(cs: CONTROL_STATE, key: REGENERATE_SECTION) {
 		setRegenerateMap(c => ({...c, selected: key as REGENERATE_SECTION}));
 		if(cs === CONTROL_STATE.GENERATE) {
-			setLoading(true);
-			setShowSuggestions(false);
+			// setLoading(true);
+			// setShowSuggestions(false);
 
-			await wait(2000);
+			// await wait(2000);
 
-			setLoading(false);
-			setShowSuggestions(true);
+			// setLoading(false);
+			// setShowSuggestions(true);
 		}
 
 		if(cs === CONTROL_STATE.EDIT && key === REGENERATE_SECTION.IMAGE) {
@@ -103,7 +106,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	}
 
 	function handleClose() {
-		setRegenerateMap(null)
+		setRegenerateMap(null);
 		setIsEdittingImage(false);
 	}
 
@@ -111,7 +114,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		<>
 			<Modal PaperProps={{className: 'bg-black bg-opacity-90'}} handleClose={() => setShowPreview(false)} open={showPreview}>
 				<div className='max-w-[500px]'>
-					<FacebookAdVariant adVariant={adVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '12px'}}  />
+					{editVariantState.variant && <FacebookAdVariant forceAdVariant={true} adVariant={editVariantState.variant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '10px'}}  />}
 				</div>
 			</Modal>
 			<Modal PaperProps={{className: 'bg-black bg-opacity-90 !min-h-[unset]'}} handleClose={() => setShowConfirmModal(false)} open={showConfirmModal}>
@@ -141,7 +144,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 					</div>
 				</div>
 			</div>
-			<div key={adVariant.oneLiner} className={'relative ad-variant text-xs md:text-base !p-0 ' + (className ?? '')} {...props}>
+			<div key={adVariant.id} className={'relative ad-variant text-xs md:text-base !p-0 ' + (className ?? '')} {...props}>
 				<div className={"flex justify-between items-center mb-[.3em] px-[1em] pt-[1em]"}>
 					<div className="flex items-center gap-[0.5em]">
 						<div className="w-[2em] h-[2em] rounded-full bg-gray-700" />

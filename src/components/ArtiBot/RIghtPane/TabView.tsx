@@ -1,12 +1,12 @@
 import {Dispatch, FC, SetStateAction, useEffect, useRef, useState} from 'react';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
 import { AD_VARIANT_MODE } from '../VariantItem';
+import { useEditVariant } from '@/context/EditVariantContext';
 
 interface TabViewProps {
 	activeAdTab: AdCreativeVariant,
 	setActiveAdTab: Dispatch<SetStateAction<AdCreativeVariant>>,
 	items: AdCreativeVariant[];
-	mode: AD_VARIANT_MODE;
 	setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -27,7 +27,8 @@ function TabViewItem({container, isActive, label, tabItem, index}) {
 	)
 }
 
-const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items, mode, setShowConfirmModal}) => {
+const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items, setShowConfirmModal}) => {
+	const {state} = useEditVariant();
 
 
 	const tabItemProps = (tabItem: AdCreativeVariant) => {
@@ -36,7 +37,8 @@ const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items, mode, se
 			container: {
 				className: 'flex py-3 px-4 rounded-t-lg cursor-pointer hover:scale-[1.04] transition-all flex-col-reverse items-center ' + (isActive ? ' bg-primary ' : ' bg-secondaryBackground '),
 				onClick: () => {
-					if(mode === AD_VARIANT_MODE.EDIT) {
+					const isEdittingOtherVariant = state.variant && state.variant.id !== tabItem.id;
+					if(isEdittingOtherVariant) {
 						setShowConfirmModal(true);
 						return;
 					}

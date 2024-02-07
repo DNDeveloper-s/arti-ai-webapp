@@ -91,7 +91,7 @@ export default function ArtiBotPage({conversation}: {conversation: IConversation
 					</div>
 					<div className={'transition-all w-full overflow-hidden ' + (isConversationCollapsible ? 'h-full flex-1 ' : 'h-[110px]')}>
 						<div className={'w-full max-w-[900px] mx-auto h-full overflow-hidden'}>
-							{editVariantState.variant ? <EditAdVariantScreen adVariant={editVariantState.variant} /> : <RightPane adCreative={adCreative} isAdCampaign={false}/>}
+							<RightPane adCreative={adCreative} isAdCampaign={false}/>
 						</div>
 					</div>
 				</>}

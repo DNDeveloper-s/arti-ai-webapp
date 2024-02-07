@@ -56,17 +56,18 @@ export interface FacebookAdVariantProps extends React.DetailedHTMLProps<React.HT
 	noExpand?: boolean;
 	className?: string;
 	mock?: Mock;
+	forceAdVariant?: boolean;
 	handleEditVariantClose?: () => void;
 }
 
-const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), adVariant: _adVariant, noExpand, className, ...props}) => {
+const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), forceAdVariant, adVariant: _adVariant, noExpand, className, ...props}) => {
 	const [expand, setExpand] = useState<boolean>(false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
 	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
 	const isLoaded = useRef<Record<string, boolean>>({});
 
-	const adVariant = variant.map && variant.map[_adVariant.id] ? variant.map[_adVariant.id] : _adVariant;
+	const adVariant = forceAdVariant ? _adVariant : variant.map && variant.map[_adVariant.id] ? variant.map[_adVariant.id] : _adVariant;
 
 	function handleLike() {
 		setReactionState(c => c === REACTION.LIKED ? REACTION.NEUTRAL : REACTION.LIKED);

@@ -1,8 +1,8 @@
 import Loader from '@/components/Loader';
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { RiAiGenerate, RiEditFill, RiRefreshLine } from 'react-icons/ri';
 import GeneratedSuggestions from './GeneratedSuggestions';
-import { updateVariant, useEditVariant } from '@/context/EditVariantContext';
+import { regenerateVariantData, updateVariant, useEditVariant } from '@/context/EditVariantContext';
 import { FaUpload } from 'react-icons/fa6';
 import { IoMdClose } from 'react-icons/io';
 import { REGENERATE_SECTION } from './EditAdVariant';
@@ -12,7 +12,7 @@ interface EditControlBaseProps {
     containerClassName?: string;
     handleClose?: () => void;
     type: 'text' | 'image';
-    handleEdit: (cs: CONTROL_STATE,controlKey: string, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>) => void;
+    handleEdit: (cs: CONTROL_STATE, controlKey: REGENERATE_SECTION) => void;
 }
 
 interface EditControlWithoutInputEditableProps extends EditControlBaseProps {
@@ -56,22 +56,41 @@ const EditControl: FC<EditControlProps> = (props) => {
     const {state, dispatch} = useEditVariant();
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [controlState, setControlState] = useState<CONTROL_STATE>(CONTROL_STATE.IDLE);
-    const [formValue, setFormValue] = useState<string>('');
+    const [formValue, setFormValue] = useState<string>(props.content ?? '');
     const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [suggestions, setSuggestions] = useState(null);
 
     const onChange = (value: string) => {
         setFormValue(value);
     }
 
-
-    function handleClick(cs: CONTROL_STATE) {
+    async function handleClick(cs: CONTROL_STATE, extraInput?: string | null) {
+        if(!state.variant?.id) return;
         if(loading) return;
-        props.handleEdit(cs, props.controlKey, setLoading, setShowSuggestions);
-        if(cs === CONTROL_STATE.EDIT) setControlState(cs);
-    }
+        props.handleEdit(cs, props.controlKey);
+        if(cs === CONTROL_STATE.EDIT) return setControlState(cs);
 
-    function handleEdit() {
-        
+
+        setLoading(true);
+        setShowSuggestions(false);
+        setSuggestions(null);
+
+        // if(props.controlKey === REGENERATE_SECTION.IMAGE) {
+        //     setShowSuggestions(true);
+        //     setLoading(false);
+        //     return setSuggestions(["https://srs-billing-storage.s3.ap-south-1.amazonaws.com/657bbdcc93585b232efbbdbb_1707307041338.png"]);
+        // }
+
+        const _suggestions = await regenerateVariantData(dispatch, state.variant?.id, props.controlKey, extraInput);
+        setLoading(false);
+        setSuggestions((c: any) => {
+            let a = c;
+            if(!(a instanceof Array)) a = [];
+            if(_suggestions instanceof Array) return _suggestions;
+            a.push(_suggestions)
+            return a;
+        });
+        setShowSuggestions(true);
     }
 
     function handleSave(suggestion: string) {
@@ -103,7 +122,10 @@ const EditControl: FC<EditControlProps> = (props) => {
             const imageUrl = URL.createObjectURL(image);
             setImageUrl(imageUrl);
         }
-        // setImageUrl()
+    }
+
+    async function handleCustomizeRegeneration(extraInput?: string | null) {
+        handleClick(CONTROL_STATE.GENERATE, extraInput);
     }
 
     return (
@@ -152,7 +174,7 @@ const EditControl: FC<EditControlProps> = (props) => {
                     </div>
                 </>}
             </div>
-            {showSuggestions && <GeneratedSuggestions handleClose={handleCloseSuggestions} handleSave={handleSave} />}
+            {showSuggestions && state.variant && <GeneratedSuggestions type={props.type} list={props.type === 'image' && state.regeneratedImages ? state.regeneratedImages[state.variant?.id] : suggestions} controlKey={props.controlKey} handleClose={handleCloseSuggestions} handleSave={handleSave} handleCustomizeRegeneration={handleCustomizeRegeneration} />}
         </>
     )
 }

@@ -1,6 +1,8 @@
+import { REGENERATE_SECTION } from "@/components/ArtiBot/EditAdVariant/EditAdVariant";
+
 export const apiConfig = {
-	// baseUrl: process.env.NODE_ENV === 'production' ? 'https://api.artiai.org' : 'http://localhost:8081',
-	baseUrl: 'https://api.artiai.org',
+	baseUrl: process.env.NODE_ENV === 'production' ? 'https://api.artiai.org' : 'http://localhost:8081',
+	// baseUrl: 'https://api.artiai.org',
 	version: '/v1'
 }
 
@@ -53,5 +55,6 @@ export const ROUTES = {
 	},
 	VARIANT: {
 		UPDATE_IMAGE: (variantId: string) => apiUrl(`/variants/${variantId}/image`),
+		REGENERATE_DATA: (variantId: string, key: REGENERATE_SECTION, extraInput?: string | null) => apiUrl(`/variants/regenerate/${variantId}/${key}`, new URLSearchParams(pickValidKeys({extraInput})))
 	},
 }

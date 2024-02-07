@@ -32,7 +32,6 @@ const RightPane: FC<RightPaneProps> = ({isAdCampaign, adCreative, mock = new Moc
 	const ranTheGenerationRef = useRef<boolean>(false);
 	const prevVariantListRef = useRef('');
 	const intervalIdRef = useRef<any>(null);
-	const [mode, setMode] = useState<AD_VARIANT_MODE>(AD_VARIANT_MODE.VIEW);
 	const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -128,9 +127,9 @@ const RightPane: FC<RightPaneProps> = ({isAdCampaign, adCreative, mock = new Moc
 					{/*	<span>Generating PDF</span>*/}
 					{/*</motion.button>*/}
 				</div>
-				<TabView setShowConfirmModal={setShowConfirmModal} mode={mode} items={variantList} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant}/>
+				<TabView setShowConfirmModal={setShowConfirmModal} items={variantList} activeAdTab={activeVariant} setActiveAdTab={setActiveVariant}/>
 
-				<VariantItem showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} mode={mode} setMode={setMode} mock={mock} activeVariant={activeVariant} width={width}/>
+				<VariantItem showConfirmModal={showConfirmModal} setShowConfirmModal={setShowConfirmModal} mock={mock} activeVariant={activeVariant} width={width}/>
 			</>}
 
 		</div>
