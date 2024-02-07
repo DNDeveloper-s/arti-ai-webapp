@@ -9,7 +9,7 @@ const AdCreativeListItem = (props) => {
 
     return (
         <div>
-            {props.}
+            
         </div>
     )
 }
