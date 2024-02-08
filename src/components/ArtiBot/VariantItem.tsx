@@ -51,13 +51,13 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 		<>
 			{activeVariant && (
 				<>
-					<div className={'flex w-[80%] justify-between items-center ' + (mock.is ? 'mt-2' : 'mt-4')}>
+					{/* <div className={'flex w-[80%] justify-between items-center ' + (mock.is ? 'mt-2' : 'mt-4')}>
 						<label htmlFor="message" className="block text-sm font-light text-white text-opacity-50 text-left">Ad Preview</label>
 						{activeVariant.updatedAt && !mock.is && <span className="whitespace-nowrap">
 							<span className="text-white text-opacity-30 text-xs">Generated: </span>
 							<span className="text-white text-opacity-80 text-xs">{timeSince(activeVariant.updatedAt) + ' ago'}</span>
 						</span>}
-					</div>
+					</div> */}
 					{!mock.is && !isEditting && <div className={'flex justify-end w-[80%] mt-2 items-center gap-1 text-xs'}>
 						<span className="text-white text-opacity-50">Explore Options:</span>
 						<button onClick={() => {
@@ -67,7 +67,7 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 					</div>}
 					<div ref={variantRef} className={"mt-2 w-[80%]"}>
 						{!isEditting ? <FacebookAdVariant mock={mock} adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/> : (
-							state.variant && <EditFacebookAdVariant showConfirmModal={props.showConfirmModal} setShowConfirmModal={props.setShowConfirmModal} handleEditVariantClose={handleClose} mock={mock} adVariant={state.variant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
+							state.variant && <EditFacebookAdVariant showConfirmModal={props.showConfirmModal} setShowConfirmModal={props.setShowConfirmModal} handleEditVariantClose={handleClose} mock={mock} adVariant={state.variant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-black rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
 						)}
 					</div>
 				</>

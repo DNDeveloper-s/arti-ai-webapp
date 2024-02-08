@@ -3,12 +3,12 @@
 import React, {FC, ReactComponentElement, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {colors} from '@/config/theme';
 import TextareaAutosize from 'react-textarea-autosize';
-import {motion} from 'framer-motion'
+import {AnimatePresence, motion} from 'framer-motion'
 import {threshold} from '@/config/thresholds';
 import Logo from '@/components/Logo';
 import {framerContainer, framerItem} from '@/config/framer-motion';
 import {useRouter} from 'next/navigation';
-import {MdArrowBackIos} from 'react-icons/md';
+import {MdArrowBackIos, MdEmail} from 'react-icons/md';
 import Link from 'next/link';
 import MessageContainer from '@/components/ArtiBot/MessageContainer';
 import {ChatGPTMessageObj, ChatGPTRole, FileObject, HandleChunkArgs, MessageObj} from '@/interfaces/IArtiBot';
@@ -38,6 +38,8 @@ import {GTM_EVENT, logEvent} from '@/utils/gtm';
 import { IAdCreative } from '@/interfaces/IAdCreative';
 import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
 import {CollapsedComponent, CollapsedComponentProps} from '@/components/ArtiBot/ConversationPage';
+import { FaFacebookF, FaTiktok } from 'react-icons/fa6';
+import { RxCaretDown } from 'react-icons/rx';
 
 export const dummyJSONMessage: MessageObj = {
 	id: '5',
@@ -57,9 +59,10 @@ interface ArtiBotProps {
 	setAdCreatives?: (c: IAdCreative[]) => void;
 	collapsed?: boolean;
 	toggleCollapse?: (expand?: boolean) => void;
+	hideHeader?: boolean;
 }
 
-const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCreatives = () => {}, containerClassName = '', miniVersion = false, conversation, collapsed, toggleCollapse}) => {
+const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], hideHeader, setAdCreatives = () => {}, containerClassName = '', miniVersion = false, conversation, collapsed, toggleCollapse}) => {
 	const areaRef = useRef<HTMLTextAreaElement>(null);
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<ChatGPTMessageObj[]>(conversation?.messages ?? []);
@@ -389,7 +392,7 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCrea
 		<div className={`${borderAnimation ? `border-animation ${animationShouldBePaused ? 'paused' : ''}` : ''} flex h-full overflow-hidden`}>
 			<div className={'bg-secondaryBackground flex-1 relative flex flex-col font-diatype overflow-hidden ' + (containerClassName)}>
 				<>
-					<div className="flex justify-center h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
+					{!hideHeader && <div className="flex justify-center h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
 						{/* {!miniVersion && <div className="flex items-center cursor-pointer" onClick={() => router.push('/')}>
 							<MdArrowBackIos style={{fontSize: '21px'}}/>
 							<span className="ml-0.5 -mb-0.5 text-white text-opacity-60">Dashboard</span>
@@ -402,7 +405,7 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], setAdCrea
 							<MdArrowBackIos/>
 							<span className="text-white text-opacity-50">Dashboard</span>
 						</div>} */}
-					</div>
+					</div>}
 					{!collapsed ? <>
 						<MessageContainer isGeneratingAd={isGeneratingAd} conversationType={conversation?.conversation_type} chunksRef={chunksRef} doneRef={doneRef} msg={msg} messages={messages} setMessages={setMessages} showGetAdNowButton={showGetAdNowButton} miniVersion={miniVersion} isGenerating={isGenerating} />
 						<div className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground" style={{height: selectedFiles ? "220px" : areaHeight > 0 ? `calc(4.5rem + ${areaHeight}px)` : '4.5rem'}}>

@@ -131,7 +131,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 					</div>
 				</div>
 			</Modal>
-			<div className={'flex justify-end w-full mt-1 items-center gap-1 text-xs'}>
+			<div className={'flex justify-end w-full mt-1 mb-2 items-center gap-1 text-xs'}>
 				<div className={'flex items-center gap-4'}>
 					<CTAButton className={'py-1 px-3 rounded text-xs'} onClick={() => setShowPreview(true)}>
 						<span>Preview</span>

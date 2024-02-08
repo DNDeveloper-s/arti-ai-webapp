@@ -53,7 +53,7 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
                     {conversations && sortedConversationIds.map((conversationId) => {
                         const isActive = params.conversation_id === conversationId;
                         return (
-                            <Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)} key={conversationId} className={'block px-4 py-2 text-gray-200 cursor-pointer transition-all text-sm leading-6 ' + (isActive ? 'text-primary' : ' truncate')}>
+                            <Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)} key={conversationId} className={'block px-4 py-2 text-gray-300 cursor-pointer transition-all text-sm leading-6 ' + (isActive ? 'text-white' : ' truncate')}>
                                 <span>Ad Creative | {getConversationById(conversationId)?.project_name}</span>
                             </Link>
                         )
@@ -67,9 +67,9 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
                 </div>
                 <div className='mt-2'>
                     {sortedConversationIds.map((conversationId: string) => {
-                        const isActive = params.conversation_id === conversationId && search.get('ad_creative') === 'expand';
+                        const isActive = params.conversation_id === conversationId;
                         return (
-                            <Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE) + '?ad_creative=expand'} key={conversationId} className={'block px-4 py-2 text-gray-200 cursor-pointer transition-all text-sm leading-6 ' + (isActive ? 'text-primary' : ' truncate')}>
+                            <Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE) + '?ad_creative=expand'} key={conversationId} className={'block px-4 py-2 text-gray-300 cursor-pointer transition-all text-sm leading-6 ' + (isActive ? 'text-white' : ' truncate')}>
                                 <span>{getLastAdCreativeByConversationId(conversationId)?.adObjective}</span>
                             </Link>
                         )

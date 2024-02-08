@@ -98,8 +98,8 @@ const RightPane: FC<RightPaneProps> = ({isAdCampaign, adCreative, mock = new Moc
 	return (
 		<div className={'pb-10 h-full flex flex-col relative items-center bg-black' + (mock.is ? ' overflow-hidden' : ' overflow-y-auto overflow-x-visible')}>
 				{isAdCampaign ? <AdCampaignStepOne /> : <>
-					<div className="px-4 w-full py-4 flex justify-between items-center">
-						<h2 className="text-xl font-medium font-diatype">Ad Creatives</h2>
+					<div className="px-4 w-full py-1 flex justify-between items-center">
+						{/* <h2 className="text-xl font-medium font-diatype">Ad Creatives</h2> */}
 						{mock.is && <motion.div key={activeVariant.id} initial={{
 							backgroundImage: `conic-gradient(${colors.primary} 0deg, transparent 20deg)`
 						}} animate={{
