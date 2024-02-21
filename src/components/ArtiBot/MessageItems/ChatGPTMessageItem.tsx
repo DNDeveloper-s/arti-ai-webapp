@@ -147,7 +147,7 @@ export const ChatGPTMessageItemShimmer = ({size = 45}) => {
 	}, [])
 	return (
 		<div className={'w-full'}>
-			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
 				<div className={'app-shimmer rounded-lg mr-[0.3em] ' + (`w-[20px] h-[20px]`)}  />
 				{/*<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>*/}
 				<div className="ml-[0.8em] flex-1">
@@ -171,7 +171,7 @@ export const ChatGPTMessageWelcomeMessage = ({size = 45, type = ConversationType
 	}, [])
 	return (
 		<motion.div variants={framerItem()} className={'w-full'}>
-			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+			<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
 				<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
 				<div className="ml-[0.8em] flex-1">
 					<div className="flex items-start">
@@ -205,7 +205,7 @@ export const ChatGPTMessageCreatingAd = ({size = 45}) => {
 				transition={{type: 'spring', damping: 10}}
 				className={'w-full'}
 			>
-				<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+				<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
 					<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
 					<div className="ml-[0.8em] flex-1">
 						<div className="flex items-start">
@@ -316,7 +316,17 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 		const jsonObjectInString = getJSONObjectFromAString(messageItem.content);
 		const isJson = isValidJsonWithAdsArray(jsonObjectInString);
 
-		if(isJson) {
+		if(messageItem.adCreatives && messageItem.adCreatives.length > 0) {
+			const msgItem = {
+				...messageItem,
+				json: jsonObjectInString,
+				content: null,
+				adCreatives: messageItem.adCreatives
+			}
+			setMessageItem(msgItem);
+			// addAdCreatives(dispatch, adCreatives);
+			item = <AdItem messageItem={msgItem} variantFontSize={variantFontSize} />
+		} else if(isJson) {
 			const json = JSON.parse(jsonObjectInString) as AdJSONInput;
 			const adCreatives: IAdCreative[] = [{
 				id: Date.now().toString(),
@@ -356,9 +366,9 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props)  =>{
 				className={'w-full overflow-hidden'}
 			>
 				<div key={messageItem.content} className={'group w-full ' + (messageItem.role === ChatGPTRole.ASSISTANT ? '' : 'bg-background bg-opacity-30')}>
-					<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[800px] mx-auto">
+					<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
 						<Image className="rounded-lg mr-[0.3em]" width={size} height={size} src={messageItem.role === ChatGPTRole.ASSISTANT ? botData.image : dummyUser.image} alt=""/>
-						<div className={`ml-[${isMock ? '3.5px' : '0.8em'}] flex-1`}>
+						<div className={`ml-[${isMock ? '3.5px' : '0.8em'}] flex-1 overflow-hidden`}>
 							{item}
 						</div>
 					</div>

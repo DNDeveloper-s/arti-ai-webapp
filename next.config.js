@@ -33,6 +33,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'www.example.com',
+        port: '',
+        pathname: '/**'
+      },
+      {
+        protocol: 'https',
         hostname: 'srs-billing-storage.s3.ap-south-1.amazonaws.com',
         port: '',
         pathname: '/**'

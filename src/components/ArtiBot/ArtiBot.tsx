@@ -98,7 +98,6 @@ const ArtiBot: FC<ArtiBotProps> = ({borderAnimation, adCreatives = [], hideHeade
 	}, [showError])
 
 	useEffect(() => {
-		// console.log('freeTierLimit - ', freeTierLimit);
 		if(miniVersion) {
 			localStorage.setItem('messages', JSON.stringify(messages));
 		}

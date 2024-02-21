@@ -130,15 +130,15 @@ const EditControl: FC<EditControlProps> = (props) => {
 
     return (
         <>
-            <div className={'relative ' + (props.containerClassName ?? '')}>
-                {controlState === CONTROL_STATE.IDLE && <div className={"absolute top-0 left-0 w-full h-full rounded bg-black group-hover:bg-opacity-80 bg-opacity-0 transition-all flex items-center justify-center gap-1 cursor-pointer " + (loading ? '!bg-opacity-80' : '')}>
+            <div className={'relative group/edit-control ' + (props.containerClassName ?? '')}>
+                {controlState === CONTROL_STATE.IDLE && <div className={"absolute top-0 left-0 w-full h-full rounded bg-black group-hover/edit-control:bg-opacity-80 bg-opacity-0 transition-all flex items-center justify-center gap-1 cursor-pointer " + (loading ? '!bg-opacity-80' : '')}>
                     <div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-200 rounded"} />
                     {!loading ? <div className='flex relative items-center gap-3 z-10'>
-                        <div onClick={() => handleClick(CONTROL_STATE.EDIT)} className='group-hover:opacity-100 opacity-0 transition-all flex items-center gap-2 py-1 px-4 border-2 border-white rounded-lg hover:border-primary hover:text-primary '>
+                        <div onClick={() => handleClick(CONTROL_STATE.EDIT)} className='group-hover/edit-control:opacity-100 opacity-0 transition-all flex items-center gap-2 py-1 px-4 border-2 border-white rounded-lg hover:border-primary hover:text-primary '>
                             <RiEditFill className="text-[1.25em]" />
                             <span className={"transition-opacity text-[0.95em]"}>Edit</span>
                         </div>
-                        <div onClick={() => handleClick(CONTROL_STATE.GENERATE)} className='group-hover:opacity-100 opacity-0 transition-all flex items-center gap-2 py-1 px-4 border-2 border-white rounded-lg hover:border-primary hover:text-primary '>
+                        <div onClick={() => handleClick(CONTROL_STATE.GENERATE)} className='group-hover/edit-control:opacity-100 opacity-0 transition-all flex items-center gap-2 py-1 px-4 border-2 border-white rounded-lg hover:border-primary hover:text-primary '>
                             <RiAiGenerate className="text-[1.25em]" />
                             <span className={"text-[0.95em]"}>Regenerate</span>
                         </div>
@@ -174,7 +174,7 @@ const EditControl: FC<EditControlProps> = (props) => {
                     </div>
                 </>}
             </div>
-            {showSuggestions && state.variant && <GeneratedSuggestions type={props.type} list={props.type === 'image' && state.regeneratedImages ? state.regeneratedImages[state.variant?.id] : suggestions} controlKey={props.controlKey} handleClose={handleCloseSuggestions} handleSave={handleSave} handleCustomizeRegeneration={handleCustomizeRegeneration} />}
+            {showSuggestions && state.variant && <GeneratedSuggestions type={props.type} list={props.type === 'image' && state.regeneratedImages ? [...(state.regeneratedImages[state.variant?.id] ?? []), ] : suggestions} controlKey={props.controlKey} handleClose={handleCloseSuggestions} handleSave={handleSave} handleCustomizeRegeneration={handleCustomizeRegeneration} />}
         </>
     )
 }

@@ -23,7 +23,8 @@ import { LuRefreshCw } from 'react-icons/lu';
 import { RxFontFamily, RxText } from 'react-icons/rx';
 import { IoMdColorPalette } from 'react-icons/io';
 import { staticGenerationAsyncStorage } from 'next/dist/client/components/static-generation-async-storage.external';
-import { useEditVariant } from '@/context/EditVariantContext';
+import { updateVariant, useEditVariant } from '@/context/EditVariantContext';
+import EditCanvas from '@/components/Canvas/EditCanvas';
 
 
 export enum REGENERATE_SECTION {
@@ -46,7 +47,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
 	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
-	const {state: editVariantState} = useEditVariant();
+	const {state: editVariantState, dispatch: editDispatch} = useEditVariant();
 	const isLoaded = useRef<Record<string, boolean>>({});
 	const [regenerateMap, setRegenerateMap] = useState<RegenerateMap | null>({});
 	const [showPreview, setShowPreview] = useState<boolean>(false);
@@ -107,7 +108,20 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 
 	function handleClose() {
 		setRegenerateMap(null);
-		setIsEdittingImage(false);
+		setIsEdittingImage(false); 
+	}
+
+	function handleSaveEdit() {
+
+	}
+
+	function handleExport(url: string) {
+        if(!editVariantState.variant) return;
+        const newVariant = {...editVariantState.variant};
+        newVariant.imageUrl = url;
+        updateVariant(editDispatch, newVariant);
+		console.log('url - ', url);
+		handleClose();
 	}
 
 	return (
@@ -131,19 +145,6 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 					</div>
 				</div>
 			</Modal>
-			<div className={'flex justify-end w-full mt-1 mb-2 items-center gap-1 text-xs'}>
-				<div className={'flex items-center gap-4'}>
-					<CTAButton className={'py-1 px-3 rounded text-xs'} onClick={() => setShowPreview(true)}>
-						<span>Preview</span>
-					</CTAButton>
-					<CTAButton className={'py-1 px-3 rounded text-xs'} onClick={handleEditVariantClose}>
-						<span>Save</span>
-					</CTAButton>
-					<div className='text-xs cursor-pointer' onClick={handleEditVariantClose}>
-						<span>Close</span>
-					</div>
-				</div>
-			</div>
 			<div key={adVariant.id} className={'relative ad-variant text-xs md:text-base !p-0 ' + (className ?? '')} {...props}>
 				<div className={"flex justify-between items-center mb-[.3em] px-[1em] pt-[1em]"}>
 					<div className="flex items-center gap-[0.5em]">
@@ -156,13 +157,19 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 					<SlOptions className="text-[1.5em]" />
 				</div>
 				{/*<div className="mb-[1em] px-[1em]">*/}
-				<EditControl type={'text'} handleClose={handleClose} inputEditable={true} content={adVariant.text} controlKey={REGENERATE_SECTION.DESCRIPTION} containerClassName={'text-[1.6em] leading-[1.6] py-[0.6em] px-[1em] group my-2 ' + getBlurClassName(REGENERATE_SECTION.DESCRIPTION)} handleEdit={handleEdit} />
-				<EditControl type={'image'} handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'group text-[1.6em] ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleEdit={handleEdit}>
+				<EditControl type={'text'} handleClose={handleClose} inputEditable={true} content={adVariant.text} controlKey={REGENERATE_SECTION.DESCRIPTION} containerClassName={'text-[1.6em] leading-[1.6] py-[0.6em] px-[1em] my-2 ' + getBlurClassName(REGENERATE_SECTION.DESCRIPTION)} handleEdit={handleEdit} />
+				{isEdittingImage ? (
+					<>
+						<div className='w-full'>
+							<EditCanvas handleExport={handleExport} imageUrl={editVariantState?.variant?.imageUrl ?? imageUrl} />
+						</div>
+					</>
+				) : <EditControl type={'image'} handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'text-[1.6em] ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleEdit={handleEdit}>
 					{imageContainerJSX}
-				</EditControl>
+				</EditControl>}
 				<div className={"flex justify-between gap-[.8em] items-center px-[1em] mt-[1em]"}>
 					<div className="flex-1">
-						<EditControl rows={2} type={'text'} inputEditable={true} content={adVariant.oneLiner} handleClose={handleClose} controlKey={REGENERATE_SECTION.ONE_LINER} containerClassName={'relative px-2 py-2 text-[1.75em] leading-[1.3em] group ' + getBlurClassName(REGENERATE_SECTION.ONE_LINER)} handleEdit={handleEdit} />
+						<EditControl rows={2} type={'text'} inputEditable={true} content={adVariant.oneLiner} handleClose={handleClose} controlKey={REGENERATE_SECTION.ONE_LINER} containerClassName={'relative px-2 py-2 text-[1.75em] leading-[1.3em] ' + getBlurClassName(REGENERATE_SECTION.ONE_LINER)} handleEdit={handleEdit} />
 					</div>
 					<div className="flex-shrink-0">
 						<span className="cursor-pointer rounded bg-gray-700 px-[0.6em] py-[0.5em] text-[1em]" onClick={() => setExpand(c => !c)}>Learn More</span>
@@ -193,6 +200,19 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 						<RxFontFamily />
 					</div>
 				</div>}
+			</div>
+			<div className={'flex justify-end w-full mt-1 mb-2 items-center gap-1 text-xs'}>
+				<div className={'flex items-center gap-4'}>
+					<CTAButton className={'py-1 px-3 rounded text-xs'} onClick={() => setShowPreview(true)}>
+						<span>Preview</span>
+					</CTAButton>
+					<CTAButton className={'py-1 px-3 rounded text-xs'} onClick={handleEditVariantClose}>
+						<span>Save</span>
+					</CTAButton>
+					<div className='text-xs cursor-pointer' onClick={handleEditVariantClose}>
+						<span>Close</span>
+					</div>
+				</div>
 			</div>
 		</>
 	)
