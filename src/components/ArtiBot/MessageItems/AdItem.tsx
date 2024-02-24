@@ -7,21 +7,34 @@ import FacebookAdVariant from '../FacebookAdVariant';
 import { MdOutlineModeEdit } from 'react-icons/md';
 import { GrDeploy } from 'react-icons/gr';
 import { EditFacebookAdVariant } from '../EditAdVariant/EditAdVariant';
-import { startEditingVariant, useEditVariant } from '@/context/EditVariantContext';
+import { startEditingVariant, stopEditingVariant, useEditVariant } from '@/context/EditVariantContext';
+import { useConversation } from '@/context/ConversationContext';
 
-function ConversationAdVariant({variant}: {variant: IAdVariant}) {
+function ConversationAdVariant({variantId}: {variantId: string}) {
 	const [editMode, setEditMode] = useState(false);
-	const {dispatch} = useEditVariant();
+	const {dispatch, state: editState} = useEditVariant();
+	const {state, updateVariant} = useConversation();
+
+	const variant = state.variant.map[variantId] as IAdVariant ?? null;
+
+	if(!variant) return null;
 
 	function handleEdit() {
+		if(!variant) return null;
 		setEditMode(true);
 		startEditingVariant(dispatch, variant);
+	}
+
+	function editVariantClose() {
+		updateVariant(editState.variant as IAdVariant);
+		stopEditingVariant(dispatch);
+		setEditMode(false);
 	}
 
 	return (
 		<div key={variant.id} className="group/variant flex-shrink-0 relative">
 			{!editMode ? <FacebookAdVariant adVariant={variant} className="p-3 !w-[400px] !max-w-unset border !border-red-500 border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px'}} /> : 
-			<EditFacebookAdVariant showConfirmModal={false} setShowConfirmModal={() => {}} handleEditVariantClose={() => {setEditMode(false)}} adVariant={variant} className="p-3 !w-[400px] !max-w-unset border border-gray-800 h-full bg-black rounded-lg" style={{fontSize: '8px'}} /> }
+			<EditFacebookAdVariant showConfirmModal={false} setShowConfirmModal={() => {}} handleEditVariantClose={editVariantClose} adVariant={variant} className="p-3 !w-[400px] !max-w-unset border border-gray-800 h-full bg-black rounded-lg" style={{fontSize: '8px'}} /> }
 			{!editMode && <div className='transition-all group-hover/variant:opacity-100 group-hover/variant:pointer-events-auto pointer-events-none opacity-0 absolute bg-black bg-opacity-70 top-0 left-0 w-full h-full flex justify-center gap-5 items-end pb-10'>
 				<button onClick={handleEdit} className='cursor-pointer text-white hover:scale-105 text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
 					<MdOutlineModeEdit />
@@ -81,7 +94,7 @@ export default function AdItem({messageItem, variantFontSize}: {messageItem: Cha
 			</div>
 			<div className='flex w-full overflow-auto items-start gap-6 my-[2.5em]'>
 				{json.variants.map((variant, index) => (
-					<ConversationAdVariant key={variant.id} variant={variant} />
+					<ConversationAdVariant key={variant.id} variantId={variant.id} />
 				))}
 			</div>
 		</div>

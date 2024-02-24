@@ -12,6 +12,9 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import React, { FC, useEffect } from 'react';
 import { BiSolidEdit } from 'react-icons/bi';
 import { MdArrowBackIos } from 'react-icons/md';
+import ConversationListItem from '@/components/ArtiBot/LeftPane/ConversationListItem';
+import AdCreativeListItem from '@/components/ArtiBot/LeftPane/AdCreativeListItem';
+import CampaignListItem from './CampaignListItem';
 
 interface LeftPaneProps {
 
@@ -30,9 +33,13 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
 		token && dispatch && getConversations(dispatch);
 		token && dispatch && getAdCreatives(dispatch);
 	}, [dispatch, token]);
+
+  useEffect(() => {
+    console.log('mounted | Left Pane - ');
+  }, [])
     
     return (
-        <div className='flex flex-col w-[250px]'>
+        <div className='flex flex-col w-[250px] h-full overflow-hidden'>
             <div className="w-full flex items-center cursor-pointer px-4 py-6" onClick={() => router.push('/')}>
                 <MdArrowBackIos style={{fontSize: '21px'}}/>
                 <span className="ml-0.5 -mb-0.5 text-white text-opacity-60">Dashboard</span>
@@ -45,36 +52,33 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
                 </button>
             </Link>
             <hr className='border-gray-700' />
-            <div className='w-full my-4'>
+            <div className={'relative overflow-auto w-full'}>
+              <div className='w-full my-4'>
                 <div className='px-4 text-sm font-bold text-gray-400'>
-                    <h3>Conversations</h3>
+                  <h3>Conversations</h3>
                 </div>
                 <div className='mt-2'>
-                    {conversations && sortedConversationIds.map((conversationId) => {
-                        const isActive = params.conversation_id === conversationId;
-                        return (
-                            <Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)} key={conversationId} className={'block px-4 py-2 text-gray-300 cursor-pointer transition-all text-sm leading-6 ' + (isActive ? 'text-white' : ' truncate')}>
-                                <span>Ad Creative | {getConversationById(conversationId)?.project_name}</span>
-                            </Link>
-                        )
-                    })}
+                  {conversations && sortedConversationIds.map((conversationId) => <ConversationListItem key={conversationId} conversationId={conversationId} />)}
                 </div>
-            </div>
-            <hr className='border-gray-700' />
-            <div className='w-full my-4'>
+              </div>
+              <hr className='border-gray-700' />
+              <div className='w-full my-4'>
                 <div className='px-4 text-sm font-bold text-gray-400'>
-                    <h3>Ad Creatives</h3>
+                  <h3>Ad Creatives</h3>
                 </div>
                 <div className='mt-2'>
-                    {sortedConversationIds.map((conversationId: string) => {
-                        const isActive = params.conversation_id === conversationId;
-                        return (
-                            <Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE) + '?ad_creative=expand'} key={conversationId} className={'block px-4 py-2 text-gray-300 cursor-pointer transition-all text-sm leading-6 ' + (isActive ? 'text-white' : ' truncate')}>
-                                <span>{getLastAdCreativeByConversationId(conversationId)?.adObjective}</span>
-                            </Link>
-                        )
-                    })}
+                  {sortedConversationIds.map((conversationId: string) => <AdCreativeListItem key={conversationId} conversationId={conversationId} />)}
                 </div>
+              </div>
+              <hr className='border-gray-700' />
+              <div className='w-full my-4'>
+                <div className='px-4 text-sm font-bold text-gray-400'>
+                  <h3>Campaigns</h3>
+                </div>
+                <div className='mt-2 flex flex-col gap-2'>
+                  {sortedConversationIds.map((conversationId: string) => <CampaignListItem key={conversationId} conversationId={conversationId} />)}
+                </div>
+              </div>
             </div>
         </div>
     )

@@ -120,7 +120,7 @@ export default function ArtiBotPage({conversation}: {conversation: IConversation
 	const [isConversationCollapsible, setIsConversationCollapsible] = useState<boolean>(false);
 	const search = useSearchParams();
 
-    const adCreative = useMemo(() => {
+  const adCreative = useMemo(() => {
 		// Merge all the variants into one adCreative object within one conversation
 		if(!adCreatives || adCreatives.length === 0) return null;
 		let adCreative = adCreatives[adCreatives.length - 1];
@@ -132,6 +132,10 @@ export default function ArtiBotPage({conversation}: {conversation: IConversation
 
 		return adCreative
 	}, [adCreatives]);
+
+	useEffect(() => {
+		console.log('mounted | ArtiBotPage - ');
+	}, [])
 
 	useEffect(() => {
 		const adCreatives = state.adCreative.list?.filter(a => a.conversationId === conversation?.id) ?? [];

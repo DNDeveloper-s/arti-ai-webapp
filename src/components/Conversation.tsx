@@ -56,6 +56,10 @@ export default function Conversation({type = ConversationType.AD_CREATIVE}: {typ
 		}
 	}, [dispatch, state.loading.conversation, state.conversation.map, params.conversation_id, state.conversation, type])
 
+	useEffect(() => {
+		console.log('mounted | Conversation - ');
+	}, [])
+
 	return (
 		<main>
 			{/*<Logo />*/}

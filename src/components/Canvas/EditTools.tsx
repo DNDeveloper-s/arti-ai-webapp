@@ -4,7 +4,7 @@ import { useClickAway } from '@/hooks/useClickAway';
 import React, { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import { IconType } from 'react-icons';
 import { BsBorderWidth, BsFonts } from 'react-icons/bs';
-import { IoColorPaletteOutline } from 'react-icons/io5';
+import {IoColorPaletteOutline, IoLayers} from 'react-icons/io5';
 import { LuUpload } from 'react-icons/lu';
 import {MdFormatBold, MdOutlineFormatColorFill} from 'react-icons/md';
 import { PiCircle, PiLineSegment, PiRectangle, PiSelectionPlusLight } from 'react-icons/pi';
@@ -13,6 +13,7 @@ import { TbOvalVertical } from 'react-icons/tb';
 import { SketchPicker } from 'react-color'
 import fetchFonts from '@/helpers/fonts';
 import {FaBold, FaItalic} from 'react-icons/fa6';
+import Layers, {LayersProps} from './Layers';
 
 export interface Tool {
     id: string;
@@ -29,6 +30,7 @@ const tools = [
     {id: 'upload', name: 'Upload Image', icon: <LuUpload /> },
     {id: 'fill', name: 'Fill Color', icon: <MdOutlineFormatColorFill /> },
     {id: 'stroke', name: 'Stroke Color', icon: <IoColorPaletteOutline /> },
+    {id: 'layer', name: 'Layer', icon: <IoLayers /> },
     // {id: 'stroke-width', name: 'Stroke Width', icon: <BsBorderWidth /> }
 ]
 
@@ -317,9 +319,45 @@ export const ShapeTools: FC<ShapeToolsProps> = (props) => {
     )
 }
 
+
+interface LayerToolProps extends LayersProps {
+    selected: boolean;
+    setSelected: (tool: Tool) => void;
+    tool: Tool;
+}
+export const LayerTools: FC<LayerToolProps> = ({selected, ...props}) => {
+    const [showOptions, setShowOptions] = useState(selected);
+
+    const ref = useRef(null);
+
+    const handleClickOutside = () => {
+        // if(disabled) return;
+        setShowOptions(false);
+    }
+
+    useClickAway(ref, handleClickOutside);
+
+    function toggleTool() {
+        setShowOptions(c => !c);
+        props.setSelected(props.tool);
+    }
+
+    return (
+      <div ref={ref} className='relative'>
+          <div onClick={toggleTool} className={'flex text-3xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected ? ' !bg-gray-200' : '')}>
+              <IoLayers />
+          </div>
+          {showOptions && <div className={'absolute left-[calc(100%+15px)] top-0 rounded'}>
+              <Layers {...props} />
+          </div>}
+      </div>
+    )
+}
+
 interface EditToolsProps {
     handleChange: (tool: Tool) => void;
     handleFormatChange: (props: ColorToolProps) => void;
+    LayerProps: LayersProps;
 }
 
 const EditTools: FC<EditToolsProps> = (props) => {
@@ -342,13 +380,15 @@ const EditTools: FC<EditToolsProps> = (props) => {
         props.handleFormatChange({color, type});
     }
 
+    const layerTool = tools.find(c => c.id === 'layer');
+
     return (
       <div className='relative bg-white rounded py-2 px-1'>
           {/* <div>
                 <h1>Edit Tools</h1>
             </div> */}
           <div className='flex flex-col items-center space-y-4 text-black'>
-              {tools.filter(c => !['fill', 'stroke'].includes(c.id)).map((tool: Tool) => {
+              {tools.filter(c => !['fill', 'stroke', 'layer'].includes(c.id)).map((tool: Tool) => {
 
                   if(tool.id === 'shapes') {
                       return <ShapeTool key={'shape'} handleToolClick={handleToolClick} selected={shapeTools.map(c => c.id).includes(selected.id)} />
@@ -360,6 +400,8 @@ const EditTools: FC<EditToolsProps> = (props) => {
                     </div>
                   )
               })}
+              {layerTool && <LayerTools {...props.LayerProps} tool={layerTool} selected={selected.id === layerTool.id}
+                           setSelected={setSelected}/>}
               {/*<div className='h-[2px] bg-gray-200 w-full' />*/}
               {/*<FontOptionsTool selected={selected.id === 'text'} handleFontChange={(fontDetails: FontFormat) => props.handleFormatChange(fontDetails)} />*/}
               {/*<ColorPickerTool disabled={false} selected={selected.id === 'fill'} tool={tools.find(c => ['fill'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color) => handleColorChange(color, 'fill')} />*/}

@@ -46,6 +46,7 @@ enum CONVERSATION_ACTION_TYPE {
 	FLUSH_MESSAGE_BUFFER = 'FLUSH_MESSAGE_BUFFER',
 	SHOW_ERROR_MESSAGE = 'SHOW_ERROR_MESSAGE',
 	HANDLE_FEEDBACK_KEY = 'HANDLE_FEEDBACK_KEY',
+	UPDATE_VARIANT = 'UPDATE_VARIANT'
 }
 
 // An interface for our actions
@@ -257,6 +258,12 @@ function conversationReducer(state: IConversationState, action: ConversationActi
 					...(state.inProcess ?? {}),
 					[payload.variantId]: false
 				}
+			};
+		case CONVERSATION_ACTION_TYPE.UPDATE_VARIANT:
+			const variant11 = addKeyToStateRecord(state.variant, payload);
+			return {
+				...state,
+				variant: mergeStateRecord(state.variant, variant11),
 			};
 		case CONVERSATION_ACTION_TYPE.GEN_AD_CREATIVE_IMAGES:
 			let { conversationId: adCreativeId1 } = payload;
@@ -549,17 +556,26 @@ const useConversationContext = (initState: IConversationState) => {
 		});
 	}, [])
 
+	const updateVariant = useCallback((variant: IAdVariant) => {
+		dispatch({
+			type: CONVERSATION_ACTION_TYPE.UPDATE_VARIANT,
+			payload: variant
+		});
+	}, [])
+
 	// const increment = useCallback(() => {
 	// 	dispatch({type: REDUCER_ACTION_TYPE.INCREMENT});
 	// }, []);
 
-	return {state, dispatch, getVariantsByAdCreativeId, handleFeedBackKey};
+	return {state, dispatch, updateVariant, getVariantsByAdCreativeId, handleFeedBackKey};
 }
 
 type UseConversationContextType = ReturnType<typeof useConversationContext>;
 
 export const ConversationContext = createContext<UseConversationContextType>({
 	handleFeedBackKey(variantId: IAdVariant["id"], feedbackKey: FeedBackKeyProperty, feedback: Feedback): void {
+	},
+	updateVariant(variant: IAdVariant): void {
 	},
 	getVariantsByAdCreativeId(adCreativeId: string): null | any {
 		return undefined;
@@ -583,6 +599,7 @@ const ConversationContextProvider: FC<{children: React.ReactElement} & IConversa
 type UseCreateSalesHookType = {
 	state: IConversationState;
 	dispatch: (action: ConversationAction) => void;
+	updateVariant: (variant: IAdVariant) => void;
 	getVariantsByAdCreativeId: (adCreativeId: string) => IAdVariant[] | null;
 	handleFeedBackKey: (variantId: IAdVariant['id'], feedbackKey: FeedBackKeyProperty, feedback: Feedback) => void;
 }

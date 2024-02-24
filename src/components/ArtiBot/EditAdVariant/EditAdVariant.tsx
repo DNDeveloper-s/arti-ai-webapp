@@ -115,14 +115,45 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 
 	}
 
-	function handleExport(url: string) {
+	function handleExport(url: string, state: string) {
         if(!editVariantState.variant) return;
         const newVariant = {...editVariantState.variant};
+
+		if(!newVariant.imageMap) {
+			newVariant.imageMap = {
+				main: newVariant.imageUrl,
+				versionInfo: {
+					totalVersions: 0,
+					list: []
+				},
+				versions: {},
+				generatedImages: []
+			};
+		}
+
+		const versions = {
+			...(newVariant.imageMap.versions ?? {}),
+			[`v${(newVariant.imageMap.versionInfo.totalVersions ?? 1)}`]: newVariant.imageMap.versions.latest,
+			latest: {
+				image: url,
+				timestamp: new Date().toISOString()
+			}
+		}
+		const versionInfo = {
+			totalVersions: (newVariant.imageMap.versionInfo.totalVersions ?? 0) + 1,
+			list: Object.keys(versions)
+		}
+
         newVariant.imageUrl = url;
+		newVariant.imageMap.versionInfo = versionInfo;
+		newVariant.imageMap.versions = versions;
+		newVariant.imageMap.canvasState = state;
+
         updateVariant(editDispatch, newVariant);
-		console.log('url - ', url);
 		handleClose();
 	}
+
+	const imageUrlToEdit = editVariantState?.variant?.imageMap?.main ?? editVariantState?.variant?.imageUrl ?? imageUrl;
 
 	return (
 		<>
@@ -161,7 +192,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 				{isEdittingImage ? (
 					<>
 						<div className='w-full'>
-							<EditCanvas handleExport={handleExport} imageUrl={editVariantState?.variant?.imageUrl ?? imageUrl} />
+							<EditCanvas canvasState={editVariantState.variant?.imageMap?.canvasState} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
 						</div>
 					</>
 				) : <EditControl type={'image'} handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'text-[1.6em] ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleEdit={handleEdit}>
@@ -182,24 +213,6 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 					<div className="w-[6.5em] h-[2em] rounded bg-gray-700" />
 					<div className="w-[2em] h-[2em] rounded-full bg-gray-700" />
 				</div>
-				{isEdittingImage && <div className="w-[70px] h-auto flex flex-col bg-gray-800 absolute left-[105%] top-1/2 transform -translate-y-1/2 rounded">
-					<label for="upload-image-control" data-tooltip-id={'edit-ad-variant-tooltip'} data-tooltip-content="Upload Image" className='flex items-center justify-center w-full aspect-square text-3xl cursor-pointer'>
-						<input type="file" hidden id="upload-image-control" />
-						<FaUpload />
-					</label>
-					<div className='flex items-center justify-center w-full aspect-square text-3xl cursor-pointer' data-tooltip-id={'edit-ad-variant-tooltip'} data-tooltip-content="Regenerate Image">
-						<LuRefreshCw />
-					</div>
-					<div className='flex items-center justify-center w-full aspect-square text-3xl cursor-pointer' data-tooltip-id={'edit-ad-variant-tooltip'} data-tooltip-content="Add Text">
-						<RxText />
-					</div>
-					<div className='flex items-center justify-center w-full aspect-square text-3xl cursor-pointer' data-tooltip-id={'edit-ad-variant-tooltip'} data-tooltip-content="Choose Color">
-						<IoMdColorPalette />
-					</div>
-					<div className='flex items-center justify-center w-full aspect-square text-3xl cursor-pointer' data-tooltip-id={'edit-ad-variant-tooltip'} data-tooltip-content="Choose Font Style">
-						<RxFontFamily />
-					</div>
-				</div>}
 			</div>
 			<div className={'flex justify-end w-full mt-1 mb-2 items-center gap-1 text-xs'}>
 				<div className={'flex items-center gap-4'}>

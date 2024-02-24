@@ -67,7 +67,23 @@ export interface ArtiBotData {
 
 export type AdType = "Instagram Story Ad" | "LinkedIn Sponsored Content" | "Google Display Ad" | "YouTube Pre-roll Ad" | "Facebook Ad";
 
-export interface IAdVariant {
+type VersionKey = 'latest' | `v${number}` | string;
+
+export interface IAdVariantImageMap {
+	main: string;
+	canvasState?: string;
+	versionInfo: {
+		totalVersions: number;
+		list: VersionKey[];
+	}
+	versions: Record<VersionKey,  {
+		image: string;
+		timestamp: string;
+	}>,
+	generatedImages: {url: string, timestamp: string}[];
+}
+
+export interface IAdVariant extends MongooseModel {
 	id: string;
 	variantNo: string;
 	adType: string;
@@ -79,6 +95,8 @@ export interface IAdVariant {
 	imageDescription: string;
 	adOrientation: string;
 	rationale: string;
+	canvasState?: string;
+	imageMap: IAdVariantImageMap;
 	feedback?: FeedbackData
 }
 

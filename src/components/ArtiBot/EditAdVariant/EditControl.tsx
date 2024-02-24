@@ -82,6 +82,26 @@ const EditControl: FC<EditControlProps> = (props) => {
         // }
 
         const _suggestions = await regenerateVariantData(dispatch, state.variant?.id, props.controlKey, extraInput);
+
+        if(props.type === 'image') {
+            const newVariant = {...state.variant};
+
+            if(!newVariant.imageMap) {
+                newVariant.imageMap = {
+                    main: newVariant.imageUrl,
+                    versionInfo: {
+                        totalVersions: 0,
+                        list: []
+                    },
+                    versions: {},
+                    generatedImages: []
+                };
+            }
+
+            newVariant.imageMap.generatedImages = [...(newVariant.imageMap.generatedImages ?? []), {url: _suggestions, timestamp: new Date().toISOString()}];
+            return updateVariant(dispatch, newVariant);
+        }
+
         setLoading(false);
         setSuggestions((c: any) => {
             let a = c;
@@ -95,9 +115,41 @@ const EditControl: FC<EditControlProps> = (props) => {
 
     function handleSave(suggestion: string) {
         if(!state.variant) return;
+        if(props.type !== 'image') {
+            const newVariant = {...state.variant};
+            newVariant[props.controlKey] = suggestion;
+            return updateVariant(dispatch, newVariant);
+        }
         const newVariant = {...state.variant};
-        newVariant[props.controlKey] = suggestion;
-        updateVariant(dispatch, newVariant);
+
+		if(!newVariant.imageMap) {
+			newVariant.imageMap = {
+				main: newVariant.imageUrl,
+				versionInfo: {
+					totalVersions: 0,
+					list: []
+				},
+				versions: {},
+				generatedImages: []
+			};
+		}
+
+		// const versions = {
+		// 	...(newVariant.imageMap.versions ?? {}),
+		// 	[`v${(newVariant.imageMap.versionInfo.totalVersions ?? 1)}`]: newVariant.imageMap.versions.latest,
+		// 	latest: {
+		// 		image: url,
+		// 		timestamp: new Date().toISOString()
+		// 	}
+		// }
+		// const versionInfo = {
+		// 	totalVersions: (newVariant.imageMap.versionInfo.totalVersions ?? 0) + 1,
+		// 	list: Object.keys(versions)
+		// }
+
+        newVariant.imageUrl = suggestion;
+		newVariant.imageMap.main = suggestion;
+        return updateVariant(dispatch, newVariant);
     }
 
     function handleCloseSuggestions() {
