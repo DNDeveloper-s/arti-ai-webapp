@@ -11,30 +11,33 @@ import { startEditingVariant, stopEditingVariant, useEditVariant } from '@/conte
 import { useConversation } from '@/context/ConversationContext';
 
 function ConversationAdVariant({variantId}: {variantId: string}) {
-	const [editMode, setEditMode] = useState(false);
 	const {dispatch, state: editState} = useEditVariant();
 	const {state, updateVariant} = useConversation();
 
 	const variant = state.variant.map[variantId] as IAdVariant ?? null;
+	const editMode = editState.variant && editState.variant.id === variantId;
 
 	if(!variant) return null;
 
 	function handleEdit() {
 		if(!variant) return null;
-		setEditMode(true);
+		stopEditingVariant(dispatch);
 		startEditingVariant(dispatch, variant);
 	}
 
 	function editVariantClose() {
+		stopEditingVariant(dispatch);
+	}
+
+	function handleSaveVariant() {
 		updateVariant(editState.variant as IAdVariant);
 		stopEditingVariant(dispatch);
-		setEditMode(false);
 	}
 
 	return (
 		<div key={variant.id} className="group/variant flex-shrink-0 relative">
-			{!editMode ? <FacebookAdVariant adVariant={variant} className="p-3 !w-[400px] !max-w-unset border !border-red-500 border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px'}} /> : 
-			<EditFacebookAdVariant showConfirmModal={false} setShowConfirmModal={() => {}} handleEditVariantClose={editVariantClose} adVariant={variant} className="p-3 !w-[400px] !max-w-unset border border-gray-800 h-full bg-black rounded-lg" style={{fontSize: '8px'}} /> }
+			{!editMode ? <FacebookAdVariant adVariant={variant} className="p-3 !w-[400px] !max-w-unset border !border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px'}} /> : 
+			<EditFacebookAdVariant showConfirmModal={false} setShowConfirmModal={() => {}} handleSaveVariant={handleSaveVariant} handleEditVariantClose={editVariantClose} adVariant={editState.variant as IAdVariant} className="p-3 !w-[400px] !max-w-unset border border-gray-800 h-full bg-black rounded-lg" style={{fontSize: '8px'}} /> }
 			{!editMode && <div className='transition-all group-hover/variant:opacity-100 group-hover/variant:pointer-events-auto pointer-events-none opacity-0 absolute bg-black bg-opacity-70 top-0 left-0 w-full h-full flex justify-center gap-5 items-end pb-10'>
 				<button onClick={handleEdit} className='cursor-pointer text-white hover:scale-105 text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
 					<MdOutlineModeEdit />

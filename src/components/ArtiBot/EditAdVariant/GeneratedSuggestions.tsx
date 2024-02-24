@@ -20,13 +20,13 @@ interface ImageViewerProps {
 
 const ImageViewer: FC<ImageViewerProps> = (props) => {
     return (
-        <div className='grid grid-cols-2 gap-3'>
+        <div className='grid grid-cols-2 gap-3 w-full'>
             {props.list.map((item, index) => (
                 <div key={item} className={'border border-transparent aspect-square rounded ' + (props.selectedIdx === index ? '!border-primary' : '')} onClick={() => props.onClick(index, item)}>
                     <Image src={item} alt="Ad Variant Image" width={600} height={100} className="mb-[0.5em] w-full" />
                 </div>
             ))}
-            {[1,2,3,4].slice(props.list.length).map(c => <div key={c} className='aspect-square rounded bg-black'></div>)}
+            {[1,2].slice(props.list.length).map(c => <div key={c} className='aspect-square rounded bg-black'></div>)}
         </div>
     )
 }

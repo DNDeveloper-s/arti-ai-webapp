@@ -161,7 +161,10 @@ export async function regenerateVariantData(dispatch: (a: EditVariantAction) => 
 		}
 		return response.data.ok;
 	} catch (error: any) {
-		return error;
+		return {
+			ok: false,
+			error: error as AxiosError
+		};
 	}
 }
 

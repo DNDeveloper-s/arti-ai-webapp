@@ -40,9 +40,10 @@ interface RegenerateMap {
 export interface EditFacebookAdVariantProps extends FacebookAdVariantProps {
 	showConfirmModal: boolean;
 	setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
+	handleSaveVariant: () => void;
 }
 
-export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfirmModal, setShowConfirmModal, mock = new Mock(), adVariant, noExpand, className, handleEditVariantClose, ...props}) => {
+export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfirmModal, setShowConfirmModal, mock = new Mock(), adVariant, noExpand, className, handleEditVariantClose, handleSaveVariant, ...props}) => {
 	const [expand, setExpand] = useState<boolean>(false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
@@ -84,6 +85,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 			? <Image key={editVariantState?.variant?.imageUrl ?? imageUrl} width={600} height={100} className="mb-[0.5em] w-full" src={editVariantState?.variant?.imageUrl ?? imageUrl ?? dummyImage} alt="Ad Image" />
 			: lottieAnimationJSX;
 
+	console.log('editVariantState - ', editVariantState.variant);
 
 	async function handleEdit(cs: CONTROL_STATE, key: REGENERATE_SECTION) {
 		setRegenerateMap(c => ({...c, selected: key as REGENERATE_SECTION}));
@@ -219,11 +221,11 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 					<CTAButton className={'py-1 px-3 rounded text-xs'} onClick={() => setShowPreview(true)}>
 						<span>Preview</span>
 					</CTAButton>
-					<CTAButton className={'py-1 px-3 rounded text-xs'} onClick={handleEditVariantClose}>
+					<CTAButton className={'py-1 px-3 rounded text-xs'} onClick={handleSaveVariant}>
 						<span>Save</span>
 					</CTAButton>
 					<div className='text-xs cursor-pointer' onClick={handleEditVariantClose}>
-						<span>Close</span>
+						<span>Cancel</span>
 					</div>
 				</div>
 			</div>

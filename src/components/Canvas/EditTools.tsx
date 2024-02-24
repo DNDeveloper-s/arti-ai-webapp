@@ -357,6 +357,7 @@ export const LayerTools: FC<LayerToolProps> = ({selected, ...props}) => {
 interface EditToolsProps {
     handleChange: (tool: Tool) => void;
     handleFormatChange: (props: ColorToolProps) => void;
+    handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     LayerProps: LayersProps;
 }
 
@@ -381,6 +382,7 @@ const EditTools: FC<EditToolsProps> = (props) => {
     }
 
     const layerTool = tools.find(c => c.id === 'layer');
+    const uploadTool = tools.find(c => c.id === 'upload');
 
     return (
       <div className='relative bg-white rounded py-2 px-1'>
@@ -388,7 +390,7 @@ const EditTools: FC<EditToolsProps> = (props) => {
                 <h1>Edit Tools</h1>
             </div> */}
           <div className='flex flex-col items-center space-y-4 text-black'>
-              {tools.filter(c => !['fill', 'stroke', 'layer'].includes(c.id)).map((tool: Tool) => {
+              {tools.filter(c => !['fill', 'stroke', 'layer', 'upload'].includes(c.id)).map((tool: Tool) => {
 
                   if(tool.id === 'shapes') {
                       return <ShapeTool key={'shape'} handleToolClick={handleToolClick} selected={shapeTools.map(c => c.id).includes(selected.id)} />
@@ -400,6 +402,12 @@ const EditTools: FC<EditToolsProps> = (props) => {
                     </div>
                   )
               })}
+              {uploadTool && <div className={'flex text-3xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all'}>
+                <label className={'cursor-pointer'} htmlFor="file-url">
+					<input onChange={props.handleImageChange} name={'file-url'} id={'file-url'} type="file" hidden/>
+					{uploadTool.icon}
+				</label>
+              </div>}
               {layerTool && <LayerTools {...props.LayerProps} tool={layerTool} selected={selected.id === layerTool.id}
                            setSelected={setSelected}/>}
               {/*<div className='h-[2px] bg-gray-200 w-full' />*/}

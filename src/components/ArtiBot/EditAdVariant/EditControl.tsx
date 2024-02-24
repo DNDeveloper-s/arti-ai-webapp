@@ -1,11 +1,12 @@
 import Loader from '@/components/Loader';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import { RiAiGenerate, RiEditFill, RiRefreshLine } from 'react-icons/ri';
 import GeneratedSuggestions from './GeneratedSuggestions';
 import { regenerateVariantData, updateVariant, useEditVariant } from '@/context/EditVariantContext';
-import { FaUpload } from 'react-icons/fa6';
+import { FaDownload, FaUpload } from 'react-icons/fa6';
 import { IoMdClose } from 'react-icons/io';
 import { REGENERATE_SECTION } from './EditAdVariant';
+import { SnackbarContext } from '@/context/SnackbarContext';
 
 interface EditControlBaseProps {
     controlKey: REGENERATE_SECTION;
@@ -59,6 +60,7 @@ const EditControl: FC<EditControlProps> = (props) => {
     const [formValue, setFormValue] = useState<string>(props.content ?? '');
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [suggestions, setSuggestions] = useState(null);
+	const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
     const onChange = (value: string) => {
         setFormValue(value);
@@ -82,6 +84,12 @@ const EditControl: FC<EditControlProps> = (props) => {
         // }
 
         const _suggestions = await regenerateVariantData(dispatch, state.variant?.id, props.controlKey, extraInput);
+
+        if(typeof _suggestions !== 'string' && _suggestions?.error) {
+            setLoading(false);
+            setSnackBarData({message: 'Failed to regenerate image. Please try again!', status: 'error'});
+            return;
+        }
 
         if(props.type === 'image') {
             const newVariant = {...state.variant};
@@ -168,6 +176,14 @@ const EditControl: FC<EditControlProps> = (props) => {
         props.handleClose && props.handleClose();
     }
 
+    function handleDownload() {
+        if(!state.variant) return;
+        const a = document.createElement('a');
+        a.href = state.variant.imageUrl;
+        a.download = 'ad-variant-image.png';
+        a.click();
+    }
+
     function handleChangeImage(e: any) {
         const image = e.target.files[0];
         if(image) {
@@ -194,6 +210,10 @@ const EditControl: FC<EditControlProps> = (props) => {
                             <RiAiGenerate className="text-[1.25em]" />
                             <span className={"text-[0.95em]"}>Regenerate</span>
                         </div>
+                        {state.variant?.imageUrl && props.type === 'image' && <a target='_blank' href={state.variant?.imageUrl} download={`${state.variant?.id}-image.png`} className='group-hover/edit-control:opacity-100 opacity-0 transition-all flex items-center gap-2 py-1 px-4 border-2 border-white rounded-lg hover:border-primary hover:text-primary '>
+                            <FaDownload className="text-[1.25em]" />
+                            <span className={"text-[0.95em]"}>Download</span>
+                        </a>}
                     </div> : <>
                         <Loader className={'w-3 h-3'} />
                         <span className={"text-[1em]"}>Generating</span>

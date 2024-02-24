@@ -1195,18 +1195,22 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 	}, [selectionElements, elementRects]);
 
 	function renderElement(ctx: CanvasRenderingContext2D, roughCanvas: RoughCanvas, element: Element) {
-		const {x1, y1, x2, y2, type, id, roughOptions} = element;
+		const {x1, y1, x2, y2, type, id, roughOptions, customOptions} = element;
 		const canvasEl = canvasRef.current;
 		if(!canvasEl) return;
-		if(type === 'text' && ctx && element.customOptions) {
+		if(type === 'text' && ctx && customOptions) {
 			ctx.textBaseline = 'top';
-			ctx.font = (element.customOptions.font ?? '24px Arial');
-			const lines = wrapText(ctx, element.customOptions.text, x1, y1, element.customOptions.width ?? 100, +(element.customOptions.fontSize ?? 24) + 4);
+			ctx.font = (customOptions.font ?? '24px Arial');
+			const lines = wrapText(ctx, customOptions?.text, x1, y1, customOptions?.width ?? 100, +(customOptions?.fontSize ?? 24) + 4);
 
 			lines.forEach(([line, x, y], i) => {
-				ctx.fillStyle = element.customOptions.fillStyle ?? 'black';
+				ctx.fillStyle = customOptions.fillStyle ?? 'black';
 				ctx.fillText(line, x, y);
 			});
+		} else if(type === 'image' && customOptions) {
+			const img = new Image();
+			img.src = customOptions.src;
+			ctx?.drawImage(img, x1, y1, x2 - x1, y2 - y1);
 		} else {
 			const parsedRough = parseRoughState({ x1, y1, x2, y2, type }, roughOptions);
 			parsedRough && roughCanvas.draw(parsedRough);
@@ -1404,7 +1408,7 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
         </div>}
 			</div>
 			<div className='absolute left-[calc(100%+10px)] top-1/2 transform -translate-y-1/2 z-20'>
-				<EditTools LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />
+				<EditTools handleImageChange={handleImageChange} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />
 			</div>
 			<div className='flex justify-end px-4 items-center gap-3 mt-3' onClick={() => {}}>
 				<button onClick={exportCanvas} className="bg-primary text-white text-xs px-4 py-1.5 leading-[16px] rounded cursor-pointer">Save</button>
