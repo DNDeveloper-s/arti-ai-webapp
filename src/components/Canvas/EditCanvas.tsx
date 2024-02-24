@@ -1321,10 +1321,10 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 
 		if(imageUrl) {
 			const img = new Image();
-			img.src = imageUrl;
+			// img.src = imageUrl;
 
 			img.setAttribute('crossorigin', 'anonymous');
-			// img.src = 'http://localhost:3000/assets/images/carousel-images/1.png';
+			img.src = 'http://localhost:3000/assets/images/carousel-images/1.png';
 
 			img.onload = () => {
 				ctx?.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
