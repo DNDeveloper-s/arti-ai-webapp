@@ -863,6 +863,31 @@ async function saveAdCreativeMessage(dispatch: (a: ConversationAction) => void, 
 	}
 }
 
+async function updateVariantToDB(dispatch: (a: ConversationAction) => void, variant: IAdVariant) {
+	try {
+		const response = await axios.patch(ROUTES.VARIANT.UPDATE(variant.id), {
+			text: variant.text,
+			imageUrl: variant.imageUrl,
+			imageMap: variant.imageMap
+		}, {
+			headers: {
+				'Authorization': 'Bearer ' + localStorage.getItem('token')
+			}
+		});
+		if(response?.data?.ok) {
+			dispatch({
+				type: CONVERSATION_ACTION_TYPE.UPDATE_VARIANT,
+				payload: variant
+			});
+			return true;
+		}
+		return false;
+	} catch(e) {
+		console.log('e - ', e);
+		return false;
+	}
+}
+
 function clearError(dispatch: (a: ConversationAction) => void) {
 	dispatch({
 		type: CONVERSATION_ACTION_TYPE.CLEAR_ERROR,
@@ -884,5 +909,6 @@ export {
 	saveMessages,
 	clearError,
 	saveAdCreativeMessage,
+	updateVariantToDB,
 	ConversationContextProvider
 };

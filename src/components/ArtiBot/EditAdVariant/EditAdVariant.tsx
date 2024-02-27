@@ -62,6 +62,26 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NEUTRAL : REACTION.DISLIKED);
 	}
 
+	useEffect(() => {
+		if(editVariantState.variant) {
+			const newVariant = {...editVariantState.variant};
+
+			if(!newVariant.imageMap) {
+				newVariant.imageMap = {
+					main: newVariant.imageUrl,
+					versionInfo: {
+						totalVersions: 0,
+						list: []
+					},
+					versions: {},
+					generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
+				};
+
+				updateVariant(editDispatch, newVariant);
+			}
+		}
+	}, [editVariantState.variant, editDispatch]);
+
 	const [imageUrl, setImageUrl] = useState<string | null>(mock.is ? null : adVariant.imageUrl);
 
 	useEffect(() => {
@@ -89,15 +109,6 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 
 	async function handleEdit(cs: CONTROL_STATE, key: REGENERATE_SECTION) {
 		setRegenerateMap(c => ({...c, selected: key as REGENERATE_SECTION}));
-		if(cs === CONTROL_STATE.GENERATE) {
-			// setLoading(true);
-			// setShowSuggestions(false);
-
-			// await wait(2000);
-
-			// setLoading(false);
-			// setShowSuggestions(true);
-		}
 
 		if(cs === CONTROL_STATE.EDIT && key === REGENERATE_SECTION.IMAGE) {
 			setIsEdittingImage(true);
@@ -124,38 +135,46 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		if(!newVariant.imageMap) {
 			newVariant.imageMap = {
 				main: newVariant.imageUrl,
-				versionInfo: {
-					totalVersions: 0,
-					list: []
-				},
-				versions: {},
-				generatedImages: []
+				generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}],
 			};
 		}
 
-		const versions = {
-			...(newVariant.imageMap.versions ?? {}),
-			[`v${(newVariant.imageMap.versionInfo.totalVersions ?? 1)}`]: newVariant.imageMap.versions.latest,
-			latest: {
-				image: url,
-				timestamp: new Date().toISOString()
-			}
-		}
-		const versionInfo = {
-			totalVersions: (newVariant.imageMap.versionInfo.totalVersions ?? 0) + 1,
-			list: Object.keys(versions)
-		}
+		// const versions = {
+		// 	...(newVariant.imageMap.versions ?? {}),
+		// 	[`v${(newVariant.imageMap.versionInfo.totalVersions ?? 1)}`]: newVariant.imageMap.versions.latest,
+		// 	latest: {
+		// 		image: url,
+		// 		timestamp: new Date().toISOString()
+		// 	}
+		// }
+		// const versionInfo = {
+		// 	totalVersions: (newVariant.imageMap.versionInfo.totalVersions ?? 0) + 1,
+		// 	list: Object.keys(versions)
+		// }
 
-        newVariant.imageUrl = url;
-		newVariant.imageMap.versionInfo = versionInfo;
-		newVariant.imageMap.versions = versions;
+    newVariant.imageUrl = url;
+		newVariant.imageMap.generatedImages = [
+			...newVariant.imageMap.generatedImages,
+			{url, timestamp: new Date().toISOString()}
+		];
 		newVariant.imageMap.canvasState = state;
-
-        updateVariant(editDispatch, newVariant);
+    updateVariant(editDispatch, newVariant);
 		handleClose();
 	}
 
-	const imageUrlToEdit = editVariantState?.variant?.imageMap?.main ?? editVariantState?.variant?.imageUrl ?? imageUrl;
+	function handleBgImageAdd(url: string) {
+    // if(!editVariantState.variant) return;
+    // const newVariant = {...editVariantState.variant};
+		// newVariant.imageMap.generatedImages = [
+		// 	...newVariant.imageMap.generatedImages,
+		// 	{url, timestamp: new Date().toISOString()}
+		// ];
+		// updateVariant(editDispatch, newVariant);
+	}
+
+	const imageUrlToEdit = editVariantState?.variant?.imageMap?.main ?? editVariantState?.variant?.imageUrl ?? imageUrl ?? adVariant.imageUrl;
+
+	const bgImages: string[] = [...(editVariantState?.variant?.imageMap?.generatedImages ?? []).map(g => g.url).filter(c => c !== null)];
 
 	return (
 		<>
@@ -194,7 +213,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 				{isEdittingImage ? (
 					<>
 						<div className='w-full'>
-							<EditCanvas canvasState={editVariantState.variant?.imageMap?.canvasState} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
+							<EditCanvas handleBgImageAdd={handleBgImageAdd} bgImages={bgImages} canvasState={editVariantState.variant?.imageMap?.canvasState} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
 						</div>
 					</>
 				) : <EditControl type={'image'} handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'text-[1.6em] ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleEdit={handleEdit}>

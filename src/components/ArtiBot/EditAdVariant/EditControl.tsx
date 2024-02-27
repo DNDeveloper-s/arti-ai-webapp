@@ -102,12 +102,13 @@ const EditControl: FC<EditControlProps> = (props) => {
                         list: []
                     },
                     versions: {},
-                    generatedImages: []
+                    generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
                 };
             }
 
+            if(newVariant.imageMap.generatedImages.length === 0) newVariant.imageMap.generatedImages = [{url: newVariant.imageMap.main, timestamp: new Date().toISOString()}]
             newVariant.imageMap.generatedImages = [...(newVariant.imageMap.generatedImages ?? []), {url: _suggestions, timestamp: new Date().toISOString()}];
-            return updateVariant(dispatch, newVariant);
+            updateVariant(dispatch, newVariant);
         }
 
         setLoading(false);
@@ -138,7 +139,7 @@ const EditControl: FC<EditControlProps> = (props) => {
 					list: []
 				},
 				versions: {},
-				generatedImages: []
+				generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
 			};
 		}
 
@@ -195,6 +196,8 @@ const EditControl: FC<EditControlProps> = (props) => {
     async function handleCustomizeRegeneration(extraInput?: string | null) {
         handleClick(CONTROL_STATE.GENERATE, extraInput);
     }
+	
+    const bgImages: string[] = state.variant ? [...(state?.variant?.imageMap?.generatedImages ?? []).map(g => g.url).filter(c => c !== null)] : [];
 
     return (
         <>
@@ -246,7 +249,7 @@ const EditControl: FC<EditControlProps> = (props) => {
                     </div>
                 </>}
             </div>
-            {showSuggestions && state.variant && <GeneratedSuggestions type={props.type} list={props.type === 'image' && state.regeneratedImages ? [...(state.regeneratedImages[state.variant?.id] ?? []), ] : suggestions} controlKey={props.controlKey} handleClose={handleCloseSuggestions} handleSave={handleSave} handleCustomizeRegeneration={handleCustomizeRegeneration} />}
+            {showSuggestions && state.variant && <GeneratedSuggestions type={props.type} list={props.type === 'image' ? bgImages : suggestions} controlKey={props.controlKey} handleClose={handleCloseSuggestions} handleSave={handleSave} handleCustomizeRegeneration={handleCustomizeRegeneration} />}
         </>
     )
 }

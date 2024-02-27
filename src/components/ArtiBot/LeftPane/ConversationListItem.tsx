@@ -37,19 +37,30 @@ interface CardStackImagesProps {
 	images: ImageType[];
 }
 export const CardStackImages: FC<CardStackImagesProps> = ({images: _images}) => {
-	const [images, setImages] = useState<ImageType[]>([_images[0], _images[1]]);
+	const [images, setImages] = useState<(ImageType | null)[]>([null, null]);
+	const [s, setS] = useState('');
 
 	function loadImage(image: ImageType, index: number) {
 		const img = new Image();
 		img.src = image as string;
 
+		img.onerror = () => {
+			setS('e ' + img.src);
+			setImages(c => {
+				c[index] = null;
+				return c;
+			});
+		}
+
 		img.onload = () => {
+			setS('s');
+			console.log('Loading Image - ', img.src);
 			setImages(c => {
 				c[index] = image;
 				return c;
 			});
 		}
-	}
+	} 
 
 	useEffect(() => {
 		loadImage(_images[0], 0);
@@ -57,19 +68,22 @@ export const CardStackImages: FC<CardStackImagesProps> = ({images: _images}) => 
 	}, [_images])
 
 	return (
-		<div className={'w-8 h-8 rounded relative flex-shrink-0'}>
-			{images[1] ? <div
-				className={'absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-600'}>
-				<Image1 width={100} height={100} className={'w-full h-full object-cover rounded'} src={images[1]} alt={'Carousel Image'}/>
-			</div> : <div className={'absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-700'}>
-				<NoImage />
-			</div>}
-			{images[0] ? <div className={'absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-100'}>
-				<Image1 width={100} height={100} className={'w-full h-full object-cover rounded'} src={images[0]} alt={'Carousel Image'}/>
-			</div> : <div className={'absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-700'}>
-				<NoImage />
-			</div>}
-		</div>
+		<>
+			<div className={'w-8 h-8 rounded relative flex-shrink-0'}>
+				{images[1] ? <div
+					className={'absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-600'}>
+					<Image1 width={100} height={100} className={'w-full h-full object-cover rounded'} src={images[1]} alt={'Carousel Image'}/>
+				</div> : <div className={'absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-700'}>
+					<NoImage />
+				</div>}
+				{images[0] ? <div className={'absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-100'}>
+					<Image1 width={100} height={100} className={'w-full h-full object-cover rounded'} src={images[0]} alt={'Carousel Image'}/>
+				</div> : <div className={'absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-700'}>
+					<NoImage />
+				</div>}
+			</div>
+			<span className='text-white'>{s}</span>
+		</>
 	)
 }
 
@@ -85,6 +99,8 @@ const ConversationListItem: FC<ConversationListItemProps> = ({conversationId, ..
 
 	useEffect(() => {
 		const list = getLastAdCreativeByConversationId(conversationId);
+		console.log('variantImages - ', list);
+		if(!list) return setImages([]);
 		const variantImages = list.variants.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map(v => v.imageUrl);
 		setImages(variantImages);
 	}, [getLastAdCreativeByConversationId, conversationId]);

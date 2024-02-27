@@ -72,11 +72,11 @@ type VersionKey = 'latest' | `v${number}` | string;
 export interface IAdVariantImageMap {
 	main: string;
 	canvasState?: string;
-	versionInfo: {
+	versionInfo?: {
 		totalVersions: number;
 		list: VersionKey[];
 	}
-	versions: Record<VersionKey,  {
+	versions?: Record<VersionKey,  {
 		image: string;
 		timestamp: string;
 	}>,

@@ -26,7 +26,7 @@ export default function useAdCreatives() {
 		sortedKeys = Object.keys(adVariantsByConversationId).sort((a, b) => {
 			if(!adVariantsByConversationId || !adVariantsByConversationId[a] || !adVariantsByConversationId[b]) return 0;
 			if(!adVariantsByConversationId[a].updatedAt) return 1;
-			if(!adVariantsByConversationId[b].updatedAt) return -1;
+			if(!adVariantsByConversationId[b].updatedAt) return -1; 
 			if((adVariantsByConversationId[a].updatedAt ?? 0) > (adVariantsByConversationId[b].updatedAt ?? 0)) return -1;
 			if((adVariantsByConversationId[a].updatedAt ?? 0) < (adVariantsByConversationId[b].updatedAt ?? 0)) return 1;
 			return 0;
@@ -34,7 +34,7 @@ export default function useAdCreatives() {
 	}
 
     const getLastAdCreativeByConversationId = useCallback((conversationId: string) => {
-        return adVariantsByConversationId[conversationId]?.list?.reduce((acc: IAdCreative, current) => {
+        const val =  adVariantsByConversationId[conversationId]?.list?.reduce((acc: IAdCreative, current) => {
             if(!acc.updatedAt || current.updatedAt > acc.updatedAt) {
                 acc = {
                     ...current,
@@ -47,7 +47,8 @@ export default function useAdCreatives() {
                 }
             }
             return acc;
-        }, {} as IAdCreative) ?? null;
+        }, {} as IAdCreative);
+				return val;
     }, [adVariantsByConversationId]);
 
     return {adVariantsByConversationId, sortedConversationIds: sortedKeys, getLastAdCreativeByConversationId};

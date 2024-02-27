@@ -3,6 +3,7 @@ import { REGENERATE_SECTION } from "@/components/ArtiBot/EditAdVariant/EditAdVar
 export const apiConfig = {
 	baseUrl: process.env.NODE_ENV === 'production' ? 'https://api.artiai.org' : 'http://localhost:8081',
 	// baseUrl: 'https://api.artiai.org',
+	// baseUrl: 'http://localhost:8081',
 	version: '/v1'
 }
 
@@ -32,6 +33,7 @@ const pickValidKeys = (obj: object): Record<string, string> => {
 export const ROUTES = {
 	UTIL: {
 		TEXT_TO_IMAGE: apiUrl('/utils/text-to-image'),
+		UPLOAD_IMAGE: apiUrl('/utils/image/upload'),
 	},
 	CONVERSATION: {
 		CREATE: (id: string) => apiUrl(`/conversations/${id}`),
@@ -54,6 +56,7 @@ export const ROUTES = {
 		DECODE: apiUrl('/tokens/decode'),
 	},
 	VARIANT: {
+		UPDATE: (variantId: string) => apiUrl(`/variants/${variantId}/keys`),
 		UPDATE_IMAGE: (variantId: string) => apiUrl(`/variants/${variantId}/image`),
 		REGENERATE_DATA: (variantId: string, key: REGENERATE_SECTION, extraInput?: string | null) => apiUrl(`/variants/regenerate/${variantId}/${key}`, new URLSearchParams(pickValidKeys({extraInput})))
 	},

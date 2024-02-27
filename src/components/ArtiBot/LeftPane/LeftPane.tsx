@@ -58,7 +58,7 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
                   <h3>Conversations</h3>
                 </div>
                 <div className='mt-2'>
-                  {conversations && sortedConversationIds.map((conversationId) => <ConversationListItem key={conversationId} conversationId={conversationId} />)}
+                  {conversations && conversations.map((conversation) => <ConversationListItem key={conversation.id} conversationId={conversation.id} />)}
                 </div>
               </div>
               <hr className='border-gray-700' />

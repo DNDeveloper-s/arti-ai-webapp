@@ -1,7 +1,7 @@
 'use client';
 
 import { useClickAway } from '@/hooks/useClickAway';
-import React, { FC, ReactNode, useEffect, useRef, useState } from 'react';
+import React, {FC, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import { IconType } from 'react-icons';
 import { BsBorderWidth, BsFonts } from 'react-icons/bs';
 import {IoColorPaletteOutline, IoLayers} from 'react-icons/io5';
@@ -12,8 +12,13 @@ import { RiFontSize, RiShapeFill } from 'react-icons/ri';
 import { TbOvalVertical } from 'react-icons/tb';
 import { SketchPicker } from 'react-color'
 import fetchFonts from '@/helpers/fonts';
-import {FaBold, FaItalic} from 'react-icons/fa6';
+import {FaBold, FaItalic, FaRegImage} from 'react-icons/fa6';
 import Layers, {LayersProps} from './Layers';
+import Select from 'react-select';
+import LiveSelect, { LiveSelectOption } from '../shared/renderers/LiveSelect';
+import { ElementType } from './EditCanvas';
+import { BiUpload } from 'react-icons/bi';
+import { IoMdImages } from 'react-icons/io';
 
 export interface Tool {
     id: string;
@@ -27,7 +32,7 @@ const tools = [
     {id: 'selection', name: 'Selection', icon: <PiSelectionPlusLight /> },
     {id: 'shapes', name: 'Shapes', icon: <RiShapeFill /> },
     {id: 'text', name: 'Font', icon: <BsFonts /> },
-    {id: 'upload', name: 'Upload Image', icon: <LuUpload /> },
+    {id: 'upload', name: 'Upload Image', icon: <IoMdImages /> },
     {id: 'fill', name: 'Fill Color', icon: <MdOutlineFormatColorFill /> },
     {id: 'stroke', name: 'Stroke Color', icon: <IoColorPaletteOutline /> },
     {id: 'layer', name: 'Layer', icon: <IoLayers /> },
@@ -39,6 +44,11 @@ const shapeTools = [
     {id: 'circle', name: 'Circle', icon: <PiCircle /> },
     {id: 'line', name: 'Line', icon: <PiLineSegment /> },
     {id: 'ellipse', name: 'Ellipse', icon: <TbOvalVertical />}
+]
+
+const uploadImageOptions = [
+    {id: 'image', name: 'Image', icon: <BiUpload /> },
+    {id: 'bg-image', name: 'Background Image', icon: <BiUpload /> }
 ]
 
 interface ColorPickerToolProps {
@@ -77,10 +87,10 @@ const ColorPickerTool:FC<ColorPickerToolProps> = ({disabled, selected, handleCli
 
     return (
       <div style={{opacity: disabled ? 0.2 : 1}} ref={ref} className='relative'>
-          <div style={{color: color, fill: color, stroke: color, cursor: disabled ? 'not-allowed' : 'pointer'}} onClick={handleToggle} className={'flex text-xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected ? ' !bg-gray-200' : '')}>
+          <div style={{color: color, fill: color, stroke: color, cursor: disabled ? 'not-allowed' : 'pointer'}} onClick={handleToggle} className={'flex text-xl justify-center items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected ? ' !bg-gray-200' : '')}>
               {tool.icon}
           </div>
-          {showOptions && <div className={'absolute left-[calc(100%+15px)] top-0 rounded'}>
+          {showOptions && <div className={'absolute right-0 top-[105%] rounded'}>
               <SketchPicker onChangeComplete={(obj: any) => {onChange(obj.hex, true)}} color={color} onChange={(obj: any) => onChange(obj.hex)} />
           </div>}
       </div>
@@ -115,10 +125,10 @@ const ShapeTool:FC<ShapeToolProps> = ({selected, handleToolClick}) => {
 
     return (
       <div ref={ref} className='relative'>
-          <div onClick={handleToggle} className={'flex text-3xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected ? ' !bg-gray-200' : '')}>
+          <div onClick={handleToggle} className={'flex justify-center text-3xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected ? ' !bg-gray-200' : '')}>
               {selectedShape.icon}
           </div>
-          {showOptions && <div className={'absolute left-[calc(100%+15px)] bg-gray-200 top-0 grid grid-cols-[30px_30px] gap-2 p-2 rounded text-2xl'}>
+          {showOptions && <div className={'absolute left-[calc(100%+15px)] z-30 bg-gray-200 top-0 grid grid-cols-[30px_30px] gap-2 p-2 rounded text-2xl'}>
               {shapeTools.map(shapeTool => (
                 <div key={shapeTool.id} onClick={() => onChange(shapeTool)} className={'p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selectedShape.id === shapeTool.id ? ' !bg-gray-200' : '')}>
                     {shapeTool.icon}
@@ -129,7 +139,52 @@ const ShapeTool:FC<ShapeToolProps> = ({selected, handleToolClick}) => {
     )
 }
 
+interface ImageToolProps {
+    tool: Tool;
+    handleImageChange: (type: 'image' | 'bg-image', e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+const ImageTool:FC<ImageToolProps> = ({tool, handleImageChange}) => {
+    const [showOptions, setShowOptions] = useState(false);
+
+    const ref = useRef(null);
+
+    const handleClickOutside = () => {
+        setShowOptions(false);
+    }
+
+    useClickAway(ref, handleClickOutside);
+
+    function handleToggle() {
+        setShowOptions(c => !c);
+    }
+
+    return (
+      <div ref={ref} className='relative'>
+          <div onClick={handleToggle} className={'flex justify-center text-3xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (showOptions ? ' !bg-gray-200' : '')}>
+              {tool.icon}
+          </div>
+          {showOptions && <div className={'absolute right-0 bg-gray-200 top-[105%] flex flex-col w-auto whitespace-nowrap z-30 rounded text-xs'}>
+              {uploadImageOptions.map(uploadTool => (
+                <div key={uploadTool.id} className={'px-3 py-2 cursor-pointer hover:bg-gray-100 rounded transition-all'}>
+                    <label className={'cursor-pointer flex items-center justify-start w-full gap-2'} htmlFor={uploadTool.id}>
+                        <input onChange={(e) => {
+                            handleImageChange(uploadTool.id, e);
+                            handleClickOutside();
+                        }} name={uploadTool.id} id={uploadTool.id} type="file" hidden/>
+                        <div className='text-xl'>
+                            {uploadTool.icon}
+                        </div>
+                        <span>{uploadTool.name}</span>
+                    </label>
+                </div>
+              ))}
+          </div>}
+      </div>
+    )
+}
+
 const sizesAvailable = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48, 52, 56, 60, 64, 72];
+const sizesAvailableOptions = sizesAvailable.map(c => ({value: c, label: c.toString()}));
 const defaultFontDetails = {
     fontSize: 16,
     fontFamily: 'Arial',
@@ -270,8 +325,8 @@ export const FontTools: FC<FontToolsProps> = (props) => {
     }
 
     return (
-      <div className={'flex items-center gap-2 py-1 px-2 bg-gray-100 rounded h-full'}>
-          <div onClick={toggleBold} className={'flex text-base items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (fontDetails.bold ? ' !bg-gray-300' : '')}>
+      <div className={'flex items-center gap-2 bg-gray-100 rounded h-full'}>
+          {/* <div onClick={toggleBold} className={'flex text-base items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (fontDetails.bold ? ' !bg-gray-300' : '')}>
               <FaBold />
           </div>
           <div onClick={toggleItalic} className={'flex text-base items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (fontDetails.italic ? ' !bg-gray-300' : '')}>
@@ -281,18 +336,18 @@ export const FontTools: FC<FontToolsProps> = (props) => {
               {sizesAvailable.map(size => (
                 <option key={size} selected={size.toString() === fontDetails.fontSize.toString()} value={size}>{size}</option>
               ))}
-          </select>
+          </select> */}
           {/*<select onChange={(e) => onChange('lineHeight', e.target.value)} name="" id="">*/}
           {/*    {sizesAvailable.map(size => (*/}
           {/*      <option key={size} selected={size.toString() === fontDetails.fontSize.toString()} value={size}>{size}</option>*/}
           {/*    ))}*/}
           {/*</select>*/}
-          <select onChange={(e) => onChange('fontFamily', e.target.value)} className={'w-[100px] bg-gray-100'} name="" id="">
+          {/* <select onChange={(e) => onChange('fontFamily', e.target.value)} className={'w-[100px] bg-gray-100'} name="" id="">
               {fontFamilies.map(font => (
                 <option key={font} selected={font === fontDetails.fontFamily} value={font}>{font}</option>
               ))}
-          </select>
-          <ColorPickerTool color={fontDetails.fillStyle} disabled={false} selected={selected?.id === 'fill'} tool={tools.find(c => ['fill'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color, completed) => handleColorChange(color, 'fill', completed)} />
+          </select> */}
+          {/* <ColorPickerTool color={fontDetails.fillStyle} disabled={false} selected={selected?.id === 'fill'} tool={tools.find(c => ['fill'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color, completed) => handleColorChange(color, 'fill', completed)} /> */}
       </div>
     )
 }
@@ -312,10 +367,10 @@ export const ShapeTools: FC<ShapeToolsProps> = (props) => {
     }
 
     return (
-      <div className={'flex items-center gap-2 py-1 px-2 bg-gray-100 rounded h-full'}>
-          <ColorPickerTool color={shapeDetails.fill} disabled={false} selected={selected?.id === 'fill'} tool={tools.find(c => ['fill'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color, completed) => handleColorChange(color, 'fill', completed)} />
-          <ColorPickerTool color={shapeDetails.stroke} disabled={false} selected={selected?.id === 'stroke'} tool={tools.find(c => ['stroke'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color, completed) => handleColorChange(color, 'stroke', completed)} />
-      </div>
+        <div className={'flex items-center gap-2 py-1 px-2 bg-gray-100 rounded h-full'}>
+            <ColorPickerTool color={shapeDetails.fill} disabled={false} selected={selected?.id === 'fill'} tool={tools.find(c => ['fill'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color, completed) => handleColorChange(color, 'fill', completed)} />
+            <ColorPickerTool color={shapeDetails.stroke} disabled={false} selected={selected?.id === 'stroke'} tool={tools.find(c => ['stroke'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color, completed) => handleColorChange(color, 'stroke', completed)} />
+        </div>
     )
 }
 
@@ -344,7 +399,7 @@ export const LayerTools: FC<LayerToolProps> = ({selected, ...props}) => {
 
     return (
       <div ref={ref} className='relative'>
-          <div onClick={toggleTool} className={'flex text-3xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected ? ' !bg-gray-200' : '')}>
+          <div onClick={toggleTool} className={'flex text-3xl justify-center items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected ? ' !bg-gray-200' : '')}>
               <IoLayers />
           </div>
           {showOptions && <div className={'absolute left-[calc(100%+15px)] top-0 rounded'}>
@@ -356,13 +411,19 @@ export const LayerTools: FC<LayerToolProps> = ({selected, ...props}) => {
 
 interface EditToolsProps {
     handleChange: (tool: Tool) => void;
-    handleFormatChange: (props: ColorToolProps) => void;
+    handleFormatChange: (props: ColorToolProps, completed?: boolean) => void;
     handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleBgImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     LayerProps: LayersProps;
+    initialFontDetails?: FontFormat;
+    selectedType?: ElementType;
 }
 
-const EditTools: FC<EditToolsProps> = (props) => {
+const EditTools: FC<EditToolsProps> = ({handleFormatChange, ...props}) => {
     const [selected, setSelected] = useState<Tool>(tools[0]);
+    const [fontDetails, setFontDetails] = useState<FontFormat>(props.initialFontDetails ?? defaultFontDetails);
+    const [fontFamilies, setFontFamilies] = useState<LiveSelectOption[]>([]);
+    const fontDetailsRef = useRef<FontFormat>(props.initialFontDetails ?? defaultFontDetails);
     // Upload a new image
     // Selection
     // Text
@@ -377,44 +438,112 @@ const EditTools: FC<EditToolsProps> = (props) => {
         props.handleChange(tool);
     }
 
-    function handleColorChange(color: string, type: ColorFormat['type']) {
-        props.handleFormatChange({color, type});
+    function handleColorChange(color: string, type: ColorFormat['type'], completed?: boolean) {
+        handleFormatChange({color, type}, completed);
     }
+
+    useEffect(() => {
+        fetchFonts()
+          .then(fontsAvailable => setFontFamilies((fontsAvailable as string[] ?? []).map(c => ({value: c, label: c}))));
+    }, [])
+
+    const fontDetailsChangedRef = useRef<string | boolean>(false);
+    const onChange = useCallback((key: keyof FontFormat, value: string | number | boolean, isShallow?: boolean) => {
+        setFontDetails(c => {
+            fontDetailsChangedRef.current = isShallow ? 'shallow' : true;
+            return {...c, [key]: value}
+        });
+    }, [setFontDetails]);
+
+    function toggleBold() {
+        onChange('bold', !fontDetails.bold);
+    }
+
+    function toggleItalic() {
+        onChange('italic', !fontDetails.italic);
+    }
+
 
     const layerTool = tools.find(c => c.id === 'layer');
     const uploadTool = tools.find(c => c.id === 'upload');
 
+    const handleFontFamilyChange = useCallback((key: string, option: LiveSelectOption) => {
+        onChange('fontFamily', option?.value, true);
+    }, [onChange]);
+
+    const handleFontSizeChange = useCallback((key: string, option: LiveSelectOption) => {
+        onChange('fontSize', option?.value, true);
+    }, [onChange]);
+
+    useEffect(() => {
+        if(fontDetailsChangedRef.current) {
+            handleFormatChange(fontDetails, fontDetailsChangedRef.current !== 'shallow');
+            fontDetailsChangedRef.current = false;
+        }
+    }, [fontDetails])
+
+    function handleImageChange(type: string, e: React.ChangeEvent<HTMLInputElement>) {
+        if(type === 'image') props.handleImageChange(e);
+        else if(type === 'bg-image') props.handleBgImageChange(e);
+    }
+
     return (
-      <div className='relative bg-white rounded py-2 px-1'>
+      <div className='relative bg-white rounded py-2 px-2'>
           {/* <div>
                 <h1>Edit Tools</h1>
             </div> */}
-          <div className='flex flex-col items-center space-y-4 text-black'>
-              {tools.filter(c => !['fill', 'stroke', 'layer', 'upload'].includes(c.id)).map((tool: Tool) => {
-
-                  if(tool.id === 'shapes') {
-                      return <ShapeTool key={'shape'} handleToolClick={handleToolClick} selected={shapeTools.map(c => c.id).includes(selected.id)} />
-                  }
-
-                  return (
-                    <div onClick={e => handleToolClick(tool)} key={tool.id} className={'flex text-3xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected.id === tool.id ? ' !bg-gray-200' : '')}>
-                        {tool.icon}
+          <div className='w-[130px] text-black divide-y divide-y-gray-300 flex flex-col gap-2'>
+              <div className='grid grid-cols-2 gap-3 w-full'>
+                <ShapeTool key={'shape'} handleToolClick={handleToolClick} selected={shapeTools.map(c => c.id).includes(selected.id)} />
+                {tools.filter(c => !['fill', 'stroke', 'layer', 'upload', 'shapes'].includes(c.id)).map((tool: Tool) => {
+                    return (
+                        <div onClick={e => handleToolClick(tool)} key={tool.id} className={'flex text-3xl justify-center items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected.id === tool.id ? ' !bg-gray-200' : '')}>
+                            {tool.icon}
+                        </div>
+                    )
+                })}
+                {uploadTool && <ImageTool handleImageChange={handleImageChange} tool={uploadTool} />}
+                {layerTool && <LayerTools {...props.LayerProps} tool={layerTool} selected={selected.id === layerTool.id}
+                                            setSelected={setSelected}/>}
+                <div></div>
+              </div>
+              {props.selectedType === 'text' && <div className='grid grid-cols-2 gap-3 w-full pt-2'>
+                  <div onClick={toggleBold} className={'flex text-xl py-2 justify-center items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (fontDetails.bold ? ' !bg-gray-300' : '')}>
+                      <FaBold />
+                  </div>
+                  <div onClick={toggleItalic} className={'flex text-xl justify-center items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (fontDetails.italic ? ' !bg-gray-300' : '')}>
+                      <FaItalic />
+                  </div>
+                    <div className='relative'>
+                        <LiveSelect
+                            name={'fontSize'}
+                            handleChange={handleFontSizeChange}
+                            options={sizesAvailableOptions}
+                            defaultValue={sizesAvailableOptions.findIndex(c => c.value === fontDetails.fontSize) > -1 ? sizesAvailableOptions.findIndex(c => c.value === fontDetails.fontSize) : 0}
+                        />
                     </div>
-                  )
-              })}
-              {uploadTool && <div className={'flex text-3xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all'}>
-                <label className={'cursor-pointer'} htmlFor="file-url">
-					<input onChange={props.handleImageChange} name={'file-url'} id={'file-url'} type="file" hidden/>
-					{uploadTool.icon}
-				</label>
+                    <ColorPickerTool color={fontDetails.fillStyle} disabled={false} selected={selected?.id === 'fill'} tool={tools.find(c => ['fill'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color, completed) => handleColorChange(color, 'fill', completed)} />
+                    <div className='col-span-2'>
+                        <LiveSelect
+                            name={'fontFamily'}
+                            handleChange={handleFontFamilyChange}
+                            options={fontFamilies}
+                            defaultValue={fontFamilies.findIndex(c => c.value === fontDetails?.fontFamily) > -1 ? fontFamilies.findIndex(c => c.value === fontDetails?.fontFamily) : 0}
+                        />
+                    </div>
+                  {/* <div className='col-span-2 text-sm'>
+                        <Select defaultValue={{value: fontDetails?.fontSize, label: fontDetails?.fontSize.toString()}} options={sizesAvailableOptions} />
+                    </div> */}
               </div>}
-              {layerTool && <LayerTools {...props.LayerProps} tool={layerTool} selected={selected.id === layerTool.id}
-                           setSelected={setSelected}/>}
+              {/* <div className={'col-span-3 flex text-sm justify-center items-center cursor-pointer hover:bg-gray-100 rounded transition-all'}>
+                    <LiveSelect handleFocusOption={handleFocusOption} handleChange={(option) => onChange('fontSize', option.value)} options={sizesAvailableOptions} />
+                </div> */}
               {/*<div className='h-[2px] bg-gray-200 w-full' />*/}
               {/*<FontOptionsTool selected={selected.id === 'text'} handleFontChange={(fontDetails: FontFormat) => props.handleFormatChange(fontDetails)} />*/}
               {/*<ColorPickerTool disabled={false} selected={selected.id === 'fill'} tool={tools.find(c => ['fill'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color) => handleColorChange(color, 'fill')} />*/}
               {/*<ColorPickerTool disabled={false} selected={selected.id === 'stroke'} tool={tools.find(c => ['stroke'].includes(c.id))!} handleClick={(tool: Tool) => {setSelected(tool)}} handleColorChange={(color) => handleColorChange(color, 'stroke')} />*/}
           </div>
+          
       </div>
     )
 }

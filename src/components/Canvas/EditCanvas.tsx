@@ -4,9 +4,13 @@ import rough from 'roughjs';
 import React, {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import { Drawable, Options } from 'roughjs/bin/core';
 import { RoughCanvas } from 'roughjs/bin/canvas';
-import EditTools, {FontTools, ShapeTools, Tool} from './EditTools';
+import EditTools, {FontFormat, FontTools, ShapeTools, Tool} from './EditTools';
 import Image1 from 'next/image';
 import { carouselImage1 } from '@/assets/images/carousel-images';
+import { RxCaretLeft, RxCaretRight } from 'react-icons/rx';
+import SwipeableViews from 'react-swipeable-views';
+import Loader from '../Loader';
+import uploadImage from '@/services/uploadImage';
 
 const generator = rough.generator({options: {roughness: 0}});
 
@@ -93,7 +97,7 @@ interface SelectionNonLineElement extends Coords {
 
 type SelectionElement = SelectionLineElement | SelectionNonLineElement;
 
-type ElementType =  'selection' | 'line' | 'rectangle' | 'ellipse' | 'circle' | 'text' | 'image';
+export type ElementType =  'selection' | 'line' | 'rectangle' | 'ellipse' | 'circle' | 'text' | 'image';
 
 interface ElementDetails {
 	name?: string;
@@ -652,21 +656,30 @@ const useHistory = (initialState: any) => {
 	const [history, setHistory] = useState<any>([initialState]);
 
 	const setState = (action: any, overwrite = false, updateLastIndex = false) => {
+		let callParent = 0;
 		setHistory((prevHistory: any) => {
 			const newState = typeof action === 'function' ? action(prevHistory[index]) : action;
+			if(!newState) return prevHistory;
 			if(overwrite) {
 				const historyCopy = [...prevHistory];
 				const ind = updateLastIndex ? prevHistory.length - 1 : index;
 				historyCopy[ind] = newState;
+				callParent += 1;
 				return historyCopy;
 			} else {
 				const updatedHistory = [...prevHistory].slice(0, index + 1);
-				return ([...updatedHistory, newState])
+				const newHistory = [...updatedHistory, newState];
+				if(callParent === 0) {
+					setIndex(prev => {
+						const newPrev = prev + 1;
+						if(newHistory[newPrev] === undefined) return prev;
+						return newPrev;
+					});
+				}
+				callParent += 1;
+				return newHistory
 			}
 		})
-		if(!overwrite) {
-			setIndex(prev => prev + 1);
-		}
 	}
 
 	const undo = useCallback(() => {
@@ -813,10 +826,11 @@ function getElementCoordinatedWithElementRect(rectCoords: Coords, type: ElementT
 }
 
 
-export default function EditCanvas({canvasState, imageUrl, handleExport, handleClose}: {canvasState?: string, imageUrl: string | null, handleClose: () => void, handleExport: (url: string, state: string) => void}) {
+export default function EditCanvas({canvasState, bgImages: _bgImages = [], imageUrl, handleExport, handleClose, handleBgImageAdd}: {handleBgImageAdd(url: string), bgImages?: string[], canvasState?: string, imageUrl: string | null, handleClose: () => void, handleExport: (url: string, state: string) => void}) {
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const drawCanvasRef = useRef<HTMLCanvasElement>(null);
+	const [bgImages, setBgImages] = useState<string[]>(_bgImages);
 
 	const [elements, setElements, undo, redo] = useHistory(canvasState ? JSON.parse(canvasState) : []);
 	const [action, setAction] = useState<Action>(Action.NONE);
@@ -828,6 +842,7 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 	const {canvasX: canvasX1, canvasY: canvasY1} = useMousePos(canvasRef);
 	const [selectionElements, setSelectionElements] = useState<Element[]>([]);
 	const [elementRects, setElementRects] = useState<SelectedRect[]>([]);
+	const [activeTab, setActiveTab] = useState(0);
 
 	// const [selectionCanvasElement, setSelectionCanvasElement] = useState<SelectionElement | null>(null);
 
@@ -1234,19 +1249,11 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 		// img.src = "https://srs-billing-storage.s3.ap-south-1.amazonaws.com/657bbdcc93585b232efbbdbb_1702608351110.png"
 		// ctx?.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
 
-		elements?.sort((a: Element, b: Element) => a.order - b.order).forEach((element: Element) => renderElement(ctx, roughCanvas, element));
+		elements?.sort((a: Element, b: Element) => a.order - b.order).forEach((element: Element) => {
+			if(action === Action.WRITE && selectedElement?.id === element.id) return;
+			renderElement(ctx, roughCanvas, element);
+		});
 	}, [elements, selectedElement, action]);
-
-	// useEffect(() => {
-	// 	if(!selectedElements) return setElementRects([]);
-	// 	const _elementRects = selectedElements.filter(({x1, x2, y1, y2}) => x1 !== x2 || y1 !== y2).map(selectedElement => {
-	// 		const {x1, y1, x2, y2} = selectedElement;
-	// 		return {
-	// 			coords: {x1: x1 - 4, y1: y1 - 4, x2: x2 + 4, y2: y2 + 4}
-	// 		}
-	// 	})
-	// 	setElementRects(_elementRects);
-	// }, [selectedElement, selectedElements]);
 
 	function handleBlur(e: any) {
 		selectedElement && updateElement(selectedElement.id, selectedElement.x1, selectedElement.y1, selectedElement.x2, selectedElement.y2, 'text', {...selectedElement.customOptions, text: e.target.value});
@@ -1260,7 +1267,7 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 		}
 	}
 
-	function handleFormatChange(props: any, completed: boolean) {
+	function handleFormatChange(props: any, completed?: boolean) {
 		if(completed) {
 			setElements((prevState: any) => prevState);
 		}
@@ -1272,12 +1279,12 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 					options = {stroke: props.color}
 				}
 				if(element.type === 'text') {
-					options = {...(element.customOptions ?? {}), text: element.customOptions.text, font: element.customOptions.font, fillStyle: props.color};
+					options = {...(element.customOptions ?? {}), text: element.customOptions?.text ?? '', font: element.customOptions?.font, fillStyle: props.color};
 				}
 				element && updateElement(element.id, element.x1, element.y1, element.x2, element.y2, element.type, options, () => {}, true);
 			} else if(props.fontSize || props.fontFamily) {
 				if(element?.type === 'text') {
-					const options = {width: element.customOptions.width, italic: props.italic, bold: props.bold, text: element.customOptions.text, fontSize: props.fontSize, fontFamily: props.fontFamily, font: `${props.italic ? 'italic ' : ''}${props.bold ? 'bold ' : ''}${props.fontSize}px ${props.fontFamily}`, fillStyle: element.customOptions.fillStyle};
+					const options = {width: element.customOptions?.width, italic: props.italic, bold: props.bold, text: element.customOptions?.text ?? '', fontSize: props.fontSize, fontFamily: props.fontFamily, font: `${props.italic ? 'italic ' : ''}${props.bold ? 'bold ' : ''}${props.fontSize}px ${props.fontFamily}`, fillStyle: element.customOptions?.fillStyle};
 					element && updateElement(element.id, element.x1, element.y1, element.x2, props.fontSize, element.type, options, (element) => {
 						const rect = createElementRect(0, 0, element.type, element.x1, element.y1, element.x2, element.y2);
 						if(rect) setElementRects([rect]);
@@ -1287,24 +1294,53 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 		}
 	}
 
-	function handleImageChange(e: any) {
+	const [exporting, setExporting] = useState(false);
+	async function handleImageChange(e: any) {
 		console.log('e - ', e);
 		const file = e.target.files[0];
-		const reader = new FileReader();
-		reader.onload = function(e) {
-			const img = new Image();
-			img.src = e.target?.result as string;
-			img.onload = function() {
-				const id = generateId();
-				const aspectRatio = img.width / img.height;
-				const width = 400;
-				const height = width / aspectRatio;
-				const element = createElement(id, 'image', 100, 100, width, height, {src: img.src});
-				setElements((prev) => [...prev, element]);
-			}
+		if(!file) return;
+
+		setExporting(true);
+		const url = await uploadImage(file);
+		setExporting(false);
+
+		if(!url) return;
+
+		const img = new Image();
+		img.src = url as string;
+		img.onload = function() {
+			const id = generateId();
+			const aspectRatio = img.width / img.height;
+			const width = 400;
+			const height = width / aspectRatio;
+			const element = createElement(id, 'image', 100, 100, width, height, {src: img.src});
+			setElements((prev: any) => [...prev, element]);
 		}
-		reader.readAsDataURL(file);
 	}
+
+	const bgAddRef = useRef<string | null>(null);
+	async function handleBgImageChange(e:any) {
+		const file = e.target.files[0];
+		if(!file) return;
+
+		setExporting(true);
+		const url = await uploadImage(file);
+		setExporting(false);
+
+		if(!url) return;
+
+		handleBgImageAdd(url);
+		bgAddRef.current = url;
+		setBgImages((prev) => [...prev, url]);
+	}
+
+	useEffect(() => {
+		if(bgAddRef.current) {
+			const index = bgImages.findIndex(c => c === bgAddRef.current);
+			setActiveTab(index);
+			bgAddRef.current = null;
+		}
+	}, [bgImages])
 
 	function exportCanvas() {
 		const canvasEl = drawCanvasRef.current;
@@ -1318,14 +1354,14 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 		ctx.clearRect(0,0,canvasEl.width, canvasEl.height);
 
 		const roughCanvas = rough.canvas(canvasEl);
+		setExporting(true);
 
 		if(imageUrl) {
 			const img = new Image();
-			// img.src = imageUrl;
+
+			// img.src = 'http://localhost:3000/assets/images/carousel-images/1.png';
 
 			img.setAttribute('crossorigin', 'anonymous');
-			img.src = 'http://localhost:3000/assets/images/carousel-images/1.png';
-
 			img.onload = () => {
 				ctx?.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
 
@@ -1333,8 +1369,13 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 
 				const url = canvasEl.toDataURL('image/png', 1);
 
-				handleExport(url, JSON.stringify(elements));
+				setExporting(false);
+				handleExport(bgImages[activeTab], JSON.stringify(elements));
 			}
+			
+
+			const imageKey = bgImages[activeTab].split('/').pop();
+			img.src = bgImages[activeTab].startsWith('blob:') ? bgImages[activeTab] : `https://api.artiai.org/v1/utils/image/${imageKey}`;
 
 			return;
 		}
@@ -1367,7 +1408,7 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 						 fontStyle: `${selectedElement.customOptions?.italic ? 'italic' : 'normal'}`,
 						 // width: elementRects[0].coords.x2 - elementRects[0].coords.x1,
 						 // height: elementRects[0].coords.y2 - elementRects[0].coords.y1,
-						 width: elementRects[0] ? elementRects[0].coords.x2 - elementRects[0].coords.x1 : 100,
+						 width: elementRects[0] ? elementRects[0].coords.x2 - elementRects[0].coords.x1 + 10 : 100,
 						 height: elementRects[0] ? elementRects[0].coords.y2 - elementRects[0].coords.y1 : 50,
 						 resize: 'none',
 						 background: 'transparent',
@@ -1390,7 +1431,7 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 					{selectedElement.type === 'text' && <FontTools initialFontDetails={selectedElement?.customOptions ? selectedElement?.customOptions : undefined}
                                                          handleFormatChange={handleFormatChange}/>}
 					{['rectangle', 'ellipse', 'line', 'circle'].includes(selectedElement.type) && <ShapeTools initialShapeDetails={selectedElement?.roughState?.options} handleFormatChange={handleFormatChange} />}
-        </div>}
+        		</div>}
 				<canvas
 					// onMouseDown={handleMouseDown}
 					// onMouseUp={handleMouseUp}
@@ -1403,12 +1444,48 @@ export default function EditCanvas({canvasState, imageUrl, handleExport, handleC
 					onMouseMove={handleMouseMove}
 					className="w-full h-full absolute top-0 left-0 bg-transparent z-20" ref={canvasRef}
 				></canvas>
+				<div className='absolute z-30 bottom-full left-1/2 transform -translate-x-1/2 h-[40px] flex items-center justify-center'>
+					<div onClick={() => setActiveTab(c => {
+						if(c === 0) return c;
+						return c - 1;
+					})} className='text-3xl cursor-pointer'>
+						<RxCaretLeft />
+					</div>
+					<div className='text-base px-7'>
+						<span>{activeTab + 1} / {bgImages.length}</span>
+					</div>
+					<div onClick={() => {
+						setActiveTab(c => {
+							if(c === bgImages.length - 1) return c;
+							return c + 1;
+						})
+					}} className='text-3xl cursor-pointer'>
+						<RxCaretRight />
+					</div>
+				</div>
 				{imageUrl && <div className="relative w-full h-full pointer-events-none">
-          <Image1 src={imageUrl} alt="Image" className='w-full h-full' width={500} height={500} />
-        </div>}
+					{exporting && <div className='flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-30'>
+						<Loader />
+					</div>}
+					<SwipeableViews
+						axis="x"
+						index={activeTab}
+						onChangeIndex={(e) => setActiveTab(e)}
+						scrolling={"false"}
+						ignoreNativeScroll={true}
+						disabled={true}
+						style={{height: '100%'}}
+						containerStyle={{height: '100%'}}
+					>
+						{bgImages.map((imageUrl, index) => (
+							<Image1 key={imageUrl} src={imageUrl} alt="Image" className='w-full h-full' width={500} height={500} />
+						))}
+					</SwipeableViews>
+				</div>}
 			</div>
 			<div className='absolute left-[calc(100%+10px)] top-1/2 transform -translate-y-1/2 z-20'>
-				<EditTools handleImageChange={handleImageChange} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />
+				{/*<EditTools initialFontDetails={selectedElement?.customOptions ? selectedElement?.customOptions : undefined} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />*/}
+				<EditTools initialFontDetails={selectedElement?.customOptions ? (selectedElement?.customOptions as FontFormat) : undefined} handleBgImageChange={handleBgImageChange} selectedType={selectedElement?.type} handleImageChange={handleImageChange} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />
 			</div>
 			<div className='flex justify-end px-4 items-center gap-3 mt-3' onClick={() => {}}>
 				<button onClick={exportCanvas} className="bg-primary text-white text-xs px-4 py-1.5 leading-[16px] rounded cursor-pointer">Save</button>

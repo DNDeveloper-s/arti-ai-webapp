@@ -1,6 +1,6 @@
 import {AdJSONInput, ChatGPTMessageObj, IAdVariant} from '@/interfaces/IArtiBot';
 import AdVariant from '@/components/ArtiBot/AdVariant';
-import React, { useState } from 'react';
+import React, {useContext, useState} from 'react';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import Markdown from 'react-remarkable';
 import FacebookAdVariant from '../FacebookAdVariant';
@@ -8,11 +8,15 @@ import { MdOutlineModeEdit } from 'react-icons/md';
 import { GrDeploy } from 'react-icons/gr';
 import { EditFacebookAdVariant } from '../EditAdVariant/EditAdVariant';
 import { startEditingVariant, stopEditingVariant, useEditVariant } from '@/context/EditVariantContext';
-import { useConversation } from '@/context/ConversationContext';
+import {updateVariantToDB, useConversation} from '@/context/ConversationContext';
+import {SnackbarContext} from '@/context/SnackbarContext';
+import Loader from '@/components/Loader';
 
 function ConversationAdVariant({variantId}: {variantId: string}) {
 	const {dispatch, state: editState} = useEditVariant();
-	const {state, updateVariant} = useConversation();
+	const {dispatch: conversationDispatch, state, updateVariant} = useConversation();
+	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+	const [updating, setUpdating] = useState(false);
 
 	const variant = state.variant.map[variantId] as IAdVariant ?? null;
 	const editMode = editState.variant && editState.variant.id === variantId;
@@ -29,16 +33,24 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 		stopEditingVariant(dispatch);
 	}
 
-	function handleSaveVariant() {
-		updateVariant(editState.variant as IAdVariant);
-		stopEditingVariant(dispatch);
+	async function handleSaveVariant() {
+		// updateVariant(editState.variant as IAdVariant);
+		setUpdating(true);
+		const variantFromDB = await updateVariantToDB(conversationDispatch, editState.variant as IAdVariant);
+		setUpdating(false);
+		if(variantFromDB) {
+			stopEditingVariant(dispatch);
+			return setSnackbarData({message: 'Variant Updated Successfully', status: 'success'});
+		} else {
+			return setSnackbarData({message: 'Oops! Failed to Update Variant.', status: 'error'});
+		}
 	}
 
 	return (
 		<div key={variant.id} className="group/variant flex-shrink-0 relative">
 			{!editMode ? <FacebookAdVariant adVariant={variant} className="p-3 !w-[400px] !max-w-unset border !border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px'}} /> : 
 			<EditFacebookAdVariant showConfirmModal={false} setShowConfirmModal={() => {}} handleSaveVariant={handleSaveVariant} handleEditVariantClose={editVariantClose} adVariant={editState.variant as IAdVariant} className="p-3 !w-[400px] !max-w-unset border border-gray-800 h-full bg-black rounded-lg" style={{fontSize: '8px'}} /> }
-			{!editMode && <div className='transition-all group-hover/variant:opacity-100 group-hover/variant:pointer-events-auto pointer-events-none opacity-0 absolute bg-black bg-opacity-70 top-0 left-0 w-full h-full flex justify-center gap-5 items-end pb-10'>
+			{!updating && !editMode && <div className='transition-all group-hover/variant:opacity-100 group-hover/variant:pointer-events-auto pointer-events-none opacity-0 absolute bg-black bg-opacity-70 top-0 left-0 w-full h-full flex justify-center gap-5 items-end pb-10'>
 				<button onClick={handleEdit} className='cursor-pointer text-white hover:scale-105 text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
 					<MdOutlineModeEdit />
 					<span>Edit</span>
@@ -47,6 +59,10 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 					<GrDeploy className='fill-white stroke-white [&>path]:stroke-white' />
 					<span>Deploy</span>
 				</button>
+			</div>}
+			{updating && <div
+				className="flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-60">
+				<Loader/>
 			</div>}
 		</div>
 	)
