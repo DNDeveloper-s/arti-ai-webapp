@@ -1,7 +1,7 @@
 'use client';
 
 import rough from 'roughjs';
-import React, {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import { Drawable, Options } from 'roughjs/bin/core';
 import { RoughCanvas } from 'roughjs/bin/canvas';
 import EditTools, {FontFormat, FontTools, ShapeTools, Tool} from './EditTools';
@@ -11,6 +11,7 @@ import { RxCaretLeft, RxCaretRight } from 'react-icons/rx';
 import SwipeableViews from 'react-swipeable-views';
 import Loader from '../Loader';
 import uploadImage from '@/services/uploadImage';
+import {SnackbarContext} from '@/context/SnackbarContext';
 
 const generator = rough.generator({options: {roughness: 0}});
 
@@ -843,6 +844,7 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 	const [selectionElements, setSelectionElements] = useState<Element[]>([]);
 	const [elementRects, setElementRects] = useState<SelectedRect[]>([]);
 	const [activeTab, setActiveTab] = useState(0);
+	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 
 	// const [selectionCanvasElement, setSelectionCanvasElement] = useState<SelectionElement | null>(null);
 
@@ -1367,10 +1369,16 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 
 				elements?.sort((a: Element, b: Element) => a.order - b.order).forEach((element: Element) => renderElement(ctx, roughCanvas, element));
 
-				const url = canvasEl.toDataURL('image/png', 1);
+				try {
+					const url = canvasEl.toDataURL('image/png', 1);
 
-				setExporting(false);
-				handleExport(bgImages[activeTab], JSON.stringify(elements));
+					setExporting(false);
+					handleExport(bgImages[activeTab], JSON.stringify(elements));
+				} catch(e) {
+
+					setExporting(false);
+					setSnackbarData({message: 'Error exporting the image. Please try again later!', status: 'error'});
+				}
 			}
 			
 
