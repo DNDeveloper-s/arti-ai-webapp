@@ -82,7 +82,7 @@ export const CardStackImages: FC<CardStackImagesProps> = ({images: _images}) => 
 					<NoImage />
 				</div>}
 			</div>
-			<span className='text-white'>{s}</span>
+			{/*<span className='text-white'>{s}</span>*/}
 		</>
 	)
 }
