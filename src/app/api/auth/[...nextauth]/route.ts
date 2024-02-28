@@ -38,6 +38,8 @@ export const authOptions: AuthOptions = {
 			clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
 			checks: 'none',
 		}),
+
+		// update npm i command
 		FacebookProvider({
 			clientId: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_ID : process.env.FACEBOOK_PROD_CLIENT_ID,
 			clientSecret: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_SECRET : process.env.FACEBOOK_PROD_CLIENT_SECRET,
