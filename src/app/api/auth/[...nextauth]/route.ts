@@ -41,29 +41,31 @@ export const authOptions: AuthOptions = {
 
 		// update npm i command
 		FacebookProvider({
-			clientId: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_ID : process.env.FACEBOOK_PROD_CLIENT_ID,
-			clientSecret: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_SECRET : process.env.FACEBOOK_PROD_CLIENT_SECRET,
-			authorization: "https://www.facebook.com/v11.0/dialog/oauth?scope=ads_management,pages_show_list,pages_read_engagement",
-			// idToken: true,
-			profile(profile: any, token: any) {
-				return {
-					id: profile.id,
-					name: profile.name,
-					email: profile.id,
-					image: token.access_token,
-				}
-			},
-			userinfo: {
-				url: "https://graph.facebook.com/me",
-				params: { fields: "id,name,email,picture" },
-				async request({ tokens, client, provider }) {
-					const userInfo = await client.userinfo(tokens.access_token!, {
-						// @ts-expect-error
-						params: provider.userinfo?.params,
-					})
-					return userInfo;
-				},
-			},
+			clientId: "645064660474863",
+			clientSecret: "cdcb46d7a5014b2e9d6b9936c4156c0d",
+			// clientId: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_ID : process.env.FACEBOOK_PROD_CLIENT_ID,
+			// clientSecret: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_SECRET : process.env.FACEBOOK_PROD_CLIENT_SECRET,
+			// authorization: "https://www.facebook.com/v11.0/dialog/oauth?scope=ads_management,pages_show_list,pages_read_engagement",
+			// // idToken: true,
+			// profile(profile: any, token: any) {
+			// 	return {
+			// 		id: profile.id,
+			// 		name: profile.name,
+			// 		email: profile.id,
+			// 		image: token.access_token,
+			// 	}
+			// },
+			// userinfo: {
+			// 	url: "https://graph.facebook.com/me",
+			// 	params: { fields: "id,name,email,picture" },
+			// 	async request({ tokens, client, provider }) {
+			// 		const userInfo = await client.userinfo(tokens.access_token!, {
+			// 			// @ts-expect-error
+			// 			params: provider.userinfo?.params,
+			// 		})
+			// 		return userInfo;
+			// 	},
+			// },
 		}),
 		CredentialsProvider({
 			name: 'credentials',
