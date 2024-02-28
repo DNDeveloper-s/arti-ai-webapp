@@ -15,6 +15,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'api.artiai.org',
+        port: '',
+        pathname: '/**'
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**'

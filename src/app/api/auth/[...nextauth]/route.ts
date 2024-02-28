@@ -1,12 +1,13 @@
-import NextAuth, {AuthOptions} from 'next-auth';
+import NextAuth, { AuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import FacebookProvider from 'next-auth/providers/facebook'
 import CredentialsProvider from 'next-auth/providers/credentials';
-import {PrismaAdapter} from '@auth/prisma-adapter';
-import {PrismaClient} from '@prisma/client';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
-import {JWT} from 'next-auth/jwt';
+import { JWT } from 'next-auth/jwt';
 
 const prisma = new PrismaClient();
 
@@ -37,25 +38,50 @@ export const authOptions: AuthOptions = {
 			clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
 			checks: 'none',
 		}),
+		FacebookProvider({
+			clientId: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_ID : process.env.FACEBOOK_PROD_CLIENT_ID,
+			clientSecret: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_SECRET : process.env.FACEBOOK_PROD_CLIENT_SECRET,
+			authorization: "https://www.facebook.com/v11.0/dialog/oauth?scope=ads_management,pages_show_list,pages_read_engagement",
+			// idToken: true,
+			profile(profile: any, token: any) {
+				return {
+					id: profile.id,
+					name: profile.name,
+					email: profile.id,
+					image: token.access_token,
+				}
+			},
+			userinfo: {
+				url: "https://graph.facebook.com/me",
+				params: { fields: "id,name,email,picture" },
+				async request({ tokens, client, provider }) {
+					const userInfo = await client.userinfo(tokens.access_token!, {
+						// @ts-expect-error
+						params: provider.userinfo?.params,
+					})
+					return userInfo;
+				},
+			},
+		}),
 		CredentialsProvider({
 			name: 'credentials',
 			credentials: {
-				username: {label: 'Username', type: 'text', placeholder: 'saurabh'},
-				password: {label: 'Password', type: 'password'},
-				email: {label: 'Email', type: 'email'},
+				username: { label: 'Username', type: 'text', placeholder: 'saurabh' },
+				password: { label: 'Password', type: 'password' },
+				email: { label: 'Email', type: 'email' },
 			},
-			async authorize(credentials){
-				if(!credentials?.email || !credentials?.password) return null;
+			async authorize(credentials) {
+				if (!credentials?.email || !credentials?.password) return null;
 
 				const user = await prisma.user.findUnique({
-					where: {email: credentials.email}
+					where: { email: credentials.email }
 				})
 
-				if(!user) return null;
+				if (!user) return null;
 
 				const passwordsMatch = await bcrypt.compare(credentials.password, user.password);
 
-				if(!passwordsMatch) return null;
+				if (!passwordsMatch) return null;
 
 				return user;
 			}
@@ -63,7 +89,7 @@ export const authOptions: AuthOptions = {
 
 	],
 	callbacks: {
-		async signIn({user, account, profile}) {
+		async signIn({ user, account, profile }) {
 			// TODO: REFACTOR THIS CODE
 
 
@@ -99,7 +125,7 @@ export const authOptions: AuthOptions = {
 						}
 					});
 
-					if(!existingAccount) {
+					if (!existingAccount) {
 						await prisma.account.create({
 							data: {
 								provider: account.provider as string,
@@ -127,14 +153,16 @@ export const authOptions: AuthOptions = {
 
 					await prisma.user.update({
 						where: { email: user.email },
-						data: { accounts: {
-							connect: {
-								provider_providerAccountId: {
-									provider: account.provider,
-									providerAccountId: account.providerAccountId
+						data: {
+							accounts: {
+								connect: {
+									provider_providerAccountId: {
+										provider: account.provider,
+										providerAccountId: account.providerAccountId
+									}
 								}
 							}
-						}},
+						},
 					});
 				} else {
 					// Create a new user with first_name and last_name
@@ -152,7 +180,7 @@ export const authOptions: AuthOptions = {
 							provider: account.provider as string,
 							providerAccountId: account.providerAccountId as string,
 							type: account.type as string,
-							user: { connect: { id: _user.id,  } },
+							user: { connect: { id: _user.id, } },
 							id_token: account.id_token,
 							token_type: account.token_type,
 							access_token: account.access_token,
@@ -169,13 +197,13 @@ export const authOptions: AuthOptions = {
 			return baseUrl
 		},
 		async session({ session, user, token }) {
-			if(!session || !session.user || !session.user.email) return session;
-			
+			if (!session || !session.user || !session.user.email) return session;
+
 			const existingUser = await prisma.user.findUnique({
 				where: { email: session.user.email },
 			});
 
-			if(!existingUser) {
+			if (!existingUser) {
 				return session;
 			}
 
@@ -193,14 +221,6 @@ export const authOptions: AuthOptions = {
 		async jwt({ token, user, account, profile, isNewUser }) {
 			return token;
 
-			if (moment().unix() < token.exp) {
-				return token;
-			}
-
-			if(token.sub) {
-				return generateNewToken(token);
-			}
-			return token;
 		}
 		// Other callback functions
 	},
@@ -213,7 +233,7 @@ export const authOptions: AuthOptions = {
 	},
 	jwt: {
 		encode: async ({ secret, token, maxAge }) => {
-			if(!token) return '';
+			if (!token) return '';
 			const accessTokenExpires = moment().add(
 				60,
 				"minutes"
@@ -242,4 +262,4 @@ export const authOptions: AuthOptions = {
 
 const handler = NextAuth(authOptions)
 
-export {handler as GET, handler as POST};
+export { handler as GET, handler as POST };
