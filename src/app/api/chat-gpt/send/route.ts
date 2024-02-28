@@ -7,6 +7,7 @@ import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { getToken } from "next-auth/jwt"
 import exampleJSON from '@/database/exampleJSON';
 
+// commented out openai
 const openai = new OpenAI({
 	apiKey: "process.env.OPENAI_API_KEY",
 })
