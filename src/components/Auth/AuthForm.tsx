@@ -10,7 +10,7 @@ import { wait } from '@/helpers';
 import Snackbar from '@/components/Snackbar';
 import GoogleSignInButton from '@/components/Auth/GoogleSigninButton';
 import Link from 'next/link';
-import FacebookSignInButton from '@/components/Auth/FacebookSignInButton';
+import FacebookSignInButton from '@/components/Auth/FacebookSigninButton';
 
 
 interface FormFieldObject<T> {
