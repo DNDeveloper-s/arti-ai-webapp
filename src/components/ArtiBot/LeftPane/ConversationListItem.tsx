@@ -6,7 +6,6 @@ import useConversations from '@/hooks/useConversations';
 import {useParams} from 'next/navigation';
 import useAdCreatives from '@/hooks/useAdCreatives';
 import Image1, {StaticImageData} from 'next/image';
-import {carouselImage1, carouselImage2, carouselImage3, carouselImage4} from '@/assets/images/carousel-images';
 
 function NoImage() {
 	return (
@@ -110,9 +109,12 @@ const ConversationListItem: FC<ConversationListItemProps> = ({conversationId, ..
 	}, [])
 
 	return (
-		<Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)} key={conversationId} className={'flex gap-4 items-start px-4 py-3 text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6'}>
+		<Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)} key={conversationId} className={'flex gap-4 mx-2 items-start px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-900 bg-gray-950 rounded overflow-hidden transition-all text-sm leading-6'}>
 			<CardStackImages images={images} />
-			<span className={(isActive ? 'text-white' : ' truncate')}>Ad Creative | {getConversationById(conversationId)?.project_name}</span>
+			<div className={'flex-shrink-0 flex flex-col justify-center gap-1'}>
+				<p className={(isActive ? 'text-white' : ' truncate')}>{getConversationById(conversationId)?.project_name}</p>
+				<p className={'text-xs text-gray-500'}>{getConversationById(conversationId)?.conversation_type === ConversationType.STRATEGY ? 'Strategy' : 'Ad Creative'}</p>
+			</div>
 		</Link>
 	)
 };

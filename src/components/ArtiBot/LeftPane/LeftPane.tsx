@@ -57,7 +57,7 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
                 <div className='px-4 text-sm font-bold text-gray-400'>
                   <h3>Conversations</h3>
                 </div>
-                <div className='mt-2'>
+                <div className='mt-2 flex flex-col gap-2'>
                   {conversations && conversations.map((conversation) => <ConversationListItem key={conversation.id} conversationId={conversation.id} />)}
                 </div>
               </div>
@@ -66,7 +66,7 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
                 <div className='px-4 text-sm font-bold text-gray-400'>
                   <h3>Ad Creatives</h3>
                 </div>
-                <div className='mt-2'>
+                <div className='mt-2 flex flex-col gap-2'>
                   {sortedConversationIds.map((conversationId: string) => <AdCreativeListItem key={conversationId} conversationId={conversationId} />)}
                 </div>
               </div>
