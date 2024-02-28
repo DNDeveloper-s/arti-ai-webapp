@@ -33,6 +33,6 @@ export const navbarData = {
 	],
 	cta: {
 		href: isProduction ? '/#contact' : '/auth',
-		label: isProduction ? 'Contact Us' : 'Sign In'
+		label: isProduction ? 'Join Waitlist' : 'Sign In'
 	}
 }

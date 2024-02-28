@@ -99,7 +99,7 @@ export default function ProductLandingPage() {
 			<main>
 				{/*<Logo />*/}
 				<Hero />
-				{isMounted && (isSmallScreen || isPortrait) ? <Services_Sm /> : <Services/>}
+				{/*{isMounted && (isSmallScreen || isPortrait) ? <Services_Sm /> : <Services/>}*/}
 				<Numbers />
 				<CaseStudies />
 				<Testimonials />
@@ -114,7 +114,7 @@ export default function ProductLandingPage() {
 				</div>
 				<WhyUs focusedSection={focusedSection} />
 				<Contact />
-				{showTryButton && <TryForFreeButton/>}
+				{showTryButton && <TryForFreeButton label={'Join Waitlist'}/>}
 				<Footer />
 			</main>
 		</>

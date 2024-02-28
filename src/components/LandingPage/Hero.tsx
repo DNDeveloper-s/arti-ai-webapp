@@ -182,7 +182,7 @@ export default function Hero() {
 				<h2 className="text-3xl md:text-5xl max-w-3xl text-center leading-9 md:leading-tight">Your Ads for Peak Performance.</h2>
 				<p className="text-md my-2 md:my-4 opacity-50">Discover the Arti Difference</p>
 				<CTAButton onClick={() => router.push('#contact')} className="my-4">
-					<span>Try it free for 2 weeks</span>
+					<span>Join Waitlist</span>
 				</CTAButton>
 			</div>
 		</div>

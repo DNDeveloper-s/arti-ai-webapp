@@ -19,7 +19,7 @@ export default function Contact() {
 		email: {value: '', validators: [Validators.isRequired, Validators.isEmail]},
 		full_name: {value: '', validators: [Validators.isRequired]},
 		message: {value: '', validators: [Validators.isRequired]},
-		profession: {value: '', validators: [Validators.isRequired]}
+		budget: {value: '', validators: [Validators.isRequired]}
 	});
 	const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 	const [showError, setShowError] = useState(false);
@@ -49,7 +49,6 @@ export default function Contact() {
 		// initGTM();
 
 		setShowError(true);
-		console.log('errors - ', errors);
 		if(errors && Object.keys(errors).length > 0) return;
 
 		logEvent({
@@ -90,7 +89,7 @@ export default function Contact() {
 						<Image className="h-[28rem]" src={IdeaSvg} alt={'Contact ArtiBot'} />
 					</div>
 					<div>
-						<h3 className="landing-page-grad-title inline-block text-left pl-0">Contact Us</h3>
+						<h3 className="landing-page-grad-title inline-block text-left pl-0">Join Waitlist</h3>
 						{contactData.formFields.map(formField => {
 							return (
 								<div key={formField.name} className="mb-3">
