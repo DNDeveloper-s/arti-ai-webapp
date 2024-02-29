@@ -105,6 +105,9 @@ export const authOptions: AuthOptions = {
 	callbacks: {
 		async signIn({ user, account, profile }) {
 			// TODO: REFACTOR THIS CODE
+			console.log(`callback signIn: user: ${JSON.stringify(user)}`)
+			console.log(`callback signIn: account: ${JSON.stringify(account)}`)
+			console.log(`callback signIn: profile: ${JSON.stringify(profile)}`)
 
 
 			if (profile?.name) {
@@ -210,17 +213,19 @@ export const authOptions: AuthOptions = {
 			return true;
 		},
 		async redirect({ url, baseUrl }) {
+			console.log(`Redirect: ${JSON.stringify(baseUrl)}`)
 			return baseUrl
 		},
 		async session({ session, user, token }) {
+			console.log(`callback session :Session: ${JSON.stringify(session)}`)
+			console.log(`callback session :user: ${JSON.stringify(user)}`)
+			console.log(`callback session :token: ${JSON.stringify(token)}`)
+
 			if (!session || !session.user || !session.user.email) return session;
 
 			const existingUser = await prisma.user.findUnique({
 				where: { email: session.user.email },
 			});
-			console.log(`Session: ${JSON.stringify(session)}`)
-			console.log(`user: ${JSON.stringify(user)}`)
-			console.log(`token: ${JSON.stringify(token)}`)
 
 			if (!existingUser) {
 				return session;
