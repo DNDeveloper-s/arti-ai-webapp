@@ -39,6 +39,13 @@ export const authOptions: AuthOptions = {
 			checks: 'none',
 		}),
 
+		// 		713068484341612
+		// e7afa5fce3a6e6c5f10fc530eeb0346f
+
+
+		// clientId: "645064660474863",
+		// clientSecret: "cdcb46d7a5014b2e9d6b9936c4156c0d",
+
 		// update npm i command
 		FacebookProvider({
 			clientId: "645064660474863",
@@ -100,7 +107,7 @@ export const authOptions: AuthOptions = {
 			// TODO: REFACTOR THIS CODE
 
 
-			if (account?.provider === 'google' && profile?.name) {
+			if (profile?.name) {
 				// Split the "name" field into "first_name" and "last_name"
 				const [first_name, last_name] = profile.name.split(' ');
 
@@ -206,27 +213,29 @@ export const authOptions: AuthOptions = {
 			return baseUrl
 		},
 		async session({ session, user, token }) {
-			return session
-			// if (!session || !session.user || !session.user.email) return session;
+			if (!session || !session.user || !session.user.email) return session;
 
-			// const existingUser = await prisma.user.findUnique({
-			// 	where: { email: session.user.email },
-			// });
+			const existingUser = await prisma.user.findUnique({
+				where: { email: session.user.email },
+			});
+			console.log(`Session: ${JSON.stringify(session)}`)
+			console.log(`user: ${JSON.stringify(user)}`)
+			console.log(`token: ${JSON.stringify(token)}`)
 
-			// if (!existingUser) {
-			// 	return session;
-			// }
+			if (!existingUser) {
+				return session;
+			}
 
-			// return {
-			// 	...session,
-			// 	user: {
-			// 		first_name: existingUser.first_name,
-			// 		last_name: existingUser.last_name,
-			// 		email: existingUser.email,
-			// 		id: existingUser.id,
-			// 		token
-			// 	}
-			// }
+			return {
+				...session,
+				user: {
+					first_name: existingUser.first_name,
+					last_name: existingUser.last_name,
+					email: existingUser.email,
+					id: existingUser.id,
+					token
+				}
+			}
 		},
 		async jwt({ token, user, account, profile, isNewUser }) {
 			return token;
@@ -234,38 +243,38 @@ export const authOptions: AuthOptions = {
 		}
 		// Other callback functions
 	},
-	// pages: {
-	// 	// signIn: '/auth',
-	// 	// error: '/auth', // Error code passed in query string as ?error=
-	// },
-	// session: {
-	// 	strategy: 'jwt'
-	// },
-	// jwt: {
-	// 	encode: async ({ secret, token, maxAge }) => {
-	// 		if (!token) return '';
-	// 		const accessTokenExpires = moment().add(
-	// 			60,
-	// 			"minutes"
-	// 		);
+	pages: {
+		// signIn: '/auth',
+		// error: '/auth', // Error code passed in query string as ?error=
+	},
+	session: {
+		strategy: 'jwt'
+	},
+	jwt: {
+		encode: async ({ secret, token, maxAge }) => {
+			if (!token) return '';
+			const accessTokenExpires = moment().add(
+				60,
+				"minutes"
+			);
 
-	// 		// Create a new token with the user data and new expiration time
-	// 		return jwt.sign({
-	// 			sub: token.sub,
-	// 			iat: moment().unix(),
-	// 			exp: accessTokenExpires.unix(),
-	// 			email: token.email,
-	// 			picture: token.picture,
-	// 			type: 'ACCESS',
-	// 		}, 'thisisasecretkey');
-	// 	},
-	// 	decode: async ({ secret, token }) => {
-	// 		return {
-	// 			...jwt.decode(token),
-	// 			accessToken: token
-	// 		}
-	// 	}
-	// },
+			// Create a new token with the user data and new expiration time
+			return jwt.sign({
+				sub: token.sub,
+				iat: moment().unix(),
+				exp: accessTokenExpires.unix(),
+				email: token.email,
+				picture: token.picture,
+				type: 'ACCESS',
+			}, 'thisisasecretkey');
+		},
+		decode: async ({ secret, token }) => {
+			return {
+				...jwt.decode(token),
+				accessToken: token
+			}
+		}
+	},
 	secret: process.env.NEXTAUTH_SECRET || 'dndeveloper-saurabh',
 	// debug: process.env.NODE_ENV === 'development'
 }

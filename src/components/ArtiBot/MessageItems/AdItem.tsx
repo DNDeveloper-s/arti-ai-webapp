@@ -64,7 +64,7 @@ const DeployButton = ({ variant }: { variant: IAdVariant }) => {
 
 	async function getUserPages() {
 		selectPage(null)
-		const accessToken = "EAAJKrtHx2ZB8BO1rWSJj32B6JeZCgf8I1jxY9oJJN1ZCCWh8kL1FoGmdWbVfYVfW9TLoZBjGQEiT2I1zZAbcOLveyEHbaUnkdBS1m3OJvJCU8ZBiHnqu2JH2GyMUHxAaYRPl74FfGccLZCuxiZAGZAWlRZB0FGTiv0jagGeDWUvpR7X3ZCRoKLj9xMUbEBZCpkHEqg2oQ6fZBAbotAcDZAK0zEIrnK7IInR6oZBgGc4yGUZD"
+		const accessToken = "EAAJKrtHx2ZB8BOysHDOD30PEUjd7r5fvHJavyF0RrihUUkeHhbtnAJNkCTzKJK0hZAjvjXxSsZAHpePvC11BBRc1ZByGLgTA0Hf7qn3ObVb0p9bf13uAs31ntLBSRuVXEmsZA90to3VZCdANCZAnyPUhVw1JjFqwkpp4mZAXrxOkJMlqsg6eh7PD9hi5ZBpUf6DqQxAnNbXSSuqfqN1T5m5tlbdOtMNVSZAzsdtd5L"
 
 		try {
 			if (isLoadingPages) return;
