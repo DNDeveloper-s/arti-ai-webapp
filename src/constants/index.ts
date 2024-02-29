@@ -7,3 +7,8 @@ export const freeTierLimit = +(process.env.FREE_TIER_MESSAGE_COUNT ?? threshold.
 export const personalData = {
 	email: 'contact_us@artiai.org'
 }
+
+export const dbImagesPrefixes = [
+	'https://srs-billing-storage.s3.amazonaws.com/',
+	'https://api.artiai.org/v1'
+]

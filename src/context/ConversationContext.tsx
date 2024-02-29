@@ -868,7 +868,7 @@ async function updateVariantToDB(dispatch: (a: ConversationAction) => void, vari
 		const response = await axios.patch(ROUTES.VARIANT.UPDATE(variant.id), {
 			text: variant.text,
 			imageUrl: variant.imageUrl,
-			imageMap: variant.imageMap
+			images: variant.images,
 		}, {
 			headers: {
 				'Authorization': 'Bearer ' + localStorage.getItem('token')

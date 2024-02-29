@@ -12,6 +12,10 @@ import SwipeableViews from 'react-swipeable-views';
 import Loader from '../Loader';
 import uploadImage from '@/services/uploadImage';
 import {SnackbarContext} from '@/context/SnackbarContext';
+import { base64ToBlob } from '@/utils/transformers';
+import { VariantImageObj } from '@/interfaces/IArtiBot';
+import Portal from '../Portal';
+import { VariantImageMap } from '@/services/VariantImageMap';
 
 const generator = rough.generator({options: {roughness: 0}});
 
@@ -130,13 +134,17 @@ function parseRoughState(element: Pick<Element, 'x1' | 'x2' | 'y1' | 'y2' | 'typ
 }
 
 function createElement(id: ElementID, elementType: ElementType, x1: number, y1: number, x2: number, y2: number, options?: any, elDetails?: ElementDetails): Element {
-	let roughOptions = {};
+	let roughOptions: any = {};
 	switch(elementType) {
 		case 'rectangle':
 		case 'circle':
 		case 'ellipse':
 		case 'line':
-			roughOptions = options as Options;
+			roughOptions = (options ?? {}) as Options;
+			if(!options?.fill) {
+				roughOptions.fillStyle = 'solid';
+				roughOptions.fill = '#000000';
+			}
 			break;
 		case 'text':
 			return {id, name: elDetails?.name ?? elementType, order: elDetails?.order ?? id, type: elementType, x1, y1, x2, y2};
@@ -195,6 +203,7 @@ const wrapText = function(ctx, text, x, y, maxWidth, lineHeight) {
 	let line = ''; // This will store the text of the current line
 	let testLine = ''; // This will store the text when we add a word, to test if it's too long
 	let lineArray = []; // This is an array of lines, which the function will return
+	let lineWidth = maxWidth;
 
 	// Lets iterate over each word
 	for(var n = 0; n < words.length; n++) {
@@ -205,7 +214,9 @@ const wrapText = function(ctx, text, x, y, maxWidth, lineHeight) {
 		// If the width of this test line is more than the max width
 		if (testWidth > maxWidth && n > 0) {
 			// Then the line is finished, push the current line into "lineArray"
-			lineArray.push([line, x, y]);
+			let metrics = ctx.measureText(line);
+			lineWidth = metrics.width;
+			lineArray.push([line, x, y, lineWidth]);
 			// Increase the line height, so a new line is started
 			y += lineHeight;
 			// Update line and test line to use this word as the first word on the next line
@@ -218,7 +229,9 @@ const wrapText = function(ctx, text, x, y, maxWidth, lineHeight) {
 		}
 		// If we never reach the full max width, then there is only one line.. so push it into the lineArray so we return something
 		if(n === words.length - 1) {
-			lineArray.push([line, x, y]);
+			let metrics = ctx.measureText(line);
+			lineWidth = metrics.width;
+			lineArray.push([line, x, y, lineWidth]);
 		}
 	}
 	// Return the line array
@@ -656,7 +669,7 @@ const useHistory = (initialState: any) => {
 	const [index, setIndex] = useState(0);
 	const [history, setHistory] = useState<any>([initialState]);
 
-	const setState = (action: any, overwrite = false, updateLastIndex = false) => {
+	const setState = useCallback((action: any, overwrite = false, updateLastIndex = false) => {
 		let callParent = 0;
 		setHistory((prevHistory: any) => {
 			const newState = typeof action === 'function' ? action(prevHistory[index]) : action;
@@ -681,7 +694,7 @@ const useHistory = (initialState: any) => {
 				return newHistory
 			}
 		})
-	}
+	}, [index]);
 
 	const undo = useCallback(() => {
 		if(index > 0) {
@@ -827,7 +840,17 @@ function getElementCoordinatedWithElementRect(rectCoords: Coords, type: ElementT
 }
 
 
-export default function EditCanvas({canvasState, bgImages: _bgImages = [], imageUrl, handleExport, handleClose, handleBgImageAdd}: {handleBgImageAdd(url: string), bgImages?: string[], canvasState?: string, imageUrl: string | null, handleClose: () => void, handleExport: (url: string, state: string) => void}) {
+interface EditCanvasProps {
+	handleBgImageAdd: (url: string) => void;
+	bgImages?: string[]; 
+	canvasState?: string | null; 
+	imageObject?: VariantImageMap | null;
+	imageUrl: string | null; 
+	handleClose: () => void; 
+	handleExport: (url: string, oldUrl?: string | null, state?: string, newImage?: string) => void
+}
+
+export default function EditCanvas({canvasState, imageObject, bgImages: _bgImages = [], imageUrl, handleExport, handleClose, handleBgImageAdd}: EditCanvasProps) {
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const drawCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -865,12 +888,17 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 
 				const fontSize = options.fontSize ?? 24;
 				const fontFamily = options.fontFamily ?? 'Arial';
-				let textWidth = options.width ?? 100;
+				const startWidth = options.width ?? 100;
 
-				const lines = wrapText(ctx, options.text, x1, y1, textWidth, +fontSize + 4);
-				if(lines.length === 1) {
-					textWidth = textMetrics.width;
-				}
+				const lines = wrapText(ctx, options.text, x1, y1, startWidth, +fontSize + 4);
+				// if(lines.length === 1) {
+				// 	textWidth = textMetrics.width;
+				// }
+				let textWidth = lines.reduce((acc, c) => {
+					if(c[3] > acc) return c[3];
+					return acc;
+				}, startWidth);
+
 				const createdElement = createElement(id, type, x1, y1, x1 + (textWidth ?? 0), lines[lines.length - 1][2] + +fontSize, null, elDetails);
 				newElements[index] = {
 					...(createdElement),
@@ -909,11 +937,13 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 	}, [action, selectedElement]);
 
 	function handleMouseDown(e: any) {
-		const clientX = e.pageX - canvasX;
-		const clientY = e.pageY - canvasY;
+		const {pageX, pageY} = e.touches ? e.touches[0] : e;
 
-		const clientX1 = e.pageX - canvasX1;
-		const clientY1 = e.pageY - canvasY1;
+		const clientX = pageX - canvasX;
+		const clientY = pageY - canvasY;
+
+		const clientX1 = pageX - canvasX1;
+		const clientY1 = pageY - canvasY1;
 		if(action === Action.WRITE) return;
 
 		if(elementType === 'selection') {
@@ -927,6 +957,7 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 					const element = elements.find(c => c.id === el.id);
 					return {...element, offsetX: clientX1 - element.x1, offsetY: clientY1 - element.y1}
 				}))
+				console.log('setting element rects - ');
 				setElementRects(prevRects => prevRects.map(({coords, type}) => {
 					return {coords, type, offsetX: clientX1 - coords.x1, offsetY: clientY1 - coords.y1}
 				}))
@@ -939,6 +970,7 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 				setElements((prevState: any) => prevState);
 				setSelectedElement({...element, offsetX: clientX1 - element.x1, offsetY: clientY1 - element.y1});
 				const rect = createElementRect(clientX, clientY, element.type, element.x1, element.y1, element.x2, element.y2);
+				rect && console.log('setting element rects - ');
 				if(rect) setElementRects([rect]);
 			} else {
 				setSelectionElements([]);
@@ -969,193 +1001,218 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 		}
 	}
 
-	function handleMouseUp(e: any) {
-		const clientX = e.pageX - canvasX;
-		const clientY = e.pageY - canvasY;
-		if(selectedElement) {
-			if(
-				selectedElement.type === 'text' &&
-				e.detail === 2
-			) {
-				setAction(Action.WRITE);
-				return;
-			}
-		}
-		if((action === Action.DRAW || action === Action.RESIZE) && selectedElement) {
-			const element = elements.find(c => c.id === selectedElement.id);
-			if(!element) return;
-			if(isPoint(element)) {
-				setElements(elements.filter(c => c.id !== element.id));
-			} else {
-				const {x1, y1, x2, y2} = adjustElementCoordinates(element);
-				updateElement(element.id, x1, y1, x2, y2, element.type, {...(element.customOptions ?? {}), text: element.customOptions?.text, font: element.customOptions?.font});
-			}
-		}
-		if(action === Action.WRITE) {
-			// return;
-		}
-		// setSelectedElements([]);
-		// setSelectionElements([]);
-		// if(action === Action.RESIZE && selectionCanvasElement) {
-		// setSelectionCanvasElement({...selectionCanvasElement, position: null});
-		// }
-		setAction(Action.NONE);
-		// setSelectedElement(null);
-	}
+	useEffect(() => {
+		function handleMouseMove(e: any) {
+			const {pageX, pageY} = e.touches ? e.touches[0] : e;
+			const clientX = pageX - canvasX;
+			const clientY = pageY - canvasY;
 
-	function handleMouseMove(e: any) {
-		const clientX = e.pageX - canvasX;
-		const clientY = e.pageY - canvasY;
-
-		if(elementType === 'selection') {
-			const selectionElement = getElementAtPosition(clientX, clientY, selectionElements);
-			if(selectionElement) {
-				document.body.style.cursor = 'move';
-			} else {
-				const element = positionWithinSelectedRect(clientX, clientY, elementRects);
-				switch(element?.position) {
-					case "br":
-					case "tl":
-					case "start":
-					case "end":
-						document.body.style.cursor = 'nwse-resize';
-						break;
-					case "bm":
-					case "tm":
-						document.body.style.cursor = 'ns-resize';
-						break;
-					case "bl":
-					case "tr":
-						document.body.style.cursor = 'nesw-resize';
-						break;
-					case "lm":
-					case "rm":
-						document.body.style.cursor = 'ew-resize';
-						break;
-					case "inside":
-						document.body.style.cursor = 'move';
-						break;
-					case "rotate":
-						document.body.style.cursor = 'grab';
-						break;
-					default:
-						document.body.style.cursor = 'default';
-						break;
-				}
-			}
-
-			// setSelectedElement({...element, offsetX: clientX - element.x1, offsetY: clientY - element.y1});
-		} else {
-			document.body.style.cursor = 'default';
-		}
-		const selectionElementSelected = selectionElements[selectionElements.length - 1] ? isWithinElement(clientX, clientY, selectionElements[selectionElements.length - 1]) : false;
-		if(action === Action.DRAW && selectedElement) {
-			updateElement(selectedElement.id, selectedElement.x1, selectedElement.y1, clientX, clientY, elementType);
-		} else if(action === Action.MOVE) {
-			// const element = selectedElement as SelectedElement;
-			// const {offsetX, offsetY} = element;
-			// const x1 = clientX - (offsetX ?? 0);
-			// const y1 = clientY - (offsetY ?? 0);
-			// const x2 = x1 + (element.x2 - element.x1);
-			// const y2 = y1 + (element.y2 - element.y1);
-
-			if(elementRects && elementRects.length > 0) {
-				const newRects = [...elementRects].map(({coords: element, offsetX, offsetY, type}) => {
-					const x1 = clientX - (offsetX ?? 0);
-					const y1 = clientY - (offsetY ?? 0);
-					const x2 = x1 + (element.x2 - element.x1);
-					const y2 = y1 + (element.y2 - element.y1);
-					return {coords: {x1, y1, x2, y2}, type, offsetX, offsetY};
-				}).filter(c => c !== null);
-				setElementRects(newRects);
-			}
-
-			if(selectionElementSelected) {
-				const element = selectionElements[selectionElements.length - 1] as SelectedElement;
-				if(element) {
-					const {offsetX, offsetY} = element;
-					const x1 = clientX - (offsetX ?? 0);
-					const y1 = clientY - (offsetY ?? 0);
-					const x2 = x1 + (element.x2 - element.x1);
-					const y2 = y1 + (element.y2 - element.y1);
-					const newElements = [element];
-					newElements[newElements.length - 1] = {...element, ...(createElement(element.id, 'rectangle', x1, y1, x2, y2, {strokeLineDash: [3,5]}))};
-					setSelectionElements(newElements);
-				}
-
-
-				for(let i = 0; i < selectedElements.length; i++) {
-					const element = selectedElements[i];
-					const {offsetX, offsetY} = element;
-					const x1 = clientX - (offsetX ?? 0);
-					const y1 = clientY - (offsetY ?? 0);
-					const x2 = x1 + (element.x2 - element.x1);
-					const y2 = y1 + (element.y2 - element.y1);
-					updateElement(element.id, x1, y1, x2, y2, element.type, {...(element.customOptions ?? {}),text: element.customOptions?.text, font: element.customOptions?.font});
-				}
-			} else if(selectedElement) {
-				const element = selectedElement;
-				const {offsetX, offsetY} = element;
-				const x1 = clientX - (offsetX ?? 0);
-				const y1 = clientY - (offsetY ?? 0);
-				const x2 = x1 + (element.x2 - element.x1);
-				const y2 = y1 + (element.y2 - element.y1);
-				updateElement(element.id, x1, y1, x2, y2, element.type, {...(element.customOptions ?? {}), text: element.customOptions?.text, font: element.customOptions?.font});
-			}
-			// selectedElements.forEach(element => {
-			// 	// const element = selectedElement as SelectedElement;
-			// 	const {offsetX, offsetY} = element;
-			// 	const x1 = clientX - (offsetX ?? 0);
-			// 	const y1 = clientY - (offsetY ?? 0);
-			// 	const x2 = x1 + (element.x2 - element.x1);
-			// 	const y2 = y1 + (element.y2 - element.y1);
-			// 	updateElement(element.id, x1, y1, x2, y2, element.type, {text: element.customOptions?.text, font: element.customOptions?.font});
-			// })
-			// const el = getSelectionElementCoords(element.type !== 'line' ? 'rectangle' : 'line', clientX, clientY, x1, y1, x2, y2);
-			// setSelectionCanvasElement(el as SelectionElement);
-		} else if(action === Action.RESIZE && selectedElement) {
-			const {id, type, position, customOptions, ...coordinates} = selectedElement;
-			if(position) {
-				// const {x1, y1, x2, y2} = resizedCoordinates(clientX, clientY, type, position, coordinates);
-				// updateElement(id, x1, y1, x2, y2, type, {...customOptions, width: x2 - x1});
-
-				if(elementRects.length === 1) {
-					let newRects = [...elementRects];
-					const {x1, y1, x2, y2} = resizedCoordinates(clientX, clientY, type, position, newRects[0].coords, true);
-					const rect = getElementCoordinatedWithElementRect({x1, y1, x2, y2}, type, selectedElement);
-					updateElement(id, rect.x1, rect.y1, rect.x2, rect.y2, type, {...customOptions, width: rect.x2 - rect.x1});
-					newRects[0] = {
-						...newRects,
-						type,
-						coords: {x1, y1, x2, y2},
+			if(elementType === 'selection') {
+				const selectionElement = getElementAtPosition(clientX, clientY, selectionElements);
+				if(selectionElement) {
+					document.body.style.cursor = 'move';
+				} else {
+					const element = positionWithinSelectedRect(clientX, clientY, elementRects);
+					switch(element?.position) {
+						case "br":
+						case "tl":
+						case "start":
+						case "end":
+							document.body.style.cursor = 'nwse-resize';
+							break;
+						case "bm":
+						case "tm":
+							document.body.style.cursor = 'ns-resize';
+							break;
+						case "bl":
+						case "tr":
+							document.body.style.cursor = 'nesw-resize';
+							break;
+						case "lm":
+						case "rm":
+							document.body.style.cursor = 'ew-resize';
+							break;
+						case "inside":
+							document.body.style.cursor = 'move';
+							break;
+						case "rotate":
+							document.body.style.cursor = 'grab';
+							break;
+						default:
+							document.body.style.cursor = 'default';
+							break;
 					}
+				}
+
+				// setSelectedElement({...element, offsetX: clientX - element.x1, offsetY: clientY - element.y1});
+			} else {
+				document.body.style.cursor = 'default';
+			}
+			const selectionElementSelected = selectionElements[selectionElements.length - 1] ? isWithinElement(clientX, clientY, selectionElements[selectionElements.length - 1]) : false;
+			if(action === Action.DRAW && selectedElement) {
+				updateElement(selectedElement.id, selectedElement.x1, selectedElement.y1, clientX, clientY, elementType);
+			} else if(action === Action.MOVE) {
+				// const element = selectedElement as SelectedElement;
+				// const {offsetX, offsetY} = element;
+				// const x1 = clientX - (offsetX ?? 0);
+				// const y1 = clientY - (offsetY ?? 0);
+				// const x2 = x1 + (element.x2 - element.x1);
+				// const y2 = y1 + (element.y2 - element.y1);
+
+				if(elementRects && elementRects.length > 0) {
+					const newRects = [...elementRects].map(({coords: element, offsetX, offsetY, type}) => {
+						const x1 = clientX - (offsetX ?? 0);
+						const y1 = clientY - (offsetY ?? 0);
+						const x2 = x1 + (element.x2 - element.x1);
+						const y2 = y1 + (element.y2 - element.y1);
+						return {coords: {x1, y1, x2, y2}, type, offsetX, offsetY};
+					}).filter(c => c !== null);
+					console.log('setting element rects - ')
 					setElementRects(newRects);
 				}
+
+				if(selectionElementSelected) {
+					const element = selectionElements[selectionElements.length - 1] as SelectedElement;
+					if(element) {
+						const {offsetX, offsetY} = element;
+						const x1 = clientX - (offsetX ?? 0);
+						const y1 = clientY - (offsetY ?? 0);
+						const x2 = x1 + (element.x2 - element.x1);
+						const y2 = y1 + (element.y2 - element.y1);
+						const newElements = [element];
+						newElements[newElements.length - 1] = {...element, ...(createElement(element.id, 'rectangle', x1, y1, x2, y2, {strokeLineDash: [3,5]}))};
+						setSelectionElements(newElements);
+					}
+
+
+					for(let i = 0; i < selectedElements.length; i++) {
+						const element = selectedElements[i];
+						const {offsetX, offsetY} = element;
+						const x1 = clientX - (offsetX ?? 0);
+						const y1 = clientY - (offsetY ?? 0);
+						const x2 = x1 + (element.x2 - element.x1);
+						const y2 = y1 + (element.y2 - element.y1);
+						updateElement(element.id, x1, y1, x2, y2, element.type, {...(element.customOptions ?? {}),text: element.customOptions?.text, font: element.customOptions?.font});
+					}
+				} else if(selectedElement) {
+					const element = selectedElement;
+					const {offsetX, offsetY} = element;
+					const x1 = clientX - (offsetX ?? 0);
+					const y1 = clientY - (offsetY ?? 0);
+					const x2 = x1 + (element.x2 - element.x1);
+					const y2 = y1 + (element.y2 - element.y1);
+					updateElement(element.id, x1, y1, x2, y2, element.type, {...(element.customOptions ?? {}), text: element.customOptions?.text, font: element.customOptions?.font});
+				}
+				// selectedElements.forEach(element => {
+				// 	// const element = selectedElement as SelectedElement;
+				// 	const {offsetX, offsetY} = element;
+				// 	const x1 = clientX - (offsetX ?? 0);
+				// 	const y1 = clientY - (offsetY ?? 0);
+				// 	const x2 = x1 + (element.x2 - element.x1);
+				// 	const y2 = y1 + (element.y2 - element.y1);
+				// 	updateElement(element.id, x1, y1, x2, y2, element.type, {text: element.customOptions?.text, font: element.customOptions?.font});
+				// })
+				// const el = getSelectionElementCoords(element.type !== 'line' ? 'rectangle' : 'line', clientX, clientY, x1, y1, x2, y2);
+				// setSelectionCanvasElement(el as SelectionElement);
+			} else if(action === Action.RESIZE && selectedElement) {
+				const {id, type, position, customOptions, ...coordinates} = selectedElement;
+				if(position) {
+					// const {x1, y1, x2, y2} = resizedCoordinates(clientX, clientY, type, position, coordinates);
+					// updateElement(id, x1, y1, x2, y2, type, {...customOptions, width: x2 - x1});
+
+					if(elementRects.length === 1) {
+						let newRects = [...elementRects];
+						const {x1, y1, x2, y2} = resizedCoordinates(clientX, clientY, type, position, newRects[0].coords, true);
+						const rect = getElementCoordinatedWithElementRect({x1, y1, x2, y2}, type, selectedElement);
+						updateElement(id, rect.x1, rect.y1, rect.x2, rect.y2, type, {...customOptions, width: rect.x2 - rect.x1});
+						newRects[0] = {
+							...newRects,
+							type,
+							coords: {x1, y1, x2, y2},
+						}
+						console.log('setting element rects - ')
+						setElementRects(newRects);
+					}
+				}
+			} else if(action === Action.SELECT) {
+				const newElements = [...selectionElements];
+				const element = newElements.at(-1);
+				if(!element) return;
+				// const {x1, y1, x2, y2} = adjustElementCoordinates({x1: element.x1, y1: element.y1, x2: clientX1, y2: clientY1, type: 'rectangle'});
+				newElements[newElements.length - 1] = createElement(element.id, 'rectangle', element.x1, element.y1, clientX, clientY, {strokeLineDash: [3,5]});
+
+				const {x1, y1, x2, y2} = adjustElementCoordinates({x1: element.x1, y1: element.y1, x2: clientX, y2: clientY, type: 'rectangle'});
+				const intersectedElements = elements.filter((_element: any) => isElementIntersecting({x1, y1, x2, y2}, _element));
+
+				const rects = intersectedElements.filter(({x1, x2, y1, y2}) => x1 !== x2 || y1 !== y2).map(selectedElement => {
+					const {x1, y1, x2, y2} = selectedElement;
+					return createElementRect(clientX, clientY, selectedElement.type, x1, y1, x2, y2);
+					// return {
+					// 	coords: {x1: x1 - 4, y1: y1 - 4, x2: x2 + 4, y2: y2 + 4},
+					// 	type: selectedElement.type
+					// }
+				})
+				console.log('setting element rects - ')
+				setElementRects(rects);
+
+				setSelectedElements(intersectedElements);
+				setSelectionElements(newElements);
 			}
-		} else if(action === Action.SELECT) {
-			const newElements = [...selectionElements];
-			const element = newElements.at(-1);
-			if(!element) return;
-			// const {x1, y1, x2, y2} = adjustElementCoordinates({x1: element.x1, y1: element.y1, x2: clientX1, y2: clientY1, type: 'rectangle'});
-			newElements[newElements.length - 1] = createElement(element.id, 'rectangle', element.x1, element.y1, clientX, clientY, {strokeLineDash: [3,5]});
-
-			const {x1, y1, x2, y2} = adjustElementCoordinates({x1: element.x1, y1: element.y1, x2: clientX, y2: clientY, type: 'rectangle'});
-			const intersectedElements = elements.filter((_element: any) => isElementIntersecting({x1, y1, x2, y2}, _element));
-
-			const rects = intersectedElements.filter(({x1, x2, y1, y2}) => x1 !== x2 || y1 !== y2).map(selectedElement => {
-				const {x1, y1, x2, y2} = selectedElement;
-				return createElementRect(clientX, clientY, selectedElement.type, x1, y1, x2, y2);
-				// return {
-				// 	coords: {x1: x1 - 4, y1: y1 - 4, x2: x2 + 4, y2: y2 + 4},
-				// 	type: selectedElement.type
-				// }
-			})
-			setElementRects(rects);
-
-			setSelectedElements(intersectedElements);
-			setSelectionElements(newElements);
 		}
-	}
+
+		addEventListener('mousemove', handleMouseMove);
+		addEventListener('touchmove', handleMouseMove);
+
+		return () => {
+			removeEventListener('mousemove', handleMouseMove);
+			removeEventListener('touchmove', handleMouseMove);
+		}
+	}, [action, canvasX, canvasY, elementRects, elementType, elements, selectedElement, selectedElements, selectionElements, updateElement]);
+
+	useEffect(() => {
+
+		function handleMouseUp(e: any) {
+			const clientX = e.pageX - canvasX;
+			const clientY = e.pageY - canvasY;
+			if(selectedElement) {
+				if(
+					selectedElement.type === 'text' &&
+					e.detail === 2
+				) {
+					setAction(Action.WRITE);
+					return;
+				}
+			}
+			if((action === Action.DRAW || action === Action.RESIZE) && selectedElement) {
+				const element = elements.find(c => c.id === selectedElement.id);
+				if(!element) return;
+				if(isPoint(element)) {
+					setElements(elements.filter(c => c.id !== element.id));
+				} else {
+					const {x1, y1, x2, y2} = adjustElementCoordinates(element);
+					updateElement(element.id, x1, y1, x2, y2, element.type, {...(element.customOptions ?? {}), text: element.customOptions?.text, font: element.customOptions?.font});
+				}
+			}
+			if(action === Action.WRITE) {
+				return;
+			}
+			// setSelectedElements([]);
+			// setSelectionElements([]);
+			// if(action === Action.RESIZE && selectionCanvasElement) {
+			// setSelectionCanvasElement({...selectionCanvasElement, position: null});
+			// }
+			setAction(Action.NONE);
+			// setSelectedElement(null);
+		}
+
+		addEventListener('mouseup', handleMouseUp);
+		addEventListener('touchend', handleMouseUp);
+
+		return () => {
+			removeEventListener('mouseup', handleMouseUp);
+			removeEventListener('touchend', handleMouseUp);
+		}
+	}, [canvasX, canvasY, selectedElement, elements, action, setElements, updateElement]);
 
 	useEffect(() => {
 		function handleKeyDown(e: any) {
@@ -1198,7 +1255,7 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 
 		selectionElements.forEach(({type, x1, y1, x2, y2, roughOptions, id}) => {
 			if(roughOptions) {
-				const parsedRough = parseRoughState({ x1, y1, x2, y2, type }, roughOptions);
+				const parsedRough = parseRoughState({ x1, y1, x2, y2, type }, {...(roughOptions ?? {}), fill: 'transparent'});
 				parsedRough && roughCanvas.draw(parsedRough);
 			}
 		});
@@ -1206,7 +1263,7 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 		if(elementRects.length > 0) {
 			elementRects.forEach((elementRect) => {
 				const {coords: {x1, y1, x2, y2}} = elementRect;
-				roughCanvas.rectangle(x1, y1, x2 - x1, y2 - y1, {strokeLineDash: [3, 5], roughness: 0});
+				roughCanvas.rectangle(x1, y1, x2 - x1, y2 - y1, {strokeLineDash: [3, 5], roughness: 0, fill: 'transparent'});
 			})
 		}
 	}, [selectionElements, elementRects]);
@@ -1289,6 +1346,7 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 					const options = {width: element.customOptions?.width, italic: props.italic, bold: props.bold, text: element.customOptions?.text ?? '', fontSize: props.fontSize, fontFamily: props.fontFamily, font: `${props.italic ? 'italic ' : ''}${props.bold ? 'bold ' : ''}${props.fontSize}px ${props.fontFamily}`, fillStyle: element.customOptions?.fillStyle};
 					element && updateElement(element.id, element.x1, element.y1, element.x2, props.fontSize, element.type, options, (element) => {
 						const rect = createElementRect(0, 0, element.type, element.x1, element.y1, element.x2, element.y2);
+						rect && console.log('setting element rects - ')
 						if(rect) setElementRects([rect]);
 					}, true);
 				}
@@ -1325,15 +1383,16 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 		const file = e.target.files[0];
 		if(!file) return;
 
-		setExporting(true);
-		const url = await uploadImage(file);
-		setExporting(false);
+		// setExporting(true);
+		// const url = await uploadImage(file);
+		// setExporting(false);
+		const url = URL.createObjectURL(file);
 
 		if(!url) return;
 
 		handleBgImageAdd(url);
 		bgAddRef.current = url;
-		setBgImages((prev) => [...prev, url]);
+		setBgImages((prev) => [...bgImages, url]);
 	}
 
 	useEffect(() => {
@@ -1358,7 +1417,7 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 		const roughCanvas = rough.canvas(canvasEl);
 		setExporting(true);
 
-		if(imageUrl) {
+		if(bgImages[activeTab]) {
 			const img = new Image();
 
 			// img.src = 'http://localhost:3000/assets/images/carousel-images/1.png';
@@ -1370,11 +1429,23 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 				elements?.sort((a: Element, b: Element) => a.order - b.order).forEach((element: Element) => renderElement(ctx, roughCanvas, element));
 
 				try {
-					const url = canvasEl.toDataURL('image/png', 1);
-
-					setExporting(false);
-					handleExport(bgImages[activeTab], JSON.stringify(elements));
+					const base64 = canvasEl.toDataURL('image/png', 1);
+					const isNewBg = !_bgImages.some(c => c === bgImages[activeTab]);
+					canvasEl.toBlob((blob) => {
+						if(!blob) throw new Error('Blob not found');
+						setExporting(false);
+						const url = URL.createObjectURL(blob);
+						handleExport(url, imageObject?.get('url'), JSON.stringify(elements), isNewBg ? bgImages[activeTab] : undefined);
+					});
+					// const newBgs = bgImages.filter(c => !_bgImages.includes(c));
+					// if(newBgs.includes(bgImages[activeTab])) {
+					// }
+					// if(_bgImages.length !== bgImages.length) {
+						// handleExport(bgImages[activeTab], JSON.stringify(elements));
+					// }
 				} catch(e) {
+
+					console.error('Error exporting the image - ', e);
 
 					setExporting(false);
 					setSnackbarData({message: 'Error exporting the image. Please try again later!', status: 'error'});
@@ -1389,9 +1460,44 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 		}
 	}
 
+	const containerRef = useRef<HTMLDivElement>(null);
+	const toolItemRef = useRef<HTMLDivElement>(null);
+
+	const [containerPos, setContainerPos] = useState({top: 0, left: 0});
+
+	useEffect(() => {
+		function calc() {
+			const container = containerRef.current;
+			const tool = toolItemRef.current;
+			if(!container || !tool) return;
+			const rect = container.getBoundingClientRect();
+			const toolRect = tool.getBoundingClientRect();
+			
+			// Check for the container if it overflows the window
+			const newRightOfTool = rect.left + rect.width + toolRect.width;
+			if(newRightOfTool > window.innerWidth) {
+				setContainerPos({top: rect.top + (rect.height / 2), left: rect.left - toolRect.width});
+				return;
+			}
+
+			setContainerPos({top: rect.top + (rect.height / 2), left: rect.left + rect.width});
+		}
+
+		document.addEventListener('scroll', calc, true);
+		addEventListener('resize', calc);
+		
+		calc();
+
+		return () => {
+			document.removeEventListener('scroll', calc, true);
+			removeEventListener('resize', calc);
+		}
+
+	}, [containerRef.current, toolItemRef.current]);
+
 	return (
 		<>
-			<div className="w-full aspect-square relative">
+			<div ref={containerRef} className="w-full aspect-square relative">
 				{/* <div className='absolute top-0 left-1/2 z-20'>
 					<select onChange={e => setElementType(e.target.value as ElementType)} name="" id="">
 						{config.controls.map((control) => (
@@ -1448,8 +1554,9 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 				></canvas>
 				<canvas
 					onMouseDown={handleMouseDown}
-					onMouseUp={handleMouseUp}
-					onMouseMove={handleMouseMove}
+					onTouchStart={handleMouseDown}
+					// onMouseUp={handleMouseUp}
+					// onMouseMove={handleMouseMove}
 					className="w-full h-full absolute top-0 left-0 bg-transparent z-20" ref={canvasRef}
 				></canvas>
 				<div className='absolute z-30 bottom-full left-1/2 transform -translate-x-1/2 h-[40px] flex items-center justify-center'>
@@ -1491,10 +1598,12 @@ export default function EditCanvas({canvasState, bgImages: _bgImages = [], image
 					</SwipeableViews>
 				</div>}
 			</div>
-			<div className='absolute left-[calc(100%+10px)] top-1/2 transform -translate-y-1/2 z-20'>
-				{/*<EditTools initialFontDetails={selectedElement?.customOptions ? selectedElement?.customOptions : undefined} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />*/}
-				<EditTools initialFontDetails={selectedElement?.customOptions ? (selectedElement?.customOptions as FontFormat) : undefined} handleBgImageChange={handleBgImageChange} selectedType={selectedElement?.type} handleImageChange={handleImageChange} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />
-			</div>
+			<Portal id='canvastoolsportal'>
+				<div ref={toolItemRef} style={{top: containerPos.top, left: containerPos.left}} className='absolute left-[calc(100%+10px)] top-1/2 transform -translate-y-1/2 z-20'>
+					{/*<EditTools initialFontDetails={selectedElement?.customOptions ? selectedElement?.customOptions : undefined} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />*/}
+					<EditTools initialFontDetails={selectedElement?.customOptions ? (selectedElement?.customOptions as FontFormat) : undefined} handleBgImageChange={handleBgImageChange} selectedType={selectedElement?.type} handleImageChange={handleImageChange} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />
+				</div>
+			</Portal>
 			<div className='flex justify-end px-4 items-center gap-3 mt-3' onClick={() => {}}>
 				<button onClick={exportCanvas} className="bg-primary text-white text-xs px-4 py-1.5 leading-[16px] rounded cursor-pointer">Save</button>
 				<button onClick={handleClose} className='text-xs'>Cancel</button>

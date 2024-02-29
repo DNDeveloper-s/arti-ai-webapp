@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, FC} from 'react';
+import React, {useState, useEffect, useRef, FC, useContext, useMemo} from 'react';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
 import {timeSince, wait} from '@/helpers';
 import Image from 'next/image';
@@ -23,8 +23,11 @@ import { LuRefreshCw } from 'react-icons/lu';
 import { RxFontFamily, RxText } from 'react-icons/rx';
 import { IoMdColorPalette } from 'react-icons/io';
 import { staticGenerationAsyncStorage } from 'next/dist/client/components/static-generation-async-storage.external';
-import { updateVariant, useEditVariant } from '@/context/EditVariantContext';
+import { updateVariant, updateVariantImages, useEditVariant } from '@/context/EditVariantContext';
 import EditCanvas from '@/components/Canvas/EditCanvas';
+import { VariantImageObj } from '@/interfaces/IArtiBot';
+import { SnackbarContext } from '@/context/SnackbarContext';
+import { VariantImageMap } from '@/services/VariantImageMap';
 
 
 export enum REGENERATE_SECTION {
@@ -53,6 +56,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	const [regenerateMap, setRegenerateMap] = useState<RegenerateMap | null>({});
 	const [showPreview, setShowPreview] = useState<boolean>(false);
 	const [isEdittingImage, setIsEdittingImage] = useState<boolean>(false);
+	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 
 	function handleLike() {
 		setReactionState(c => c === REACTION.LIKED ? REACTION.NEUTRAL : REACTION.LIKED);
@@ -62,23 +66,29 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NEUTRAL : REACTION.DISLIKED);
 	}
 
+	const isCreatedImageMapRef = useRef<boolean>(false);
+
 	useEffect(() => {
-		if(editVariantState.variant) {
+		if(editVariantState.variant && !isCreatedImageMapRef.current) {
 			const newVariant = {...editVariantState.variant};
 
-			if(!newVariant.imageMap) {
-				newVariant.imageMap = {
-					main: newVariant.imageUrl,
-					versionInfo: {
-						totalVersions: 0,
-						list: []
-					},
-					versions: {},
-					generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
-				};
-
-				updateVariant(editDispatch, newVariant);
+			if(!newVariant.images || newVariant.images.length === 0) {
+				const newImageObj = {
+					url: newVariant.imageUrl,
+					bgImage: newVariant.imageUrl,
+					timestamp: new Date().toISOString(),
+				}
+				const imageMap = new VariantImageMap(newImageObj);
+				const images = [imageMap];
+				updateVariantImages(editDispatch, images);
+			} else {
+				const images = newVariant.images.map(g => {
+					if(g instanceof VariantImageMap) return g;
+					return new VariantImageMap(g);
+				});
+				updateVariantImages(editDispatch, images);
 			}
+			isCreatedImageMapRef.current = true;
 		}
 	}, [editVariantState.variant, editDispatch]);
 
@@ -105,8 +115,6 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 			? <Image key={editVariantState?.variant?.imageUrl ?? imageUrl} width={600} height={100} className="mb-[0.5em] w-full" src={editVariantState?.variant?.imageUrl ?? imageUrl ?? dummyImage} alt="Ad Image" />
 			: lottieAnimationJSX;
 
-	console.log('editVariantState - ', editVariantState.variant);
-
 	async function handleEdit(cs: CONTROL_STATE, key: REGENERATE_SECTION) {
 		setRegenerateMap(c => ({...c, selected: key as REGENERATE_SECTION}));
 
@@ -128,16 +136,58 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 
 	}
 
-	function handleExport(url: string, state: string) {
+	function handleExport(url: string, oldUrl?: string | null, state?: string, newImage?: string) {
         if(!editVariantState.variant) return;
         const newVariant = {...editVariantState.variant};
+		let variantImages = [...(editVariantState.variantImages ?? [])];
 
-		if(!newVariant.imageMap) {
-			newVariant.imageMap = {
-				main: newVariant.imageUrl,
-				generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}],
-			};
+		// if(!newVariant.images || newVariant.images.length === 0) {
+		// 	const newImageObj = {
+		// 		url: newVariant.imageUrl,
+		// 		bgImage: newVariant.imageUrl,
+		// 		timestamp: new Date().toISOString(),
+		// 	}
+		// 	newVariant.images = [newImageObj];
+		// 	// updateVariant(editDispatch, newVariant);
+		// }
+
+		let createdImageObj = {
+			bgImage: newImage ?? url,
+			url,
+			canvasState: state,
+			timestamp: new Date().toISOString(),
 		}
+		if(!newImage) {
+			const prevImageObj = variantImages.find(c => c.get('url') === oldUrl);
+			const bgImage = prevImageObj?.get('bgImage');
+			if(prevImageObj && bgImage) {
+				createdImageObj = {
+					bgImage,
+					url,
+					canvasState: state,
+					timestamp: new Date().toISOString(),
+				}
+			} else {
+				return setSnackbarData({message: 'Couldn\'t find the background image!', status: 'warning'});
+			}
+		}
+
+		if(newImage) {
+			variantImages = [
+				...variantImages,
+				new VariantImageMap(createdImageObj)
+			];
+		} else {
+			const index = variantImages.findIndex(c => c.get('url') === oldUrl);
+			if(index < 0) return setSnackbarData({message: 'Couldn\'t find the background image!', status: 'warning'});
+			variantImages[index] = variantImages[index].update(createdImageObj);
+		}
+		newVariant.imageUrl = url;
+
+		console.log('testing variantImages | variantImages - ', variantImages);
+		// console.log('testing variantImages | newVariant - ', newVariant);
+		updateVariant(editDispatch, newVariant);
+		updateVariantImages(editDispatch, variantImages);
 
 		// const versions = {
 		// 	...(newVariant.imageMap.versions ?? {}),
@@ -152,13 +202,12 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		// 	list: Object.keys(versions)
 		// }
 
-    newVariant.imageUrl = url;
-		newVariant.imageMap.generatedImages = [
-			...newVariant.imageMap.generatedImages,
-			{url, timestamp: new Date().toISOString()}
-		];
-		newVariant.imageMap.canvasState = state;
-    updateVariant(editDispatch, newVariant);
+    // newVariant.imageUrl = url;
+	// 	newVariant.imageMap.generatedImages = [
+	// 		...newVariant.imageMap.generatedImages,
+	// 		{url, timestamp: new Date().toISOString()}
+	// 	];
+	// 	newVariant.imageMap.canvasState = state;
 		handleClose();
 	}
 
@@ -172,9 +221,13 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		// updateVariant(editDispatch, newVariant);
 	}
 
-	const imageUrlToEdit = editVariantState?.variant?.imageMap?.main ?? editVariantState?.variant?.imageUrl ?? imageUrl ?? adVariant.imageUrl;
+	const imageObject = useMemo(() => {
+		return editVariantState?.variantImages?.find(c => c.get('url') === editVariantState?.variant?.imageUrl);
+	}, [editVariantState?.variantImages, editVariantState?.variant?.imageUrl]);
 
-	const bgImages: string[] = [...(editVariantState?.variant?.imageMap?.generatedImages ?? []).map(g => g.url).filter(c => c !== null)];
+	const imageUrlToEdit = imageObject?.get('bgImage') ?? imageObject?.get('url') ?? editVariantState?.variant?.imageUrl ?? imageUrl ?? adVariant.imageUrl;
+
+	const bgImages: string[] = [...(editVariantState?.variantImages ?? []).map(g => g.get('bgImage')).filter(c => c !== null && c !== undefined)];
 
 	return (
 		<>
@@ -213,7 +266,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 				{isEdittingImage ? (
 					<>
 						<div className='w-full'>
-							<EditCanvas handleBgImageAdd={handleBgImageAdd} bgImages={bgImages} canvasState={editVariantState.variant?.imageMap?.canvasState} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
+							<EditCanvas imageObject={imageObject} handleBgImageAdd={handleBgImageAdd} bgImages={bgImages} canvasState={imageObject?.canvasState} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
 						</div>
 					</>
 				) : <EditControl type={'image'} handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'text-[1.6em] ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleEdit={handleEdit}>
@@ -244,7 +297,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 						<span>Save</span>
 					</CTAButton>
 					<div className='text-xs cursor-pointer' onClick={handleEditVariantClose}>
-						<span>Cancel</span>
+						<span>Close</span>
 					</div>
 				</div>
 			</div>

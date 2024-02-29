@@ -1,9 +1,14 @@
 'use client'
 
-import {useEffect, useState} from 'react';
+import {FC, useEffect, useState} from 'react';
 import {createPortal} from 'react-dom';
 
-const Portal = ({children}) => {
+interface PortalProps {
+	children: React.ReactNode;
+	id?: 'myportal' | 'canvastoolsportal';
+}
+
+const Portal: FC<PortalProps> = ({children, id = 'myportal'}) => {
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
@@ -12,7 +17,7 @@ const Portal = ({children}) => {
 	}, [])
 
 	return mounted
-		? createPortal(<>{children}</>, document.querySelector('#myportal'))
+		? createPortal(<>{children}</>, document.getElementById(id))
 		: null;
 }
 

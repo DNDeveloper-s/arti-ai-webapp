@@ -8,6 +8,7 @@ import {ChatGPTMessageObj, FeedBackKey, IAdVariant} from '@/interfaces/IArtiBot'
 import {useSession} from 'next-auth/react';
 import ObjectId from 'bson-objectid';
 import { REGENERATE_SECTION } from '@/components/ArtiBot/EditAdVariant/EditAdVariant';
+import { VariantImageMap } from '@/services/VariantImageMap';
 
 interface IEditVariantData {
 	variant?: IAdVariant;
@@ -21,6 +22,7 @@ enum EDIT_VARIANT_ACTION_TYPE {
     STOP_EDITING_VARIANT = 'STOP_EDITING_VARIANT',
     UPDATE_VARIANT = 'UPDATE_VARIANT',
 	REGENERATE_VARIANT_IMAGE = 'REGENERATE_VARIANT_IMAGE',
+	UPDATE_VARIANT_IMAGES = 'UPDATE_VARIANT_IMAGES'
 }
 
 // An interface for our actions
@@ -36,6 +38,7 @@ interface IError {
 interface IEditVariantState {
 	variant?: IAdVariant;
 	regeneratedImages?: Record<IAdVariant['id'], string[]>
+	variantImages?: VariantImageMap[];
 }
 
 export const initEditVariantState: IEditVariantState = {
@@ -53,7 +56,8 @@ function editVariantReducer(state: IEditVariantState, action: EditVariantAction)
 		case EDIT_VARIANT_ACTION_TYPE.STOP_EDITING_VARIANT:
 			return {
 				...state,
-				variant: undefined
+				variant: undefined,
+				variantImages: undefined
 			}
         case EDIT_VARIANT_ACTION_TYPE.UPDATE_VARIANT:
 			return {
@@ -71,6 +75,11 @@ function editVariantReducer(state: IEditVariantState, action: EditVariantAction)
 			return {
 				...state,
 				regeneratedImages: images
+			}
+		case EDIT_VARIANT_ACTION_TYPE.UPDATE_VARIANT_IMAGES:
+			return {
+				...state,
+				variantImages: payload
 			}
 		default:
 			return state;
@@ -137,6 +146,13 @@ export function updateVariant(dispatch: (a: EditVariantAction) => void, variant:
 	dispatch({
 		type: EDIT_VARIANT_ACTION_TYPE.UPDATE_VARIANT,
 		payload: variant
+	})
+}
+
+export function updateVariantImages(dispatch: (a: EditVariantAction) => void, variantImages: VariantImageMap[]) {
+	dispatch({
+		type: EDIT_VARIANT_ACTION_TYPE.UPDATE_VARIANT_IMAGES,
+		payload: variantImages
 	})
 }
 

@@ -2,11 +2,12 @@ import Loader from '@/components/Loader';
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { RiAiGenerate, RiEditFill, RiRefreshLine } from 'react-icons/ri';
 import GeneratedSuggestions from './GeneratedSuggestions';
-import { regenerateVariantData, updateVariant, useEditVariant } from '@/context/EditVariantContext';
+import { regenerateVariantData, updateVariant, updateVariantImages, useEditVariant } from '@/context/EditVariantContext';
 import { FaDownload, FaUpload } from 'react-icons/fa6';
 import { IoMdClose } from 'react-icons/io';
 import { REGENERATE_SECTION } from './EditAdVariant';
 import { SnackbarContext } from '@/context/SnackbarContext';
+import { VariantImageMap } from '@/services/VariantImageMap';
 
 interface EditControlBaseProps {
     controlKey: REGENERATE_SECTION;
@@ -94,21 +95,42 @@ const EditControl: FC<EditControlProps> = (props) => {
         if(props.type === 'image') {
             const newVariant = {...state.variant};
 
-            if(!newVariant.imageMap) {
-                newVariant.imageMap = {
-                    main: newVariant.imageUrl,
-                    versionInfo: {
-                        totalVersions: 0,
-                        list: []
-                    },
-                    versions: {},
-                    generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
-                };
-            }
+            // if(!newVariant.images || newVariant.images.length === 0) {
+            //     const newImageObj = {
+            //         url: newVariant.imageUrl,
+            //         bgImage: newVariant.imageUrl,
+            //         timestamp: new Date().toISOString(),
+            //     }
+            //     newVariant.images = [newImageObj];
+            // }
 
-            if(newVariant.imageMap.generatedImages.length === 0) newVariant.imageMap.generatedImages = [{url: newVariant.imageMap.main, timestamp: new Date().toISOString()}]
-            newVariant.imageMap.generatedImages = [...(newVariant.imageMap.generatedImages ?? []), {url: _suggestions, timestamp: new Date().toISOString()}];
-            updateVariant(dispatch, newVariant);
+            // if(!newVariant.images) {
+            //     newVariant.imageMap = {
+            //         main: newVariant.imageUrl,
+            //         versionInfo: {
+            //             totalVersions: 0,
+            //             list: []
+            //         },
+            //         versions: {},
+            //         generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
+            //     };
+            // }
+
+            state.variantImages = [...state.variantImages ?? []];
+
+            const newImageObject = {
+                url: _suggestions,
+                bgImage: _suggestions,
+                timestamp: new Date().toISOString(),
+            }
+            
+            state.variantImages.push(new VariantImageMap(newImageObject));
+
+            updateVariantImages(dispatch, state.variantImages);
+
+            // if(newVariant.imageMap.generatedImages.length === 0) newVariant.imageMap.generatedImages = [{url: newVariant.imageMap.main, timestamp: new Date().toISOString()}]
+            // newVariant.imageMap.generatedImages = [...(newVariant.imageMap.generatedImages ?? []), {url: _suggestions, timestamp: new Date().toISOString()}];
+            // updateVariant(dispatch, newVariant);
         }
 
         setLoading(false);
@@ -131,17 +153,26 @@ const EditControl: FC<EditControlProps> = (props) => {
         }
         const newVariant = {...state.variant};
 
-		if(!newVariant.imageMap) {
-			newVariant.imageMap = {
-				main: newVariant.imageUrl,
-				versionInfo: {
-					totalVersions: 0,
-					list: []
-				},
-				versions: {},
-				generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
-			};
-		}
+        // if(!newVariant.images || newVariant.images.length === 0) {
+        //     const newImageObj = {
+        //         url: newVariant.imageUrl,
+        //         bgImage: newVariant.imageUrl,
+        //         timestamp: new Date().toISOString(),
+        //     }
+        //     newVariant.images = [newImageObj];
+        // }
+
+		// if(!newVariant.imageMap) {
+		// 	newVariant.imageMap = {
+		// 		main: newVariant.imageUrl,
+		// 		versionInfo: {
+		// 			totalVersions: 0,
+		// 			list: []
+		// 		},
+		// 		versions: {},
+		// 		generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
+		// 	};
+		// }
 
 		// const versions = {
 		// 	...(newVariant.imageMap.versions ?? {}),
@@ -157,7 +188,6 @@ const EditControl: FC<EditControlProps> = (props) => {
 		// }
 
         newVariant.imageUrl = suggestion;
-		newVariant.imageMap.main = suggestion;
         return updateVariant(dispatch, newVariant);
     }
 
@@ -197,7 +227,7 @@ const EditControl: FC<EditControlProps> = (props) => {
         handleClick(CONTROL_STATE.GENERATE, extraInput);
     }
 	
-    const bgImages: string[] = state.variant ? [...(state?.variant?.imageMap?.generatedImages ?? []).map(g => g.url).filter(c => c !== null)] : [];
+    const bgImages: string[] = state.variant ? [...(state?.variantImages ?? []).map(g => g.get('url')).filter(c => c !== null && c !== undefined)] : [];
 
     return (
         <>

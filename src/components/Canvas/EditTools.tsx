@@ -382,11 +382,14 @@ interface LayerToolProps extends LayersProps {
 }
 export const LayerTools: FC<LayerToolProps> = ({selected, ...props}) => {
     const [showOptions, setShowOptions] = useState(selected);
+    const disabled = !props.list || props.list.length === 0;
 
     const ref = useRef(null);
 
     const handleClickOutside = () => {
         // if(disabled) return;
+        const count = document && document.querySelector('#myportal')?.childElementCount;
+        if(count !== undefined && count > 0) return;
         setShowOptions(false);
     }
 
@@ -403,7 +406,7 @@ export const LayerTools: FC<LayerToolProps> = ({selected, ...props}) => {
               <IoLayers />
           </div>
           {showOptions && <div className={'absolute left-[calc(100%+15px)] top-0 rounded'}>
-              <Layers {...props} />
+            <Layers disabled={disabled} {...props} />
           </div>}
       </div>
     )
@@ -424,6 +427,7 @@ const EditTools: FC<EditToolsProps> = ({handleFormatChange, ...props}) => {
     const [fontDetails, setFontDetails] = useState<FontFormat>(props.initialFontDetails ?? defaultFontDetails);
     const [fontFamilies, setFontFamilies] = useState<LiveSelectOption[]>([]);
     const fontDetailsRef = useRef<FontFormat>(props.initialFontDetails ?? defaultFontDetails);
+
     // Upload a new image
     // Selection
     // Text
@@ -477,6 +481,7 @@ const EditTools: FC<EditToolsProps> = ({handleFormatChange, ...props}) => {
 
     useEffect(() => {
         if(fontDetailsChangedRef.current) {
+            console.log('fontDetails - ', fontDetails);
             handleFormatChange(fontDetails, fontDetailsChangedRef.current !== 'shallow');
             fontDetailsChangedRef.current = false;
         }

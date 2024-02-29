@@ -69,6 +69,13 @@ export type AdType = "Instagram Story Ad" | "LinkedIn Sponsored Content" | "Goog
 
 type VersionKey = 'latest' | `v${number}` | string;
 
+export interface VariantImageObj {
+	bgImage: string;
+	canvasState?: string | null;
+	url: string;
+	timestamp: string;
+}
+
 export interface IAdVariantImageMap {
 	main: string;
 	canvasState?: string;
@@ -91,12 +98,12 @@ export interface IAdVariant extends MongooseModel {
 	image: string;
 	text: string;
 	imageUrl: string;
+	images: VariantImageObj[];
 	oneLiner: string;
 	imageDescription: string;
 	adOrientation: string;
 	rationale: string;
 	canvasState?: string;
-	imageMap: IAdVariantImageMap;
 	feedback?: FeedbackData
 }
 

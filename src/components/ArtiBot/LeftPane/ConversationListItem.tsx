@@ -53,7 +53,6 @@ export const CardStackImages: FC<CardStackImagesProps> = ({images: _images}) => 
 
 		img.onload = () => {
 			setS('s');
-			console.log('Loading Image - ', img.src);
 			setImages(c => {
 				c[index] = image;
 				return c;
@@ -98,7 +97,6 @@ const ConversationListItem: FC<ConversationListItemProps> = ({conversationId, ..
 
 	useEffect(() => {
 		const list = getLastAdCreativeByConversationId(conversationId);
-		console.log('variantImages - ', list);
 		if(!list) return setImages([]);
 		const variantImages = list.variants.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map(v => v.imageUrl);
 		setImages(variantImages);

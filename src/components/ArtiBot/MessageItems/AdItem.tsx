@@ -11,6 +11,8 @@ import { startEditingVariant, stopEditingVariant, useEditVariant } from '@/conte
 import {updateVariantToDB, useConversation} from '@/context/ConversationContext';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import Loader from '@/components/Loader';
+import { dbImagesPrefixes } from '@/constants';
+import uploadImage from '@/services/uploadImage';
 
 function ConversationAdVariant({variantId}: {variantId: string}) {
 	const {dispatch, state: editState} = useEditVariant();
@@ -35,8 +37,77 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 
 	async function handleSaveVariant() {
 		// updateVariant(editState.variant as IAdVariant);
+		if(!editState.variant) {
+			return setSnackbarData({message: 'Oops! Failed to Update Variant.', status: 'error'});
+		}
 		setUpdating(true);
-		const variantFromDB = await updateVariantToDB(conversationDispatch, editState.variant as IAdVariant);
+		// const variantState = !!editState.variant?.id && state.variant.map[editState.variant.id];
+		// console.log('testing variantState imageUrl - ', variantState ? variantState.imageUrl : null);
+		// console.log('testing variantState images - ', variantState ? variantState.images : null);
+		// if(!variantState) {
+		// 	setUpdating(false);
+		// 	return setSnackbarData({message: 'Oops! Failed to Update Variant.', status: 'error'});
+		// }
+		// if(!variantState.images || variantState.images.length === 0) {
+		// 	variantState.images = [{
+		// 		url: variantState.imageUrl,
+		// 		bgImage: variantState.imageUrl,
+		// 		timestamp: new Date().toISOString()
+		// 	}];
+		// }
+		// if(variantState.imageUrl !== editState.variant?.imageUrl) {
+		// 	const imageObject = editState.variant?.images?.find(image => image.url === editState.variant?.imageUrl);
+		// 	if(!imageObject) {
+		// 		return setSnackbarData({message: 'Oops! Failed to Update Variant.', status: 'error'});
+		// 	}
+		// 	const inVariantState = variantState.images.findIndex(image => image.url === editState.variant?.imageUrl);
+		// 	if(inVariantState < 0) {
+		// 		variantState.images.push(imageObject);
+		// 	} else {
+		// 		variantState.images[inVariantState] = imageObject;
+		// 	}
+		// }
+		const newVariant = {...editState.variant};
+		// newVariant.images = variantState.images;
+		const variantImages = [...(editState.variantImages ?? [])]
+		for (let i = 0; i < variantImages.length; i++) {
+			const image = variantImages[i];
+
+			// Should get new when
+			// 1. it's url matches with imageUrl
+			// 2. it's url and bgImage both contains allowedBgImagesPrefixes
+			const isCurrentImage = image.get('url') === editState.variant?.imageUrl;
+			const cond = [
+				isCurrentImage,
+				dbImagesPrefixes.some(prefix => image.get('url')?.includes(prefix) && image.get('bgImage')?.includes(prefix))
+			]
+
+			if(isCurrentImage) {
+				if(image.get('url')?.startsWith('blob:')) {
+					// upload image to s3 and update url
+					const url = await uploadImage(image.get('url'));
+				}
+				if(image.get('bgImage')?.startsWith('blob:')) {
+					// upload image to s3 and update bgImage
+					const url = await uploadImage(image.get('url'));
+				}
+			}
+
+			const shouldGetNew = cond.every(c => c);
+
+			// newVariant.images[i] = {
+			// 	url: image.get('url'),
+			// 	bgImage: image.get('bgImage'),
+			// 	timestamp: image.get('timestamp')
+			// };
+		}
+
+		console.log('testing newVariant - ', newVariant, editState.variantImages);
+
+		setUpdating(false);
+		return;
+		
+		const variantFromDB = await updateVariantToDB(conversationDispatch, newVariant as IAdVariant);
 		setUpdating(false);
 		if(variantFromDB) {
 			stopEditingVariant(dispatch);

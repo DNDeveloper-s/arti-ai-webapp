@@ -24,6 +24,8 @@ export function useClickAway<T extends HTMLElement = HTMLElement>(
 
     useEffect(() => {
         function listener(event: MouseEvent | TouchEvent) {
+            if(!Array.isArray(ref) && !ref?.current) return;
+
             const target = event.target as Node
 
             // Do nothing if the target is not connected element with document
@@ -36,7 +38,7 @@ export function useClickAway<T extends HTMLElement = HTMLElement>(
             : ref.current && !ref.current.contains(target)
         
             if (isOutside) {
-            handler(event)
+                handler(event)
             }
         };
 
@@ -50,5 +52,5 @@ export function useClickAway<T extends HTMLElement = HTMLElement>(
                 document.removeEventListener(eventType, listener)
             })
         }
-    }, [])
+    }, [ref, handler, eventType])
 }

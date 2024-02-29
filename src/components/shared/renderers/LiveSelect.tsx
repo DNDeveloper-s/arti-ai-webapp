@@ -57,6 +57,7 @@ const LiveSelect: FC<LiveSelectProps> = ({options, name, defaultValue, handleCha
     function handleFocusIn(index: number) {
         // console.log('handleFocusIn', option);
         setActiveIndex(index);
+        handleChange(name, options[index]);
         containerRef.current?.focus();
     }
 
@@ -64,16 +65,29 @@ const LiveSelect: FC<LiveSelectProps> = ({options, name, defaultValue, handleCha
         if(e.key === 'ArrowDown') {
             e.preventDefault();
             setEnableMouseOver(false);
+            let callCount = 0;
             setActiveIndex((prev) => {
-                if(prev < options.length - 1) return prev + 1;
-                return prev;
+                let val = prev;
+                if(prev < options.length - 1) val = prev + 1;
+                if(callCount === 0) {
+                    callCount++;
+                    handleChange(name, options[val]);
+                }
+                return val;
             });
         } else if(e.key === 'ArrowUp') {
             e.preventDefault();
             setEnableMouseOver(false);
+            let callCount = 0;
             setActiveIndex((prev) => {
-                if(prev > 0) return prev - 1;
-                return prev;
+                let val = prev;
+                if(prev > 0) val = prev - 1;
+                if(callCount === 0) {
+                    callCount++;
+                    handleChange(name, options[val]);
+                }
+                return val;
+                
             });
         } else if(e.key === 'Enter') {
             setSelectedIndex(activeIndex);
@@ -102,14 +116,6 @@ const LiveSelect: FC<LiveSelectProps> = ({options, name, defaultValue, handleCha
         setActiveIndex(selectedRefIndex.current);
         setShowOptions(false);
     }
-
-    useEffect(() => {
-        handleChange(name, options[activeIndex]);
-    }, [activeIndex, name, handleChange, options]);
-
-    useEffect(() => {
-        handleChange(name, options[selectedIndex]);
-    }, [selectedIndex, name, handleChange, options]);
 
     return (
       <div className='w-full h-full relative'>

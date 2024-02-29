@@ -1,6 +1,17 @@
 import {ROUTES} from '@/config/api-config';
+import { blobUrlToBlobObject } from '@/utils/transformers';
 
-export default async function uploadImage(file: any) {
+export default async function uploadImage(_file: any) {
+	let file = _file;
+	if(_file instanceof FileList) {
+		file = _file[0];
+	}
+	if(typeof _file === 'string' && _file.startsWith('blob:')) {
+		file = await blobUrlToBlobObject(_file);
+	}
+	if(!file) {
+		throw new Error('No file provided');
+	}
 	const formData = new FormData();
 	formData.append('file', file);
 	try {
