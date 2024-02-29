@@ -39,28 +39,19 @@ export const authOptions: AuthOptions = {
 			checks: 'none',
 		}),
 
-		// 		713068484341612
-		// e7afa5fce3a6e6c5f10fc530eeb0346f
-
-
-		// clientId: "645064660474863",
-		// clientSecret: "cdcb46d7a5014b2e9d6b9936c4156c0d",
-
 		// update npm i command
 		FacebookProvider({
-			clientId: "645064660474863",
-			clientSecret: "cdcb46d7a5014b2e9d6b9936c4156c0d",
-			// clientId: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_ID : process.env.FACEBOOK_PROD_CLIENT_ID,
-			// clientSecret: process.env.NODE_ENV === 'development' ? process.env.FACEBOOK_DEV_CLIENT_SECRET : process.env.FACEBOOK_PROD_CLIENT_SECRET,
+			clientId: process.env.NODE_ENV == 'development' ? process.env.FACEBOOK_DEV_CLIENT_ID : process.env.FACEBOOK_PROD_CLIENT_ID,
+			clientSecret: process.env.NODE_ENV == 'development' ? process.env.FACEBOOK_DEV_CLIENT_SECRET : process.env.FACEBOOK_PROD_CLIENT_SECRET,
 			authorization: "https://www.facebook.com/v11.0/dialog/oauth?scope=ads_management,pages_show_list,pages_read_engagement",
 			// idToken: true,
 			profile(profile: any, token: any) {
-				console.log(`Profile: ${JSON.stringify(profile)} and token: ${JSON.stringify(token)}`);
+				console.log(`Facebook Profile: ${JSON.stringify(profile)} and token: ${JSON.stringify(token)}`);
 				return {
 					id: profile.id,
 					name: profile.name,
-					email: profile.id,
-					image: token.access_token,
+					email: profile.email,
+					image: profile.image,
 				}
 			},
 			userinfo: {
@@ -110,116 +101,115 @@ export const authOptions: AuthOptions = {
 			console.log(`callback signIn: profile: ${JSON.stringify(profile)}`)
 
 
-			if (profile?.name) {
-				// Split the "name" field into "first_name" and "last_name"
-				const [first_name, last_name] = profile.name.split(' ');
+			// if (profile?.name) {
+			// 	// Split the "name" field into "first_name" and "last_name"
+			// 	const [first_name, last_name] = profile.name.split(' ');
 
-				// Use the Prisma client to create or update the user
-				const existingUser = await prisma.user.findUnique({
-					where: { email: user.email },
-				});
+			// 	// Use the Prisma client to create or update the user
+			// 	const existingUser = await prisma.user.findUnique({
+			// 		where: { email: user.email },
+			// 	});
 
-				if (existingUser) {
-					// Update the user's first_name and last_name
+			// 	if (existingUser) {
+			// 		// Update the user's first_name and last_name
 
-					const accountObject = {
-						type: account.type as string,
-						id_token: account.id_token,
-						token_type: account.token_type,
-						access_token: account.access_token,
-						scope: account.scope,
-						expires_at: account.expires_at,
-						provider: account.provider,
-						providerAccountId: account.providerAccountId
-					}
+			// 		const accountObject = {
+			// 			type: account.type as string,
+			// 			id_token: account.id_token,
+			// 			token_type: account.token_type,
+			// 			access_token: account.access_token,
+			// 			scope: account.scope,
+			// 			expires_at: account.expires_at,
+			// 			provider: account.provider,
+			// 			providerAccountId: account.providerAccountId
+			// 		}
 
-					const existingAccount = await prisma.account.findUnique({
-						where: {
-							provider_providerAccountId: {
-								provider: account.provider,
-								providerAccountId: account.providerAccountId
-							}
-						}
-					});
+			// 		const existingAccount = await prisma.account.findUnique({
+			// 			where: {
+			// 				provider_providerAccountId: {
+			// 					provider: account.provider,
+			// 					providerAccountId: account.providerAccountId
+			// 				}
+			// 			}
+			// 		});
 
-					if (!existingAccount) {
-						await prisma.account.create({
-							data: {
-								provider: account.provider as string,
-								providerAccountId: account.providerAccountId as string,
-								type: account.type as string,
-								user: { connect: { id: existingUser.id as string } },
-								id_token: account.id_token,
-								token_type: account.token_type,
-								access_token: account.access_token,
-								scope: account.scope,
-								expires_at: account.expires_at,
-							},
-						});
-					} else {
-						await prisma.account.update({
-							where: {
-								provider_providerAccountId: {
-									provider: account.provider,
-									providerAccountId: account.providerAccountId
-								}
-							},
-							data: accountObject,
-						});
-					}
+			// 		if (!existingAccount) {
+			// 			await prisma.account.create({
+			// 				data: {
+			// 					provider: account.provider as string,
+			// 					providerAccountId: account.providerAccountId as string,
+			// 					type: account.type as string,
+			// 					user: { connect: { id: existingUser.id as string } },
+			// 					id_token: account.id_token,
+			// 					token_type: account.token_type,
+			// 					access_token: account.access_token,
+			// 					scope: account.scope,
+			// 					expires_at: account.expires_at,
+			// 				},
+			// 			});
+			// 		} else {
+			// 			await prisma.account.update({
+			// 				where: {
+			// 					provider_providerAccountId: {
+			// 						provider: account.provider,
+			// 						providerAccountId: account.providerAccountId
+			// 					}
+			// 				},
+			// 				data: accountObject,
+			// 			});
+			// 		}
 
-					await prisma.user.update({
-						where: { email: user.email },
-						data: {
-							accounts: {
-								connect: {
-									provider_providerAccountId: {
-										provider: account.provider,
-										providerAccountId: account.providerAccountId
-									}
-								}
-							}
-						},
-					});
-				} else {
-					// Create a new user with first_name and last_name
-					const _user = await prisma.user.create({
-						data: {
-							email: user.email,
-							first_name,
-							last_name,
-							// Other user properties
-						},
-					});
+			// 		await prisma.user.update({
+			// 			where: { email: user.email },
+			// 			data: {
+			// 				accounts: {
+			// 					connect: {
+			// 						provider_providerAccountId: {
+			// 							provider: account.provider,
+			// 							providerAccountId: account.providerAccountId
+			// 						}
+			// 					}
+			// 				}
+			// 			},
+			// 		});
+			// 	} else {
+			// 		// Create a new user with first_name and last_name
+			// 		const _user = await prisma.user.create({
+			// 			data: {
+			// 				email: user.email,
+			// 				first_name,
+			// 				last_name,
+			// 				// Other user properties
+			// 			},
+			// 		});
 
-					await prisma.account.create({
-						data: {
-							provider: account.provider as string,
-							providerAccountId: account.providerAccountId as string,
-							type: account.type as string,
-							user: { connect: { id: _user.id, } },
-							id_token: account.id_token,
-							token_type: account.token_type,
-							access_token: account.access_token,
-							scope: account.scope,
-							expires_at: account.expires_at,
-						},
-					});
+			// 		await prisma.account.create({
+			// 			data: {
+			// 				provider: account.provider as string,
+			// 				providerAccountId: account.providerAccountId as string,
+			// 				type: account.type as string,
+			// 				user: { connect: { id: _user.id, } },
+			// 				id_token: account.id_token,
+			// 				token_type: account.token_type,
+			// 				access_token: account.access_token,
+			// 				scope: account.scope,
+			// 				expires_at: account.expires_at,
+			// 			},
+			// 		});
 
-				}
-			} else {
-				console.log('signin with facebook was successful')
-			}
+			// 	}
+			// } else {
+			// 	console.log('signin with facebook was successful')
+			// }
 			return true;
 		},
 		async redirect({ url, baseUrl }) {
-			console.log(`Redirect: ${JSON.stringify(baseUrl)}`)
 			return baseUrl
 		},
 		async session({ session, user, token }) {
-			console.log(`callback session :Session: ${JSON.stringify(session)}`)
-			console.log(`callback session :user: ${JSON.stringify(user)}`)
-			console.log(`callback session :token: ${JSON.stringify(token)}`)
+			console.log(`callback session: session: ${JSON.stringify(session)}`)
+			console.log(`callback session: user: ${JSON.stringify(user)}`)
+			console.log(`callback session: token: ${JSON.stringify(token)}`)
 
 			if (!session || !session.user || !session.user.email) return session;
 
@@ -243,6 +233,11 @@ export const authOptions: AuthOptions = {
 			}
 		},
 		async jwt({ token, user, account, profile, isNewUser }) {
+			console.log(`callback jwt: token: ${JSON.stringify(token)}`)
+			console.log(`callback jwt: user: ${JSON.stringify(user)}`)
+			console.log(`callback jwt: account: ${JSON.stringify(account)}`)
+			console.log(`callback jwt: profile: ${JSON.stringify(profile)}`)
+			console.log(`callback jwt: isNewUser: ${JSON.stringify(isNewUser)}`)
 			return token;
 
 		}
