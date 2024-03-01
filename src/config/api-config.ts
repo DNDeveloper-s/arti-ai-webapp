@@ -61,4 +61,9 @@ export const ROUTES = {
 		CREATE_POST: apiUrl(`/social/create_post`),
 		GET_ALL_PAGES: apiUrl(`/social/get_all_pages`),
 	},
+	ADS: {
+		TEMPLATES: apiUrl('/ads/templates'),
+		MAILCHIMP_CAMPAIGNS: apiUrl('/ads/mailchimp_campaigns'),
+		SEND_CAMPAIGN: apiUrl('/ads/send_campaign'),
+	}
 }
