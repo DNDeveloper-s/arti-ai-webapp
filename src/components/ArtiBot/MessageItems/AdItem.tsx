@@ -15,6 +15,7 @@ import Snackbar from '@/components/Snackbar';
 import { useConversation } from '@/context/ConversationContext';
 import Loader from '@/components/Loader';
 import Modal from '@/components/Modal';
+import DeployButton from './DeployButton';
 
 function ConversationAdVariant({ variantId }: { variantId: string }) {
 	const { dispatch, state: editState } = useEditVariant();
@@ -55,124 +56,70 @@ function ConversationAdVariant({ variantId }: { variantId: string }) {
 	)
 }
 
-const DeployButton = ({ variant }: { variant: IAdVariant }) => {
-	const [isLoadingPages, setLoadingPages] = useState(false)
-	const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
-	const [showPreview, setShowPreview] = useState<boolean>(false);
-	const [pagesData, setPagesData] = useState([])
-	const [selectedPage, selectPage] = useState(null)
+// const DeployButton = ({ variant }: { variant: IAdVariant }) => {
+// 	const [isLoadingPages, setLoadingPages] = useState(false)
+// 	const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+// 	const [showPreview, setShowPreview] = useState<boolean>(false);
+// 	const [pagesData, setPagesData] = useState([])
+// 	const [selectedPage, selectPage] = useState(null)
 
-	async function getUserPages() {
-		selectPage(null)
-		const accessToken = "EAAJKrtHx2ZB8BOysHDOD30PEUjd7r5fvHJavyF0RrihUUkeHhbtnAJNkCTzKJK0hZAjvjXxSsZAHpePvC11BBRc1ZByGLgTA0Hf7qn3ObVb0p9bf13uAs31ntLBSRuVXEmsZA90to3VZCdANCZAnyPUhVw1JjFqwkpp4mZAXrxOkJMlqsg6eh7PD9hi5ZBpUf6DqQxAnNbXSSuqfqN1T5m5tlbdOtMNVSZAzsdtd5L"
+// 	async function getUserPages() {
+// 		selectPage(null)
+// 		const accessToken = "EAAJKrtHx2ZB8BOysHDOD30PEUjd7r5fvHJavyF0RrihUUkeHhbtnAJNkCTzKJK0hZAjvjXxSsZAHpePvC11BBRc1ZByGLgTA0Hf7qn3ObVb0p9bf13uAs31ntLBSRuVXEmsZA90to3VZCdANCZAnyPUhVw1JjFqwkpp4mZAXrxOkJMlqsg6eh7PD9hi5ZBpUf6DqQxAnNbXSSuqfqN1T5m5tlbdOtMNVSZAzsdtd5L"
 
-		try {
-			if (isLoadingPages) return;
-			setLoadingPages(true)
-			const response = await axios.get(ROUTES.SOCIAL.GET_ALL_PAGES, {
-				params: {
-					access_token: accessToken,
-				}
-			});
+// 		try {
+// 			if (isLoadingPages) return;
+// 			setLoadingPages(true)
+// 			const response = await axios.get(ROUTES.SOCIAL.GET_ALL_PAGES, {
+// 				params: {
+// 					access_token: accessToken,
+// 				}
+// 			});
 
-			setPagesData(response.data.data)
-		} catch (error: any) {
-			setSnackBarData({ status: 'error', message: error.response.data.message });
-		} finally {
-			setLoadingPages(false)
-		}
-	}
+// 			setPagesData(response.data.data)
+// 		} catch (error: any) {
+// 			setSnackBarData({ status: 'error', message: error.response.data.message });
+// 		} finally {
+// 			setLoadingPages(false)
+// 		}
+// 	}
 
-	async function handleDeploy() {
-		setShowPreview(true)
-	}
+// 	async function handleDeploy() {
+// 		setShowPreview(true)
+// 	}
 
-	return (
-		<>
-			<button onClick={handleDeploy} className='cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
-				<GrDeploy className='fill-white stroke-white [&>path]:stroke-white' />
-				<span>Deploy</span>
-			</button>
-			<Modal PaperProps={{ className: 'bg-black bg-opacity-90 p-6 w-[800px] h-[600px]' }} handleClose={() => setShowPreview(false)} open={showPreview}>
-				<div className=''>
-					<div className="flex justify-between content-center">
-						<p className="font-bold text-2xl">Select A Page</p>
-						<button className="px-8 bg-green-600 text-white rounded-md" onClick={getUserPages}>{isLoadingPages ? <Loader /> : "Refresh"}</button>
-					</div>
-					<div className='mt-8 flex items-start'>
-						{pagesData ? pagesData.map((item, index) => {
-							return <button key={item.id} onClick={() => selectPage(item)}>
-								<div className={`flex rounded-md ${item.id == selectedPage?.id ? 'bg-slate-600' : 'bg-slate-300'} p-2  pr-8`}>
-									<div className="rounded-md py-2 px-4 bg-slate-500 font-bold text-2xl text-white mr-4" >{item.name[0]}</div>
-									<div className="flex flex-col items-start">
-										<p className={`font-bold ${item.id == selectedPage?.id ? 'text-white' : 'text-black'}`}>{item.name}</p>
-										<p className={`${item.id == selectedPage?.id ? 'text-slate-300' : 'text-slate-800'} text-xs`}>{item.id}</p>
-									</div>
-								</div> </button>
-						}) : <p></p>}
-						{selectedPage ? <CreatePostView selectedVariant={variant} pageId={selectedPage.id} pageAccessToken={selectedPage.access_token} /> : <></>}
-					</div>
-				</div>
-			</Modal>
-			<Snackbar />
-		</>
-	);
-}
+// 	return (
+// 		<>
+// 			<button onClick={handleDeploy} className='cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
+// 				<GrDeploy className='fill-white stroke-white [&>path]:stroke-white' />
+// 				<span>Deploy</span>
+// 			</button>
+// 			<Modal PaperProps={{ className: 'bg-black bg-opacity-90 p-6 w-[800px] h-[600px]' }} handleClose={() => setShowPreview(false)} open={showPreview}>
+// 				<div className=''>
+// 					<div className="flex justify-between content-center">
+// 						<p className="font-bold text-2xl">Select A Page</p>
+// 						<button className="px-8 bg-green-600 text-white rounded-md" onClick={getUserPages}>{isLoadingPages ? <Loader /> : "Refresh"}</button>
+// 					</div>
+// 					<div className='mt-8 flex items-start'>
+// 						{pagesData ? pagesData.map((item, index) => {
+// 							return <button key={item.id} onClick={() => selectPage(item)}>
+// 								<div className={`flex rounded-md ${item.id == selectedPage?.id ? 'bg-slate-600' : 'bg-slate-300'} p-2  pr-8`}>
+// 									<div className="rounded-md py-2 px-4 bg-slate-500 font-bold text-2xl text-white mr-4" >{item.name[0]}</div>
+// 									<div className="flex flex-col items-start">
+// 										<p className={`font-bold ${item.id == selectedPage?.id ? 'text-white' : 'text-black'}`}>{item.name}</p>
+// 										<p className={`${item.id == selectedPage?.id ? 'text-slate-300' : 'text-slate-800'} text-xs`}>{item.id}</p>
+// 									</div>
+// 								</div> </button>
+// 						}) : <p></p>}
+// 						{selectedPage ? <CreatePostView selectedVariant={variant} pageId={selectedPage.id} pageAccessToken={selectedPage.access_token} /> : <></>}
+// 					</div>
+// 				</div>
+// 			</Modal>
+// 			<Snackbar />
+// 		</>
+// 	);
+// }
 
-const CreatePostView = ({ selectedVariant, pageId, pageAccessToken }: { selectedVariant: IAdVariant, pageId: string, pageAccessToken: string }) => {
-
-	const [errorMessage, setErrorMessage] = useState('')
-	const [imageUrl, setImageUrl] = useState('')
-	const [isLoading, setLoading] = useState(false)
-	const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
-
-	let isImageReady = imageUrl && imageUrl.length > 0
-
-	const createPost = async () => {
-		try {
-			if (isLoading) return;
-			setLoading(true)
-			const response = await axios.post(ROUTES.SOCIAL.CREATE_POST, {
-				post: {
-					url: isImageReady ? imageUrl : selectedVariant.imageUrl!,
-					message: selectedVariant.text,
-				},
-				page_id: pageId,
-				page_access_token: pageAccessToken,
-			}, {
-				headers: {
-					'Authorization': 'Bearer ' + localStorage.getItem('token')
-				}
-			});
-
-			if (response.status === 200) {
-				setSnackBarData({ status: 'success', message: "Your post was published successfully." });
-			}
-		} catch (error: any) {
-			setSnackBarData({ status: 'error', message: error.response.data.message });
-		} finally {
-			setLoading(false)
-		}
-	}
-
-	const onImageUrlChange = (e: any) => {
-		setImageUrl(e.target.value)
-	}
-
-	return <>
-		<div className="flex flex-col p-6 rounded-lg bg-white ml-4 text-black items-center justify-center content-center">
-			{selectedVariant ?
-				<div>
-					<input className="mb-2 border border-black-200 p-2 w-[400px]" placeholder="Enter image URL" onChange={onImageUrlChange} />
-					<img className="mb-1 rounded-md h-[200px] w-[200px]" src={isImageReady ? imageUrl : selectedVariant.imageUrl!}></img>
-					<p className="mb-4">{selectedVariant.text}</p>
-					<p className="text-red-500 text-xs">{errorMessage}</p>
-					<button className="bg-blue-500 text-white text p-3 rounded-md w-full mt-1" onClick={createPost}>{isLoading ? 'Posting...' : 'Post'}</button>
-				</div>
-				: <p>Select a variant!</p>}
-		</div>
-	</>
-}
 
 export default function AdItem({ messageItem, variantFontSize }: { messageItem: ChatGPTMessageObj, variantFontSize?: number }) {
 

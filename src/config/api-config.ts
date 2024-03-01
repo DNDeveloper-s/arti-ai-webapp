@@ -62,8 +62,18 @@ export const ROUTES = {
 		GET_ALL_PAGES: apiUrl(`/social/get_all_pages`),
 	},
 	ADS: {
+		CAMPAIGNS: apiUrl('/ads/campaigns'),
+		ADSETS: apiUrl('/ads/adsets'),
+		ADCREATIVES: apiUrl('/ads/adcreatives'),
+		ADIMAGES: apiUrl('/ads/adimages'),
+		AD_ENTITIES: apiUrl('/ads/ad_entities'),
+		GET_AD_ACCOUNT_ID: apiUrl('/ads/get_ad_account_id'),
+		GET_ALL_COUNTRIES: apiUrl('/ads/get_all_countries'),
 		TEMPLATES: apiUrl('/ads/templates'),
 		MAILCHIMP_CAMPAIGNS: apiUrl('/ads/mailchimp_campaigns'),
 		SEND_CAMPAIGN: apiUrl('/ads/send_campaign'),
+	},
+	USERS: {
+		ACCOUNTS: (userId: string) => apiUrl(`/users/${userId}/accounts`),
 	}
 }
