@@ -143,7 +143,7 @@ function createElement(id: ElementID, elementType: ElementType, x1: number, y1: 
 			roughOptions = (options ?? {}) as Options;
 			if(!options?.fill) {
 				roughOptions.fillStyle = 'solid';
-				roughOptions.fill = '#000000';
+				roughOptions.fill = 'rgba(0,0,0,1)';
 			}
 			break;
 		case 'text':
@@ -594,62 +594,6 @@ const getSelectionElementCoords = (type: 'line' | 'rectangle', clientX: number, 
 	return {x1, y1, x2, y2, type, coords, position};
 }
 
-const getSelectionElementsToRender = (type: 'line' | 'rectangle', roughCanvas: RoughCanvas, _x1: number, _y1: number, _x2: number, _y2: number) => {
-	const cornerWidth = 8;
-	const cBy2 = cornerWidth / 2;
-
-	if(type === 'line') {
-		// const line = generator.line(x1, y1, x2, y2);
-		// roughCanvas.draw(line);
-		const x1 = _x1 - cBy2;
-		const y1 = _y1 - cBy2;
-		const x2 = _x2 - cBy2;
-		const y2 = _y2 - cBy2;
-
-		const rectStart = generator.rectangle(x1, y1, cornerWidth, cornerWidth, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectStart);
-
-		const rectEnd = generator.rectangle(x2, y2, cornerWidth, cornerWidth, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectEnd);
-
-	} else {
-		const x1 = _x1 - 5;
-		const y1 = _y1 - 5;
-		const x2 = _x2 + 5;
-		const y2 = _y2 + 5;
-
-		const rect = generator.rectangle(x1, y1, x2 - x1, y2 - y1, {strokeWidth: 1, strokeLineDash: [3,5], stroke: 'black', fillWeight: 20});
-		roughCanvas.draw(rect);
-
-		const rectTl = generator.rectangle(x1 - cBy2, y1 - cBy2, 8, 8, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectTl);
-
-		const rectTm = generator.rectangle((x2 + x1) / 2 - cBy2, y1 - cBy2, 8, 8, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectTm);
-
-		const rotateHandle = generator.circle((x2 + x1) / 2, y1 - 24, 10, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rotateHandle);
-
-		const rectTr = generator.rectangle(x2 - cBy2, y1 - cBy2, 8, 8, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectTr);
-
-		const rectRm = generator.rectangle(x2 - cBy2, (y2 + y1) / 2 - cBy2, 8, 8, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectRm);
-
-		const rectBl = generator.rectangle(x1 - cBy2, y2 - cBy2, 8, 8, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectBl);
-
-		const rectBm = generator.rectangle((x2 + x1) / 2 - cBy2, y2 - cBy2, 8, 8, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectBm);
-
-		const rectBr = generator.rectangle(x2 - cBy2, y2 - cBy2, 8, 8, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectBr);
-
-		const rectLm = generator.rectangle(x1 - cBy2, (y2 + y1) / 2 - cBy2, 8, 8, {strokeWidth: 1, fill: '#ffffff', fillStyle: 'solid', stroke: 'black'});
-		roughCanvas.draw(rectLm);
-	}
-}
-
 function getSelectionRectCoordinates(element: Element) {
 	const {x1, y1, x2, y2, type} = element;
 
@@ -869,6 +813,10 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 	const [activeTab, setActiveTab] = useState(0);
 	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 
+	
+
+	useEffect(() => {}, [])
+
 	// const [selectionCanvasElement, setSelectionCanvasElement] = useState<SelectionElement | null>(null);
 
 	const updateElement = useCallback((id: ElementID, x1: number, y1: number, x2: number, y2: number, type: ElementType, options?: any | Options, cb?: (element: Element) => void, updateLastIndex?: boolean)=> {
@@ -906,7 +854,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 					customOptions: {
 						text: options.text,
 						font: options.font,
-						fillStyle: options.fillStyle ?? newElements[index].customOptions?.fillStyle ?? 'black',
+						fillStyle: options.fillStyle ?? newElements[index].customOptions?.fillStyle ?? 'rgba(0,0,0,1)',
 						fontSize,
 						width: options.width ?? 100,
 						fontFamily,
@@ -1278,7 +1226,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 			const lines = wrapText(ctx, customOptions?.text, x1, y1, customOptions?.width ?? 100, +(customOptions?.fontSize ?? 24) + 4);
 
 			lines.forEach(([line, x, y], i) => {
-				ctx.fillStyle = customOptions.fillStyle ?? 'black';
+				ctx.fillStyle = customOptions.fillStyle ?? 'rgba(0,0,0,1)';
 				ctx.fillText(line, x, y);
 			});
 		} else if(type === 'image' && customOptions) {
@@ -1528,7 +1476,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 						 background: 'transparent',
 						 outline: 'none',
 						 fontFamily: `${selectedElement.customOptions?.fontFamily ?? 'Arial'}`,
-						 color: `${selectedElement.customOptions?.fillStyle ?? 'black'}`,
+						 color: `${selectedElement.customOptions?.fillStyle ?? 'rgba(0,0,0,1)'}`,
 						}}
 						onBlur={handleBlur}
           />

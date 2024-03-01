@@ -259,8 +259,6 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		return editVariantState?.variantImages?.find(c => c.get('url') === editVariantState?.variant?.imageUrl);
 	}, [editVariantState?.variantImages, editVariantState?.variant?.imageUrl]);
 
-	console.log('testing imageObject - ', imageObject?.get('url'), editVariantState?.variantImages);
-
 	const imageUrlToEdit = imageObject?.get('bgImage') ?? imageObject?.get('url') ?? editVariantState?.variant?.imageUrl ?? imageUrl ?? adVariant.imageUrl;
 
 	const bgImages: string[] = [...(editVariantState?.variantImages ?? []).map(g => g.get('bgImage')).filter(c => c !== null && c !== undefined)];

@@ -19,6 +19,7 @@ import LiveSelect, { LiveSelectOption } from '../shared/renderers/LiveSelect';
 import { ElementType } from './EditCanvas';
 import { BiUpload } from 'react-icons/bi';
 import { IoMdImages } from 'react-icons/io';
+import { color } from 'framer-motion';
 
 export interface Tool {
     id: string;
@@ -51,6 +52,40 @@ const uploadImageOptions = [
     {id: 'bg-image', name: 'Background Image', icon: <BiUpload /> }
 ]
 
+const RGBA = {
+    decode: (color: string) => {
+        try {
+
+            if(typeof color === 'object') return color;
+
+            const rgbaColorRegex = /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*(?:\d*\.\d+|\d+\.\d*|\d+)\s*\)$/;
+            const isValidRgbaColor = rgbaColorRegex.test('rgba(2, 3, 4, 0.5)');
+
+            if(!isValidRgbaColor) {
+                console.log('Error in parsing the RGBA color - ', color);
+                return {r: 0, g: 0, b: 0, a: 1};
+            }
+
+            // Remove 'rgba(' and ')' and split the values
+            const values = color.slice(5, -1).split(',');
+
+            // Trim spaces from each component
+            return {
+                r: parseInt(values[0].trim()),
+                g: parseInt(values[1].trim()),
+                b: parseInt(values[2].trim()),
+                a: parseFloat(values[3].trim())
+            };
+        } catch(e) {
+            console.log('Error in parsing the RGBA color - ', color);
+            return {r: 0, g: 0, b: 0, a: 1};
+        }
+    },
+    encode: (color: { r: number, g: number, b: number, a: number }) => {
+        return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
+    }
+}
+
 interface ColorPickerToolProps {
     selected: boolean;
     handleClick: (tool: Tool) => void;
@@ -60,8 +95,8 @@ interface ColorPickerToolProps {
     disabled: boolean
 }
 const ColorPickerTool:FC<ColorPickerToolProps> = ({disabled, selected, handleClick, tool, color: _color, handleColorChange}) => {
-    const [showOptions, setShowOptions] = useState(selected);
-    const [color, setColor] = useState(_color ?? '#000');
+    const [showOptions, setShowOptions] = useState(false);
+    const [color, setColor] = useState(_color ?? 'rgba(0, 0, 0, 1)');
 
     const ref = useRef(null);
 
@@ -72,12 +107,19 @@ const ColorPickerTool:FC<ColorPickerToolProps> = ({disabled, selected, handleCli
 
     useClickAway(ref, handleClickOutside);
 
-    function onChange(color: string, completed: boolean = false) {
+    function onChange(color: any, completed: boolean = false) {
         // setSelectedShape(tool);
         if(disabled) return;
-        setColor(color);
-        handleColorChange(color, completed)
+
+        const encodedColor = RGBA.encode(color.rgb);
+        color?.rgb && encodedColor && setColor(encodedColor);
+        
+        handleColorChange(encodedColor, completed)
     }
+
+    useEffect(() => {
+        // console.log('testing colors - ', RGBA.decode(color));
+    }, [color])
 
     function handleToggle() {
         if(disabled) return;
@@ -90,8 +132,10 @@ const ColorPickerTool:FC<ColorPickerToolProps> = ({disabled, selected, handleCli
           <div style={{color: color, fill: color, stroke: color, cursor: disabled ? 'not-allowed' : 'pointer'}} onClick={handleToggle} className={'flex text-xl justify-center items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (selected ? ' !bg-gray-200' : '')}>
               {tool.icon}
           </div>
-          {showOptions && <div className={'absolute right-0 top-[105%] rounded'}>
-              <SketchPicker onChangeComplete={(obj: any) => {onChange(obj.hex, true)}} color={color} onChange={(obj: any) => onChange(obj.hex)} />
+          {showOptions && <div className={'absolute right-0 top-[105%] rounded z-30 '}>
+              <SketchPicker onChangeComplete={(obj: any) => {
+                obj?.rgb && onChange(obj, true)
+            }} color={RGBA.decode(color)} onChange={(obj: any) => onChange(obj)} />
           </div>}
       </div>
     )
