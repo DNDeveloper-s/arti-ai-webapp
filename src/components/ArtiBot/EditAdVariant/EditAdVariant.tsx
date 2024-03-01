@@ -20,7 +20,7 @@ import { CloseIcon } from 'next/dist/client/components/react-dev-overlay/interna
 import { AD_VARIANT_MODE } from '../VariantItem';
 import { FaUpload } from 'react-icons/fa6';
 import { LuRefreshCw } from 'react-icons/lu';
-import { RxFontFamily, RxText } from 'react-icons/rx';
+import { RxCaretLeft, RxCaretRight, RxFontFamily, RxText } from 'react-icons/rx';
 import { IoMdColorPalette } from 'react-icons/io';
 import { staticGenerationAsyncStorage } from 'next/dist/client/components/static-generation-async-storage.external';
 import { updateVariant, updateVariantImages, useEditVariant } from '@/context/EditVariantContext';
@@ -30,6 +30,7 @@ import { SnackbarContext } from '@/context/SnackbarContext';
 import { VariantImageMap } from '@/services/VariantImageMap';
 import GeneratedSuggestions from './GeneratedSuggestions';
 import { NoImage } from '../LeftPane/ConversationListItem';
+import SwipeableViews from 'react-swipeable-views';
 
 
 export enum REGENERATE_SECTION {
@@ -83,6 +84,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	const [showPreview, setShowPreview] = useState<boolean>(false);
 	const [isEdittingImage, setIsEdittingImage] = useState<boolean>(false);
 	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+	const [activeTab, setActiveTab] = useState<number>(0);
 
 	function handleLike() {
 		setReactionState(c => c === REACTION.LIKED ? REACTION.NEUTRAL : REACTION.LIKED);
@@ -145,6 +147,10 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		setRegenerateMap(c => ({...c, selected: key as REGENERATE_SECTION}));
 
 		if(cs === CONTROL_STATE.EDIT && key === REGENERATE_SECTION.IMAGE) {
+			const imageIndex = editVariantState?.variantImages?.findIndex(c => c.get('url') === editVariantState.variant?.imageUrl);
+			if(imageIndex && imageIndex > -1) {
+				setActiveTab(imageIndex);
+			}
 			setIsEdittingImage(true);
 		}
 	}
@@ -162,7 +168,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 
 	}
 
-	function handleExport(url: string, oldUrl?: string | null, state?: string, newImage?: string) {
+	function handleExport(url: string, oldUrl?: string | null, state?: string, newImage?: string, bgImage?: string) {
         if(!editVariantState.variant) return;
         const newVariant = {...editVariantState.variant};
 		let variantImages = [...(editVariantState.variantImages ?? [])];
@@ -185,10 +191,10 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		}
 		if(!newImage) {
 			const prevImageObj = variantImages.find(c => c.get('url') === oldUrl);
-			const bgImage = prevImageObj?.get('bgImage');
-			if(prevImageObj && bgImage) {
+			const _bgImage = bgImage ?? prevImageObj?.get('bgImage');
+			if(prevImageObj && _bgImage) {
 				createdImageObj = {
-					bgImage,
+					bgImage: _bgImage,
 					url,
 					canvasState: state,
 					timestamp: new Date().toISOString(),
@@ -210,7 +216,6 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		}
 		newVariant.imageUrl = url;
 
-		console.log('testing variantImages | variantImages - ', variantImages);
 		// console.log('testing variantImages | newVariant - ', newVariant);
 		updateVariant(editDispatch, newVariant);
 		updateVariantImages(editDispatch, variantImages);
@@ -256,8 +261,8 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	}
 
 	const imageObject = useMemo(() => {
-		return editVariantState?.variantImages?.find(c => c.get('url') === editVariantState?.variant?.imageUrl);
-	}, [editVariantState?.variantImages, editVariantState?.variant?.imageUrl]);
+		return editVariantState?.variantImages ? editVariantState?.variantImages[activeTab] : undefined;
+	}, [editVariantState?.variantImages, activeTab]);
 
 	const imageUrlToEdit = imageObject?.get('bgImage') ?? imageObject?.get('url') ?? editVariantState?.variant?.imageUrl ?? imageUrl ?? adVariant.imageUrl;
 
@@ -299,17 +304,55 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 				<EditControl type={'text'} handleClose={handleClose} inputEditable={true} content={adVariant.text} controlKey={REGENERATE_SECTION.DESCRIPTION} containerClassName={'text-[1.6em] leading-[1.6] py-[0.6em] px-[1em] my-2 ' + getBlurClassName(REGENERATE_SECTION.DESCRIPTION)} handleEdit={handleEdit} />
 				{isEdittingImage ? (
 					<>
-						<div className='w-full'>
-							<EditCanvas key={editVariantState?.variant?.imageUrl} imageObject={imageObject} handleBgImageAdd={handleBgImageAdd} bgImages={bgImages} canvasState={imageObject?.get('canvasState')} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
+						<div className='relative w-full aspect-square'>
+							<div className='absolute z-30 bottom-full left-1/2 transform -translate-x-1/2 h-[40px] flex items-center 	justify-center'>
+								<div onClick={() => setActiveTab(c => {
+									if(c === 0) return c;
+									return c - 1;
+								})} className='text-3xl cursor-pointer'>
+									<RxCaretLeft />
+								</div>
+								<div className='text-base px-7'>
+									<span>{activeTab + 1} / {bgImages.length}</span>
+								</div>
+								<div onClick={() => {
+									setActiveTab(c => {
+										if(c === bgImages.length - 1) return c;
+										return c + 1;
+									})
+								}} className='text-3xl cursor-pointer'>
+									<RxCaretRight />
+								</div>
+							</div>
+							<div className='absolute top-0 left-0 w-full aspect-square'>
+								<SwipeableViews
+									axis="x"
+									index={activeTab}
+									onChangeIndex={(e) => setActiveTab(e)}
+									scrolling={"false"}
+									ignoreNativeScroll={true}
+									disabled={true}
+									style={{height: '100%'}}
+									containerStyle={{height: '100%'}}
+								>
+									{(editVariantState?.variantImages ?? []).map((imageObject, index) => {
+										const url = imageObject.get('bgImage') as string;
+										return (
+											<Image key={url} src={url} alt="Image" className='w-full h-full' width={500} height={500} />
+										)
+									})}
+								</SwipeableViews>
+							</div> 
+							<EditCanvas key={imageUrlToEdit} imageObject={imageObject} handleBgImageAdd={handleBgImageAdd} canvasState={imageObject?.get('canvasState')} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
 						</div>
-						<div className="my-[1em] w-full px-3 py-2 border-2 border-gray-600 bg-gray-800 rounded divide-y divide-gray-700">
+						{/* <div className="my-[1em] w-full px-3 py-2 border-2 border-gray-600 bg-gray-800 rounded divide-y divide-gray-700">
 							<div className="text-[1.5em] leading-[1.55em] mt-1 mb-2 text-white text-opacity-60 font-medium">
 								<span>Previous Images:</span>
 							</div>
 							<div className="flex gap-1 flex-col items-start mt-2 py-3">
 								<CanvasImageViewer list={editVariantState?.variantImages ?? []} onClick={handleImageClick} />
 							</div>
-						</div>
+						</div> */}
 					</>
 				) : <EditControl type={'image'} handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'text-[1.6em] ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleEdit={handleEdit}>
 					{imageContainerJSX}

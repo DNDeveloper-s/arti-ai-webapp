@@ -6,16 +6,11 @@ import { Drawable, Options } from 'roughjs/bin/core';
 import { RoughCanvas } from 'roughjs/bin/canvas';
 import EditTools, {FontFormat, FontTools, ShapeTools, Tool} from './EditTools';
 import Image1 from 'next/image';
-import { carouselImage1 } from '@/assets/images/carousel-images';
-import { RxCaretLeft, RxCaretRight } from 'react-icons/rx';
-import SwipeableViews from 'react-swipeable-views';
-import Loader from '../Loader';
 import uploadImage from '@/services/uploadImage';
 import {SnackbarContext} from '@/context/SnackbarContext';
-import { base64ToBlob } from '@/utils/transformers';
-import { VariantImageObj } from '@/interfaces/IArtiBot';
 import Portal from '../Portal';
 import { VariantImageMap } from '@/services/VariantImageMap';
+import Loader from '../Loader';
 
 const generator = rough.generator({options: {roughness: 0}});
 
@@ -786,23 +781,22 @@ function getElementCoordinatedWithElementRect(rectCoords: Coords, type: ElementT
 
 interface EditCanvasProps {
 	handleBgImageAdd: (url: string) => void;
-	bgImages?: string[]; 
 	canvasState?: string | null; 
 	imageObject?: VariantImageMap | null;
 	imageUrl: string | null; 
 	handleClose: () => void; 
-	handleExport: (url: string, oldUrl?: string | null, state?: string, newImage?: string) => void
+	handleExport: (url: string, oldUrl?: string | null, state?: string, newImage?: string, bgImage?: string) => void
 }
 
-export default function EditCanvas({canvasState, imageObject, bgImages: _bgImages = [], imageUrl, handleExport, handleClose, handleBgImageAdd}: EditCanvasProps) {
+export default function EditCanvas({canvasState, imageObject, imageUrl, handleExport, handleClose, handleBgImageAdd}: EditCanvasProps) {
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const drawCanvasRef = useRef<HTMLCanvasElement>(null);
-	const [bgImages, setBgImages] = useState<string[]>(_bgImages);
+	const [bgImage, setBgImage] = useState<string | null>(imageUrl);
 
 	const [elements, setElements, undo, redo] = useHistory(canvasState ? JSON.parse(canvasState) : []);
 	const [action, setAction] = useState<Action>(Action.NONE);
-	const [elementType, setElementType] = useState<ElementType>('line');
+	const [elementType, setElementType] = useState<ElementType>('selection');
 	const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
 	const [selectedElements, setSelectedElements] = useState<SelectedElement[]>([]);
 	const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -810,10 +804,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 	const {canvasX: canvasX1, canvasY: canvasY1} = useMousePos(canvasRef);
 	const [selectionElements, setSelectionElements] = useState<Element[]>([]);
 	const [elementRects, setElementRects] = useState<SelectedRect[]>([]);
-	const [activeTab, setActiveTab] = useState(0);
 	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
-
-	
 
 	useEffect(() => {}, [])
 
@@ -1338,18 +1329,20 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 
 		if(!url) return;
 
-		handleBgImageAdd(url);
-		bgAddRef.current = url;
-		setBgImages((prev) => [...bgImages, url]);
+		setBgImage(url);
+
+		// handleBgImageAdd(url);
+		// bgAddRef.current = url;
+		// setBgImages((prev) => [...bgImages, url]);
 	}
 
-	useEffect(() => {
-		if(bgAddRef.current) {
-			const index = bgImages.findIndex(c => c === bgAddRef.current);
-			setActiveTab(index);
-			bgAddRef.current = null;
-		}
-	}, [bgImages])
+	// useEffect(() => {
+	// 	if(bgAddRef.current) {
+	// 		const index = bgImages.findIndex(c => c === bgAddRef.current);
+	// 		setActiveTab(index);
+	// 		bgAddRef.current = null;
+	// 	}
+	// }, [bgImages])
 
 	function exportCanvas() {
 		const canvasEl = drawCanvasRef.current;
@@ -1365,7 +1358,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 		const roughCanvas = rough.canvas(canvasEl);
 		setExporting(true);
 
-		if(bgImages[activeTab]) {
+		if(bgImage) {
 			const img = new Image();
 
 			// img.src = 'http://localhost:3000/assets/images/carousel-images/1.png';
@@ -1377,13 +1370,13 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 				elements?.sort((a: Element, b: Element) => a.order - b.order).forEach((element: Element) => renderElement(ctx, roughCanvas, element));
 
 				try {
-					const base64 = canvasEl.toDataURL('image/png', 1);
-					const isNewBg = !_bgImages.some(c => c === bgImages[activeTab]);
+					// const base64 = canvasEl.toDataURL('image/png', 1);
+					// const isNewBg = !_bgImages.some(c => c === bgImages[activeTab]);
 					canvasEl.toBlob((blob) => {
 						if(!blob) throw new Error('Blob not found');
 						setExporting(false);
 						const url = URL.createObjectURL(blob);
-						handleExport(url, imageObject?.get('url'), JSON.stringify(elements), isNewBg ? bgImages[activeTab] : undefined);
+						handleExport(url, imageObject?.get('url'), JSON.stringify(elements), undefined, bgImage === imageUrl ? undefined : bgImage);
 					});
 					// const newBgs = bgImages.filter(c => !_bgImages.includes(c));
 					// if(newBgs.includes(bgImages[activeTab])) {
@@ -1401,8 +1394,8 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 			}
 			
 
-			const imageKey = bgImages[activeTab].split('/').pop();
-			img.src = bgImages[activeTab].startsWith('blob:') ? bgImages[activeTab] : `https://api.artiai.org/v1/utils/image/${imageKey}`;
+			const imageKey = bgImage.split('/').pop();
+			img.src = bgImage.startsWith('blob:') ? bgImage : `https://api.artiai.org/v1/utils/image/${imageKey}`;
 
 			return;
 		}
@@ -1507,7 +1500,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 					// onMouseMove={handleMouseMove}
 					className="w-full h-full absolute top-0 left-0 bg-transparent z-20" ref={canvasRef}
 				></canvas>
-				<div className='absolute z-30 bottom-full left-1/2 transform -translate-x-1/2 h-[40px] flex items-center justify-center'>
+				{/* <div className='absolute z-30 bottom-full left-1/2 transform -translate-x-1/2 h-[40px] flex items-center justify-center'>
 					<div onClick={() => setActiveTab(c => {
 						if(c === 0) return c;
 						return c - 1;
@@ -1525,9 +1518,15 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 					}} className='text-3xl cursor-pointer'>
 						<RxCaretRight />
 					</div>
-				</div>
-				{imageUrl && <div className="relative w-full h-full pointer-events-none">
-					{exporting && <div className='flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-30'>
+				</div> */}
+				{exporting && <div className="relative w-full h-full pointer-events-none">
+					<div className='flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-30'>
+						<Loader />
+					</div>
+				</div>}
+				{/* {bgImage && <div className="relative w-full h-full pointer-events-none"> */}
+					{/* <Image1 key={bgImage} src={bgImage} alt="Image" className='w-full h-full' width={500} height={500} /> */}
+					{/* {exporting && <div className='flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-30'>
 						<Loader />
 					</div>}
 					<SwipeableViews
@@ -1543,8 +1542,8 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 						{bgImages.map((imageUrl, index) => (
 							<Image1 key={imageUrl} src={imageUrl} alt="Image" className='w-full h-full' width={500} height={500} />
 						))}
-					</SwipeableViews>
-				</div>}
+					</SwipeableViews> */}
+				{/* </div>} */}
 			</div>
 			<Portal id='canvastoolsportal'>
 				<div ref={toolItemRef} style={{opacity: containerPos.top !== 0 && containerPos.left !== 0 ? 1 : 0, top: containerPos.top, left: containerPos.left}} className='absolute left-[calc(100%+10px)] top-1/2 transform -translate-y-1/2 z-20'>

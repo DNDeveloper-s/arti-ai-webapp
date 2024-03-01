@@ -113,14 +113,10 @@ const ColorPickerTool:FC<ColorPickerToolProps> = ({disabled, selected, handleCli
 
         const encodedColor = RGBA.encode(color.rgb);
         color?.rgb && encodedColor && setColor(encodedColor);
-        
+
         handleColorChange(encodedColor, completed)
     }
-
-    useEffect(() => {
-        // console.log('testing colors - ', RGBA.decode(color));
-    }, [color])
-
+    
     function handleToggle() {
         if(disabled) return;
         setShowOptions(c => !c);
