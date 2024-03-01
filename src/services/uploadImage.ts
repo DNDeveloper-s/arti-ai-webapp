@@ -1,13 +1,14 @@
 import {ROUTES} from '@/config/api-config';
 import { blobUrlToBlobObject } from '@/utils/transformers';
 
-export default async function uploadImage(_file: any) {
+export default async function uploadImage(_file: any, name: string = Date.now().toString()) {
 	let file = _file;
 	if(_file instanceof FileList) {
 		file = _file[0];
 	}
 	if(typeof _file === 'string' && _file.startsWith('blob:')) {
 		file = await blobUrlToBlobObject(_file);
+		file = new File([file], name, {type: 'image/png'});
 	}
 	if(!file) {
 		throw new Error('No file provided');

@@ -50,4 +50,8 @@ export class VariantImageMap {
     public get(key: keyof VariantImageObj) {
         return this._liveImageObj[key];
     }
+
+    public clone() {
+        return new VariantImageMap(this._imageObj);
+    }
 }

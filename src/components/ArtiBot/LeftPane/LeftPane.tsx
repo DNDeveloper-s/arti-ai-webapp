@@ -9,12 +9,78 @@ import useSessionToken from '@/hooks/useSessionToken';
 import { ConversationType } from '@/interfaces/IConversation';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import React, { FC, useEffect } from 'react';
+import React, { FC, ReactNode, useEffect, useState } from 'react';
 import { BiSolidEdit } from 'react-icons/bi';
 import { MdArrowBackIos } from 'react-icons/md';
 import ConversationListItem from '@/components/ArtiBot/LeftPane/ConversationListItem';
 import AdCreativeListItem from '@/components/ArtiBot/LeftPane/AdCreativeListItem';
 import CampaignListItem from './CampaignListItem';
+import { AiOutlineReload } from 'react-icons/ai';
+import Loader from '@/components/Loader';
+
+interface LoadMoreButtonProps {
+  doInfiniteScroll?: boolean
+  handleLoadMore?: () => void;
+}
+function LoadMoreButton({doInfiniteScroll, handleLoadMore}: LoadMoreButtonProps) {
+  const [loading, setLoading] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  function handleLoad() {
+    if(loading) return;
+    setLoading(true);
+    setTimeout(() => {
+      handleLoadMore && handleLoadMore();
+      setLoading(false);
+    }, 2000);
+  }
+
+  useEffect(() => {
+    if(doInfiniteScroll) {
+      const containerEl = containerRef.current;
+      const observer = new IntersectionObserver((entries) => {
+        if(entries[0].isIntersecting === true) {
+          handleLoad();
+        }
+      }, {threshold: 0.5});
+      containerEl && observer.observe(containerEl);
+
+      return () => {
+        containerEl && observer.unobserve(containerEl);
+      }
+    }
+  }, [doInfiniteScroll]);
+  
+
+  return (
+      <div onClick={handleLoad} ref={containerRef} className='text-xs leading-6 transition-all px-4 py-1 text-gray-500 cursor-pointer hover:bg-gray-800 bg-gray-900 rounded mx-2 flex justify-center items-center'>
+        <div className='flex flex-1 items-center justify-center gap-2'>
+          <div className='text-sm'>
+            {loading ? <Loader className='w-3 h-3' /> : <AiOutlineReload />}
+          </div>
+          <span>{loading ? 'Loading' : 'Load More'}</span>
+        </div>
+      </div>
+  )
+}
+
+interface PaginatedListProps extends LoadMoreButtonProps {
+  children: ReactNode;
+  noMore?: boolean;
+}
+const PaginatedList: FC<PaginatedListProps> = ({children, noMore, ...props}) => {
+  return (
+    <>
+      {children}
+      {children && !noMore && <LoadMoreButton {...props} />}
+      {noMore && <div className='text-xs leading-6 transition-all px-4 py-1 text-gray-500 bg-gray-950 rounded mx-2 flex justify-center items-center'>
+        <div className='flex flex-1 items-center justify-center gap-2'>
+          <span>End of the list</span>
+        </div>
+      </div>}
+    </>
+  )
+}
 
 interface LeftPaneProps {
 
@@ -29,6 +95,15 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
     const params = useParams();
     const search = useSearchParams();
 
+    const [cursor, setCursor] = useState<number>(5);
+    const [noMore, setNoMore] = useState<boolean>(false);
+
+    const [cursorA, setCursorA] = useState<number>(5);
+    const [noMoreA, setNoMoreA] = useState<boolean>(false);
+
+    const [cursorC, setCursorC] = useState<number>(5);
+    const [noMoreC, setNoMoreC] = useState<boolean>(false);
+
 	useEffect(() => {
 		token && dispatch && getConversations(dispatch);
 		token && dispatch && getAdCreatives(dispatch);
@@ -37,6 +112,27 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
   useEffect(() => {
     console.log('mounted | Left Pane - ');
   }, [])
+
+  function handleLoadMoreConversations() {
+    const newCursor = cursor + 5;
+    setCursor(newCursor);
+    if(!conversations || newCursor >= conversations?.length) setNoMore(true);
+    else setNoMore(false);
+  }
+
+  function handleLoadMoreAdCreatives() {
+    const newCursor = cursorA + 5;
+    setCursorA(newCursor);
+    if(!sortedConversationIds || newCursor >= sortedConversationIds?.length) setNoMoreA(true);
+    else setNoMoreA(false);
+  }
+
+  function handleLoadMoreCampaigns() {
+    const newCursor = cursorC + 5;
+    setCursorC(newCursor);
+    if(!sortedConversationIds || newCursor >= sortedConversationIds?.length) setNoMoreC(true);
+    else setNoMoreC(false);
+  }
     
     return (
         <div className='flex flex-col w-[250px] h-full overflow-hidden'>
@@ -58,7 +154,9 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
                   <h3>Conversations</h3>
                 </div>
                 <div className='mt-2 flex flex-col gap-2'>
-                  {conversations && conversations.map((conversation) => <ConversationListItem key={conversation.id} conversationId={conversation.id} />)}
+                  {conversations && conversations.length > 0 && <PaginatedList noMore={noMore} handleLoadMore={handleLoadMoreConversations}>
+                      {conversations.slice(0, cursor).map((conversation) => <ConversationListItem key={conversation.id} conversationId={conversation.id} />)}
+                  </PaginatedList>}
                 </div>
               </div>
               <hr className='border-gray-700' />
@@ -67,7 +165,9 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
                   <h3>Ad Creatives</h3>
                 </div>
                 <div className='mt-2 flex flex-col gap-2'>
-                  {sortedConversationIds.map((conversationId: string) => <AdCreativeListItem key={conversationId} conversationId={conversationId} />)}
+                  <PaginatedList noMore={noMoreA} handleLoadMore={handleLoadMoreAdCreatives}>
+                    {sortedConversationIds.slice(0, cursorA).map((conversationId: string) => <AdCreativeListItem key={conversationId} conversationId={conversationId} />)}
+                  </PaginatedList>
                 </div>
               </div>
               <hr className='border-gray-700' />
@@ -76,7 +176,9 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
                   <h3>Campaigns</h3>
                 </div>
                 <div className='mt-2 flex flex-col gap-2'>
-                  {sortedConversationIds.map((conversationId: string) => <CampaignListItem key={conversationId} conversationId={conversationId} />)}
+                  <PaginatedList doInfiniteScroll={true}>
+                    {sortedConversationIds.slice(0, cursorC).map((conversationId: string) => <CampaignListItem key={conversationId} conversationId={conversationId} />)}
+                  </PaginatedList>
                 </div>
               </div>
             </div>

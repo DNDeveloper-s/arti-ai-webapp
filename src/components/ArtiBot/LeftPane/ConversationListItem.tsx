@@ -7,7 +7,7 @@ import {useParams} from 'next/navigation';
 import useAdCreatives from '@/hooks/useAdCreatives';
 import Image1, {StaticImageData} from 'next/image';
 
-function NoImage() {
+export function NoImage() {
 	return (
 		<div className={'w-full h-full flex rounded items-center justify-center bg-secondaryBackground'}>
 			<svg
@@ -107,7 +107,7 @@ const ConversationListItem: FC<ConversationListItemProps> = ({conversationId, ..
 	}, [])
 
 	return (
-		<Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)} key={conversationId} className={'flex gap-4 mx-2 items-start px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-900 bg-gray-950 rounded overflow-hidden transition-all text-sm leading-6'}>
+		<Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)} key={conversationId} className={'flex gap-4 mx-2 items-start px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-900 rounded overflow-hidden transition-all text-sm leading-6 ' + (isActive ? 'bg-gray-900' : 'bg-gray-950')}>
 			<CardStackImages images={images} />
 			<div className={'flex-shrink-0 flex flex-col justify-center gap-1'}>
 				<p className={(isActive ? 'text-white' : ' truncate')}>{getConversationById(conversationId)?.project_name}</p>

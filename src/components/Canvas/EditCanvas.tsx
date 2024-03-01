@@ -957,7 +957,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 					const element = elements.find(c => c.id === el.id);
 					return {...element, offsetX: clientX1 - element.x1, offsetY: clientY1 - element.y1}
 				}))
-				console.log('setting element rects - ');
+				// console.log('setting element rects - ');
 				setElementRects(prevRects => prevRects.map(({coords, type}) => {
 					return {coords, type, offsetX: clientX1 - coords.x1, offsetY: clientY1 - coords.y1}
 				}))
@@ -970,7 +970,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 				setElements((prevState: any) => prevState);
 				setSelectedElement({...element, offsetX: clientX1 - element.x1, offsetY: clientY1 - element.y1});
 				const rect = createElementRect(clientX, clientY, element.type, element.x1, element.y1, element.x2, element.y2);
-				rect && console.log('setting element rects - ');
+				// rect && console.log('setting element rects - ');
 				if(rect) setElementRects([rect]);
 			} else {
 				setSelectionElements([]);
@@ -1067,7 +1067,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 						const y2 = y1 + (element.y2 - element.y1);
 						return {coords: {x1, y1, x2, y2}, type, offsetX, offsetY};
 					}).filter(c => c !== null);
-					console.log('setting element rects - ')
+					// console.log('setting element rects - ')
 					setElementRects(newRects);
 				}
 
@@ -1130,7 +1130,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 							type,
 							coords: {x1, y1, x2, y2},
 						}
-						console.log('setting element rects - ')
+						// console.log('setting element rects - ')
 						setElementRects(newRects);
 					}
 				}
@@ -1152,7 +1152,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 					// 	type: selectedElement.type
 					// }
 				})
-				console.log('setting element rects - ')
+				// console.log('setting element rects - ')
 				setElementRects(rects);
 
 				setSelectedElements(intersectedElements);
@@ -1346,7 +1346,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 					const options = {width: element.customOptions?.width, italic: props.italic, bold: props.bold, text: element.customOptions?.text ?? '', fontSize: props.fontSize, fontFamily: props.fontFamily, font: `${props.italic ? 'italic ' : ''}${props.bold ? 'bold ' : ''}${props.fontSize}px ${props.fontFamily}`, fillStyle: element.customOptions?.fillStyle};
 					element && updateElement(element.id, element.x1, element.y1, element.x2, props.fontSize, element.type, options, (element) => {
 						const rect = createElementRect(0, 0, element.type, element.x1, element.y1, element.x2, element.y2);
-						rect && console.log('setting element rects - ')
+						// rect && console.log('setting element rects - ')
 						if(rect) setElementRects([rect]);
 					}, true);
 				}
@@ -1599,7 +1599,7 @@ export default function EditCanvas({canvasState, imageObject, bgImages: _bgImage
 				</div>}
 			</div>
 			<Portal id='canvastoolsportal'>
-				<div ref={toolItemRef} style={{top: containerPos.top, left: containerPos.left}} className='absolute left-[calc(100%+10px)] top-1/2 transform -translate-y-1/2 z-20'>
+				<div ref={toolItemRef} style={{opacity: containerPos.top !== 0 && containerPos.left !== 0 ? 1 : 0, top: containerPos.top, left: containerPos.left}} className='absolute left-[calc(100%+10px)] top-1/2 transform -translate-y-1/2 z-20'>
 					{/*<EditTools initialFontDetails={selectedElement?.customOptions ? selectedElement?.customOptions : undefined} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />*/}
 					<EditTools initialFontDetails={selectedElement?.customOptions ? (selectedElement?.customOptions as FontFormat) : undefined} handleBgImageChange={handleBgImageChange} selectedType={selectedElement?.type} handleImageChange={handleImageChange} LayerProps={{selectedElement: selectedElement?.id, setElements: setElements, list: elements, onListChange: (newElements) => setElements(newElements)}}  handleFormatChange={handleFormatChange} handleChange={handleToolChange} />
 				</div>

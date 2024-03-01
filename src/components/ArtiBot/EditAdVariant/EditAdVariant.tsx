@@ -28,6 +28,8 @@ import EditCanvas from '@/components/Canvas/EditCanvas';
 import { VariantImageObj } from '@/interfaces/IArtiBot';
 import { SnackbarContext } from '@/context/SnackbarContext';
 import { VariantImageMap } from '@/services/VariantImageMap';
+import GeneratedSuggestions from './GeneratedSuggestions';
+import { NoImage } from '../LeftPane/ConversationListItem';
 
 
 export enum REGENERATE_SECTION {
@@ -39,6 +41,30 @@ export enum REGENERATE_SECTION {
 interface RegenerateMap {
 	selected?: REGENERATE_SECTION;
 }
+
+
+interface CanvasImageViewerProps {
+	list: VariantImageMap[];
+	activeItem?: number;
+	onClick: (imageObj: VariantImageMap) => void;
+}
+const CanvasImageViewer: FC<CanvasImageViewerProps> = (props) => {
+    return (
+        <div className='grid grid-cols-2 gap-3 w-full'>
+            {props.list.map((item, index) => {
+				const url = item.get('url');
+				return (
+					<div key={item.get('timestamp')} className={'border border-transparent aspect-square rounded ' + (props.activeItem === index ? '!border-primary' : '')} onClick={() => props.onClick(item)}>
+						{url ? <Image src={url} alt="Ad Variant Image" width={600} height={100} className="mb-[0.5em] w-full" /> : 
+						<NoImage />}
+					</div>
+				)
+			})}
+            {[1,2].slice(props.list.length).map(c => <div key={c} className='aspect-square rounded bg-black'></div>)}
+        </div>
+    )
+}
+
 
 export interface EditFacebookAdVariantProps extends FacebookAdVariantProps {
 	showConfirmModal: boolean;
@@ -221,9 +247,19 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		// updateVariant(editDispatch, newVariant);
 	}
 
+	function handleImageClick(imageObj: VariantImageMap) {
+		if(!editVariantState.variant) return;
+		const newVariant = {...editVariantState.variant};
+		newVariant.imageUrl = imageObj.get('url') as string;
+
+		updateVariant(editDispatch, newVariant);
+	}
+
 	const imageObject = useMemo(() => {
 		return editVariantState?.variantImages?.find(c => c.get('url') === editVariantState?.variant?.imageUrl);
 	}, [editVariantState?.variantImages, editVariantState?.variant?.imageUrl]);
+
+	console.log('testing imageObject - ', imageObject?.get('url'), editVariantState?.variantImages);
 
 	const imageUrlToEdit = imageObject?.get('bgImage') ?? imageObject?.get('url') ?? editVariantState?.variant?.imageUrl ?? imageUrl ?? adVariant.imageUrl;
 
@@ -266,7 +302,15 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 				{isEdittingImage ? (
 					<>
 						<div className='w-full'>
-							<EditCanvas imageObject={imageObject} handleBgImageAdd={handleBgImageAdd} bgImages={bgImages} canvasState={imageObject?.canvasState} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
+							<EditCanvas key={editVariantState?.variant?.imageUrl} imageObject={imageObject} handleBgImageAdd={handleBgImageAdd} bgImages={bgImages} canvasState={imageObject?.get('canvasState')} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
+						</div>
+						<div className="my-[1em] w-full px-3 py-2 border-2 border-gray-600 bg-gray-800 rounded divide-y divide-gray-700">
+							<div className="text-[1.5em] leading-[1.55em] mt-1 mb-2 text-white text-opacity-60 font-medium">
+								<span>Previous Images:</span>
+							</div>
+							<div className="flex gap-1 flex-col items-start mt-2 py-3">
+								<CanvasImageViewer list={editVariantState?.variantImages ?? []} onClick={handleImageClick} />
+							</div>
 						</div>
 					</>
 				) : <EditControl type={'image'} handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'text-[1.6em] ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleEdit={handleEdit}>

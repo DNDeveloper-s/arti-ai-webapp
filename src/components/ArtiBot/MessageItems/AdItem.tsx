@@ -13,6 +13,7 @@ import {SnackbarContext} from '@/context/SnackbarContext';
 import Loader from '@/components/Loader';
 import { dbImagesPrefixes } from '@/constants';
 import uploadImage from '@/services/uploadImage';
+import { VariantImageMap } from '@/services/VariantImageMap';
 
 function ConversationAdVariant({variantId}: {variantId: string}) {
 	const {dispatch, state: editState} = useEditVariant();
@@ -70,6 +71,8 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 		const newVariant = {...editState.variant};
 		// newVariant.images = variantState.images;
 		const variantImages = [...(editState.variantImages ?? [])]
+
+		const images = [];
 		for (let i = 0; i < variantImages.length; i++) {
 			const image = variantImages[i];
 
@@ -82,18 +85,30 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 				dbImagesPrefixes.some(prefix => image.get('url')?.includes(prefix) && image.get('bgImage')?.includes(prefix))
 			]
 
-			if(isCurrentImage) {
+			const shouldGetNew = cond.some(c => c);
+
+			if(shouldGetNew) {
 				if(image.get('url')?.startsWith('blob:')) {
 					// upload image to s3 and update url
-					const url = await uploadImage(image.get('url'));
+					const fileName = newVariant.id + '_' + Date.now().toString() + '.png'
+					const url = await uploadImage(image.get('url'), fileName);
+					// const url = 'uploaded to s3 url'
+					image.set('url', url);
+					if(isCurrentImage) newVariant.imageUrl = url;
+				} else {
+					if(isCurrentImage) newVariant.imageUrl = image.get('url') ?? newVariant.imageUrl;
 				}
 				if(image.get('bgImage')?.startsWith('blob:')) {
 					// upload image to s3 and update bgImage
-					const url = await uploadImage(image.get('url'));
+					const fileName = newVariant.id + '_' + Date.now().toString() + '.png'
+					const url = await uploadImage(image.get('bgImage'), fileName);
+					// const url = 'uploaded to s3 bgImage url'
+					image.set('bgImage', url);
 				}
+				images[i] = image.imageObj;
+			} else {
+				images[i] = image.baseImageObj;
 			}
-
-			const shouldGetNew = cond.every(c => c);
 
 			// newVariant.images[i] = {
 			// 	url: image.get('url'),
@@ -102,10 +117,13 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 			// };
 		}
 
-		console.log('testing newVariant - ', newVariant, editState.variantImages);
+		// console.log('testing newVariant - ', images);
+		newVariant.images = images;
 
-		setUpdating(false);
-		return;
+		// console.log('texting newVariant.images - ', newVariant);
+
+		// setUpdating(false);
+		// return;
 		
 		const variantFromDB = await updateVariantToDB(conversationDispatch, newVariant as IAdVariant);
 		setUpdating(false);
