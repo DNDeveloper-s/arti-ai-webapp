@@ -2,7 +2,7 @@
 
 import React, {FC, useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
-import Image from 'next/image';
+import Image1 from 'next/image';
 import dummyImage from '@/assets/images/image4.webp';
 import {IAdVariant} from '@/interfaces/IArtiBot';
 import {REACTION} from '@/interfaces';
@@ -66,6 +66,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 	const [reactionState, setReactionState] = useState<REACTION>();
 	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
 	const isLoaded = useRef<Record<string, boolean>>({});
+	const adVariantImageUrlRef = useRef<string | null>(null);
 
 	const adVariant = forceAdVariant ? _adVariant : variant.map && variant.map[_adVariant.id] ? variant.map[_adVariant.id] : _adVariant;
 
@@ -93,7 +94,13 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 	const [imageUrl, setImageUrl] = useState<string | null>(mock.is ? null : adVariant.imageUrl);
 
 	useEffect(() => {
-		setImageUrl(adVariant.imageUrl)
+		setImageUrl(adVariantImageUrlRef.current ?? adVariant.imageUrl);
+		const img = new Image();
+		img.src = adVariant.imageUrl;
+		img.onload = () => {
+			setImageUrl(adVariant.imageUrl);
+			adVariantImageUrlRef.current = imageUrl;
+		}
 		// if(!mock.is) return setImageUrl(adVariant.imageUrl);
 		// if(!isLoaded.current[adVariant.id]) setImageUrl(null);
 		// else {
@@ -123,7 +130,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 
 	const imageContainerJSX =
 		imageUrl
-			? <Image width={600} height={100} className="mb-[0.5em] w-full" src={imageUrl ? imageUrl : dummyImage} alt="Ad Image" />
+			? <Image1 width={600} height={100} className="mb-[0.5em] w-full" src={imageUrl ? imageUrl : dummyImage} alt="Ad Image" />
 			: lottieAnimationJSX;
 
 	return (
@@ -163,24 +170,24 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 			</div>
 			{!mock.is && <motion.div className="px-[3.75em] overflow-hidden" initial={{height: 0}} onAnimationEnd={() => {
 				headingRef.current && headingRef.current.scrollIntoView({behavior: 'smooth', block: 'start'})
-			}} animate={{height: !noExpand && expand ? 'auto' : 0}}>
-        <ol className="list-decimal">
-          <li className="pl-1">
-            <span className="text-[1.05em] font-medium"><strong>Ad Orientation</strong></span>
-            <p className="mt-[0.3em] text-[1em] font-diatype opacity-60 leading-[1.5em]">{adVariant.adOrientation}</p>
-          </li>
-					{adVariant.imageDescription && <li className="pl-1 relative">
-            <p className="text-[1.05em] font-medium z-10 relative"><strong>Image Description</strong></p>
-            <p
-              className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 relative z-10 leading-[1.5em]">{adVariant.imageDescription}</p>
-						{/*<div className="w-full h-full bg-secondaryText bg-opacity-30 rounded animate-pulse absolute top-0 left-0" />*/}
-          </li>}
-          <li className="pl-1">
-            <p className="text-[1.05em] font-medium"><strong>Rationale</strong></p>
-            <p className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 leading-[1.5em]">{adVariant.rationale}</p>
-          </li>
-        </ol>
-      </motion.div>}
+				}} animate={{height: !noExpand && expand ? 'auto' : 0}}>
+				<ol className="list-decimal">
+					<li className="pl-1">
+						<span className="text-[1.05em] font-medium"><strong>Ad Orientation</strong></span>
+						<p className="mt-[0.3em] text-[1em] font-diatype opacity-60 leading-[1.5em]">{adVariant.adOrientation}</p>
+					</li>
+								{adVariant.imageDescription && <li className="pl-1 relative">
+						<p className="text-[1.05em] font-medium z-10 relative"><strong>Image Description</strong></p>
+						<p
+						className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 relative z-10 leading-[1.5em]">{adVariant.imageDescription}</p>
+									{/*<div className="w-full h-full bg-secondaryText bg-opacity-30 rounded animate-pulse absolute top-0 left-0" />*/}
+					</li>}
+					<li className="pl-1">
+						<p className="text-[1.05em] font-medium"><strong>Rationale</strong></p>
+						<p className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 leading-[1.5em]">{adVariant.rationale}</p>
+					</li>
+				</ol>
+      		</motion.div>}
 		</div>
 	)
 }
@@ -204,7 +211,7 @@ export const FacebookAdVariantMini: FC<FacebookAdVariantProps> = ({adVariant: _a
 
 	const imageContainerJSX =
 		adVariant.imageUrl
-			? <Image width={600} height={100} className="mb-[2.5px] w-full" src={adVariant.imageUrl ? adVariant.imageUrl : dummyImage} alt="Ad Image" />
+			? <Image1 width={600} height={100} className="mb-[2.5px] w-full" src={adVariant.imageUrl ? adVariant.imageUrl : dummyImage} alt="Ad Image" />
 			: lottieAnimationJSX;
 
 	return (
