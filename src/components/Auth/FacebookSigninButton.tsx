@@ -26,7 +26,7 @@ const FacebookSignInButton: FC<FacebookSignInButtonProps> = ({ label }) => {
 		<button className="w-full flex items-center h-12 justify-center mt-1 bg-[#3b5998] outline-none border-2 border-opacity-0 border-red-600 rounded-lg text-md py-2 px-3 transition-all mt-2" onClick={handleFacebookSignIn}>
 			{facebookLoading ? <Loader /> : <>
 				<FaFacebook />
-				<span className="ml-3">{label ?? "Ronak"}</span>
+				<span className="ml-3">{label ?? "Sign In With Facebook"}</span>
 			</>}
 		</button>
 	)
