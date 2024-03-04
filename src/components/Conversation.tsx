@@ -28,22 +28,23 @@ import ArtiBotPage from './ArtiBot/ConversationPage';
 export default function Conversation({type = ConversationType.AD_CREATIVE}: {type: ConversationType}) {
 	let conversation: IConversation | undefined;
 	const {state, dispatch} = useConversation();
-	const params = useParams();
+	// const params = useParams();
 	const searchParams = useSearchParams();
 	const token = useSessionToken();
+	const conversationId = searchParams.get('conversation_id');
 
 	useEffect(() => {
-		if(params.conversation_id && token) getConversation(dispatch, params.conversation_id.toString());
-	}, [dispatch, token, params.conversation_id])
+		if(conversationId && token) getConversation(dispatch, conversationId.toString());
+	}, [dispatch, token, conversationId])
 
 	useEffect(() => {
-		if(state.loading.conversation || !dispatch || !params.conversation_id) return;
+		if(state.loading.conversation || !dispatch || !conversationId) return;
 
-		if(!state.conversation.map || !state.conversation.map[params.conversation_id]) {
+		if(!state.conversation.map || !state.conversation.map[conversationId]) {
 			const projectName = searchParams.get('project_name');
 			if(!projectName) return redirect('/artibot');
 			const newConversation: IConversation = {
-				id: Array.isArray(params.conversation_id) ? params.conversation_id[0] : params.conversation_id,
+				id: Array.isArray(conversationId) ? conversationId[0] : conversationId,
 				messages: [],
 				last_activity: new Date().toISOString(),
 				title: 'New Chat',
@@ -54,7 +55,7 @@ export default function Conversation({type = ConversationType.AD_CREATIVE}: {typ
 			}
 			createConversation(dispatch, newConversation);
 		}
-	}, [dispatch, state.loading.conversation, state.conversation.map, params.conversation_id, state.conversation, type])
+	}, [dispatch, state.loading.conversation, state.conversation.map, conversationId, state.conversation, type])
 
 	useEffect(() => {
 		console.log('mounted | Conversation - ');
@@ -67,7 +68,7 @@ export default function Conversation({type = ConversationType.AD_CREATIVE}: {typ
 				{/*<div className="bg-background">*/}
 
 				{/*</div>*/}
-				<ArtiBotPage conversation={state.conversation.map[params.conversation_id.toString()]} />
+				<ArtiBotPage conversation={state.conversation.map[conversationId.toString()]} />
 			</div>
 		</main>
 	)

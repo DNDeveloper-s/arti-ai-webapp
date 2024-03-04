@@ -22,7 +22,8 @@ enum EDIT_VARIANT_ACTION_TYPE {
     STOP_EDITING_VARIANT = 'STOP_EDITING_VARIANT',
     UPDATE_VARIANT = 'UPDATE_VARIANT',
 	REGENERATE_VARIANT_IMAGE = 'REGENERATE_VARIANT_IMAGE',
-	UPDATE_VARIANT_IMAGES = 'UPDATE_VARIANT_IMAGES'
+	UPDATE_VARIANT_IMAGES = 'UPDATE_VARIANT_IMAGES',
+	RESET_LAST_IMAGE_URL = 'RESET_LAST_IMAGE_URL',
 }
 
 // An interface for our actions
@@ -39,6 +40,7 @@ interface IEditVariantState {
 	variant?: IAdVariant;
 	regeneratedImages?: Record<IAdVariant['id'], string[]>
 	variantImages?: VariantImageMap[];
+	fallbackImage?: Record<IAdVariant['id'], string>
 }
 
 export const initEditVariantState: IEditVariantState = {
@@ -54,15 +56,24 @@ function editVariantReducer(state: IEditVariantState, action: EditVariantAction)
 				variant: payload
 			}
 		case EDIT_VARIANT_ACTION_TYPE.STOP_EDITING_VARIANT:
+			const imageUrl = state.variant?.imageUrl;
+
+			const _fallbackImage = state.variant?.id && imageUrl ? {[state.variant?.id]: imageUrl} : {};
 			return {
 				...state,
 				variant: undefined,
-				variantImages: undefined
+				variantImages: undefined,
+				fallbackImage: {...(state.fallbackImage ?? {}), ..._fallbackImage}
 			}
         case EDIT_VARIANT_ACTION_TYPE.UPDATE_VARIANT:
 			return {
 				...state,
 				variant: payload
+			}
+		case EDIT_VARIANT_ACTION_TYPE.RESET_LAST_IMAGE_URL:
+			return {
+				...state,
+				fallbackImage: undefined
 			}
 		case EDIT_VARIANT_ACTION_TYPE.REGENERATE_VARIANT_IMAGE:
 			const images = {...state.regeneratedImages};
@@ -153,6 +164,13 @@ export function updateVariantImages(dispatch: (a: EditVariantAction) => void, va
 	dispatch({
 		type: EDIT_VARIANT_ACTION_TYPE.UPDATE_VARIANT_IMAGES,
 		payload: variantImages
+	})
+}
+
+export function resetImageUrl(dispatch: (a: EditVariantAction) => void) {
+	dispatch({
+		type: EDIT_VARIANT_ACTION_TYPE.RESET_LAST_IMAGE_URL,
+		payload: undefined
 	})
 }
 

@@ -14,6 +14,7 @@ import Loader from '@/components/Loader';
 import { dbImagesPrefixes } from '@/constants';
 import uploadImage from '@/services/uploadImage';
 import { VariantImageMap } from '@/services/VariantImageMap';
+import MetricsCard from '../MetricsCard';
 
 function ConversationAdVariant({variantId}: {variantId: string}) {
 	const {dispatch, state: editState} = useEditVariant();
@@ -42,35 +43,12 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 			return setSnackbarData({message: 'Oops! Failed to Update Variant.', status: 'error'});
 		}
 		setUpdating(true);
-		// const variantState = !!editState.variant?.id && state.variant.map[editState.variant.id];
-		// console.log('testing variantState imageUrl - ', variantState ? variantState.imageUrl : null);
-		// console.log('testing variantState images - ', variantState ? variantState.images : null);
-		// if(!variantState) {
-		// 	setUpdating(false);
-		// 	return setSnackbarData({message: 'Oops! Failed to Update Variant.', status: 'error'});
-		// }
-		// if(!variantState.images || variantState.images.length === 0) {
-		// 	variantState.images = [{
-		// 		url: variantState.imageUrl,
-		// 		bgImage: variantState.imageUrl,
-		// 		timestamp: new Date().toISOString()
-		// 	}];
-		// }
-		// if(variantState.imageUrl !== editState.variant?.imageUrl) {
-		// 	const imageObject = editState.variant?.images?.find(image => image.url === editState.variant?.imageUrl);
-		// 	if(!imageObject) {
-		// 		return setSnackbarData({message: 'Oops! Failed to Update Variant.', status: 'error'});
-		// 	}
-		// 	const inVariantState = variantState.images.findIndex(image => image.url === editState.variant?.imageUrl);
-		// 	if(inVariantState < 0) {
-		// 		variantState.images.push(imageObject);
-		// 	} else {
-		// 		variantState.images[inVariantState] = imageObject;
-		// 	}
-		// }
+
 		const newVariant = {...editState.variant};
 		// newVariant.images = variantState.images;
-		const variantImages = [...(editState.variantImages ?? [])]
+		const variantImages = [...(editState.variantImages ?? [])];
+
+		const usedImageUrl = newVariant.imageUrl;
 
 		const images = [];
 		for (let i = 0; i < variantImages.length; i++) {
@@ -109,24 +87,14 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 			} else {
 				images[i] = image.baseImageObj;
 			}
-
-			// newVariant.images[i] = {
-			// 	url: image.get('url'),
-			// 	bgImage: image.get('bgImage'),
-			// 	timestamp: image.get('timestamp')
-			// };
 		}
 
 		// console.log('testing newVariant - ', images);
 		newVariant.images = images;
-
-		// console.log('texting newVariant.images - ', newVariant);
-
-		// setUpdating(false);
-		// return;
 		
 		const variantFromDB = await updateVariantToDB(conversationDispatch, newVariant as IAdVariant);
 		setUpdating(false);
+		
 		if(variantFromDB) {
 			stopEditingVariant(dispatch);
 			return setSnackbarData({message: 'Variant Updated Successfully', status: 'success'});
@@ -137,8 +105,15 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 
 	return (
 		<div key={variant.id} className="group/variant flex-shrink-0 relative">
-			<FacebookAdVariant adVariant={variant} className="p-3 !w-[400px] !max-w-unset border !border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px', opacity: editMode ? 0 : 1, pointerEvents: editMode ? 'none' : 'all'}} />
-			{editMode && <EditFacebookAdVariant showConfirmModal={false} setShowConfirmModal={() => {}} handleSaveVariant={handleSaveVariant} handleEditVariantClose={editVariantClose} adVariant={editState.variant as IAdVariant} className="p-3 !w-[400px] !max-w-unset border border-gray-800 h-auto rounded-lg" style={{fontSize: '8px', position: 'absolute', top: 0, left: 0}} /> }
+			{!editMode ? <FacebookAdVariant adVariant={variant} className="p-3 !w-[400px] !max-w-unset border !border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px', opacity: editMode ? 0 : 1, pointerEvents: editMode ? 'none' : 'all'}} /> :
+			<EditFacebookAdVariant 
+				ref={editState.ref}
+				showConfirmModal={false} 
+				setShowConfirmModal={() => {}} 
+				handleSaveVariant={handleSaveVariant} 
+				handleEditVariantClose={editVariantClose} 
+				adVariant={editState.variant as IAdVariant} 
+				className="p-3 !w-[400px] !max-w-unset border border-gray-800 h-auto rounded-lg" style={{fontSize: '8px'}} /> }
 			{!updating && !editMode && <div className='transition-all group-hover/variant:opacity-100 group-hover/variant:pointer-events-auto pointer-events-none opacity-0 absolute bg-black bg-opacity-70 top-0 left-0 w-full h-full flex justify-center gap-5 items-end pb-10'>
 				<button onClick={handleEdit} className='cursor-pointer text-white hover:scale-105 text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
 					<MdOutlineModeEdit />

@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef, FC, useContext, useMemo} from 'react';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
 import {timeSince, wait} from '@/helpers';
-import Image from 'next/image';
+import Image1 from 'next/image';
 import {RiAiGenerate} from 'react-icons/ri';
 import { REACTION } from '@/interfaces';
 import FacebookAdVariant, { FacebookAdVariantProps } from '../FacebookAdVariant';
@@ -23,7 +23,7 @@ import { LuRefreshCw } from 'react-icons/lu';
 import { RxCaretLeft, RxCaretRight, RxFontFamily, RxText } from 'react-icons/rx';
 import { IoMdColorPalette } from 'react-icons/io';
 import { staticGenerationAsyncStorage } from 'next/dist/client/components/static-generation-async-storage.external';
-import { updateVariant, updateVariantImages, useEditVariant } from '@/context/EditVariantContext';
+import { resetImageUrl, updateVariant, updateVariantImages, useEditVariant } from '@/context/EditVariantContext';
 import EditCanvas from '@/components/Canvas/EditCanvas';
 import { VariantImageObj } from '@/interfaces/IArtiBot';
 import { SnackbarContext } from '@/context/SnackbarContext';
@@ -56,7 +56,7 @@ const CanvasImageViewer: FC<CanvasImageViewerProps> = (props) => {
 				const url = item.get('url');
 				return (
 					<div key={item.get('timestamp')} className={'border border-transparent aspect-square rounded ' + (props.activeItem === index ? '!border-primary' : '')} onClick={() => props.onClick(item)}>
-						{url ? <Image src={url} alt="Ad Variant Image" width={600} height={100} className="mb-[0.5em] w-full" /> : 
+						{url ? <Image1 src={url} alt="Ad Variant Image" width={600} height={100} className="mb-[0.5em] w-full" /> : 
 						<NoImage />}
 					</div>
 				)
@@ -71,16 +71,17 @@ export interface EditFacebookAdVariantProps extends FacebookAdVariantProps {
 	showConfirmModal: boolean;
 	setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
 	handleSaveVariant: () => void;
+	containerClassName?: string;
 }
 
-export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfirmModal, setShowConfirmModal, mock = new Mock(), adVariant, noExpand, className, handleEditVariantClose, handleSaveVariant, ...props}) => {
+export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfirmModal, containerClassName, setShowConfirmModal, mock = new Mock(), adVariant, noExpand, className, handleEditVariantClose, handleSaveVariant, ...props}) => {
 	const [expand, setExpand] = useState<boolean>(false);
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
 	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
 	const {state: editVariantState, dispatch: editDispatch} = useEditVariant();
 	const isLoaded = useRef<Record<string, boolean>>({});
-	const [regenerateMap, setRegenerateMap] = useState<RegenerateMap | null>({});
+	const [regenerateMap, setRegenerateMap] = useState<RegenerateMap | null>(null);
 	const [showPreview, setShowPreview] = useState<boolean>(false);
 	const [isEdittingImage, setIsEdittingImage] = useState<boolean>(false);
 	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
@@ -121,10 +122,25 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	}, [editVariantState.variant, editDispatch]);
 
 	const [imageUrl, setImageUrl] = useState<string | null>(mock.is ? null : adVariant.imageUrl);
+	const fallbackImage = editVariantState.fallbackImage ? editVariantState.fallbackImage[adVariant.id] : undefined;
+
+	useEffect(() => {
+		const img = new Image();
+		img.src = adVariant.imageUrl;
+		img.onload = () => {
+			setImageUrl(adVariant.imageUrl);
+			// resetImageUrl(editDispatch);
+		}
+	}, [fallbackImage, adVariant.imageUrl])
 
 	useEffect(() => {
 		setImageUrl(adVariant.imageUrl)
 	}, [imageUrl, mock.is, adVariant.imageUrl])
+
+	function handleErrorImage() {
+		if(fallbackImage) setImageUrl(fallbackImage);
+		else setImageUrl('error');
+	}
 
 	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
 		<Lottie className={"w-32 h-32"} animationData={generatingImage} loop={true} />
@@ -139,9 +155,16 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	}
 
 	const imageContainerJSX =
-		imageUrl
-			? <Image key={editVariantState?.variant?.imageUrl ?? imageUrl} width={600} height={100} className="mb-[0.5em] w-full" src={editVariantState?.variant?.imageUrl ?? imageUrl ?? dummyImage} alt="Ad Image" />
+		imageUrl === 'error' ? <NoImage className='!text-6xl !flex-col !aspect-square'>
+				<span className='text-lg mt-2'>Image not found</span>
+			</NoImage> : imageUrl 
+			? <Image1 width={600} height={100} className="mb-[0.5em] w-full" src={editVariantState?.variant?.imageUrl ?? imageUrl ?? dummyImage} onError={handleErrorImage} alt="Ad Image" />
 			: lottieAnimationJSX;
+
+	// const imageContainerJSX =
+	// 	imageUrl
+	// 		? <Image key={editVariantState?.variant?.imageUrl ?? imageUrl} width={600} height={100} className="mb-[0.5em] w-full" src={editVariantState?.variant?.imageUrl ?? imageUrl ?? dummyImage} alt="Ad Image" />
+	// 		: lottieAnimationJSX;
 
 	async function handleEdit(cs: CONTROL_STATE, key: REGENERATE_SECTION) {
 		setRegenerateMap(c => ({...c, selected: key as REGENERATE_SECTION}));
@@ -220,36 +243,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		updateVariant(editDispatch, newVariant);
 		updateVariantImages(editDispatch, variantImages);
 
-		// const versions = {
-		// 	...(newVariant.imageMap.versions ?? {}),
-		// 	[`v${(newVariant.imageMap.versionInfo.totalVersions ?? 1)}`]: newVariant.imageMap.versions.latest,
-		// 	latest: {
-		// 		image: url,
-		// 		timestamp: new Date().toISOString()
-		// 	}
-		// }
-		// const versionInfo = {
-		// 	totalVersions: (newVariant.imageMap.versionInfo.totalVersions ?? 0) + 1,
-		// 	list: Object.keys(versions)
-		// }
-
-    // newVariant.imageUrl = url;
-	// 	newVariant.imageMap.generatedImages = [
-	// 		...newVariant.imageMap.generatedImages,
-	// 		{url, timestamp: new Date().toISOString()}
-	// 	];
-	// 	newVariant.imageMap.canvasState = state;
 		handleClose();
-	}
-
-	function handleBgImageAdd(url: string) {
-    // if(!editVariantState.variant) return;
-    // const newVariant = {...editVariantState.variant};
-		// newVariant.imageMap.generatedImages = [
-		// 	...newVariant.imageMap.generatedImages,
-		// 	{url, timestamp: new Date().toISOString()}
-		// ];
-		// updateVariant(editDispatch, newVariant);
 	}
 
 	function handleImageClick(imageObj: VariantImageMap) {
@@ -297,11 +291,11 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 							<div className="w-[4em] h-[1em] mb-[0.2em] rounded-[.17em] bg-gray-700" />
 							<div className="w-[6em] h-[1em] rounded-[.17em] bg-gray-700" />
 						</div>
-					</div>
+					</div>``
 					<SlOptions className="text-[1.5em]" />
 				</div>
 				{/*<div className="mb-[1em] px-[1em]">*/}
-				<EditControl type={'text'} handleClose={handleClose} inputEditable={true} content={adVariant.text} controlKey={REGENERATE_SECTION.DESCRIPTION} containerClassName={'text-[1.6em] leading-[1.6] py-[0.6em] px-[1em] my-2 ' + getBlurClassName(REGENERATE_SECTION.DESCRIPTION)} handleEdit={handleEdit} />
+				<EditControl type={'text'} handleClose={handleClose} inputEditable={true} content={adVariant.text} controlKey={REGENERATE_SECTION.DESCRIPTION} containerClassName={'text-[1.6em] leading-[1.6] py-[0.6em] px-[1em] my-2 min-h-[82px] ' + getBlurClassName(REGENERATE_SECTION.DESCRIPTION)} handleEdit={handleEdit} />
 				{isEdittingImage ? (
 					<>
 						<div className='relative w-full aspect-square'>
@@ -338,12 +332,12 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 									{(editVariantState?.variantImages ?? []).map((imageObject, index) => {
 										const url = imageObject.get('bgImage') as string;
 										return (
-											<Image key={url} src={url} alt="Image" className='w-full h-full' width={500} height={500} />
+											<Image1 key={url} src={url} alt="Image" className='w-full h-full' width={500} height={500} />
 										)
 									})}
 								</SwipeableViews>
 							</div> 
-							<EditCanvas key={imageUrlToEdit} imageObject={imageObject} handleBgImageAdd={handleBgImageAdd} canvasState={imageObject?.get('canvasState')} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
+							<EditCanvas key={imageUrlToEdit} imageObject={imageObject} canvasState={imageObject?.get('canvasState')} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
 						</div>
 						{/* <div className="my-[1em] w-full px-3 py-2 border-2 border-gray-600 bg-gray-800 rounded divide-y divide-gray-700">
 							<div className="text-[1.5em] leading-[1.55em] mt-1 mb-2 text-white text-opacity-60 font-medium">
@@ -373,7 +367,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 					<div className="w-[2em] h-[2em] rounded-full bg-gray-700" />
 				</div>
 			</div>
-			<div className={'flex justify-end w-full mt-2 mb-2 items-center gap-1 text-xs'}>
+			{!isEdittingImage && !regenerateMap && <div className={'flex justify-end w-full mt-2 mb-2 items-center gap-1 text-xs'}>
 				<div className={'flex items-center gap-4'}>
 					<CTAButton className={'py-1 px-3 rounded text-xs'} onClick={() => setShowPreview(true)}>
 						<span>Preview</span>
@@ -385,7 +379,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 						<span>Close</span>
 					</div>
 				</div>
-			</div>
+			</div>}
 		</>
 	)
 }

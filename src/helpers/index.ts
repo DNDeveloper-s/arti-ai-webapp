@@ -117,9 +117,9 @@ export function isValidJsonWithAdsArray(inputString: string, isIndentedString?: 
 }
 
 export const getConversationURL = (id: IConversation['id'], conversationParams: IConversation | IConversation['conversation_type']) => {
-	if(typeof conversationParams === 'string') return `/artibot/${conversationParams}/${id}`;
+	if(typeof conversationParams === 'string') return `/artibot/${conversationParams}?conversation_id=${id}`;
 	const endPoint = conversationParams.conversation_type === 'strategy' ? 'strategy' : 'ad_creative';
-	return `/artibot/${endPoint}/${id}`;
+	return `/artibot/${endPoint}?conversation_id=${id}`;
 }
 
 export const isProduction = process.env.NODE_ENV === 'production';

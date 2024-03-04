@@ -24,7 +24,7 @@ const AdCreativeListItem: FC<AdCreativeListItemProps> = ({conversationId}) => {
     }, [getLastAdCreativeByConversationId, conversationId]);
 
     return (
-      <Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE) + '?ad_creative=expand'} key={conversationId} className={'flex gap-4 items-start px-4 py-3 mx-2 hover:bg-gray-900 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6 ' + (isActive ? 'bg-gray-900' : 'bg-gray-950')}>
+      <Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE) + '&ad_creative=expand'} key={conversationId} className={'flex gap-4 items-start px-4 py-3 mx-2 hover:bg-gray-900 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6 ' + (isActive ? 'bg-gray-900' : 'bg-gray-950')}>
           <CardStackImages images={images} />
           <span className={(isActive ? 'text-white' : ' truncate')}>{getLastAdCreativeByConversationId(conversationId)?.adObjective}</span>
       </Link>

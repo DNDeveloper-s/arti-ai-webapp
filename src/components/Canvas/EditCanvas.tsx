@@ -780,7 +780,6 @@ function getElementCoordinatedWithElementRect(rectCoords: Coords, type: ElementT
 
 
 interface EditCanvasProps {
-	handleBgImageAdd: (url: string) => void;
 	canvasState?: string | null; 
 	imageObject?: VariantImageMap | null;
 	imageUrl: string | null; 
@@ -788,7 +787,7 @@ interface EditCanvasProps {
 	handleExport: (url: string, oldUrl?: string | null, state?: string, newImage?: string, bgImage?: string) => void
 }
 
-export default function EditCanvas({canvasState, imageObject, imageUrl, handleExport, handleClose, handleBgImageAdd}: EditCanvasProps) {
+export default function EditCanvas({canvasState, imageObject, imageUrl, handleExport, handleClose}: EditCanvasProps) {
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const drawCanvasRef = useRef<HTMLCanvasElement>(null);

@@ -14,6 +14,9 @@ import errorImage from '@/assets/lottie/error.json';
 import {Mock} from '@/constants/servicesData';
 import {RiAiGenerate} from 'react-icons/ri';
 import Loader from '@/components/Loader';
+import CTAButton from '../CTAButton';
+import { resetImageUrl, useEditVariant } from '@/context/EditVariantContext';
+import { NoImage } from './LeftPane/ConversationListItem';
 
 
 export const FacebookAdVariantShimmer = ({style = {}, className = ''}) => {
@@ -65,6 +68,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	const [reactionState, setReactionState] = useState<REACTION>();
 	const {state: {inError, inProcess, variant}, dispatch} = useConversation();
+	const {state: editState, dispatch: editDispatch} = useEditVariant();
 	const isLoaded = useRef<Record<string, boolean>>({});
 	const adVariantImageUrlRef = useRef<string | null>(null);
 
@@ -92,29 +96,25 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 	// 	}
 	// }, [adVariant, dispatch, inError, inProcess, noExpand]);
 	const [imageUrl, setImageUrl] = useState<string | null>(mock.is ? null : adVariant.imageUrl);
+	const fallbackImage = editState.fallbackImage ? editState.fallbackImage[adVariant.id] : undefined;
 
 	useEffect(() => {
-		setImageUrl(adVariantImageUrlRef.current ?? adVariant.imageUrl);
+		setImageUrl(fallbackImage ?? adVariant.imageUrl);
 		const img = new Image();
 		img.src = adVariant.imageUrl;
 		img.onload = () => {
 			setImageUrl(adVariant.imageUrl);
-			adVariantImageUrlRef.current = imageUrl;
+			resetImageUrl(editDispatch);
 		}
-		// if(!mock.is) return setImageUrl(adVariant.imageUrl);
-		// if(!isLoaded.current[adVariant.id]) setImageUrl(null);
-		// else {
-		// 	return setImageUrl(adVariant.imageUrl);
-		// }
-		// const timeout = setTimeout(() => {
-		// 	isLoaded.current[adVariant.id] = true;
-		// 	setImageUrl(adVariant.imageUrl);
-		// }, 1500)
-		//
-		// return () => {
-		// 	clearTimeout(timeout);
-		// }
-	}, [imageUrl, mock.is, adVariant.imageUrl])
+		img.onloadstart = () => {
+			console.log('testing load start');
+		}
+	}, [fallbackImage, adVariant.imageUrl])
+
+	function handleErrorImage() {
+		if(fallbackImage) setImageUrl(fallbackImage);
+		else setImageUrl('error');
+	}
 
 	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
 		<Lottie className={"w-32 h-32"} animationData={generatingImage} loop={true} />
@@ -129,8 +129,10 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 	}
 
 	const imageContainerJSX =
-		imageUrl
-			? <Image1 width={600} height={100} className="mb-[0.5em] w-full" src={imageUrl ? imageUrl : dummyImage} alt="Ad Image" />
+		imageUrl === 'error' ? <NoImage className='!text-6xl !flex-col !aspect-square'>
+				<span className='text-lg mt-2'>Image not found</span>
+			</NoImage> : imageUrl 
+			? <Image1 width={600} height={100} className="mb-[0.5em] w-full" src={imageUrl ? imageUrl : dummyImage} onError={handleErrorImage} alt="Ad Image" />
 			: lottieAnimationJSX;
 
 	return (
@@ -147,9 +149,9 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 			</div>
 			{/*<div className="mb-[1em] px-[1em]">*/}
 			<div className="mb-[1em] text-[1.6em] leading-[1.6] py-[0.6em] px-[1em] relative">
-				<span className={'' + (mock.is ? ' line-clamp-3 text-ellipsis' : ' inline-flex')}>{adVariant.text}</span>
+				<span className={'' + (mock.is ? ' line-clamp-3 text-ellipsis' : ' line-clamp-4 text-ellipsis min-h-[82px]')}>{adVariant.text}</span>
 			</div>
-			<div className="relative">
+			<div className="relative aspect-square">
 				{imageContainerJSX}
 				{/*<Image width={600} height={100} className="mb-[0.5em] w-full" src={variant && variant[adVariant['One liner']] ? variant[adVariant['One liner']] : dummyImage} alt="Ad Image" />*/}
 			</div>
@@ -187,7 +189,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 						<p className="mt-[0.3em] mb-[1em] text-[1em] opacity-60 leading-[1.5em]">{adVariant.rationale}</p>
 					</li>
 				</ol>
-      		</motion.div>}
+			</motion.div>}
 		</div>
 	)
 }
