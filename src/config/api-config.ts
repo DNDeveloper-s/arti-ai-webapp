@@ -69,9 +69,11 @@ export const ROUTES = {
 		AD_ENTITIES: apiUrl('/ads/ad_entities'),
 		GET_AD_ACCOUNT_ID: apiUrl('/ads/get_ad_account_id'),
 		GET_ALL_COUNTRIES: apiUrl('/ads/get_all_countries'),
+		INTERESTS: apiUrl('/ads/interests'),
 		TEMPLATES: apiUrl('/ads/templates'),
 		MAILCHIMP_CAMPAIGNS: apiUrl('/ads/mailchimp_campaigns'),
 		SEND_CAMPAIGN: apiUrl('/ads/send_campaign'),
+		CUSTOM_AUDIENCE: apiUrl('/ads/custom_audience')
 	},
 	USERS: {
 		ACCOUNTS: (userId: string) => apiUrl(`/users/${userId}/accounts`),

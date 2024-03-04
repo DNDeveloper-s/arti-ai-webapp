@@ -9,6 +9,7 @@ export default function CreateCampaign({ accessToken, onCampaignCreation }: { ac
     const [status, updateStatus] = useState("ACTIVE")
     const [isLoading, setLoadingState] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
+    const [startDate, setStartDate] = useState(new Date());
 
     const handleNameUpdate = (e: any) => {
         updateName(e.target.value)
@@ -69,6 +70,7 @@ export default function CreateCampaign({ accessToken, onCampaignCreation }: { ac
                     <option value="OUTCOME_APP_PROMOTION">App Promotion</option>
                 </select>
             </div>
+
 
             <div className="border-slate-500 placeholder-slate-400 p-2 text-black mt-2 flex space-x-4">
                 <label>Status:</label>

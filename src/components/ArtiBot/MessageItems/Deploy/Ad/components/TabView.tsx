@@ -58,7 +58,7 @@ const TabView: FC<TabViewProps> = ({ activeAdTab: activeTab, setActiveAdTab, ite
 	}
 
 	return (
-		<div className="w-full flex-shrink-0 overflow-hidden py-3 h-auto shadow-gray-200 relative">
+		<div className="w-full flex-shrink-0 overflow-scroll py-3 shadow-gray-200 relative h-auto">
 			<div className="no-scrollbar flex w-full gap-0 px-4 overflow-x-auto border-b bg-secondaryBackground border-primary">
 				{items.map((tabItem, index) => {
 					const props = tabItemProps(tabItem);

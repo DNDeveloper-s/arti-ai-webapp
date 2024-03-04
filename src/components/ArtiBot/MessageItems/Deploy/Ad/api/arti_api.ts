@@ -104,14 +104,8 @@ const createCampaign = async (campaign: any, accountId: string, accessToken: str
     }
 }
 
-const createAdSet = async (adSet: any, accountId: any, accessToken: any, country: any) => {
+const createAdSet = async (adSet: any, accountId: any, accessToken: any) => {
     try {
-        adSet.promotedObject = {
-            "application_id": "645064660474863",
-            "object_store_url": "http://www.facebook.com/gaming/play/645064660474863/"
-        }
-
-
         const response = await axios.post(ROUTES.ADS.ADSETS, {
             adSet: adSet,
             account_id: accountId,

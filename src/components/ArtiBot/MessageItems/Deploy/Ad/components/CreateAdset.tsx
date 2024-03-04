@@ -11,6 +11,16 @@ const delay = (delay: number) => new Promise((res) => {
     setTimeout(res, delay)
 })
 
+interface UserInterest {
+    id: string,
+    name: string,
+    type: string,
+    path: any[],
+    audience_size_lower_bound: number,
+    audience_size_upper_bound: number,
+    description?: string,
+}
+
 export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }: { accessToken: string, campaignId: string, onAdsetCreation: any }) {
     const [name, updateName] = useState("");
     const [optimizationGoal, updateOptimizationGoal] = useState("NONE");
@@ -23,7 +33,11 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
     const [adAccountId, setAdAccountId] = useState("")
     const [audienceList, setAudienceList] = useState()
     const [selectedAudienceId, setAudienceId] = useState('')
+    const [interestList, setInterestList] = useState<UserInterest[]>([])
+    const [selectedInterestList, setSelectedInterestList] = useState<UserInterest[]>([])
     const [country, updateCountry] = useState("")
+    const [startTime, updateStartTime] = useState<Date>()
+    const [endTime, updateEndTime] = useState<Date>()
     const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
     const [countriesMap, updateCountries] = useState()
@@ -32,6 +46,7 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
         const queryData = async () => {
             await delay(1000)
             queryCountries();
+            setInterestList([]);
 
             const adAccountId = await queryAdAccountId();
             if (adAccountId) {
@@ -69,6 +84,10 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
         setAudienceId(e.target.value)
     }
 
+    // const handleStartDateTimeChange = (e: any) => {
+    //     new Date(e.target.value)
+    // }
+
     async function queryAudiences(adAccountId: string) {
         try {
             const response = await axios.get(ROUTES.ADS.CUSTOM_AUDIENCE, {
@@ -89,6 +108,7 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
     async function queryCountries() {
         try {
             const response = await axios.get(ROUTES.ADS.GET_ALL_COUNTRIES);
+            updateCountry(Object.keys(response.data.data)[0])
             updateCountries(response.data.data);
         } catch (error: any) {
             console.log(error)
@@ -122,6 +142,23 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
         }
     }
 
+    const getAppropriateSpec = () => {
+        const output = selectedInterestList.reduce((acc: any, curr) => {
+            if (curr.type === 'interests') {
+                acc[0].interests.push({ id: curr.id, name: curr.name });
+            } else if (curr.type === 'behaviors') {
+                acc[0].behaviors.push({ id: curr.id, name: curr.name });
+            } else if (curr.type === 'work_employers') {
+                acc[0].work_employers.push({ id: curr.id, name: curr.name });
+            } else if (curr.type === 'work_positions') {
+                acc[0].work_positions.push({ id: curr.id, name: curr.name });
+            }
+            return acc;
+        }, [{ interests: [], behaviors: [], work_employers: [], work_positions: [] }]);
+
+        return output;
+    }
+
     const handleSubmit = async () => {
         setLoadingState(true)
 
@@ -129,11 +166,13 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
 
             const adSet: any = {
                 name: name,
-                dailyBudget: dailyBudget * 100,
-                bidAmount: bidAmount * 100,
-                billingEvent: billingEvent,
-                optimizationGoal: optimizationGoal,
-                campaignId: campaignId,
+                daily_budget: dailyBudget * 100,
+                bid_amount: bidAmount * 100,
+                billing_event: billingEvent,
+                optimization_goal: optimizationGoal,
+                campaign_id: campaignId,
+                start_time: startTime,
+                end_time: endTime,
                 targeting: {
                     "device_platforms": [
                         "mobile"
@@ -150,9 +189,6 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
                         "facebook",
                         "audience_network"
                     ],
-                    "user_os": [
-                        "Android"
-                    ]
                 },
                 status: status,
             }
@@ -161,7 +197,18 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
                 adSet.targeting["custom_audiences"] = [{ "id": selectedAudienceId }]
             }
 
-            const { adSetId, createAdSetError } = await api.createAdSet(adSet, adAccountId, accessToken, "IN");
+            if (selectedInterestList) {
+                adSet.targeting.flexible_spec = getAppropriateSpec()
+            }
+
+
+            adSet.promoted_object = {
+                "application_id": "645064660474863",
+                "object_store_url": "http://www.facebook.com/gaming/play/645064660474863/"
+            }
+
+
+            const { adSetId, createAdSetError } = await api.createAdSet(adSet, adAccountId, accessToken);
 
             console.log(createAdSetError)
 
@@ -176,15 +223,59 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
         }
     }
 
+    const queryInterests = async (e: any) => {
+        const query = e.target.value;
+        if (query.length === 0) return;
+        try {
+            const response = await axios.get(ROUTES.ADS.INTERESTS, {
+                params: {
+                    account_id: adAccountId,
+                    access_token: accessToken,
+                    query: query,
+                }
+            },);
+            setSelectedInterestList([]);
+            console.log(response.data.data)
+            setInterestList(response.data.data)
+        } catch (error: any) {
+            setSnackBarData({ status: 'error', message: error.response.data.message });
+        }
+    }
+
+    const handleInterestSelection = (item: UserInterest) => {
+        setSelectedInterestList([...selectedInterestList, item]);
+        // if (selectedInterestList.some(e => e.id === item.id)) {
+        //     const index = selectedInterestList.findIndex((e) => e.id === item.id)
+        //     selectedInterestList.splice(index, 1)
+        //     console.log('after removing')
+        //     console.log(selectedInterestList)
+        //     setSelectedInterestList(selectedInterestList);
+        // } else {
+        //     console.log('after adding')
+        //     console.log(selectedInterestList)
+        //     setSelectedInterestList([...selectedInterestList, item]);
+        // }
+    }
 
     return <>
-        <div className="flex flex-col p-6 rounded-lg bg-white mb-4 text-black">
+        <div className="flex flex-col p-6 rounded-lg bg-white mb-4 text-black h-[580px] overflow-scroll">
             <p className="text-black font-bold text-2xl mb-6">Create Adset</p>
             <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg" placeholder="Adset Name" onChange={handleNameUpdate} />
 
             <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mt-2" type="number" placeholder="Daily Budget" onChange={handleDailyBudgetUpdate} />
 
-            <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mt-2" type="number" placeholder="Bid Amount" onChange={handleBidUpdate} />
+            <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mt-2" type="number" placeholder="Bid Cap" onChange={handleBidUpdate} />
+
+            <div className="flex mt-2 mb-2">
+                <div className="flex flex-col mr-4">
+                    <label>Start Time</label>
+                    <input type="datetime-local" onChange={e => updateStartTime(new Date(e.target.value))} className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mt-2"></input>
+                </div>
+                <div className="flex flex-col">
+                    <label>End Time</label>
+                    <input type="datetime-local" onChange={e => updateEndTime(new Date(e.target.value))} className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mt-2"></input>
+                </div>
+            </div>
 
             <div className="border-slate-500 border placeholder-slate-400 p-2 text-black rounded-lg mt-2">
                 <label htmlFor="dropdown">Optimization Goal:</label>
@@ -231,7 +322,17 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
                     ))}
                 </select>
             </div> : <></>}
-
+            <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mt-2" placeholder="Add demographics, interest or behaviours" onChange={queryInterests} />
+            {interestList.length != 0 ?
+                <div className="flex">
+                    {interestList.map((item, index) => (
+                        <button key={index} className={`flex flex-col rounded-md p-2 mr-2 mt-4 ${selectedInterestList.some(e => e.id === item.id) ? 'bg-blue-500' : 'bg-blue-300'}`} onClick={(_) => handleInterestSelection(item)}>
+                            <span className={`text-xs font-bold md-2 ${selectedInterestList.some(e => e.id === item.id) ? 'text-white' : 'text-black '}`}>{item.type}</span>
+                            <span className={`text-xs md-2 ${selectedInterestList.some(e => e.id === item.id) ? 'text-white' : 'text-black'}`}>{item.name}</span>
+                        </button>
+                    ))}
+                </div>
+                : <></>}
             <div />
 
             <div className="border-slate-500 placeholder-slate-400 p-2 text-black mt-2 flex space-x-4">
