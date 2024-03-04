@@ -111,26 +111,6 @@ const createAdSet = async (adSet: any, accountId: any, accessToken: any, country
             "object_store_url": "http://www.facebook.com/gaming/play/645064660474863/"
         }
 
-        adSet.targeting = {
-            "device_platforms": [
-                "mobile"
-            ],
-            "facebook_positions": [
-                "feed"
-            ],
-            "geo_locations": {
-                "countries": [
-                    country,
-                ]
-            },
-            "publisher_platforms": [
-                "facebook",
-                "audience_network"
-            ],
-            "user_os": [
-                "Android"
-            ]
-        };
 
         const response = await axios.post(ROUTES.ADS.ADSETS, {
             adSet: adSet,
