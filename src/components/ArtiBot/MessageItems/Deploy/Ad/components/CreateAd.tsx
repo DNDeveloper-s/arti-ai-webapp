@@ -4,7 +4,6 @@ import api from "../api/arti_api";
 import ActionButton from "./ActionButton";
 import SwitchComponent from "./SwitchComponent";
 import { SnackbarContext } from '@/context/SnackbarContext';
-import Snackbar from '@/components/Snackbar';
 import { ROUTES } from "@/config/api-config";
 import axios from 'axios';
 
@@ -307,7 +306,6 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
                 </div>
             </div>
             <ActionButton isLoading={isLoading} normalText="Create Ad" loadingText={loadingText} handleSubmit={handleSubmit} />
-            <Snackbar />
         </div>
     </>
 }
