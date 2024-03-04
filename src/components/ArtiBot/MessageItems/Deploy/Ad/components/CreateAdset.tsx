@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import api from "../api/arti_api";
 import ActionButton from "./ActionButton";
 import SwitchComponent from "./SwitchComponent";
+import axios from 'axios';
+import { SnackbarContext } from '@/context/SnackbarContext';
+import { ROUTES } from "@/config/api-config";
+
+
+const delay = (delay: number) => new Promise((res) => {
+    setTimeout(res, delay)
+})
 
 export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }: { accessToken: string, campaignId: string, onAdsetCreation: any }) {
     const [name, updateName] = useState("");
@@ -12,23 +20,28 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
     const [dailyBudget, updateDailyBudget] = useState(0)
     const [isLoading, setLoadingState] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
+    const [adAccountId, setAdAccountId] = useState("")
+    const [audienceList, setAudienceList] = useState()
+    const [selectedAudienceId, setAudienceId] = useState('')
     const [country, updateCountry] = useState("")
+    const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
     const [countriesMap, updateCountries] = useState()
 
-    // useEffect(() => {
-    //     const queryData = async () => {
-    //         console.log('query data')
-    //         const response = await api.getAllCountries()
-    //         if (response.data) {
-    //             console.log(response.data)
-    //             updateCountries(response.data);
-    //         }
+    useEffect(() => {
+        const queryData = async () => {
+            await delay(1000)
+            queryCountries();
 
-    //     }
+            const adAccountId = await queryAdAccountId();
+            if (adAccountId) {
+                queryAudiences(adAccountId)
+            }
 
-    //     queryData();
-    // }, []);
+        }
+
+        queryData();
+    }, [])
 
 
     const handleNameUpdate = (e: any) => {
@@ -52,6 +65,51 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
     const handleSwitchChange = (e: any) => {
         updateStatus(e ? "ACTIVE" : "PAUSED")
     }
+    const handleAudienceChange = (e: any) => {
+        setAudienceId(e.target.value)
+    }
+
+    async function queryAudiences(adAccountId: string) {
+        try {
+            const response = await axios.get(ROUTES.ADS.CUSTOM_AUDIENCE, {
+                params: {
+                    account_id: adAccountId,
+                    access_token: accessToken,
+                }
+            });
+
+            setAudienceId(response.data.data[0].id);
+            setAudienceList(response.data.data)
+        } catch (error: any) {
+            console.log(error)
+            setSnackBarData({ status: 'error', message: error.response.data.message });
+        } finally { }
+    }
+
+    async function queryCountries() {
+        try {
+            const response = await axios.get(ROUTES.ADS.GET_ALL_COUNTRIES);
+            updateCountries(response.data.data);
+        } catch (error: any) {
+            console.log(error)
+            setSnackBarData({ status: 'error', message: error.response.data.message });
+        } finally { }
+    }
+
+    async function queryAdAccountId() {
+        try {
+            const { adAccountId, getAdAccountIdError } = await api.getAdAccountId(accessToken)
+            if (getAdAccountIdError) {
+                setErrorMessage(getAdAccountIdError)
+                return;
+            }
+            setAdAccountId(adAccountId)
+            return adAccountId;
+        } catch (error: any) {
+            setSnackBarData({ status: 'error', message: error.response.data.message });
+            return null;
+        } finally { }
+    }
 
     const getBillingEventList = (optimizationGoal: string) => {
         switch (optimizationGoal) {
@@ -68,20 +126,39 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
         setLoadingState(true)
 
         try {
-            const { adAccountId, getAdAccountIdError } = await api.getAdAccountId(accessToken)
-            if (getAdAccountIdError) {
-                setErrorMessage(getAdAccountIdError)
-                return;
-            }
 
-            const adSet = {
+            const adSet: any = {
                 name: name,
                 dailyBudget: dailyBudget * 100,
                 bidAmount: bidAmount * 100,
                 billingEvent: billingEvent,
                 optimizationGoal: optimizationGoal,
                 campaignId: campaignId,
+                targeting: {
+                    "device_platforms": [
+                        "mobile"
+                    ],
+                    "facebook_positions": [
+                        "feed"
+                    ],
+                    "geo_locations": {
+                        "countries": [
+                            country,
+                        ]
+                    },
+                    "publisher_platforms": [
+                        "facebook",
+                        "audience_network"
+                    ],
+                    "user_os": [
+                        "Android"
+                    ]
+                },
                 status: status,
+            }
+
+            if (selectedAudienceId) {
+                adSet.targeting["custom_audiences"] = [{ "id": selectedAudienceId }]
             }
 
             const { adSetId, createAdSetError } = await api.createAdSet(adSet, adAccountId, accessToken, "IN");
@@ -138,6 +215,14 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
                     ))}
                 </select>
             </div>
+            {audienceList ? <div className="border-slate-500 border placeholder-slate-400 p-2 text-black rounded-lg mt-2">
+                <label htmlFor="dropdown">Custom Audience:</label>
+                <select id="dropdown" name="dropdown" onChange={handleAudienceChange} className="border-0 outline-0">
+                    {audienceList.map((item, index) => (
+                        <option key={index} value={item.id}>{item.name}</option>
+                    ))}
+                </select>
+            </div> : <></>}
             {countriesMap ? <div className="border-slate-500 border placeholder-slate-400 p-2 text-black rounded-lg mt-2">
                 <label htmlFor="dropdown">Select Country:</label>
                 <select id="dropdown" name="dropdown" onChange={handleCountryChange} className="border-0 outline-0">
