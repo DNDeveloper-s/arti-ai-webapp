@@ -1,6 +1,6 @@
-import {IconType} from 'react-icons';
-import {FEEDBACK, FeedbackData, FeedBackKeyProperty, IAdCreative} from '@/interfaces/IAdCreative';
-import {IMessageModel, MongooseModel} from '@/interfaces/IConversation';
+import { IconType } from 'react-icons';
+import { FEEDBACK, FeedbackData, FeedBackKeyProperty, IAdCreative } from '@/interfaces/IAdCreative';
+import { IMessageModel, MongooseModel } from '@/interfaces/IConversation';
 
 export interface HandleChunkArgs {
 	done?: boolean;
@@ -76,15 +76,16 @@ export interface IAdVariantImageMap {
 		totalVersions: number;
 		list: VersionKey[];
 	}
-	versions: Record<VersionKey,  {
+	versions: Record<VersionKey, {
 		image: string;
 		timestamp: string;
 	}>,
-	generatedImages: {url: string, timestamp: string}[];
+	generatedImages: { url: string, timestamp: string }[];
 }
 
 export interface IAdVariant extends MongooseModel {
 	id: string;
+	adCreativeId: string;
 	variantNo: string;
 	adType: string;
 	confidence: string;
