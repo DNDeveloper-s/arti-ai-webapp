@@ -122,7 +122,7 @@ const LayerItem: FC<LayerItemProps> = ({handleUpdateName, itemActions, selected,
 					<input ref={inputRef} type="text" className={'rounded-[1px] px-1 w-full focus:outline-blue-500 focus-within:outline-none border-none bg-transparent text-white'} value={editValue} onChange={handleNameChange}/>
 				</div>}
 			</div>
-			<Portal>
+			<Portal id="contextmenuportal">
 				{show ? <div ref={contextMenuRef} className='fixed min-w-[100px] bg-gray-800 shadow-lg text-white overflow-hidden rounded' style={{top: position.y, left: position.x}}>
 					<div onClick={handleDeleteClick} className='flex items-center select-none cursor-pointer gap-1.5 py-1.5 px-3 hover:bg-gray-900 active:bg-gray-950'>
 						<div className='text-base'>

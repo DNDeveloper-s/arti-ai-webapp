@@ -15,7 +15,6 @@ import {ChatGPTMessageObj, ChatGPTRole, FileObject, HandleChunkArgs, MessageObj}
 import {MessageService} from '@/services/Message';
 import {SnackbarContext, SnackbarData} from '@/context/SnackbarContext';
 import {freeTierLimit} from '@/constants';
-import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
 import exampleJSON from '@/database/exampleJSON';
 import {ConversationType, IConversation} from '@/interfaces/IConversation';
 import {dummy} from '@/constants/dummy';

@@ -15,8 +15,6 @@ interface PageProps {
 const Page: FC<PageProps> = (props) => {
 	const {data, status} = useSession();
 
-	const searchParams = useSearchParams();
-	
 
 	if(status === 'loading') return <AppLoader />
 

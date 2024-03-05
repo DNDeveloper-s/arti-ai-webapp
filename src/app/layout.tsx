@@ -30,7 +30,8 @@ export default function RootLayout({
                 <>
                   {children}
                   <div id='myportal' className="z-[1000] fixed top-0 left-0" />
-                  <div id='canvastoolsportal' className="z-[999] fixed top-0 left-0" />
+                  <div id='canvastoolsportal' className="z-[1001] fixed top-0 left-0" />
+                  <div id='contextmenuportal' className="z-[1002] fixed top-0 left-0" />
                 </>
               </EditVariantContextProvider>
             </ConversationContextProvider>

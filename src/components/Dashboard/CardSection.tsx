@@ -8,7 +8,7 @@ import webImage4 from '@/assets/images/image10.webp';
 import webImage from '@/assets/images/image1.webp';
 import AttachmentModal from '@/components/Dashboard/AttachmentModal';
 import Drawer, {Position} from '@/components/Drawer';
-import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
+import RightPane from '@/components/ArtiBot/RightPane/RightPane_Legacy';
 import React, {FC, useContext, useEffect, useMemo, useState} from 'react';
 import {AttachmentDetails, ModalDispatchAction} from '@/interfaces';
 import {IAdCreative} from '@/interfaces/IAdCreative';

@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export const base64ToBlob = (base64: string, type: string = '') => {
     console.log('Error exporting the image - ', base64);
     const byteString = atob(base64);

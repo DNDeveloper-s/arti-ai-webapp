@@ -61,7 +61,7 @@ const EditControl: FC<EditControlProps> = (props) => {
     const [formValue, setFormValue] = useState<string>(props.content ?? '');
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [suggestions, setSuggestions] = useState(null);
-	const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+	  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
     const onChange = (value: string) => {
         setFormValue(value);
@@ -162,30 +162,30 @@ const EditControl: FC<EditControlProps> = (props) => {
         //     newVariant.images = [newImageObj];
         // }
 
-		// if(!newVariant.imageMap) {
-		// 	newVariant.imageMap = {
-		// 		main: newVariant.imageUrl,
-		// 		versionInfo: {
-		// 			totalVersions: 0,
-		// 			list: []
-		// 		},
-		// 		versions: {},
-		// 		generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
-		// 	};
-		// }
+        // if(!newVariant.imageMap) {
+        // 	newVariant.imageMap = {
+        // 		main: newVariant.imageUrl,
+        // 		versionInfo: {
+        // 			totalVersions: 0,
+        // 			list: []
+        // 		},
+        // 		versions: {},
+        // 		generatedImages: [{url: newVariant.imageUrl, timestamp: new Date().toISOString()}]
+        // 	};
+        // }
 
-		// const versions = {
-		// 	...(newVariant.imageMap.versions ?? {}),
-		// 	[`v${(newVariant.imageMap.versionInfo.totalVersions ?? 1)}`]: newVariant.imageMap.versions.latest,
-		// 	latest: {
-		// 		image: url,
-		// 		timestamp: new Date().toISOString()
-		// 	}
-		// }
-		// const versionInfo = {
-		// 	totalVersions: (newVariant.imageMap.versionInfo.totalVersions ?? 0) + 1,
-		// 	list: Object.keys(versions)
-		// }
+        // const versions = {
+        // 	...(newVariant.imageMap.versions ?? {}),
+        // 	[`v${(newVariant.imageMap.versionInfo.totalVersions ?? 1)}`]: newVariant.imageMap.versions.latest,
+        // 	latest: {
+        // 		image: url,
+        // 		timestamp: new Date().toISOString()
+        // 	}
+        // }
+        // const versionInfo = {
+        // 	totalVersions: (newVariant.imageMap.versionInfo.totalVersions ?? 0) + 1,
+        // 	list: Object.keys(versions)
+        // }
 
         newVariant.imageUrl = suggestion;
         return updateVariant(dispatch, newVariant);
@@ -234,7 +234,7 @@ const EditControl: FC<EditControlProps> = (props) => {
             <div className={'relative group/edit-control ' + (props.containerClassName ?? '')}>
                 {controlState === CONTROL_STATE.IDLE && <div className={"absolute top-0 left-0 w-full h-full rounded bg-black group-hover/edit-control:bg-opacity-80 bg-opacity-0 transition-all flex items-center justify-center gap-1 cursor-pointer " + (loading ? '!bg-opacity-80' : '')}>
                     <div className={"animate-pulse absolute top-0 left-0 w-full h-full border-2 border-dashed border-gray-200 rounded"} />
-                    {!loading ? <div className='flex relative items-center gap-3 z-10'>
+                    {!loading ? <div className='flex relative justify-center px-2 flex-wrap items-center gap-3 z-10'>
                         <div onClick={() => handleClick(CONTROL_STATE.EDIT)} className='group-hover/edit-control:opacity-100 opacity-0 transition-all flex items-center gap-2 py-1 px-4 border-2 border-white rounded-lg hover:border-primary hover:text-primary '>
                             <RiEditFill className="text-[1.25em]" />
                             <span className={"transition-opacity text-[0.95em]"}>Edit</span>

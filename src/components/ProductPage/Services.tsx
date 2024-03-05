@@ -20,7 +20,7 @@ import ObjectId from 'bson-objectid';
 import LaptopImage from '@/assets/images/mac-3.png';
 import MacImage from '@/assets/images/mac-1.png';
 import IphoneImage from '@/assets/images/iphone_2.png';
-import RightPane from '@/components/ArtiBot/RIghtPane/RightPane';
+import RightPane from '@/components/ArtiBot/RightPane/RightPane_Legacy';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import useMounted from '@/hooks/useMounted';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';

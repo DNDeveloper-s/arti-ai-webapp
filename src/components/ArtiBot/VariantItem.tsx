@@ -1,14 +1,22 @@
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {FC, useContext, useEffect, useRef, useState} from 'react';
 import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
-import FeedBackView from '@/components/ArtiBot/RIghtPane/FeedBackView';
+import FeedBackView from '@/components/ArtiBot/RightPane/FeedBackView';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
 import {timeSince} from '@/helpers';
 import {Mock} from '@/constants/servicesData';
 import { EditFacebookAdVariant } from './EditAdVariant/EditAdVariant';
 import {startEditingVariant, stopEditingVariant, useEditVariant} from '@/context/EditVariantContext';
-import {useConversation} from '@/context/ConversationContext';
+import {updateVariantToDB, useConversation} from '@/context/ConversationContext';
 import CTAButton from '../CTAButton';
 import { CloseIcon } from 'next/dist/client/components/react-dev-overlay/internal/icons/CloseIcon';
+import { GrDeploy } from 'react-icons/gr';
+import { MdOutlineModeEdit } from 'react-icons/md';
+import { IAdVariant } from '@/interfaces/IArtiBot';
+import useConversations from '@/hooks/useConversations';
+import { dbImagesPrefixes } from '@/constants';
+import { SnackbarContext } from '@/context/SnackbarContext';
+import uploadImage from '@/services/uploadImage';
+import Loader from '../Loader';
 
 interface VariantTabProps {
 	activeVariant: AdCreativeVariant;
@@ -26,8 +34,13 @@ export enum AD_VARIANT_MODE {
 const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVariant, ...props}) => {
 	const variantRef = useRef<HTMLDivElement>(null);
 	const [fontSize, setFontSize] = useState<number>(10);
-	const {dispatch, state} = useEditVariant();
-	const isEditting = state.variant && state.variant.id === activeVariant.id;
+	const {dispatch, state: editState} = useEditVariant();
+	const {state, dispatch: conversationDispatch} = useConversation();
+	const editMode = editState.variant && editState.variant.id === activeVariant.id;
+	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+	const [updating, setUpdating] = useState(false);
+
+	const variant = state.variant.map[activeVariant.id] as IAdVariant ?? null;
 
 	useEffect(() => {
 		if(!variantRef.current) return;
@@ -42,14 +55,85 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 		setFontSize(newHeight / 57);
 	}, [width])
 
-	function handleClose() {
-		// setMode(AD_VARIANT_MODE.VIEW);
+	async function handleSaveVariant() {
+		// updateVariant(editState.variant as IAdVariant);
+		if(!editState.variant) {
+			return setSnackbarData({message: 'Oops! Failed to Update Variant.', status: 'error'});
+		}
+		setUpdating(true);
+
+		const newVariant = {...editState.variant};
+		// newVariant.images = variantState.images;
+		const variantImages = [...(editState.variantImages ?? [])];
+
+		const usedImageUrl = newVariant.imageUrl;
+
+		const images = [];
+		for (let i = 0; i < variantImages.length; i++) {
+			const image = variantImages[i];
+
+			// Should get new when
+			// 1. it's url matches with imageUrl
+			// 2. it's url and bgImage both contains allowedBgImagesPrefixes
+			const isCurrentImage = image.get('url') === editState.variant?.imageUrl;
+			const cond = [
+				isCurrentImage,
+				dbImagesPrefixes.some(prefix => image.get('url')?.includes(prefix) && image.get('bgImage')?.includes(prefix))
+			]
+
+			const shouldGetNew = cond.some(c => c);
+
+			if(shouldGetNew) {
+				if(image.get('url')?.startsWith('blob:')) {
+					// upload image to s3 and update url
+					const fileName = newVariant.id + '_' + Date.now().toString() + '.png'
+					const url = await uploadImage(image.get('url'), fileName);
+					// const url = 'uploaded to s3 url'
+					image.set('url', url);
+					if(isCurrentImage) newVariant.imageUrl = url;
+				} else {
+					if(isCurrentImage) newVariant.imageUrl = image.get('url') ?? newVariant.imageUrl;
+				}
+				if(image.get('bgImage')?.startsWith('blob:')) {
+					// upload image to s3 and update bgImage
+					const fileName = newVariant.id + '_' + Date.now().toString() + '.png'
+					const url = await uploadImage(image.get('bgImage'), fileName);
+					// const url = 'uploaded to s3 bgImage url'
+					image.set('bgImage', url);
+				}
+				images[i] = image.imageObj;
+			} else {
+				images[i] = image.baseImageObj;
+			}
+		}
+
+		// console.log('testing newVariant - ', images);
+		newVariant.images = images;
+		
+		const variantFromDB = await updateVariantToDB(conversationDispatch, newVariant as IAdVariant);
+		setUpdating(false);
+		
+		if(variantFromDB) {
+			stopEditingVariant(dispatch);
+			return setSnackbarData({message: 'Variant Updated Successfully', status: 'success'});
+		} else {
+			return setSnackbarData({message: 'Oops! Failed to Update Variant.', status: 'error'});
+		}
+	}
+
+	async function handleEdit() {
+		if(!variant) return null;
+		stopEditingVariant(dispatch);
+		startEditingVariant(dispatch, variant);
+	}
+
+	function editVariantClose() {
 		stopEditingVariant(dispatch);
 	}
 
 	return (
 		<>
-			{activeVariant && (
+			{variant && (
 				<>
 					{/* <div className={'flex w-[80%] justify-between items-center ' + (mock.is ? 'mt-2' : 'mt-4')}>
 						<label htmlFor="message" className="block text-sm font-light text-white text-opacity-50 text-left">Ad Preview</label>
@@ -58,18 +142,43 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 							<span className="text-white text-opacity-80 text-xs">{timeSince(activeVariant.updatedAt) + ' ago'}</span>
 						</span>}
 					</div> */}
-					{!mock.is && !isEditting && <div className={'flex justify-end w-[80%] mt-2 items-center gap-1 text-xs'}>
+					{/* {!mock.is && !isEditting && <div className={'flex justify-end w-[80%] mt-2 items-center gap-1 text-xs'}>
 						<span className="text-white text-opacity-50">Explore Options:</span>
 						<button onClick={() => {
 							// setMode(AD_VARIANT_MODE.EDIT);
 							startEditingVariant(dispatch, activeVariant);
 						}} className="bg-primary text-white px-3 py-1 leading-[14px] rounded cursor-pointer">Edit Your Ad</button>
-					</div>}
-					<div ref={variantRef} className={"mt-2 w-[80%]"}>
+					</div>} */}
+					<div ref={variantRef} className={"relative mt-2 w-[80%]"}>
+						{!editMode ? <FacebookAdVariant adVariant={variant} className="p-3 !max-w-unset border !border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px', opacity: editMode ? 0 : 1, pointerEvents: editMode ? 'none' : 'all'}} /> :
+						<EditFacebookAdVariant 
+							showConfirmModal={false}
+							setShowConfirmModal={() => {}}
+							handleSaveVariant={handleSaveVariant} 
+							handleEditVariantClose={editVariantClose} 
+							adVariant={editState.variant as IAdVariant} 
+							className="p-3 !max-w-unset border border-gray-800 h-auto rounded-lg" style={{fontSize: '8px'}} />
+						}
+						{updating && <div
+							className="flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-60">
+							<Loader />
+						</div>}
+					</div>
+					{/* <div ref={variantRef} className={"mt-2 w-[80%]"}>
 						{!isEditting ? <FacebookAdVariant mock={mock} adVariant={activeVariant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: (fontSize) + 'px'}}/> : (
 							state.variant && <EditFacebookAdVariant showConfirmModal={props.showConfirmModal} setShowConfirmModal={props.setShowConfirmModal} handleEditVariantClose={handleClose} mock={mock} adVariant={state.variant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-black rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
 						)}
-					</div>
+					</div> */}
+					{!editMode && <div className='w-[80%] mx-auto mt-2 flex items-center justify-center gap-4'>
+						<button onClick={handleEdit} className='cursor-pointer text-white hover:scale-105 text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
+							<MdOutlineModeEdit />
+							<span>Edit</span>
+						</button>
+						<button className='cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
+							<GrDeploy className='fill-white stroke-white [&>path]:stroke-white' />
+							<span>Deploy</span>
+						</button>
+					</div>}
 				</>
 			)}
 

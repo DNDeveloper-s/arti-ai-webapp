@@ -21,10 +21,10 @@ const ArtiBotPage: FC<ArtiBotPageProps> = ({projectName}) => {
 	// Check if the conversation with no activity exists
 	const id = ObjectId();
 
-	if (isStrategy) {
-		return redirect(`/artibot/${conversationType}/${id}?project_name=${projectName}`, 'replace');
-	} else {
-		return redirect(`/artibot/${conversationType}/${id}?project_name=${projectName}`, 'replace');
-	}
+	// if (isStrategy) {
+	return redirect(`/artibot/${conversationType}?conversation_id=${id}&project_name=${projectName}`, "replace");
+	// } else {
+	// 	return redirect(`/artibot/${conversationType}/${id}?project_name=${projectName}`, 'replace');
+	// }
 };
 export default ArtiBotPage;

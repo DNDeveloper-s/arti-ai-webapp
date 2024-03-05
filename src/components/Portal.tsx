@@ -5,9 +5,9 @@ import {createPortal} from 'react-dom';
 
 interface PortalProps {
 	children: React.ReactNode;
-	id?: 'myportal' | 'canvastoolsportal';
+	id?: 'myportal' | 'canvastoolsportal' | 'contextmenuportal';
 }
-
+ 
 const Portal: FC<PortalProps> = ({children, id = 'myportal'}) => {
 	const [mounted, setMounted] = useState(false);
 

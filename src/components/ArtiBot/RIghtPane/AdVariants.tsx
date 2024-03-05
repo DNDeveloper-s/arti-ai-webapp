@@ -1,8 +1,8 @@
 'use client'
 
 import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
-import TabView from '@/components/ArtiBot/RIghtPane/TabView';
-import FeedBackView from '@/components/ArtiBot/RIghtPane/FeedBackView';
+import TabView from '@/components/ArtiBot/RightPane/TabView';
+import FeedBackView from '@/components/ArtiBot/RightPane/FeedBackView';
 import {FiDownload} from 'react-icons/fi';
 import {motion} from 'framer-motion';
 import {IAdCreative, AdCreativeVariant} from '@/interfaces/IAdCreative';
@@ -12,7 +12,7 @@ import {useRouter} from 'next/navigation';
 import VariantItem, { AD_VARIANT_MODE } from '@/components/ArtiBot/VariantItem';
 import {Mock} from '@/constants/servicesData';
 import {colors} from '@/config/theme';
-import AdCampaignStepOne from '@/components/ArtiBot/RIghtPane/AdCampaignFlow/AdCampaignStepOne';
+import AdCampaignStepOne from '@/components/ArtiBot/RightPane/AdCampaignFlow/AdCampaignStepOne';
 
 interface RightPaneProps {
 	adCreative: IAdCreative;
@@ -23,7 +23,7 @@ interface RightPaneProps {
 
 const MIN_WIDTH = 450;
 
-const RightPane: FC<RightPaneProps> = ({isAdCampaign, adCreative, mock = new Mock(), style}) => {
+const AdVariants: FC<RightPaneProps> = ({isAdCampaign, adCreative, mock = new Mock(), style}) => {
 	const [activeVariant, setActiveVariant] = useState<AdCreativeVariant>(adCreative.variants[0]);
 	const [docUrl, setDocUrl] = useState<string | null>(null);
 	const [width, setWidth] = useState(MIN_WIDTH);
@@ -148,4 +148,4 @@ const RightPane: FC<RightPaneProps> = ({isAdCampaign, adCreative, mock = new Moc
 	// )
 }
 
-export default RightPane;
+export default AdVariants;

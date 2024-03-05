@@ -122,24 +122,23 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	}, [editVariantState.variant, editDispatch]);
 
 	const [imageUrl, setImageUrl] = useState<string | null>(mock.is ? null : adVariant.imageUrl);
-	const fallbackImage = editVariantState.fallbackImage ? editVariantState.fallbackImage[adVariant.id] : undefined;
+	// const fallbackImage = editVariantState.fallbackImage ? editVariantState.fallbackImage[adVariant.id] : undefined;
 
-	useEffect(() => {
-		const img = new Image();
-		img.src = adVariant.imageUrl;
-		img.onload = () => {
-			setImageUrl(adVariant.imageUrl);
-			// resetImageUrl(editDispatch);
-		}
-	}, [fallbackImage, adVariant.imageUrl])
+	// useEffect(() => {
+	// 	const img = new Image();
+	// 	img.src = adVariant.imageUrl;
+	// 	img.onload = () => {
+	// 		setImageUrl(adVariant.imageUrl);
+	// 		// resetImageUrl(editDispatch);
+	// 	}
+	// }, [fallbackImage, adVariant.imageUrl])
 
 	useEffect(() => {
 		setImageUrl(adVariant.imageUrl)
 	}, [imageUrl, mock.is, adVariant.imageUrl])
 
 	function handleErrorImage() {
-		if(fallbackImage) setImageUrl(fallbackImage);
-		else setImageUrl('error');
+		setImageUrl('error');
 	}
 
 	let lottieAnimationJSX = <div className="w-full aspect-square flex flex-col justify-center items-center">
@@ -291,7 +290,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 							<div className="w-[4em] h-[1em] mb-[0.2em] rounded-[.17em] bg-gray-700" />
 							<div className="w-[6em] h-[1em] rounded-[.17em] bg-gray-700" />
 						</div>
-					</div>``
+					</div>
 					<SlOptions className="text-[1.5em]" />
 				</div>
 				{/*<div className="mb-[1em] px-[1em]">*/}

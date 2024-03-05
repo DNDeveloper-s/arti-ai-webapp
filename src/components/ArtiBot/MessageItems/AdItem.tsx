@@ -15,6 +15,7 @@ import { dbImagesPrefixes } from '@/constants';
 import uploadImage from '@/services/uploadImage';
 import { VariantImageMap } from '@/services/VariantImageMap';
 import MetricsCard from '../MetricsCard';
+import {blobUrlToBlobObject} from '@/utils/transformers';
 
 function ConversationAdVariant({variantId}: {variantId: string}) {
 	const {dispatch, state: editState} = useEditVariant();
@@ -27,7 +28,7 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 
 	if(!variant) return null;
 
-	function handleEdit() {
+	async function handleEdit() {
 		if(!variant) return null;
 		stopEditingVariant(dispatch);
 		startEditingVariant(dispatch, variant);
@@ -107,8 +108,7 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 		<div key={variant.id} className="group/variant flex-shrink-0 relative">
 			{!editMode ? <FacebookAdVariant adVariant={variant} className="p-3 !w-[400px] !max-w-unset border !border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px', opacity: editMode ? 0 : 1, pointerEvents: editMode ? 'none' : 'all'}} /> :
 			<EditFacebookAdVariant 
-				ref={editState.ref}
-				showConfirmModal={false} 
+				showConfirmModal={false}
 				setShowConfirmModal={() => {}} 
 				handleSaveVariant={handleSaveVariant} 
 				handleEditVariantClose={editVariantClose} 

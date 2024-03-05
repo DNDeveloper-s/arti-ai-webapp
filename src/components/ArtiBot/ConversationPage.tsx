@@ -3,7 +3,7 @@
 import ArtiBot from '@/components/ArtiBot/ArtiBot';
 import {IConversation} from '@/interfaces/IConversation';
 import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
-import RightPane from './RIghtPane/RightPane';
+import AdVariants from './RightPane/AdVariants';
 import {useConversation} from '@/context/ConversationContext';
 import ResizeAble from '../shared/renderers/ResizeAble';
 import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
@@ -180,7 +180,7 @@ export default function ArtiBotPage({conversation}: {conversation: IConversation
 			<div className={'bg-secondaryBackground flex flex-col h-full flex-1 overflow-hidden'}>
 				{headerContent}
 				<div className={'transition-all w-full overflow-hidden relative ' + (isConversationCollapsible ? 'h-[0] ' : 'h-full flex-1 ')}>
-					<div className={'w-full max-w-[1100px] mx-auto h-full overflow-hidden'}>
+					<div className={'w-full mx-auto h-full overflow-hidden'}>
 						<ArtiBot hideHeader={true} toggleCollapse={toggleCollapse} collapsed={false} conversation={conversation} adCreatives={adCreatives} setAdCreatives={setAdCreatives}/>
 					</div>
 				</div>
@@ -190,8 +190,8 @@ export default function ArtiBotPage({conversation}: {conversation: IConversation
 						<span className={'text-[10px]'}>{isConversationCollapsible ? 'Expand Chat' : 'Expand Ad Preview'}</span>
 					</div> */}
 					<div className={'transition-all w-full overflow-hidden ' + (isConversationCollapsible ? 'h-full flex-1 ' : 'h-[0]')}>
-						<div className={'w-full max-w-[1100px] mx-auto h-full overflow-hidden'}>
-							<RightPane adCreative={adCreative} isAdCampaign={false}/>
+						<div className={'w-full max-w-[1920px] mx-auto h-full overflow-hidden'}>
+							<AdVariants adCreative={adCreative} isAdCampaign={false}/>
 						</div>
 					</div>
 				</>}
