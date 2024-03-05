@@ -58,8 +58,8 @@ export const ROUTES = {
 		REGENERATE_DATA: (variantId: string, key: REGENERATE_SECTION, extraInput?: string | null) => apiUrl(`/variants/regenerate/${variantId}/${key}`, new URLSearchParams(pickValidKeys({ extraInput })))
 	},
 	SOCIAL: {
-		CREATE_POST: apiUrl(`/social/create_post`),
-		GET_ALL_PAGES: apiUrl(`/social/get_all_pages`),
+		POSTS: apiUrl(`/social/posts`),
+		PAGES: apiUrl(`/social/pages`),
 	},
 	ADS: {
 		CAMPAIGNS: apiUrl('/ads/campaigns'),
@@ -74,6 +74,9 @@ export const ROUTES = {
 		MAILCHIMP_CAMPAIGNS: apiUrl('/ads/mailchimp_campaigns'),
 		SEND_CAMPAIGN: apiUrl('/ads/send_campaign'),
 		CUSTOM_AUDIENCE: apiUrl('/ads/custom_audience')
+	},
+	LOCATION: {
+		ZIPCODE: apiUrl('/location/zipcode')
 	},
 	USERS: {
 		ACCOUNTS: (userId: string) => apiUrl(`/users/${userId}/accounts`),

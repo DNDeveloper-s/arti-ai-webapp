@@ -15,75 +15,61 @@ const getAllCountries = async () => {
     }
 }
 
-// const getAllCampaigns = async (accountId: string, accessToken: string) => {
-//     try {
-//         const response = await axios.get(ROUTES.ADS.CAMPAIGNS, {
-//             params: {
-//                 account_id: accountId,
-//                 access_token: accessToken,
-//             }
-//         });
+const getAllCampaigns = async (accountId: string, accessToken: string) => {
+    try {
+        const response = await axios.get(ROUTES.ADS.CAMPAIGNS, {
+            params: {
+                account_id: accountId,
+                access_token: accessToken,
+            }
+        });
 
-//         if (response.status == 200) {
-//             return { data: response.data.data }
-//         }
-//         return { getAllCampaignsError: "Error" }
-//     } catch (e: any) {
-//         return { getAllCampaignsError: "Error" }
-//     }
-// }
+        if (response.status == 200) {
+            return { data: response.data.data }
+        }
+        return { getAllCampaignsError: "Error" }
+    } catch (e: any) {
+        return { getAllCampaignsError: "Error" }
+    }
+}
 
-// const getAdsets = async (campaignId: string, accountId: string, accessToken: string) => {
-//     try {
-//         let url;
+const getAdsets = async ({ campaignId, accountId, accessToken }: { campaignId?: string, accountId: string, accessToken: string }) => {
+    try {
+        const response = await axios.get(ROUTES.ADS.ADSETS, {
+            params: {
+                account_id: accountId,
+                access_token: accessToken,
+                campaign_id: campaignId,
+            }
+        });
 
-//         if (campaignId) {
-//             url = `${apiConfig.protocol}://${apiConfig.baseUrl}/v1/${apiConfig.routeName}/adsets/${campaignId}`;
-//         } else {
-//             url = `${apiConfig.protocol}://${apiConfig.baseUrl}/v1/${apiConfig.routeName}/adsets`;
-//         }
+        if (response.status == 200) {
+            return { data: response.data.data }
+        }
+        return { getAdsetsError: "Error" }
+    } catch (e: any) {
+        return { getAdsetsError: "Error" }
+    }
+}
 
-//         const response = await axios.get(url, {
-//             params: {
-//                 account_id: accountId,
-//                 access_token: accessToken,
-//             }
-//         });
+const getAds = async ({ adsetId, accountId, accessToken }: { adsetId?: string, accountId: string, accessToken: string }) => {
+    try {
+        const response = await axios.get(ROUTES.ADS.AD_ENTITIES, {
+            params: {
+                account_id: accountId,
+                access_token: accessToken,
+                adset_id: adsetId,
+            }
+        });
 
-//         if (response.status == 200) {
-//             return { data: response.data.data }
-//         }
-//         return { getAdsetsError: "Error" }
-//     } catch (e: any) {
-//         return { getAdsetsError: "Error" }
-//     }
-// }
-
-// const getAds = async (adSetId: string, accountId: string, accessToken: string) => {
-//     try {
-//         let url;
-
-//         if (adSetId) {
-//             url = `${apiConfig.protocol}://${apiConfig.baseUrl}/v1/${apiConfig.routeName}/ad_entities/${adSetId}`;
-//         } else {
-//             url = `${apiConfig.protocol}://${apiConfig.baseUrl}/v1/${apiConfig.routeName}/ad_entities`;
-//         }
-
-//         const response = await axios.get(url, {
-//             params: {
-//                 account_id: accountId,
-//                 access_token: accessToken,
-//             }
-//         });
-
-//         if (response.status == 200) {
-//             return { data: response.data.data }
-//         }
-//         return { getAdsError: "Error" }
-//     } catch (e: any) {
-//         return { getAdsError: "Error" }
-//     }
-// }
+        if (response.status == 200) {
+            return { data: response.data.data }
+        }
+        return { getAdsError: "Error" }
+    } catch (e: any) {
+        return { getAdsError: "Error" }
+    }
+}
 
 const createCampaign = async (campaign: any, accountId: string, accessToken: string) => {
     try {
@@ -234,6 +220,9 @@ const combinedExports = {
     createAdCreative,
     createAd,
     getAllCountries,
+    getAllCampaigns,
+    getAdsets,
+    getAds,
 };
 
 export default combinedExports;
