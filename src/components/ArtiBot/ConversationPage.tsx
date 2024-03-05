@@ -3,9 +3,8 @@
 import ArtiBot from '@/components/ArtiBot/ArtiBot';
 import {IConversation} from '@/interfaces/IConversation';
 import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
-import AdVariants from './RightPane/AdVariants';
+import AdVariants from '@/components/ArtiBot/RightPane/AdVariants';
 import {useConversation} from '@/context/ConversationContext';
-import ResizeAble from '../shared/renderers/ResizeAble';
 import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
 import EditAdVariantScreen from '@/components/ArtiBot/EditAdVariant/EditAdVariantScreen';
 import {useEditVariant} from '@/context/EditVariantContext';
