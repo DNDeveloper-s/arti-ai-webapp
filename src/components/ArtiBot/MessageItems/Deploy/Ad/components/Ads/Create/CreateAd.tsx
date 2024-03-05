@@ -315,7 +315,7 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
             <center>
                 <div className='mt-5 flex'>
                     {variantList.map((variant, index) => {
-                        return <div className="flex flex-col items-center">
+                        return <div key={variant.id} className="flex flex-col items-center">
                             <img src={variant.imageUrl} className='rounded-lg mb-2' alt="Uploaded" style={{ maxWidth: '30%' }} />
                             <input type='radio' value={variant.id} checked={selectedVariant && selectedVariant.id == variant.id} onChange={handleRadioChange} />
                         </div>
