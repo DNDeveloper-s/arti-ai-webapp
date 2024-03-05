@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import api from "../api/arti_api";
-import ActionButton from "./ActionButton";
-import SwitchComponent from "./SwitchComponent";
+import api from "../../../api/arti_api";
+import ActionButton from "../../ActionButton";
+import SwitchComponent from "../../SwitchComponent";
 import axios from 'axios';
 import { SnackbarContext } from '@/context/SnackbarContext';
 import { ROUTES } from "@/config/api-config";
@@ -21,7 +21,22 @@ interface UserInterest {
     description?: string,
 }
 
-export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }: { accessToken: string, campaignId: string, onAdsetCreation: any }) {
+// Define the data object
+interface Location {
+    key: string,
+    name: string,
+    type: string,
+    country_code: string,
+    country_name: string,
+    region: string,
+    primary_city: string,
+    region_id: number,
+    primary_city_id: number,
+    supports_region: boolean,
+    supports_city: boolean
+};
+
+export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }: { accessToken: string, campaignId?: string, onAdsetCreation: any }) {
     const [name, updateName] = useState("");
     const [optimizationGoal, updateOptimizationGoal] = useState("NONE");
     const [billingEvent, updateBillingEvent] = useState("IMPRESSIONS");
@@ -34,6 +49,8 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
     const [audienceList, setAudienceList] = useState()
     const [selectedAudienceId, setAudienceId] = useState('')
     const [interestList, setInterestList] = useState<UserInterest[]>([])
+    const [zipcodeList, setZipcodeList] = useState<Location[]>([])
+    const [selectedZipcodeList, setSelectedZipcodeList] = useState<Location[]>([])
     const [selectedInterestList, setSelectedInterestList] = useState<UserInterest[]>([])
     const [country, updateCountry] = useState("")
     const [startTime, updateStartTime] = useState<Date>()
@@ -47,6 +64,7 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
             await delay(1000)
             queryCountries();
             setInterestList([]);
+            setZipcodeList([]);
 
             const adAccountId = await queryAdAccountId();
             if (adAccountId) {
@@ -159,6 +177,10 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
         return output;
     }
 
+    function convertToRegionId(input: Location[]) {
+        return input.map(item => ({ key: item.region_id }));
+    }
+
     const handleSubmit = async () => {
         setLoadingState(true)
 
@@ -180,11 +202,6 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
                     "facebook_positions": [
                         "feed"
                     ],
-                    "geo_locations": {
-                        "countries": [
-                            country,
-                        ]
-                    },
                     "publisher_platforms": [
                         "facebook",
                         "audience_network"
@@ -194,11 +211,24 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
             }
 
             if (selectedAudienceId) {
-                adSet.targeting["custom_audiences"] = [{ "id": selectedAudienceId }]
             }
 
             if (selectedInterestList) {
                 adSet.targeting.flexible_spec = getAppropriateSpec()
+            }
+
+            if (country) {
+                if (!adSet.targeting["geo_locations"]) {
+                    adSet.targeting["geo_locations"] = {};
+                }
+                adSet.targeting["geo_locations"]["countries"] = [country];
+            }
+
+            if (selectedZipcodeList) {
+                if (!adSet.targeting["geo_locations"]) {
+                    adSet.targeting["geo_locations"] = {};
+                }
+                adSet.targeting["geo_locations"]["regions"] = convertToRegionId(selectedZipcodeList);
             }
 
 
@@ -242,19 +272,31 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
         }
     }
 
+    const queryZipCodes = async (e: any) => {
+        const query = e.target.value;
+        if (query.length === 0) return;
+        try {
+            const response = await axios.get(ROUTES.LOCATION.ZIPCODE, {
+                params: {
+                    zip_code: query,
+                    access_token: accessToken,
+                }
+            },);
+            setSelectedZipcodeList([]);
+            setZipcodeList(response.data.data)
+        } catch (error: any) {
+            console.log(error.response.data)
+            setSnackBarData({ status: 'error', message: error.response.data.message });
+        }
+    }
+
+    const handleZipcodeSelection = (item: Location) => {
+        setSelectedZipcodeList([...selectedZipcodeList, item]);
+    }
+
+
     const handleInterestSelection = (item: UserInterest) => {
         setSelectedInterestList([...selectedInterestList, item]);
-        // if (selectedInterestList.some(e => e.id === item.id)) {
-        //     const index = selectedInterestList.findIndex((e) => e.id === item.id)
-        //     selectedInterestList.splice(index, 1)
-        //     console.log('after removing')
-        //     console.log(selectedInterestList)
-        //     setSelectedInterestList(selectedInterestList);
-        // } else {
-        //     console.log('after adding')
-        //     console.log(selectedInterestList)
-        //     setSelectedInterestList([...selectedInterestList, item]);
-        // }
     }
 
     return <>
@@ -329,6 +371,17 @@ export default function CreateAdset({ accessToken, campaignId, onAdsetCreation }
                         <button key={index} className={`flex flex-col rounded-md p-2 mr-2 mt-4 ${selectedInterestList.some(e => e.id === item.id) ? 'bg-blue-500' : 'bg-blue-300'}`} onClick={(_) => handleInterestSelection(item)}>
                             <span className={`text-xs font-bold md-2 ${selectedInterestList.some(e => e.id === item.id) ? 'text-white' : 'text-black '}`}>{item.type}</span>
                             <span className={`text-xs md-2 ${selectedInterestList.some(e => e.id === item.id) ? 'text-white' : 'text-black'}`}>{item.name}</span>
+                        </button>
+                    ))}
+                </div>
+                : <></>}
+            <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mt-2" placeholder="Zip Codes" onChange={queryZipCodes} />
+            {zipcodeList.length != 0 ?
+                <div className="flex">
+                    {zipcodeList.map((item, index) => (
+                        <button key={index} className={`flex flex-col rounded-md p-2 mr-2 mt-4 ${selectedZipcodeList.some(e => e.key === item.key) ? 'bg-blue-500' : 'bg-blue-300'}`} onClick={(_) => handleZipcodeSelection(item)}>
+                            <span className={`text-xs font-bold md-2 ${selectedZipcodeList.some(e => e.key === item.key) ? 'text-white' : 'text-black '}`}>{item.country_code} {item.country_name}</span>
+                            <span className={`text-xs font-bold md-2 ${selectedZipcodeList.some(e => e.key === item.key) ? 'text-white' : 'text-black '}`}>{item.name} {item.primary_city} {item.region_id}</span>
                         </button>
                     ))}
                 </div>

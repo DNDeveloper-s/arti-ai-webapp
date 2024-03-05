@@ -1,7 +1,7 @@
 import { useState } from "react";
-import api from "../api/arti_api";
-import ActionButton from "./ActionButton";
-import SwitchComponent from "./SwitchComponent";
+import api from "../../../api/arti_api";
+import ActionButton from "../../ActionButton";
+import SwitchComponent from "../../SwitchComponent";
 
 export default function CreateCampaign({ accessToken, onCampaignCreation }: { accessToken: string, onCampaignCreation: any }) {
     const [name, updateName] = useState("");
@@ -55,13 +55,12 @@ export default function CreateCampaign({ accessToken, onCampaignCreation }: { ac
 
 
     return <>
-        <div className="flex flex-col p-6 rounded-lg bg-white mb-4 text-black">
-            <p className="text-black font-bold text-2xl mb-6">Create Campaign</p>
-            <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mb-2" placeholder="My Awesome Campaign" onChange={handleNameUpdate} />
+        <div className="flex flex-col p-6 rounded-lg text-white">
+            <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 rounded-lg mb-2 bg-black" placeholder="My Awesome Campaign" onChange={handleNameUpdate} />
 
-            <div className="border-slate-500 border placeholder-slate-400 p-2 text-black rounded-lg mt-2">
+            <div className="border-slate-500 border placeholder-slate-400 p-2 rounded-lg mt-2">
                 <label htmlFor="dropdown">Campaign Objective:</label>
-                <select id="dropdown" name="dropdown" onChange={handleDropdownChange} className="border-0 outline-0">
+                <select id="dropdown" name="dropdown" onChange={handleDropdownChange} className="border-0 outline-0 bg-black">
                     <option value="OUTCOME_AWARENESS">Awareness</option>
                     <option value="OUTCOME_ENGAGEMENT">Engagement</option>
                     <option value="OUTCOME_LEADS">Leads</option>
@@ -72,7 +71,7 @@ export default function CreateCampaign({ accessToken, onCampaignCreation }: { ac
             </div>
 
 
-            <div className="border-slate-500 placeholder-slate-400 p-2 text-black mt-2 flex space-x-4">
+            <div className="border-slate-500 placeholder-slate-400 p-2 mt-2 flex space-x-4">
                 <label>Status:</label>
                 <div className='flex flex-col items-center'>
                     <SwitchComponent checked={status == "ACTIVE"} onChange={handleSwitchChange} />

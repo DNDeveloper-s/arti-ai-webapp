@@ -1,10 +1,13 @@
 
 import { IAdVariant } from "@/interfaces/IArtiBot";
 import { useState } from "react";
-import CreateAd from "./components/CreateAd";
-import CreateAdset from "./components/CreateAdset";
-import CreateCampaign from "./components/CreateCampaign";
+import CampaignView from "./components/Campaign/CampaignView";
+import CreateAd from "./components/Ads/Create/CreateAd";
+import CreateAdset from "./components/Adset/Create/CreateAdset";
+import CreateCampaign from "./components/Campaign/Create/CreateCampaign";
 import TabView from "./components/TabView";
+import AdsetView from "./components/Adset/AdsetView";
+import AdsView from "./components/Ads/AdsView";
 
 interface TabItem {
     id: number,
@@ -28,6 +31,7 @@ export default function DeployAdLayout({ accessToken, variant }: { accessToken: 
         setCampaignId(campaignId)
         setActiveTab(tabList[1])
     }
+
     const handleAdsetCreation = (adsetId: string) => {
         setAdsetId(adsetId)
         setActiveTab(tabList[2])
@@ -40,10 +44,10 @@ export default function DeployAdLayout({ accessToken, variant }: { accessToken: 
         <TabView setShowConfirmModal={setShowConfirmModal} items={tabList} activeAdTab={activeTab} setActiveAdTab={setActiveTab} />
         {
             activeTab.id == 0 ?
-                <CreateCampaign accessToken={accessToken} onCampaignCreation={handleCampaignCreation} /> :
+                <CampaignView accessToken={accessToken} onCampaignCreation={handleCampaignCreation} onCampaignSelection={handleCampaignCreation} /> :
                 activeTab.id == 1 ?
-                    <CreateAdset accessToken={accessToken} campaignId={campaignId} onAdsetCreation={handleAdsetCreation} /> :
-                    <CreateAd accessToken={accessToken} variant={variant} adsetId={adsetId} campaignId={campaignId} onAdCreation={handleAdCreation} />
+                    <AdsetView accessToken={accessToken} campaignId={campaignId} onAdsetCreation={handleAdsetCreation} onAdsetSelection={handleAdsetCreation} /> :
+                    <AdsView accessToken={accessToken} variant={variant} adsetId={adsetId} campaignId={campaignId} onAdCreation={handleAdCreation} />
         }
     </>
 }

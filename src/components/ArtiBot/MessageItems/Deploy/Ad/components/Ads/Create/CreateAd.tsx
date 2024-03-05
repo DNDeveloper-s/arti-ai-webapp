@@ -1,11 +1,12 @@
 import { IAdVariant } from "@/interfaces/IArtiBot";
 import { useState, useContext, useEffect } from "react";
-import api from "../api/arti_api";
-import ActionButton from "./ActionButton";
-import SwitchComponent from "./SwitchComponent";
+import api from "../../../api/arti_api";
+import ActionButton from "../../ActionButton";
+import SwitchComponent from "../../SwitchComponent";
 import { SnackbarContext } from '@/context/SnackbarContext';
 import { ROUTES } from "@/config/api-config";
 import axios from 'axios';
+import { useConversation } from '@/context/ConversationContext';
 
 const delay = (delay: number) => new Promise((res) => {
     setTimeout(res, delay)
@@ -27,7 +28,11 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
     const [adTitle, setAdTitle] = useState('');
     const [pagesData, setPagesData] = useState<FacebookPage[]>([])
     const [selectedPageId, setPageId] = useState('')
+    const [selectedVariant, setSelectedVariant] = useState<IAdVariant>()
     const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+
+    const { state, updateVariant } = useConversation();
+    const variantList = state.variant.list.filter(e => e.adCreativeId == variant.adCreativeId);
 
     const [adCreativeData, setAdCreative] = useState([])
     const [isAdCreativeModalOpen, setIsAdCreativeModalOpen] = useState(false);
@@ -36,7 +41,6 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
         const queryData = async () => {
             await delay(1000)
             getUserPages()
-            convertImageToBase64();
         }
 
         queryData();
@@ -44,7 +48,7 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
 
     async function getUserPages() {
         try {
-            const response = await axios.get(ROUTES.SOCIAL.GET_ALL_PAGES, {
+            const response = await axios.get(ROUTES.SOCIAL.PAGES, {
                 params: {
                     access_token: accessToken,
                 }
@@ -158,10 +162,10 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
     const convertImageToBase64 = async () => {
         setLoadingState(true)
         setLoadingText('Querying Image...')
-        const imageList = variant.imageUrl.split("/");
+        const imageList = selectedVariant!.imageUrl.split("/");
         try {
             const url = `https://api.artiai.org/v1/utils/image/${imageList[imageList.length - 1]}`
-            console.log(url)
+
             const response = await fetch(url);
             const blob = await response.blob();
 
@@ -169,6 +173,7 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
 
             const reader = new FileReader();
             reader.onload = (e: any) => {
+                console.log(`set byte data for: ${url}`)
                 setBase64String(reader.result?.toString().split(",")[1]!);
                 setLoadingText('')
                 setLoadingState(false)
@@ -212,11 +217,18 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
 
     const handleTitleUpdate = (e: any) => {
         setAdTitle(e.target.value)
+        variantList.find(variant => variant.id == e.target.value);
     }
 
     const handleSubmit = async () => {
+        if (!selectedVariant) {
+            setSnackBarData({ message: "Variant was not selected", status: "error" })
+            return;
+        }
         setLoadingState(true)
         setLoadingText('Creating...')
+
+
 
         try {
             const { adAccountId, getAdAccountIdError } = await api.getAdAccountId(accessToken)
@@ -271,6 +283,13 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
         }
     }
 
+    const handleRadioChange = (e: any) => {
+        const variant = variantList.find((variant) => variant.id === e.target.value)
+        setSelectedVariant(variant)
+        delay(500)
+        convertImageToBase64();
+    }
+
     return <>
         <div className="flex flex-col p-6 rounded-lg bg-white mb-4 text-black">
             <p className="text-black font-bold text-2xl mb-6">Create Ad</p>
@@ -294,8 +313,14 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
                 </select>
             </div>
             <center>
-                <div className='mt-5'>
-                    <img src={variant.imageUrl} className='rounded-lg' alt="Uploaded" style={{ maxWidth: '20%' }} />
+                <div className='mt-5 flex'>
+                    {variantList.map((variant, index) => {
+                        return <div className="flex flex-col items-center">
+                            <img src={variant.imageUrl} className='rounded-lg mb-2' alt="Uploaded" style={{ maxWidth: '30%' }} />
+                            <input type='radio' value={variant.id} checked={selectedVariant && selectedVariant.id == variant.id} onChange={handleRadioChange} />
+                        </div>
+                    })}
+
                 </div>
             </center>
 
