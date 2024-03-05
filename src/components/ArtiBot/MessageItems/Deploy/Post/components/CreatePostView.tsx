@@ -4,6 +4,7 @@ import { useContext, useState, } from "react";
 import axios, { AxiosError } from 'axios';
 import { ROUTES } from '@/config/api-config';
 
+
 export default function CreatePostView({ selectedVariant, pageId, pageAccessToken }: { selectedVariant: IAdVariant, pageId: string, pageAccessToken: string }) {
 
     const [errorMessage, setErrorMessage] = useState('')
@@ -17,7 +18,7 @@ export default function CreatePostView({ selectedVariant, pageId, pageAccessToke
         try {
             if (isLoading) return;
             setLoading(true)
-            const response = await axios.post(ROUTES.SOCIAL.CREATE_POST, {
+            const response = await axios.post(ROUTES.SOCIAL.POSTS, {
                 post: {
                     url: isImageReady ? imageUrl : selectedVariant.imageUrl!,
                     message: selectedVariant.text,
