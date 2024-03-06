@@ -25,10 +25,6 @@ export default function CreatePostView({ selectedVariant, pageId, pageAccessToke
                 },
                 page_id: pageId,
                 page_access_token: pageAccessToken,
-            }, {
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('token')
-                }
             });
 
             if (response.status === 200) {
