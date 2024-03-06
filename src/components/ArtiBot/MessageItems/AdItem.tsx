@@ -1,32 +1,93 @@
-import {AdJSONInput, ChatGPTMessageObj, IAdVariant} from '@/interfaces/IArtiBot';
-import AdVariant from '@/components/ArtiBot/AdVariant';
+import {ChatGPTMessageObj, IAdVariant} from '@/interfaces/IArtiBot';
 import React, {useContext, useState} from 'react';
 import {IAdCreative} from '@/interfaces/IAdCreative';
-import Markdown from 'react-remarkable';
 import FacebookAdVariant from '../FacebookAdVariant';
-import { MdOutlineModeEdit } from 'react-icons/md';
-import { GrDeploy } from 'react-icons/gr';
-import { EditFacebookAdVariant } from '../EditAdVariant/EditAdVariant';
-import { startEditingVariant, stopEditingVariant, useEditVariant } from '@/context/EditVariantContext';
+import {MdDownload, MdOutlineModeEdit} from 'react-icons/md';
+import {GrDeploy} from 'react-icons/gr';
+import {EditFacebookAdVariant} from '../EditAdVariant/EditAdVariant';
+import {startEditingVariant, stopEditingVariant, useEditVariant} from '@/context/EditVariantContext';
 import {updateVariantToDB, useConversation} from '@/context/ConversationContext';
 import {SnackbarContext} from '@/context/SnackbarContext';
 import Loader from '@/components/Loader';
-import { dbImagesPrefixes } from '@/constants';
+import {dbImagesPrefixes} from '@/constants';
 import uploadImage from '@/services/uploadImage';
-import { VariantImageMap } from '@/services/VariantImageMap';
-import MetricsCard from '../MetricsCard';
-import {blobUrlToBlobObject} from '@/utils/transformers';
+import JSZip from 'jszip';
+import {saveAs} from 'file-saver';
+
+export function blobToBase64(blob: Blob) {
+	return new Promise((resolve, _) => {
+		const reader = new FileReader();
+		reader.onloadend = () => resolve(reader.result);
+		reader.readAsDataURL(blob);
+	});
+}
+
+export function dataUrlToBase64(dataUrl: string) {
+	// Split the data URL into parts
+	const parts = dataUrl.split(',');
+
+	// Ensure it's a data URL with a base64 part
+	if (parts.length === 2 && parts[0].startsWith('data:')) {
+		// Extract the base64 data
+		return parts[1];
+	} else {
+		// Handle invalid or unsupported data URL
+		console.error('Invalid or unsupported data URL');
+		return null;
+	}
+}
+
+export async function fetchImage(url: string): Promise<string> {
+	const imageKey = url.split('/').pop();
+	const apiUrl = url.startsWith('blob:') ? url : `https://api.artiai.org/v1/utils/image/${imageKey}`;
+	const reader = new window.FileReader();
+	const blob = await fetch(apiUrl)
+		.then(res => res.blob())
+	return await blobToBase64(blob) as Promise<string>;
+}
 
 function ConversationAdVariant({variantId}: {variantId: string}) {
 	const {dispatch, state: editState} = useEditVariant();
 	const {dispatch: conversationDispatch, state, updateVariant} = useConversation();
 	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 	const [updating, setUpdating] = useState(false);
+	const [url, setUrl] = useState<string | null>(null);
+	const [downloading, setDownloading] = useState(false);
 
 	const variant = state.variant.map[variantId] as IAdVariant ?? null;
 	const editMode = editState.variant && editState.variant.id === variantId;
 
 	if(!variant) return null;
+
+	async function handleDownload() {
+		setDownloading(true);
+		const zip = new JSZip();
+		zip.file("Ad_Text.txt", `Ad Description - ${variant.text}\n\nAd One Liner - ${variant.oneLiner}`)
+
+		const img = zip.folder("images");
+		if(img) {
+			for(let i = 0; i < variant.images.length; i++) {
+				const image = variant.images[i];
+				const dataUrl = await fetchImage(image.url);
+				const base64 = dataUrlToBase64(dataUrl);
+				img.file(`image_${i}.png`, base64, {base64: true});
+			}
+		} else {
+			console.error('Failed to create images folder in zip file')
+		}
+
+		zip.generateAsync({type:"blob"})
+			.then(function(content) {
+				// see FileSaver.js
+				setDownloading(false);
+				saveAs(content, `Ad-Variant_${variantId}.zip`);
+			})
+			.catch(err => {
+				console.error('Failed to create zip file', err);
+				setSnackbarData({message: 'Failed to download ad variant', status: 'error'})
+				setDownloading(false);
+			})
+	}
 
 	async function handleEdit() {
 		if(!variant) return null;
@@ -114,7 +175,7 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 				handleEditVariantClose={editVariantClose} 
 				adVariant={editState.variant as IAdVariant} 
 				className="p-3 !w-[400px] !max-w-unset border border-gray-800 h-auto rounded-lg" style={{fontSize: '8px'}} /> }
-			{!updating && !editMode && <div className='transition-all group-hover/variant:opacity-100 group-hover/variant:pointer-events-auto pointer-events-none opacity-0 absolute bg-black bg-opacity-70 top-0 left-0 w-full h-full flex justify-center gap-5 items-end pb-10'>
+			{!downloading && !updating && !editMode && <div className='transition-all group-hover/variant:opacity-100 group-hover/variant:pointer-events-auto pointer-events-none opacity-0 absolute bg-black bg-opacity-70 top-0 left-0 w-full h-full flex flex-wrap justify-center gap-5 items-end pb-10'>
 				<button onClick={handleEdit} className='cursor-pointer text-white hover:scale-105 text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
 					<MdOutlineModeEdit />
 					<span>Edit</span>
@@ -123,11 +184,20 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 					<GrDeploy className='fill-white stroke-white [&>path]:stroke-white' />
 					<span>Deploy</span>
 				</button>
+				<button onClick={handleDownload} className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all">
+					<MdDownload className="fill-white stroke-white [&>path]:stroke-white"/>
+					<span>Download</span>
+				</button>
 			</div>}
 			{updating && <div
 				className="flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-60">
 				<Loader/>
 			</div>}
+			{downloading && <div
+        className="flex items-center z-30 gap-2 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-60">
+        <Loader className={'w-5 h-5'} />
+        <span>Preparing to Download</span>
+      </div>}
 		</div>
 	)
 }

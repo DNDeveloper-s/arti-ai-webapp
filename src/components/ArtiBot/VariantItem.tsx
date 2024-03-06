@@ -10,13 +10,16 @@ import {updateVariantToDB, useConversation} from '@/context/ConversationContext'
 import CTAButton from '../CTAButton';
 import { CloseIcon } from 'next/dist/client/components/react-dev-overlay/internal/icons/CloseIcon';
 import { GrDeploy } from 'react-icons/gr';
-import { MdOutlineModeEdit } from 'react-icons/md';
+import {MdDownload, MdOutlineModeEdit} from 'react-icons/md';
 import { IAdVariant } from '@/interfaces/IArtiBot';
 import useConversations from '@/hooks/useConversations';
 import { dbImagesPrefixes } from '@/constants';
 import { SnackbarContext } from '@/context/SnackbarContext';
 import uploadImage from '@/services/uploadImage';
 import Loader from '../Loader';
+import JSZip from 'jszip';
+import {dataUrlToBase64, fetchImage} from '@/components/ArtiBot/MessageItems/AdItem';
+import { saveAs } from 'file-saver';
 
 interface VariantTabProps {
 	activeVariant: AdCreativeVariant;
@@ -39,8 +42,39 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 	const editMode = editState.variant && editState.variant.id === activeVariant.id;
 	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 	const [updating, setUpdating] = useState(false);
+	const [downloading, setDownloading] = useState(false);
 
 	const variant = state.variant.map[activeVariant.id] as IAdVariant ?? null;
+
+	async function handleDownload() {
+		setDownloading(true);
+		const zip = new JSZip();
+		zip.file("Ad_Text.txt", `Ad Description - ${variant.text}\n\nAd One Liner - ${variant.oneLiner}`)
+
+		const img = zip.folder("images");
+		if(img) {
+			for(let i = 0; i < variant.images.length; i++) {
+				const image = variant.images[i];
+				const dataUrl = await fetchImage(image.url);
+				const base64 = dataUrlToBase64(dataUrl);
+				img.file(`image_${i}.png`, base64, {base64: true});
+			}
+		} else {
+			console.error('Failed to create images folder in zip file')
+		}
+
+		zip.generateAsync({type:"blob"})
+			.then(function(content) {
+				// see FileSaver.js
+				setDownloading(false);
+				saveAs(content, `Ad-Variant_${variant.id}.zip`);
+			})
+			.catch(err => {
+				console.error('Failed to create zip file', err);
+				setSnackbarData({message: 'Failed to download ad variant', status: 'error'})
+				setDownloading(false);
+			})
+	}
 
 	useEffect(() => {
 		if(!variantRef.current) return;
@@ -169,7 +203,7 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 							state.variant && <EditFacebookAdVariant showConfirmModal={props.showConfirmModal} setShowConfirmModal={props.setShowConfirmModal} handleEditVariantClose={handleClose} mock={mock} adVariant={state.variant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-black rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
 						)}
 					</div> */}
-					{!editMode && <div className='w-[80%] mx-auto mt-2 flex items-center justify-center gap-4'>
+					{!downloading && !updating && !editMode && <div className='w-[80%] mx-auto mt-2 flex items-center justify-center gap-4'>
 						<button onClick={handleEdit} className='cursor-pointer text-white hover:scale-105 text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
 							<MdOutlineModeEdit />
 							<span>Edit</span>
@@ -178,6 +212,10 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 							<GrDeploy className='fill-white stroke-white [&>path]:stroke-white' />
 							<span>Deploy</span>
 						</button>
+            <button onClick={handleDownload} className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all">
+              <MdDownload className="fill-white stroke-white [&>path]:stroke-white"/>
+              <span>Download</span>
+            </button>
 					</div>}
 				</>
 			)}
