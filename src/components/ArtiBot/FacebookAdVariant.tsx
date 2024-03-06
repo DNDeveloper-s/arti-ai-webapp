@@ -109,7 +109,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({mock = new Mock(), force
 		img.onloadstart = () => {
 			console.log('testing load start');
 		}
-	}, [fallbackImage, adVariant.imageUrl])
+	}, [fallbackImage, adVariant.imageUrl, editDispatch])
 
 	function handleErrorImage() {
 		if(fallbackImage) setImageUrl(fallbackImage);

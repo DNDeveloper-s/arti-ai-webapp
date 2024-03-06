@@ -40,7 +40,7 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 	const [updating, setUpdating] = useState(false);
 
-	const variant = state.variant.map[activeVariant.id] as IAdVariant ?? null;
+	const variant = mock.is ? activeVariant : state.variant.map[activeVariant.id] as IAdVariant ?? null;
 
 	useEffect(() => {
 		if(!variantRef.current) return;
@@ -133,7 +133,7 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 
 	return (
 		<>
-			{(mock.is ? activeVariant : variant) && (
+			{(variant) && (
 				<>
 					{/* <div className={'flex w-[80%] justify-between items-center ' + (mock.is ? 'mt-2' : 'mt-4')}>
 						<label htmlFor="message" className="block text-sm font-light text-white text-opacity-50 text-left">Ad Preview</label>
@@ -150,14 +150,17 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 						}} className="bg-primary text-white px-3 py-1 leading-[14px] rounded cursor-pointer">Edit Your Ad</button>
 					</div>} */}
 					<div ref={variantRef} className={"relative mt-2 w-[80%]"}>
-						{!editMode ? <FacebookAdVariant adVariant={variant} className="p-3 !max-w-unset border !border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px', opacity: editMode ? 0 : 1, pointerEvents: editMode ? 'none' : 'all'}} /> :
-						<EditFacebookAdVariant 
-							showConfirmModal={false}
-							setShowConfirmModal={() => {}}
-							handleSaveVariant={handleSaveVariant} 
-							handleEditVariantClose={editVariantClose} 
-							adVariant={editState.variant as IAdVariant} 
-							className="p-3 !max-w-unset border border-gray-800 h-auto rounded-lg" style={{fontSize: '8px'}} />
+						{!editMode ?
+							<FacebookAdVariant adVariant={variant} className="p-3 !max-w-unset border !border-gray-800 h-full bg-secondaryBackground rounded-lg" style={{fontSize: '8px', opacity: editMode ? 0 : 1, pointerEvents: editMode ? 'none' : 'all'}} />
+							:
+							<EditFacebookAdVariant
+								showConfirmModal={false}
+								setShowConfirmModal={() => {}}
+								handleSaveVariant={handleSaveVariant}
+								handleEditVariantClose={editVariantClose}
+								adVariant={editState.variant as IAdVariant}
+								className="p-3 !max-w-unset border border-gray-800 h-auto rounded-lg" style={{fontSize: '8px'}}
+							/>
 						}
 						{updating && <div
 							className="flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-60">
@@ -169,7 +172,7 @@ const VariantItem: FC<VariantTabProps> = ({mock = new Mock(), width, activeVaria
 							state.variant && <EditFacebookAdVariant showConfirmModal={props.showConfirmModal} setShowConfirmModal={props.setShowConfirmModal} handleEditVariantClose={handleClose} mock={mock} adVariant={state.variant} className="p-3 !w-full !max-w-unset border border-gray-800 h-full bg-black rounded-lg" style={{fontSize: (fontSize) + 'px'}}/>
 						)}
 					</div> */}
-					{!editMode && <div className='w-[80%] mx-auto mt-2 flex items-center justify-center gap-4'>
+					{!mock.is && !editMode && <div className='w-[80%] mx-auto mt-2 flex items-center justify-center gap-4'>
 						<button onClick={handleEdit} className='cursor-pointer text-white hover:scale-105 text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
 							<MdOutlineModeEdit />
 							<span>Edit</span>
