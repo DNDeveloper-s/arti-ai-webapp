@@ -330,7 +330,8 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, dimensions, sm,
 				// aspectRatio: 0.46,
 				transform: 'translate(-50%, -50%)',
 			}}>
-        <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={mock.adCreative} style={{position: 'relative', zoom: 1, paddingLeft: 0}}/>
+        <div ref={rightPaneRef}>
+	        <RightPane mock={mockState} adCreative={mock.adCreative} style={{position: 'relative', zoom: 1, paddingLeft: 0}}/>
         </div>
       </div>}
 			{!adCreative && <div style={{
