@@ -1,12 +1,15 @@
 import { Dispatch, FC, SetStateAction, useEffect, useRef, useState } from 'react';
-import { AdCreativeVariant } from '@/interfaces/IAdCreative';
-import { AD_VARIANT_MODE } from '../VariantItem';
 import { useEditVariant } from '@/context/EditVariantContext';
 
+interface TabItem {
+	id: number,
+	name: string,
+}
+
 interface TabViewProps {
-	activeAdTab: AdCreativeVariant,
-	setActiveAdTab: Dispatch<SetStateAction<AdCreativeVariant>>,
-	items: AdCreativeVariant[];
+	activeAdTab: TabItem,
+	setActiveAdTab: Dispatch<SetStateAction<TabItem>>,
+	items: TabItem[];
 	setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -22,17 +25,17 @@ function TabViewItem({ container, isActive, label, tabItem, index }) {
 	}, [isActive])
 	return (
 		<div ref={ref} {...container} key={tabItem.id}>
-			<span {...label}>{'Variant #' + (index + 1)}</span>
+			<span {...label}>{tabItem.name}</span>
 		</div>
 	)
 }
 
-const TabView: FC<TabViewProps> = ({ activeAdTab, setActiveAdTab, items, setShowConfirmModal }) => {
+const TabView: FC<TabViewProps> = ({ activeAdTab: activeTab, setActiveAdTab, items, setShowConfirmModal }) => {
 	const { state } = useEditVariant();
 
 
-	const tabItemProps = (tabItem: AdCreativeVariant) => {
-		const isActive = tabItem.id === activeAdTab.id;
+	const tabItemProps = (tabItem: TabItem) => {
+		const isActive = tabItem.id === activeTab.id;
 		return ({
 			container: {
 				className: 'flex py-3 px-4 rounded-t-lg cursor-pointer hover:scale-[1.04] transition-all flex-col-reverse items-center ' + (isActive ? ' bg-primary ' : ' bg-secondaryBackground '),
@@ -55,12 +58,12 @@ const TabView: FC<TabViewProps> = ({ activeAdTab, setActiveAdTab, items, setShow
 	}
 
 	return (
-		<div className="w-full flex-shrink-0 overflow-hidden py-3 h-auto shadow-gray-200 relative">
+		<div className="w-full flex-shrink-0 overflow-scroll py-3 shadow-gray-200 relative h-auto">
 			<div className="no-scrollbar flex w-full gap-0 px-4 overflow-x-auto border-b bg-secondaryBackground border-primary">
 				{items.map((tabItem, index) => {
 					const props = tabItemProps(tabItem);
 					return (
-						<TabViewItem isActive={tabItem.id === activeAdTab.id} key={tabItem.id} tabItem={tabItem} container={props.container} label={props.label} index={index} />
+						<TabViewItem isActive={tabItem.id === activeTab.id} key={tabItem.id} tabItem={tabItem} container={props.container} label={props.label} index={index} />
 					)
 				})}
 			</div>

@@ -38,11 +38,11 @@ export const ROUTES = {
 	CONVERSATION: {
 		CREATE: (id: string) => apiUrl(`/conversations/${id}`),
 		GET: (id: string) => apiUrl(`/conversations/${id}`),
-		QUERY: (limit?: number, page?: number, sortBy?: 'asc' | 'desc') => apiUrl('/conversations', new URLSearchParams(pickValidKeys({limit, page, sortBy}))),
+		QUERY: (limit?: number, page?: number, sortBy?: 'asc' | 'desc') => apiUrl('/conversations', new URLSearchParams(pickValidKeys({ limit, page, sortBy }))),
 		GENERATE_IMAGES: (conversationId: string) => apiUrl(`/ad_creatives/generate-images/${conversationId}`),
 	},
 	ADCREATIVE: {
-		QUERY: (limit?: number, page?: number, sortBy?: 'asc' | 'desc') => apiUrl('/ad_creatives', new URLSearchParams(pickValidKeys({limit, page, sortBy}))),
+		QUERY: (limit?: number, page?: number, sortBy?: 'asc' | 'desc') => apiUrl('/ad_creatives', new URLSearchParams(pickValidKeys({ limit, page, sortBy }))),
 	},
 	MESSAGE: {
 		SEND_FREE_TIER: apiUrl('/messages/send/free-tier'),
@@ -58,6 +58,30 @@ export const ROUTES = {
 	VARIANT: {
 		UPDATE: (variantId: string) => apiUrl(`/variants/${variantId}/keys`),
 		UPDATE_IMAGE: (variantId: string) => apiUrl(`/variants/${variantId}/image`),
-		REGENERATE_DATA: (variantId: string, key: REGENERATE_SECTION, extraInput?: string | null) => apiUrl(`/variants/regenerate/${variantId}/${key}`, new URLSearchParams(pickValidKeys({extraInput})))
+		REGENERATE_DATA: (variantId: string, key: REGENERATE_SECTION, extraInput?: string | null) => apiUrl(`/variants/regenerate/${variantId}/${key}`, new URLSearchParams(pickValidKeys({ extraInput })))
 	},
+	SOCIAL: {
+		POSTS: apiUrl(`/social/posts`),
+		PAGES: apiUrl(`/social/pages`),
+	},
+	ADS: {
+		CAMPAIGNS: apiUrl('/ads/campaigns'),
+		ADSETS: apiUrl('/ads/adsets'),
+		ADCREATIVES: apiUrl('/ads/adcreatives'),
+		ADIMAGES: apiUrl('/ads/adimages'),
+		AD_ENTITIES: apiUrl('/ads/ad_entities'),
+		GET_AD_ACCOUNT_ID: apiUrl('/ads/get_ad_account_id'),
+		GET_ALL_COUNTRIES: apiUrl('/ads/get_all_countries'),
+		INTERESTS: apiUrl('/ads/interests'),
+		TEMPLATES: apiUrl('/ads/templates'),
+		MAILCHIMP_CAMPAIGNS: apiUrl('/ads/mailchimp_campaigns'),
+		SEND_CAMPAIGN: apiUrl('/ads/send_campaign'),
+		CUSTOM_AUDIENCE: apiUrl('/ads/custom_audience')
+	},
+	LOCATION: {
+		ZIPCODE: apiUrl('/location/zipcode')
+	},
+	USERS: {
+		ACCOUNTS: (userId: string) => apiUrl(`/users/${userId}/accounts`),
+	}
 }

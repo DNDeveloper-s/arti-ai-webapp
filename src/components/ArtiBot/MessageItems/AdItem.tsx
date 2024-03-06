@@ -13,6 +13,7 @@ import {dbImagesPrefixes} from '@/constants';
 import uploadImage from '@/services/uploadImage';
 import JSZip from 'jszip';
 import {saveAs} from 'file-saver';
+import DeployButton from './DeployButton';
 
 export function blobToBase64(blob: Blob) {
 	return new Promise((resolve, _) => {
@@ -180,14 +181,15 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 					<MdOutlineModeEdit />
 					<span>Edit</span>
 				</button>
-				<button className='cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>
-					<GrDeploy className='fill-white stroke-white [&>path]:stroke-white' />
-					<span>Deploy</span>
-				</button>
+				{/*<button className='cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all'>*/}
+				{/*	<GrDeploy className='fill-white stroke-white [&>path]:stroke-white' />*/}
+				{/*	<span>Deploy</span>*/}
+				{/*</button>*/}
 				<button onClick={handleDownload} className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all">
 					<MdDownload className="fill-white stroke-white [&>path]:stroke-white"/>
 					<span>Download</span>
 				</button>
+        <DeployButton variant={variant} />
 			</div>}
 			{updating && <div
 				className="flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-60">

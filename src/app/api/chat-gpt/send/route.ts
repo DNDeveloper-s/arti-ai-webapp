@@ -1,14 +1,15 @@
-import {NextRequest, NextResponse} from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import {ChatGPTMessageObj, ChatGPTRole} from '@/interfaces/IArtiBot';
-import {freeTierLimit} from '@/constants';
-import {NextApiResponse} from 'next';
-import {OpenAIStream, StreamingTextResponse} from 'ai';
+import { ChatGPTMessageObj, ChatGPTRole } from '@/interfaces/IArtiBot';
+import { freeTierLimit } from '@/constants';
+import { NextApiResponse } from 'next';
+import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { getToken } from "next-auth/jwt"
 import exampleJSON from '@/database/exampleJSON';
 
+// commented out openai
 const openai = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY,
+	apiKey: "process.env.OPENAI_API_KEY",
 })
 
 export const runtime = 'edge';
@@ -58,22 +59,22 @@ export async function POST(req: Request, res: NextApiResponse) {
 
 		const body = await req.json();
 		let incomingMessagesArr = body.messages as ChatGPTMessageObj[];
-		const messagesArr = [{role: ChatGPTRole.USER, content: roleDefinitionMessage}, ...incomingMessagesArr];
+		const messagesArr = [{ role: ChatGPTRole.USER, content: roleDefinitionMessage }, ...incomingMessagesArr];
 
 		// Right now, assuming the user is not registered
 		const isDataExhausted = !token && messagesArr.length >= freeTierLimit;
-		if(isDataExhausted) return NextResponse.json({ok: false, error: 'You have exhausted the free tier limit. i.e, ' + freeTierLimit, limitLeft: 0});
+		if (isDataExhausted) return NextResponse.json({ ok: false, error: 'You have exhausted the free tier limit. i.e, ' + freeTierLimit, limitLeft: 0 });
 
 		// Check if the request body has generate_ad key as true
 		// If it does, then generate the ad and return the response as a JSON not a stream.
-		if(body.generate_ad) {
-			let _messages = [...(messagesArr ?? []), {role: ChatGPTRole.USER, content: `get ad json`}];
+		if (body.generate_ad) {
+			let _messages = [...(messagesArr ?? []), { role: ChatGPTRole.USER, content: `get ad json` }];
 			const generated_json = await openai.chat.completions.create({
 				messages: _messages,
 				model: 'gpt-3.5-turbo',
 				stream: false
 			});
-			return NextResponse.json({ok: true, is_ad_json: true, json: generated_json.choices[0].message.content});
+			return NextResponse.json({ ok: true, is_ad_json: true, json: generated_json.choices[0].message.content });
 			// return NextResponse.json({ok: true, is_ad_json: true, json: exampleJSON});
 		}
 
@@ -89,8 +90,8 @@ export async function POST(req: Request, res: NextApiResponse) {
 		const stream = OpenAIStream(completion);
 
 		return new StreamingTextResponse(stream);
-	} catch(e: unknown) {
+	} catch (e: unknown) {
 		console.log('e - ', e);
-		return NextResponse.json({ok: false, error: e})
+		return NextResponse.json({ ok: false, error: e })
 	}
 }
