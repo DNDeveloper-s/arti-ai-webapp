@@ -80,7 +80,7 @@ export default function ViewCampaign({ accessToken, onCampaignSelection }: { acc
                             {campaignList.map((item, index) => (
                                 <TableRow key={item.id}>
                                     <TableCell><SwitchComponent checked={item.status == "ACTIVE"} onChange={() => { }} /></TableCell>
-                                    <TableCell><button className='underline text-blue-600' onClick={() => { onCampaignSelection(item.id) }}>{item.id}</button></TableCell>
+                                    <TableCell><button className='underline text-blue-600' onClick={() => { onCampaignSelection(item.id, item.objective) }}>{item.id}</button></TableCell>
                                     <TableCell>{item.name}</TableCell>
                                     <TableCell>{item.objective}</TableCell>
                                     <TableCell>

@@ -46,7 +46,7 @@ export default function CreateCampaign({ accessToken, onCampaignCreation }: { ac
             if (createCampaignError) {
                 setErrorMessage(createCampaignError)
             } else {
-                onCampaignCreation(campaignId);
+                onCampaignCreation(campaignId, objective);
             }
         } finally {
             setLoadingState(false)
@@ -61,12 +61,11 @@ export default function CreateCampaign({ accessToken, onCampaignCreation }: { ac
             <div className="border-slate-500 border placeholder-slate-400 p-2 rounded-lg mt-2">
                 <label htmlFor="dropdown">Campaign Objective:</label>
                 <select id="dropdown" name="dropdown" onChange={handleDropdownChange} className="border-0 outline-0 bg-black">
-                    <option value="OUTCOME_AWARENESS">Awareness</option>
-                    <option value="OUTCOME_ENGAGEMENT">Engagement</option>
                     <option value="OUTCOME_LEADS">Leads</option>
-                    <option value="OUTCOME_SALES">Sales</option>
-                    <option value="OUTCOME_TRAFFIC">Traffic</option>
                     <option value="OUTCOME_APP_PROMOTION">App Promotion</option>
+                    <option value="OUTCOME_ENGAGEMENT">Engagement</option>
+                    {/* <option value="OUTCOME_SALES">Sales</option>
+                    <option value="OUTCOME_TRAFFIC">Traffic</option> */}
                 </select>
             </div>
 

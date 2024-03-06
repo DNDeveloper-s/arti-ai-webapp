@@ -6,7 +6,7 @@ import ViewCampaign from "./View/ViewAdset";
 
 
 
-export default function AdsetView({ accessToken, campaignId, onAdsetCreation, onAdsetSelection }: { accessToken: string, campaignId?: string, onAdsetCreation: any, onAdsetSelection: any }) {
+export default function AdsetView({ accessToken, campaignId, campaignObjective, onAdsetCreation, onAdsetSelection }: { accessToken: string, campaignId?: string, campaignObjective?: string, onAdsetCreation: any, onAdsetSelection: any }) {
     const [isInCreateMode, setCreateMode] = useState(false)
 
     const onCreateButtonTap = () => {
@@ -25,7 +25,7 @@ export default function AdsetView({ accessToken, campaignId, onAdsetCreation, on
                 {!isInCreateMode && campaignId ? <p className="text-xs bg-blue-300 text-black rounded-lg px-4 py-1">Selected Campaign: <b>{campaignId}</b></p> : <></>}
                 {!isInCreateMode && campaignId ? <button onClick={onCreateButtonTap} className="flex p-2 bg-green-600 rounded-lg hover:bg-green-700 justify-center items-center text-sm" type="button">Create</button> : <></>}
             </div>
-            {isInCreateMode ? <CreateAdset accessToken={accessToken} onAdsetCreation={onAdsetCreation} campaignId={campaignId} /> : <ViewAdset campaignId={campaignId} accessToken={accessToken} onAdsetSelection={onAdsetSelection} />}
+            {isInCreateMode ? <CreateAdset accessToken={accessToken} onAdsetCreation={onAdsetCreation} campaignId={campaignId} campaignObjective={campaignObjective} /> : <ViewAdset campaignId={campaignId} accessToken={accessToken} onAdsetSelection={onAdsetSelection} />}
         </div>
 
     </>

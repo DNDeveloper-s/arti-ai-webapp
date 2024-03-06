@@ -2,9 +2,6 @@
 import { IAdVariant } from "@/interfaces/IArtiBot";
 import { useState } from "react";
 import CampaignView from "./components/Campaign/CampaignView";
-import CreateAd from "./components/Ads/Create/CreateAd";
-import CreateAdset from "./components/Adset/Create/CreateAdset";
-import CreateCampaign from "./components/Campaign/Create/CreateCampaign";
 import TabView from "./components/TabView";
 import AdsetView from "./components/Adset/AdsetView";
 import AdsView from "./components/Ads/AdsView";
@@ -25,10 +22,12 @@ export default function DeployAdLayout({ accessToken, variant }: { accessToken: 
     const [activeTab, setActiveTab] = useState<TabItem>(tabList[0]);
 
     const [campaignId, setCampaignId] = useState('');
+    const [campaignObjective, setCampaignObjective] = useState('');
     const [adsetId, setAdsetId] = useState('');
 
-    const handleCampaignCreation = (campaignId: string) => {
+    const handleCampaignCreation = (campaignId: string, campaignObjective: string,) => {
         setCampaignId(campaignId)
+        setCampaignObjective(campaignObjective)
         setActiveTab(tabList[1])
     }
 
@@ -46,7 +45,7 @@ export default function DeployAdLayout({ accessToken, variant }: { accessToken: 
             activeTab.id == 0 ?
                 <CampaignView accessToken={accessToken} onCampaignCreation={handleCampaignCreation} onCampaignSelection={handleCampaignCreation} /> :
                 activeTab.id == 1 ?
-                    <AdsetView accessToken={accessToken} campaignId={campaignId} onAdsetCreation={handleAdsetCreation} onAdsetSelection={handleAdsetCreation} /> :
+                    <AdsetView accessToken={accessToken} campaignId={campaignId} campaignObjective={campaignObjective} onAdsetCreation={handleAdsetCreation} onAdsetSelection={handleAdsetCreation} /> :
                     <AdsView accessToken={accessToken} variant={variant} adsetId={adsetId} campaignId={campaignId} onAdCreation={handleAdCreation} />
         }
     </>
