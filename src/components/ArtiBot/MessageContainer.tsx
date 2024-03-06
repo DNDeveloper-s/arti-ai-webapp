@@ -73,16 +73,16 @@ const MessageContainer: FC<MessageContainerProps> = ({isGeneratingAd, conversati
 							/>
 						))
 					}
-					<div className={'w-full overflow-hidden'}>
+					{!miniVersion && <div className={'w-full overflow-hidden'}>
 						<div className={'group w-full '}>
 							<div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
 								<Image className="rounded-lg mr-[0.3em]" width={45} height={45} src={botData.image} alt=""/>
 								<div className={`ml-['0.8em'}] flex-1 overflow-hidden`}>
-									<MetricsCard />
+									<MetricsCard/>
 								</div>
 							</div>
 						</div>
-					</div>
+					</div>}
 				</motion.div>
 				<div className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3">
 					<div className="h-0.5 mr-5 flex-1 bg-gray-800" />
