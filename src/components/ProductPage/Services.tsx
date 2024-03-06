@@ -20,7 +20,7 @@ import ObjectId from 'bson-objectid';
 import LaptopImage from '@/assets/images/mac-3.png';
 import MacImage from '@/assets/images/mac-1.png';
 import IphoneImage from '@/assets/images/iphone_2.png';
-import RightPane from '@/components/ArtiBot/RightPane/RightPane_Legacy';
+import RightPane from '@/components/ArtiBot/RIghtPane/RightPane_Legacy';
 import {IAdCreative} from '@/interfaces/IAdCreative';
 import useMounted from '@/hooks/useMounted';
 import GetAdButton from '@/components/ArtiBot/GetAdButton';
@@ -701,7 +701,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, dimensions, sm,
 	// 							</div>
 	// 						</>
 	// 					</div>
-	// 					{adCreative && <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={adCreative} style={{zoom: 0.41, position: 'relative'}}/></div>}
+	// 					{adCreative && <div ref={rightPaneRef}><RIghtPane mock={mockState} adCreative={adCreative} style={{zoom: 0.41, position: 'relative'}}/></div>}
 	// 				</div>
 	// 			</div>
 	// 		</div>
@@ -832,7 +832,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, dimensions, sm,
 	// 							</div>
 	// 						</>
 	// 					</div>
-	// 					{adCreative && <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={adCreative} style={{zoom: 0.41, position: 'relative'}}/></div>}
+	// 					{adCreative && <div ref={rightPaneRef}><RIghtPane mock={mockState} adCreative={adCreative} style={{zoom: 0.41, position: 'relative'}}/></div>}
 	// 				</div>
 	// 			</div>
 	// 		</div>
@@ -850,7 +850,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({viewScreen, dimensions, sm,
 	// 				aspectRatio: 0.46,
 	// 				transform: 'translate(-50%, -50%)',
 	// 			}}>
-  //         <div ref={rightPaneRef}><RightPane mock={mockState} adCreative={mock.adCreative} style={{position: 'relative', zoom: 0.85, paddingLeft: 0}}/>
+  //         <div ref={rightPaneRef}><RIghtPane mock={mockState} adCreative={mock.adCreative} style={{position: 'relative', zoom: 0.85, paddingLeft: 0}}/>
   //         </div>
   //       </div>}
 	// 			{!adCreative && <div style={{

@@ -1,6 +1,6 @@
 import React, {FC, useContext, useEffect, useRef, useState} from 'react';
 import FacebookAdVariant from '@/components/ArtiBot/FacebookAdVariant';
-import FeedBackView from '@/components/ArtiBot/RightPane/FeedBackView';
+import FeedBackView from '@/components/ArtiBot/RIghtPane/FeedBackView';
 import {AdCreativeVariant} from '@/interfaces/IAdCreative';
 import {timeSince} from '@/helpers';
 import {Mock} from '@/constants/servicesData';

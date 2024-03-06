@@ -3,7 +3,7 @@
 import ArtiBot from '@/components/ArtiBot/ArtiBot';
 import {IConversation} from '@/interfaces/IConversation';
 import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
-import AdVariants from '@/components/ArtiBot/RightPane/AdVariants';
+import AdVariants from '@/components/ArtiBot/RIghtPane/AdVariants';
 import {useConversation} from '@/context/ConversationContext';
 import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
 import EditAdVariantScreen from '@/components/ArtiBot/EditAdVariant/EditAdVariantScreen';
@@ -206,7 +206,7 @@ export default function ArtiBotPage({conversation}: {conversation: IConversation
 	// 		</Panel>
 	// 		<PanelResizeHandle className='w-2 bg-gray-600' />
 	// 		<Panel minSize={20} defaultSize={20} order={2}>
-	// 			{adCreative && <RightPane adCreative={adCreative} isAdCampaign={false} />}
+	// 			{adCreative && <RIghtPane adCreative={adCreative} isAdCampaign={false} />}
 	// 			<EditAdVariantScreen adVariant={editVariantState.variant} />
 	// 		</Panel>
 	// 		{editVariantState.variant && <>
@@ -223,7 +223,7 @@ export default function ArtiBotPage({conversation}: {conversation: IConversation
     //         <div className={'flex-1'}>
     //             <ArtiBot conversation={conversation} adCreatives={adCreatives} setAdCreatives={setAdCreatives}/>
     //         </div>
-    //         {adCreative && <RightPane adCreative={adCreative} isAdCampaign={false} />}
+    //         {adCreative && <RIghtPane adCreative={adCreative} isAdCampaign={false} />}
 	// 		<ResizeAble containerClassName='h-full flex-1 bg-secondaryBackground'>
 	// 			<div className='h-full'>
 	// 				<p>There we can have other things in total.</p>

@@ -1,8 +1,8 @@
 'use client'
 
 import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
-import TabView from '@/components/ArtiBot/RightPane/TabView';
-import FeedBackView from '@/components/ArtiBot/RightPane/FeedBackView';
+import TabView from '@/components/ArtiBot/RIghtPane/TabView';
+import FeedBackView from '@/components/ArtiBot/RIghtPane/FeedBackView';
 import {FiDownload} from 'react-icons/fi';
 import {motion} from 'framer-motion';
 import {IAdCreative, AdCreativeVariant} from '@/interfaces/IAdCreative';
@@ -12,7 +12,7 @@ import {useRouter} from 'next/navigation';
 import VariantItem, { AD_VARIANT_MODE } from '@/components/ArtiBot/VariantItem';
 import {Mock} from '@/constants/servicesData';
 import {colors} from '@/config/theme';
-import AdCampaignStepOne from '@/components/ArtiBot/RightPane/AdCampaignFlow/AdCampaignStepOne';
+import AdCampaignStepOne from '@/components/ArtiBot/RIghtPane/AdCampaignFlow/AdCampaignStepOne';
 import ResizeAble from '@/components/shared/renderers/ResizeAble';
 
 interface RightPaneProps {
