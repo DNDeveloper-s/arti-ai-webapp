@@ -283,10 +283,6 @@ const FontOptionsTool: FC<FontOptionsToolProps> = (props) => {
         // handleToolClick(selectedShape);
     }
 
-    function handleMouseEnter(font: string, e) {
-        console.log('font - ', font);
-    }
-
     return (
       <div ref={ref} className='relative'>
           <div onClick={handleToggle} className={'flex text-xl items-center p-1 cursor-pointer hover:bg-gray-100 rounded transition-all ' + (props.selected ? ' !bg-gray-200' : '')}>
@@ -300,7 +296,7 @@ const FontOptionsTool: FC<FontOptionsToolProps> = (props) => {
               </select>
               <select onChange={(e) => onChange('fontFamily', e.target.value)} name="" id="">
                   {fontFamilies.map(font => (
-                    <option key={font} onFocus={(e) => handleMouseEnter(font, e)} onMouseEnter={(e) => handleMouseEnter(font, e)} selected={font === fontDetails.fontFamily} value={font}>{font}</option>
+                    <option key={font} selected={font === fontDetails.fontFamily} value={font}>{font}</option>
                   ))}
               </select>
           </div>}
@@ -521,7 +517,6 @@ const EditTools: FC<EditToolsProps> = ({handleFormatChange, ...props}) => {
 
     useEffect(() => {
         if(fontDetailsChangedRef.current) {
-            console.log('fontDetails - ', fontDetails);
             handleFormatChange(fontDetails, fontDetailsChangedRef.current !== 'shallow');
             fontDetailsChangedRef.current = false;
         }
