@@ -21,6 +21,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'arti-ai-app.s3.amazonaws.com',
+        port: '',
+        pathname: '/**'
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**'
