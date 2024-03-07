@@ -17,7 +17,7 @@ export default function CampaignView({ accessToken, onCampaignCreation, onCampai
     }
 
     return <>
-        <div className="flex flex-col p-6 rounded-lg bg-black text-white">
+        <div className="flex overflow-hidden flex-col p-6 rounded-lg bg-black text-white">
             <div className={`flex items-center ${isInCreateMode ? "justify-start" : "justify-between"}`}>
                 {isInCreateMode ? <button onClick={onBackButtonTap} className="flex p-2 bg-green-600 rounded-lg hover:bg-green-700 justify-center items-center text-sm mr-4" type="button">Go Back</button> : <></>}
                 <p className="text-white font-bold text-2xl">{isInCreateMode ? 'Create Campaign' : 'Campaigns'}</p>
@@ -25,6 +25,5 @@ export default function CampaignView({ accessToken, onCampaignCreation, onCampai
             </div>
             {isInCreateMode ? <CreateCampaign accessToken={accessToken} onCampaignCreation={onCampaignCreation} /> : <ViewCampaign accessToken={accessToken} onCampaignSelection={onCampaignSelection} />}
         </div>
-
     </>
 }

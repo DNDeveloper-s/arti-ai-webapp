@@ -1,8 +1,9 @@
 import { SnackbarContext } from '@/context/SnackbarContext';
 import { IAdVariant } from "@/interfaces/IArtiBot";
-import { useContext, useState, } from "react";
+import { useContext, useEffect, useState, } from "react";
 import axios, { AxiosError } from 'axios';
 import { ROUTES } from '@/config/api-config';
+import { getNextImageProxyUrl } from '@/helpers';
 
 
 export default function CreatePostView({ selectedVariant, pageId, pageAccessToken }: { selectedVariant: IAdVariant, pageId: string, pageAccessToken: string }) {
@@ -20,7 +21,7 @@ export default function CreatePostView({ selectedVariant, pageId, pageAccessToke
             setLoading(true)
             const response = await axios.post(ROUTES.SOCIAL.POSTS, {
                 post: {
-                    url: isImageReady ? imageUrl : selectedVariant.imageUrl!,
+                    url: getNextImageProxyUrl(isImageReady ? imageUrl : selectedVariant.imageUrl!),
                     message: selectedVariant.text,
                 },
                 page_id: pageId,
@@ -40,6 +41,10 @@ export default function CreatePostView({ selectedVariant, pageId, pageAccessToke
     const onImageUrlChange = (e: any) => {
         setImageUrl(e.target.value)
     }
+
+    useEffect(() => {
+        setImageUrl(selectedVariant.imageUrl!)
+    }, [imageUrl])
 
     return <>
         <div className="flex flex-col p-6 rounded-lg bg-white ml-4 text-black items-center justify-center content-center">

@@ -33,7 +33,12 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
 
         try {
             const response = await axios.get(ROUTES.USERS.ACCOUNTS(session.user.id))
-            const userAccessToken = response.data[0].access_token
+            const facebookAccounts = response.data.filter(c => c.provider === 'facebook');
+            if(facebookAccounts.length === 0) {
+                setSnackBarData({ message: "No Facebook account found", status: "error" });
+                return;
+            }
+            const userAccessToken = facebookAccounts[0].access_token
 
             if (!userAccessToken) {
                 setSnackBarData({ message: "Access token was invalid", status: "error" });

@@ -39,14 +39,16 @@ export default function DeployAdLayout({ accessToken, variant }: { accessToken: 
 
     }
 
-    return <>
+    return <div className='flex flex-col w-full h-full relative'>
         <TabView setShowConfirmModal={setShowConfirmModal} items={tabList} activeAdTab={activeTab} setActiveAdTab={setActiveTab} />
-        {
-            activeTab.id == 0 ?
-                <CampaignView accessToken={accessToken} onCampaignCreation={handleCampaignCreation} onCampaignSelection={handleCampaignCreation} /> :
-                activeTab.id == 1 ?
-                    <AdsetView accessToken={accessToken} campaignId={campaignId} campaignObjective={campaignObjective} onAdsetCreation={handleAdsetCreation} onAdsetSelection={handleAdsetCreation} /> :
-                    <AdsView accessToken={accessToken} variant={variant} adsetId={adsetId} campaignId={campaignId} onAdCreation={handleAdCreation} />
-        }
-    </>
+        <div className='flex-1 overflow-hidden'>
+            {
+                activeTab.id == 0 ?
+                    <CampaignView accessToken={accessToken} onCampaignCreation={handleCampaignCreation} onCampaignSelection={handleCampaignCreation} /> :
+                    activeTab.id == 1 ?
+                        <AdsetView accessToken={accessToken} campaignId={campaignId} campaignObjective={campaignObjective} onAdsetCreation={handleAdsetCreation} onAdsetSelection={handleAdsetCreation} /> :
+                        <AdsView accessToken={accessToken} variant={variant} adsetId={adsetId} campaignId={campaignId} onAdCreation={handleAdCreation} />
+            }
+        </div>
+    </div>
 }

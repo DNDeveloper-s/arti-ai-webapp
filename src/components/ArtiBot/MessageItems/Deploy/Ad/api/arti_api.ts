@@ -192,7 +192,7 @@ const createAd = async (ad: any, accountId: any, accessToken: any) => {
         }
         return { createAdError: 'An unknown error occurred!' }
     } catch (e: any) {
-        return { createAdError: e.response.data.message }
+        return { createAdError: e.message }
     }
 }
 
@@ -207,7 +207,7 @@ const getAdAccountId = async (accessToken: any) => {
         }
         return { getAdAccountIdError: "An unknown error occurred" }
     } catch (e: any) {
-        return { getAdAccountIdError: e.response.data.message }
+        return { getAdAccountIdError: e.message }
     }
 }
 

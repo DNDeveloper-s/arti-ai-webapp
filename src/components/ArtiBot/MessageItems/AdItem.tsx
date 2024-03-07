@@ -91,6 +91,16 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 	}
 
 	async function handleEdit() {
+		const response = await fetch('https://arti-ai-app.s3.amazonaws.com/65d2cb22fd28b4be40b8cb17_1709139403556.png');
+
+		const blob = await response.blob();
+
+		const reader = new window.FileReader();
+		reader.onloadend = () => {
+			console.log('result - ', reader.result);
+		}
+
+		return;
 		if(!variant) return null;
 		stopEditingVariant(dispatch);
 		startEditingVariant(dispatch, variant);
@@ -273,3 +283,30 @@ export default function AdItem({messageItem, variantFontSize}: {messageItem: Cha
 	// 	</div>
 	// )
 }
+
+
+// {
+//     "Version": "2012-10-17",
+//     "Id": "Policy1692512740516",
+//     "Statement": [
+//         {
+//             "Sid": "Stmt1692512736599",
+//             "Effect": "Allow",
+//             "Principal": {
+//                 "AWS": "*"
+//             },
+//             "Action": [
+//                 "s3:GetObject",
+//                 "s3:GetObjectAcl",
+//                 "s3:GetObjectAttributes",
+//                 "s3:GetObjectRetention",
+//                 "s3:GetObjectVersion",
+//                 "s3:GetObjectVersionAttributes",
+//                 "s3:GetObjectVersionForReplication",
+//                 "s3:GetObjectVersionTagging",
+//                 "s3:GetObjectVersionTorrent"
+//             ],
+//             "Resource": "arn:aws:s3:::srs-billing-storage/*"
+//         }
+//     ]
+// }

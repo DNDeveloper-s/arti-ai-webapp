@@ -65,18 +65,18 @@ export const ROUTES = {
 		PAGES: apiUrl(`/social/pages`),
 	},
 	ADS: {
-		CAMPAIGNS: apiUrl('/ads/campaigns'),
-		ADSETS: apiUrl('/ads/adsets'),
-		ADCREATIVES: apiUrl('/ads/adcreatives'),
-		ADIMAGES: apiUrl('/ads/adimages'),
-		AD_ENTITIES: apiUrl('/ads/ad_entities'),
-		GET_AD_ACCOUNT_ID: apiUrl('/ads/get_ad_account_id'),
-		GET_ALL_COUNTRIES: apiUrl('/ads/get_all_countries'),
-		INTERESTS: apiUrl('/ads/interests'),
-		TEMPLATES: apiUrl('/ads/templates'),
-		MAILCHIMP_CAMPAIGNS: apiUrl('/ads/mailchimp_campaigns'),
-		SEND_CAMPAIGN: apiUrl('/ads/send_campaign'),
-		CUSTOM_AUDIENCE: apiUrl('/ads/custom_audience')
+		CAMPAIGNS: apiUrl('/account/campaigns'),
+		ADSETS: apiUrl('/account/adsets'),
+		ADCREATIVES: apiUrl('/account/adcreatives'),
+		ADIMAGES: apiUrl('/account/adimages'),
+		AD_ENTITIES: apiUrl('/account/ad_entities'),
+		GET_AD_ACCOUNT_ID: apiUrl('/account/account_id_info?preventAdblock=true'),
+		GET_ALL_COUNTRIES: apiUrl('/account/get_all_countries'),
+		INTERESTS: apiUrl('/account/interests'),
+		TEMPLATES: apiUrl('/account/templates'),
+		MAILCHIMP_CAMPAIGNS: apiUrl('/account/mailchimp_campaigns'),
+		SEND_CAMPAIGN: apiUrl('/account/send_campaign'),
+		CUSTOM_AUDIENCE: apiUrl('/account/custom_audience')
 	},
 	LOCATION: {
 		ZIPCODE: apiUrl('/location/zipcode')

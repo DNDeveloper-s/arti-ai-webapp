@@ -123,3 +123,7 @@ export const getConversationURL = (id: IConversation['id'], conversationParams: 
 }
 
 export const isProduction = process.env.NODE_ENV === 'production';
+
+export const getNextImageProxyUrl = (url: string) => {
+	return `https://artiai.org/_next/image?url=${url}&w=1080&q=75`;
+}
