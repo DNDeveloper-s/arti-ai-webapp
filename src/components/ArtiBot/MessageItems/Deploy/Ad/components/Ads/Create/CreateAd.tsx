@@ -160,6 +160,8 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
     ]
 
     const convertImageToBase64 = async () => {
+        console.log('convert to base 64 v2.0')
+        console.log(selectedVariant?.imageUrl)
         setLoadingState(true)
         setLoadingText('Querying Image...')
         const imageList = selectedVariant!.imageUrl.split("/");
@@ -292,7 +294,7 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
 
     return <>
         <div className="flex flex-col p-6 rounded-lg bg-white mb-4 text-black">
-            <p className="text-black font-bold text-2xl mb-6">Create Ad</p>
+            <p className="text-black font-bold text-2xl mb-6">Create Ad 2</p>
             <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mb-2" placeholder="Ad Name" onChange={handleNameUpdate} />
             <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mb-2" placeholder="Primary Text" onChange={handleTitleUpdate} value={adTitle} />
 
