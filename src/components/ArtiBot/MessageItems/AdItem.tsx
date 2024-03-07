@@ -199,7 +199,9 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 					<MdDownload className="fill-white stroke-white [&>path]:stroke-white"/>
 					<span>Download</span>
 				</button>
-        <DeployButton variant={variant} />
+        <div className='flex justify-center items-center gap-5'>
+          <DeployButton variant={variant} />
+        </div>
 			</div>}
 			{updating && <div
 				className="flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-60">

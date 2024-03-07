@@ -63,7 +63,7 @@ export default function ViewCampaign({ accessToken, onCampaignSelection }: { acc
     }
 
     return (
-        <div>
+        <div className={'flex-1 overflow-auto'}>
             {isLoading ?
                 <center><Loader /></center> :
                 campaignList.length == 0 ?

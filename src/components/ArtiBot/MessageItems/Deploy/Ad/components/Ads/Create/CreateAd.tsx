@@ -159,7 +159,10 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
         { "name": "Start Order", "value": "START_ORDER" }
     ]
 
-    const convertImageToBase64 = async () => {
+    const convertImageToBase64 = async (selectedVariant) => {
+
+        console.log('testing image selectedVariant - ', selectedVariant);
+
         setLoadingState(true)
         setLoadingText('Querying Image...')
         const imageList = selectedVariant!.imageUrl.split("/");
@@ -287,11 +290,11 @@ export default function CreateAd({ accessToken, campaignId, adsetId, onAdCreatio
         const variant = variantList.find((variant) => variant.id === e.target.value)
         setSelectedVariant(variant)
         delay(500)
-        convertImageToBase64();
+        convertImageToBase64(variant);
     }
 
     return <>
-        <div className="flex flex-col p-6 rounded-lg bg-white mb-4 text-black">
+        <div className="flex flex-col p-6 rounded-lg bg-white mb-4 text-black overflow-auto h-full">
             <p className="text-black font-bold text-2xl mb-6">Create Ad</p>
             <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mb-2" placeholder="Ad Name" onChange={handleNameUpdate} />
             <input className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 text-black rounded-lg mb-2" placeholder="Primary Text" onChange={handleTitleUpdate} value={adTitle} />

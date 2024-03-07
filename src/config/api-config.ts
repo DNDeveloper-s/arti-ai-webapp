@@ -58,7 +58,7 @@ export const ROUTES = {
 	VARIANT: {
 		UPDATE: (variantId: string) => apiUrl(`/variants/${variantId}/keys`),
 		UPDATE_IMAGE: (variantId: string) => apiUrl(`/variants/${variantId}/image`),
-		REGENERATE_DATA: (variantId: string, key: REGENERATE_SECTION, extraInput?: string | null) => apiUrl(`/variants/regenerate/${variantId}/${key}`, new URLSearchParams(pickValidKeys({ extraInput })))
+		REGENERATE_DATA: (variantId: string, key: REGENERATE_SECTION, extraInput?: string | null) => apiUrl(`/variants/regenerate/${variantId}/${key}`, new URLSearchParams(pickValidKeys({extraInput})))
 	},
 	SOCIAL: {
 		POSTS: apiUrl(`/social/posts`),

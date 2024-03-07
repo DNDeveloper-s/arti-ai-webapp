@@ -64,7 +64,7 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
                 <GrDeploy className='fill-white stroke-white [&>path]:stroke-white' />
                 <span>Deploy Ad</span>
             </button>
-            <Modal PaperProps={{ className: 'bg-black bg-opacity-90 p-6 w-[800px] h-[600px]' }} handleClose={() => setShowModal(false)} open={showModal}>
+            <Modal PaperProps={{ className: 'bg-black bg-opacity-90 p-6 w-[800px] h-[80vh]' }} handleClose={() => setShowModal(false)} open={showModal}>
                 {userChoice === UserChoice.ad ? <DeployAdLayout variant={variant} accessToken={accessToken} /> : <DeployPostLayout accessToken={accessToken} variant={variant} />}
             </Modal>
             <Snackbar />

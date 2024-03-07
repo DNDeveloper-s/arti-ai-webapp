@@ -2,12 +2,12 @@ import NextAuth, { AuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook'
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@auth/prisma-adapter';
-import { PrismaClient } from '@prisma/client';
+import {PrismaAdapter} from '@auth/prisma-adapter';
+import {PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
-import { JWT } from 'next-auth/jwt';
+import {JWT} from 'next-auth/jwt';
 
 const prisma = new PrismaClient();
 
@@ -39,7 +39,7 @@ export const authOptions: AuthOptions = {
 			checks: 'none',
 		}),
 
-		// when testing facbook auth in dev mode: 
+		// when testing facbook auth in dev mode:
 		// npx local-ssl-proxy --key localhost-key.pem --cert localhost.pem --source 3001 --target 3000
 
 		// update npm i command
@@ -74,22 +74,22 @@ export const authOptions: AuthOptions = {
 		CredentialsProvider({
 			name: 'credentials',
 			credentials: {
-				username: { label: 'Username', type: 'text', placeholder: 'saurabh' },
-				password: { label: 'Password', type: 'password' },
-				email: { label: 'Email', type: 'email' },
+				username: {label: 'Username', type: 'text', placeholder: 'saurabh'},
+				password: {label: 'Password', type: 'password'},
+				email: {label: 'Email', type: 'email'},
 			},
-			async authorize(credentials) {
-				if (!credentials?.email || !credentials?.password) return null;
+			async authorize(credentials){
+				if(!credentials?.email || !credentials?.password) return null;
 
 				const user = await prisma.user.findUnique({
-					where: { email: credentials.email }
+					where: {email: credentials.email}
 				})
 
-				if (!user) return null;
+				if(!user) return null;
 
 				const passwordsMatch = await bcrypt.compare(credentials.password, user.password);
 
-				if (!passwordsMatch) return null;
+				if(!passwordsMatch) return null;
 
 				return user;
 			}
@@ -238,7 +238,7 @@ export const authOptions: AuthOptions = {
 	},
 	jwt: {
 		encode: async ({ secret, token, maxAge }) => {
-			if (!token) return '';
+			if(!token) return '';
 			const accessTokenExpires = moment().add(
 				60,
 				"minutes"
