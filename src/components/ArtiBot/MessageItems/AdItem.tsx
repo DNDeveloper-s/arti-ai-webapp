@@ -91,16 +91,6 @@ function ConversationAdVariant({variantId}: {variantId: string}) {
 	}
 
 	async function handleEdit() {
-		const response = await fetch('https://arti-ai-app.s3.amazonaws.com/65d2cb22fd28b4be40b8cb17_1709139403556.png');
-
-		const blob = await response.blob();
-
-		const reader = new window.FileReader();
-		reader.onloadend = () => {
-			console.log('result - ', reader.result);
-		}
-
-		return;
 		if(!variant) return null;
 		stopEditingVariant(dispatch);
 		startEditingVariant(dispatch, variant);
