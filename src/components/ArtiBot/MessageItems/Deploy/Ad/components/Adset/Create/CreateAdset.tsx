@@ -68,8 +68,41 @@ export default function CreateAdset({ accessToken, campaignId, campaignObjective
     const [endTime, updateEndTime] = useState<Date>()
     const [snackBarData, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
+    const [applicationId, setApplicationId] = useState()
+    const [storeUrl, setStoreUrl] = useState()
 
-    const customEventType =
+    const getOptimizationList = () => {
+        if (campaignObjective === 'OUTCOME_APP_PROMOTION') {
+            return [
+                { name: "App Installs", value: "APP_INSTALLS" },
+                { name: "Impressions", value: "IMPRESSIONS" },
+            ];
+        }
+        if (campaignObjective === 'OUTCOME_LEADS') {
+            return [
+                { name: "Impressions", value: "IMPRESSIONS" },
+                { name: "Lead Generation", value: "LEAD_GENERATION" },
+                { name: "Link Clicks", value: "LINK_CLICKS" },
+                // { name: "Offsite Conversions", value: "OFFSITE_CONVERSIONS" },
+                { name: "Reach", value: "REACH" },
+                { name: "Landing Page Views", value: "LANDING_PAGE_VIEWS" },
+            ];
+        }
+        if (campaignObjective === 'OUTCOME_ENGAGEMENT') {
+            return [
+                { name: "Impressions", value: "IMPRESSIONS" },
+                { name: "Link Clicks", value: "LINK_CLICKS" },
+                { name: "Page Likes", value: "PAGE_LIKES" },
+                { name: "Post Engagement", value: "POST_ENGAGEMENT" },
+                { name: "Reach", value: "REACH" },
+                { name: "Landing Page Views", value: "LANDING_PAGE_VIEWS" },
+            ];
+        }
+        return [];
+    }
+
+
+    const conversionEventType =
         [
             {
                 "name": "Ad Impression",
@@ -305,15 +338,16 @@ export default function CreateAdset({ accessToken, campaignId, campaignObjective
         } finally { }
     }
 
-    const getBillingEventList = (optimizationGoal: string) => {
-        switch (optimizationGoal) {
-            case "THRUPLAY":
-                return [{ "name": "Thruplay", "value": "THRUPLAY" }, { "name": "Impressions", "value": "IMPRESSIONS" }]
-            case "LINK_CLICKS":
-                return [{ "name": "Link Clicks", "value": "LINK_CLICKS" }, { "name": "Impressions", "value": "IMPRESSIONS" }]
-            default:
-                return [{ "name": "Impressions", "value": "IMPRESSIONS" }]
-        }
+    const getBillingEventList = () => {
+        return [{ "name": "Impressions", "value": "IMPRESSIONS" }]
+        // switch (optimizationGoal) {
+        //     case "THRUPLAY":
+        //         return [{ "name": "Thruplay", "value": "THRUPLAY" }, { "name": "Impressions", "value": "IMPRESSIONS" }]
+        //     case "LINK_CLICKS":
+        //         return [{ "name": "Link Clicks", "value": "LINK_CLICKS" }, { "name": "Impressions", "value": "IMPRESSIONS" }]
+        //     default:
+        //         return [{ "name": "Impressions", "value": "IMPRESSIONS" }]
+        // }
     }
 
     const getAppropriateSpec = () => {
@@ -338,10 +372,8 @@ export default function CreateAdset({ accessToken, campaignId, campaignObjective
     }
 
     const handleSubmit = async () => {
-        setLoadingState(true)
 
         try {
-
             const adSet: any = {
                 name: name,
                 daily_budget: dailyBudget * 100,
@@ -367,6 +399,7 @@ export default function CreateAdset({ accessToken, campaignId, campaignObjective
             }
 
             if (selectedAudienceId) {
+
             }
 
             if (selectedInterestList) {
@@ -387,12 +420,28 @@ export default function CreateAdset({ accessToken, campaignId, campaignObjective
                 adSet.targeting["geo_locations"]["regions"] = convertToRegionId(selectedZipcodeList);
             }
 
+            if (campaignObjective === "OUTCOME_APP_PROMOTION") {
+                if (applicationId && storeUrl) {
+                    // "promoted_object": {
+                    //     "application_id": "645064660474863",
+                    //     "object_store_url": "http://www.facebook.com/gaming/play/645064660474863/"
+                    //   }
+                    adSet.promoted_object = {
+                        "application_id": applicationId,
+                        "object_store_url": storeUrl
+                    }
+                } else {
+                    setSnackBarData({ status: "error", message: "Please provide an application id and store url" })
+                    return;
+                }
+            } else if (campaignObjective === "OUTCOME_LEADS") {
 
-            adSet.promoted_object = {
-                "application_id": "645064660474863",
-                "object_store_url": "http://www.facebook.com/gaming/play/645064660474863/"
+
+            } else if (campaignObjective === "OUTCOME_ENGAGEMENT") {
+
             }
 
+            setLoadingState(true)
 
             const { adSetId, createAdSetError } = await api.createAdSet(adSet, adAccountId, accessToken);
 
@@ -476,28 +525,15 @@ export default function CreateAdset({ accessToken, campaignId, campaignObjective
             <div className="border-slate-500 border placeholder-slate-400 p-2  rounded-lg mt-2">
                 <label htmlFor="dropdown">Optimization Goal:</label>
                 <select id="dropdown" name="dropdown" onChange={handleOptimizationGoalChange} className="border-0 outline-0 bg-black">
-                    <option value="">None</option>
-                    <option value="APP_INSTALLS">App Installs</option>
-                    <option value="AD_RECALL_LIFT">Ad Recall Lift</option>
-                    <option value="ENGAGED_USERS">Engaged Users</option>
-                    <option value="EVENT_RESPONSES">Event Responses</option>
-                    <option value="IMPRESSIONS">Impressions</option>
-                    <option value="LEAD_GENERATION">Lead Generation</option>
-                    <option value="LINK_CLICKS">Link Clicks</option>
-                    <option value="OFFSITE_CONVERSIONS">Offsite Conversions</option>
-                    <option value="PAGE_LIKES">Page Likes</option>
-                    <option value="POST_ENGAGEMENT">Post Engagement</option>
-                    <option value="REACH">Reach</option>
-                    <option value="LANDING_PAGE_VIEWS">Landing Page Views</option>
-                    <option value="VALUE">Value</option>
-                    <option value="THRUPLAY">ThruPlay</option>
-                    <option value="SOCIAL_IMPRESSIONS">Social Impressions</option>
+                    {getOptimizationList().map((item, index) => (
+                        <option key={index} value={item.value}>{item.name}</option>
+                    ))}
                 </select>
             </div>
             <div className="border-slate-500 border placeholder-slate-400 p-2  rounded-lg mt-2">
                 <label htmlFor="dropdown">Billing Event:</label>
                 <select id="dropdown" name="dropdown" onChange={handleBillingEventDropdownChange} className="border-0 outline-0 bg-black">
-                    {getBillingEventList(optimizationGoal).map((item, index) => (
+                    {getBillingEventList().map((item, index) => (
                         <option key={index} value={item.value}>{item.name}</option>
                     ))}
                 </select>
@@ -553,9 +589,18 @@ export default function CreateAdset({ accessToken, campaignId, campaignObjective
                     ))}
                 </div>
                 : <></>}
-
-
             <div />
+
+            {campaignObjective === 'OUTCOME_APP_PROMOTION' ?
+                <div className="flex flex-col">
+                    <input type="text" placeholder="Application Id" onChange={(e: any) => setApplicationId(e.target.value)} className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 bg-black rounded-lg mt-2"></input>
+                    <input type="text" placeholder="Store URL" onChange={(e: any) => setStoreUrl(e.target.value)} className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 bg-black rounded-lg mt-2"></input>
+                </div> :
+                // campaignObjective === 'OUTCOME_LEADS' ? <div>Leads</div> :
+                //     campaignObjective === 'OUTCOME_ENGAGEMENT' ? <div>Engagement</div> :
+                <></>
+            }
+
 
             <div className="border-slate-500 placeholder-slate-400 p-2  mt-2 flex space-x-4">
                 <label>Status:</label>
@@ -565,7 +610,7 @@ export default function CreateAdset({ accessToken, campaignId, campaignObjective
                 </div>
             </div>
             {errorMessage ? <p className='mt-4 text-red-700 align-middle text-sm'>{errorMessage}</p> : <></>}
-            <ActionButton isLoading={isLoading} normalText={campaignObjective} loadingText="Creating..." handleSubmit={handleSubmit} />
+            <ActionButton isLoading={isLoading} normalText='Create Adset' loadingText="Creating..." handleSubmit={handleSubmit} />
         </div>
     </>
 }

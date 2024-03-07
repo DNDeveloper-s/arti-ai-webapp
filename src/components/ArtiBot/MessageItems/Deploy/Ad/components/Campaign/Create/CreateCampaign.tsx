@@ -5,7 +5,7 @@ import SwitchComponent from "../../SwitchComponent";
 
 export default function CreateCampaign({ accessToken, onCampaignCreation }: { accessToken: string, onCampaignCreation: any }) {
     const [name, updateName] = useState("");
-    const [objective, updateObjective] = useState("OUTCOME_AWARENESS");
+    const [objective, updateObjective] = useState("OUTCOME_LEADS");
     const [status, updateStatus] = useState("ACTIVE")
     const [isLoading, setLoadingState] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
