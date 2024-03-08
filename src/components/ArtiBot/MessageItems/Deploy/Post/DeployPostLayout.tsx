@@ -201,7 +201,7 @@ export default function DeployPostLayout({
                   onClick={componentClicked}
                   callback={responseFacebook}
                   returnScopes={true}
-                  scope="instagram_basic,instagram_manage_insights,instagram_content_publish, business_management,public_profile,ads_management,pages_show_list,pages_read_engagement"
+                  scope="public_profile,ads_management,pages_show_list,pages_read_engagement"
                 />
                 {/* <FacebookSignInButton
                   onClick={handleFacebookClick}
