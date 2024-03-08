@@ -1,12 +1,12 @@
 import { REGENERATE_SECTION } from "@/components/ArtiBot/EditAdVariant/EditAdVariant";
 
 export const apiConfig = {
-  baseUrl:
-    process.env.NODE_ENV === "production"
-      ? "https://api.artiai.org"
-      : "http://localhost:8081",
+  //   baseUrl:
+  // process.env.NODE_ENV === "production"
+  //   ? "https://api.artiai.org"
+  //   : "http://localhost:8081",
   // baseUrl: 'https://api.artiai.org',
-  // baseUrl: 'http://localhost:8081',
+  baseUrl: "http://localhost:8081",
   version: "/v1",
 };
 
@@ -107,5 +107,6 @@ export const ROUTES = {
   },
   USERS: {
     ACCOUNTS: (userId: string) => apiUrl(`/users/${userId}/accounts`),
+    LINK_ACCOUNT: (userId: string) => apiUrl(`/users/${userId}/link-account`),
   },
 };

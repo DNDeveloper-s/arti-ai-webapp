@@ -10,6 +10,10 @@ import { MdArrowBackIos, MdEmail } from "react-icons/md";
 import FacebookSignInButton from "@/components/Auth/FacebookSigninButton";
 import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import FacebookLogin from "react-facebook-login";
+import { linkAccount } from "@/context/UserContext";
+import { useUser } from "@/context/UserContext";
+import { IUserAccount } from "@/interfaces/IUser";
 
 interface FacebookPage {
   id: string;
@@ -25,10 +29,12 @@ export default function DeployPostLayout({
   accessToken,
   variant,
   fetchingProviders,
+  setAccessToken,
 }: {
-  accessToken: string;
+  accessToken: string | null;
   variant: IAdVariant;
   fetchingProviders: boolean;
+  setAccessToken: (token: string) => void;
 }) {
   const session = useSession();
   const [isLoadingPages, setLoadingPages] = useState(false);
@@ -40,6 +46,7 @@ export default function DeployPostLayout({
   const [isInCreateMode, setIsInCreateMode] = useState<boolean>(false);
   const fetchedRef = useRef(false);
   const searchParams = useSearchParams();
+  const { dispatch } = useUser();
 
   const getUserPages = useCallback(async () => {
     if (fetchingProviders || fetchedRef.current || !accessToken) return;
@@ -116,6 +123,39 @@ export default function DeployPostLayout({
     // });
   }
 
+  async function responseFacebook(response: any) {
+    console.log("response - ", response);
+    const userId = session.data?.user?.id;
+    if (!userId) {
+      return setSnackBarData({
+        status: "error",
+        message: "Please login again!",
+      });
+    }
+
+    const object: IUserAccount = {
+      userId,
+      type: "oauth",
+      provider: "facebook",
+      providerAccountId: response.id,
+      access_token: response.accessToken,
+      expires_at: response.data_access_expiration_time,
+      token_type: "bearer",
+    };
+
+    const data = await linkAccount(dispatch, object);
+    setSnackBarData({
+      message: data?.message,
+      status: data?.ok ? "success" : "error",
+    });
+
+    if (data?.ok) {
+      setAccessToken(response.accessToken);
+    }
+  }
+
+  function componentClicked() {}
+
   return (
     <>
       <div className="overflow-scroll h-[500px]">
@@ -154,10 +194,18 @@ export default function DeployPostLayout({
             {fetchingProviders && <Loader />}
             {!accessToken && !fetchingProviders && (
               <div>
-                <FacebookSignInButton
+                <FacebookLogin
+                  appId="713068484341612"
+                  //   autoLoad={true}
+                  fields="name,email,picture"
+                  onClick={componentClicked}
+                  callback={responseFacebook}
+                  scope="instagram_basic,instagram_manage_insights,instagram_content_publish, business_management,public_profile,ads_management,pages_show_list,pages_read_engagement"
+                />
+                {/* <FacebookSignInButton
                   onClick={handleFacebookClick}
                   label={"Connect Facebook"}
-                />
+                /> */}
               </div>
             )}
             {accessToken &&

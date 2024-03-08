@@ -109,6 +109,7 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
           <DeployPostLayout
             fetchingProviders={fetchingProviders}
             accessToken={accessToken}
+            setAccessToken={setUserAccessToken}
             variant={variant}
           />
         )}

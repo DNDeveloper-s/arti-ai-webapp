@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import axios, { AxiosError } from "axios";
 import { ROUTES } from "@/config/api-config";
+import { IUserAccount } from "@/interfaces/IUser";
 
 interface IUserData {}
 
@@ -18,6 +19,7 @@ export type UserData = IUserData | null | false;
 // An enum with all the types of actions to use in our reducer
 enum USER_ACTION_TYPE {
   START_EDITING_VARIANT = "START_EDITING_VARIANT",
+  LINK_ACCOUNT = "LINK_ACCOUNT",
 }
 
 // An interface for our actions
@@ -82,6 +84,40 @@ function useUser(): UseUserHookType {
   }
 
   return context;
+}
+
+export async function linkAccount(
+  dispatch: (a: UserAction) => void,
+  data: IUserAccount
+): Promise<{ ok: boolean; message: string }> {
+  dispatch({
+    type: USER_ACTION_TYPE.LINK_ACCOUNT,
+    payload: data,
+  });
+
+  try {
+    const response = await axios.post(ROUTES.USERS.LINK_ACCOUNT(data.userId), {
+      account: data,
+    });
+
+    console.log("response - ", response);
+
+    if (response.data.ok) {
+      return {
+        ok: true,
+        message: "Account linked successfully!",
+      };
+    }
+    return {
+      ok: false,
+      message: response.data.message ?? "An error occurred!",
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      message: (e as Error).message,
+    };
+  }
 }
 
 // export function startEditingVariant(dispatch: (a: UserAction) => void) {
