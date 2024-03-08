@@ -8,7 +8,8 @@ import Loader from "@/components/Loader";
 import ViewUserPosts from "./components/View/ViewUserPosts";
 import { MdArrowBackIos, MdEmail } from "react-icons/md";
 import FacebookSignInButton from "@/components/Auth/FacebookSigninButton";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 interface FacebookPage {
   id: string;
@@ -29,6 +30,7 @@ export default function DeployPostLayout({
   variant: IAdVariant;
   fetchingProviders: boolean;
 }) {
+  const session = useSession();
   const [isLoadingPages, setLoadingPages] = useState(false);
   const [snackBarData, setSnackBarData] =
     useContext(SnackbarContext).snackBarData;
@@ -37,6 +39,7 @@ export default function DeployPostLayout({
   const [selectedPage, selectPage] = useState<FacebookPage | null>();
   const [isInCreateMode, setIsInCreateMode] = useState<boolean>(false);
   const fetchedRef = useRef(false);
+  const searchParams = useSearchParams();
 
   const getUserPages = useCallback(async () => {
     if (fetchingProviders || fetchedRef.current || !accessToken) return;
@@ -91,7 +94,14 @@ export default function DeployPostLayout({
   }, [getUserPages]);
 
   function handleFacebookClick() {
-    signIn("facebook", { callbackUrl: "/deploy", redirect: false });
+    console.log("session - ", session);
+    signIn("facebook", {
+      callbackUrl:
+        "/artibot/ad_creative?conversation_id=" +
+        searchParams.get("conversation_id"),
+      linking: true,
+      userId: session.data?.user?.id,
+    });
     // const signInUrl = `https://localhost:3001/api/auth/signin/facebook`;
     // const newWindow = window.open(signInUrl, "_blank", "noopener,noreferrer");
     // window.addEventListener("message", (event) => {
