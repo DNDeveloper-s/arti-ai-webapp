@@ -200,6 +200,7 @@ export default function DeployPostLayout({
                   fields="name,email,picture"
                   onClick={componentClicked}
                   callback={responseFacebook}
+                  returnScopes={true}
                   scope="instagram_basic,instagram_manage_insights,instagram_content_publish, business_management,public_profile,ads_management,pages_show_list,pages_read_engagement"
                 />
                 {/* <FacebookSignInButton
