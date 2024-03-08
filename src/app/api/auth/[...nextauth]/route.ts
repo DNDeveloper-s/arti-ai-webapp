@@ -46,7 +46,7 @@ export const authOptions: AuthOptions = {
 		FacebookProvider({
 			clientId: process.env.NODE_ENV == 'development' ? process.env.FACEBOOK_DEV_CLIENT_ID : process.env.FACEBOOK_PROD_CLIENT_ID,
 			clientSecret: process.env.NODE_ENV == 'development' ? process.env.FACEBOOK_DEV_CLIENT_SECRET : process.env.FACEBOOK_PROD_CLIENT_SECRET,
-			authorization: "https://www.facebook.com/v11.0/dialog/oauth?scope=public_profile,ads_management,pages_show_list,pages_read_engagement",
+			authorization: "https://www.facebook.com/v11.0/dialog/oauth?scope=instagram_basic,instagram_manage_insights,instagram_content_publish, business_management,public_profile,ads_management,pages_show_list,pages_read_engagement",
 			// idToken: true,
 			// profile(profile: any, token: any) {
 			// 	console.log(`Facebook Profile: ${JSON.stringify(profile)} and token: ${JSON.stringify(token)}`);
@@ -97,7 +97,12 @@ export const authOptions: AuthOptions = {
 
 	],
 	callbacks: {
-		async signIn({ user, account, profile }) {
+
+		async signIn({ user, account, profile, ...rest }) {
+			console.log('user - ', JSON.stringify(user))
+			console.log('account - ', JSON.stringify(account))
+			console.log('profile - ', JSON.stringify(profile))
+			console.log('rest - ', JSON.stringify(rest))
 			try {
 				if (profile?.name) {
 					// Split the "name" field into "first_name" and "last_name"

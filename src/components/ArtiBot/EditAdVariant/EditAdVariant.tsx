@@ -31,6 +31,7 @@ import { VariantImageMap } from '@/services/VariantImageMap';
 import GeneratedSuggestions from './GeneratedSuggestions';
 import { NoImage } from '../LeftPane/ConversationListItem';
 import SwipeableViews from 'react-swipeable-views';
+import PreviewCanvas from '@/components/Canvas/PreviewCanvas';
 
 
 export enum REGENERATE_SECTION {
@@ -39,28 +40,51 @@ export enum REGENERATE_SECTION {
 	'ONE_LINER' = 'oneLiner'
 }
 
+interface SampleImageState {
+	bgUrl: string;
+	canvasState: string;
+	id: any;
+}
+
+interface CanvasImageItemProps {
+	item: SampleImageState;
+	onClick: (sampleImageState) => void;
+	isActive: boolean;
+}
+
+const dummyCanvasState = "[{\"id\":1709810369379,\"name\":\"rectangle\",\"order\":0,\"type\":\"rectangle\",\"x1\":-0.09375,\"y1\":321.375,\"x2\":399.90625,\"y2\":368.375,\"roughOptions\":{\"fillStyle\":\"solid\",\"fill\":\"rgba(31, 168, 221, 0.67)\",\"width\":400,\"stroke\":\"rgba(0, 0, 0, 0)\"}},{\"id\":1709810265567,\"name\":\"Sample Text\",\"order\":1,\"type\":\"text\",\"x1\":125.90625,\"y1\":335.375,\"x2\":278.90625,\"y2\":361.375,\"customOptions\":{\"text\":\"Sample Text\",\"font\":\"26px Avenir Next\",\"fillStyle\":\"rgba(255, 255, 255, 1)\",\"fontSize\":26,\"width\":153,\"fontFamily\":\"Avenir Next\",\"bold\":false,\"italic\":false}}]";
+
+const dummyCanvasState2 = "[{\"id\":1709880821502,\"name\":\"ellipse\",\"order\":1709880821502,\"type\":\"ellipse\",\"x1\":196.90625,\"y1\":346.484375,\"x2\":365.90625,\"y2\":386.984375,\"roughOptions\":{\"fillStyle\":\"solid\",\"fill\":\"rgba(224, 203, 55, 0.53)\",\"width\":169,\"stroke\":\"rgba(0, 0, 0, 0)\"}},{\"id\":1709880856558,\"name\":\"Sample Text\",\"order\":1709880856558,\"type\":\"text\",\"x1\":114.90625,\"y1\":335.984375,\"x2\":289.90625,\"y2\":361.984375,\"customOptions\":{\"text\":\"Sample Text\",\"font\":\"bold 26px Rockwell\",\"fillStyle\":\"rgba(255, 255, 255, 1)\",\"fontSize\":26,\"width\":175,\"fontFamily\":\"Rockwell\",\"bold\":true,\"italic\":false}}]";
+
+const dummyCanvasState3 = "[{\"id\":1709810490095,\"name\":\"Sample Text\",\"order\":1709810490095,\"type\":\"text\",\"x1\":281.40625,\"y1\":40.984375,\"x2\":381.40625,\"y2\":96.984375,\"customOptions\":{\"text\":\"Sample Text\",\"font\":\"26px Chalkboard SE\",\"fillStyle\":\"rgba(0,0,0,1)\",\"fontSize\":26,\"width\":100,\"fontFamily\":\"Chalkboard SE\",\"bold\":false,\"italic\":false}}]";
+
+const dummyCanvasState4 = "[{\"id\":1709881257149,\"name\":\"circle\",\"order\":1709881257149,\"type\":\"circle\",\"x1\":197.90625,\"y1\":337.59375,\"x2\":237.90625,\"y2\":355.59375,\"roughOptions\":{\"fillStyle\":\"solid\",\"fill\":\"rgba(231, 32, 32, 1)\",\"stroke\":\"rgba(0, 0, 0, 0)\"}},{\"id\":1709881267315,\"name\":\"rectangle\",\"order\":1709881267315,\"type\":\"rectangle\",\"x1\":80.90625,\"y1\":315.59375,\"x2\":312.90625,\"y2\":362.59375,\"roughOptions\":{\"fillStyle\":\"solid\",\"fill\":\"rgba(231, 32, 32, 1)\",\"stroke\":\"rgba(0, 0, 0, 0)\"}},{\"id\":1709881329616,\"name\":\"Sample Text\",\"order\":1709881329616,\"type\":\"text\",\"x1\":132.90625,\"y1\":328.59375,\"x2\":276.90625,\"y2\":352.59375,\"customOptions\":{\"text\":\"Sample Text\",\"font\":\"24px Tahoma\",\"fillStyle\":\"rgba(255, 255, 255, 1)\",\"fontSize\":24,\"width\":144,\"fontFamily\":\"Tahoma\",\"bold\":false,\"italic\":false}}]";
+
+const CanvasImageItem: FC<CanvasImageItemProps> = ({isActive, item, onClick}) => {
+
+	return (
+		<div className={'border border-transparent relative aspect-square rounded ' + (isActive ? '!border-primary' : '')} onClick={() => onClick(item)}>
+			{item.bgUrl ? <Image1 src={item.bgUrl} alt="Ad Variant Image" width={600} height={100} className="mb-[0.5em] w-full" /> : 
+			<NoImage />}
+			<PreviewCanvas canvasState={item.canvasState} />
+		</div>
+	)
+}
+
 interface RegenerateMap {
 	selected?: REGENERATE_SECTION;
 }
 
 
 interface CanvasImageViewerProps {
-	list: VariantImageMap[];
+	list: SampleImageState[];
 	activeItem?: number;
-	onClick: (imageObj: VariantImageMap) => void;
+	onClick: (sampleImageState: SampleImageState) => void;
 }
 const CanvasImageViewer: FC<CanvasImageViewerProps> = (props) => {
     return (
         <div className='grid grid-cols-2 gap-3 w-full'>
-            {props.list.map((item, index) => {
-				const url = item.get('url');
-				return (
-					<div key={item.get('timestamp')} className={'border border-transparent aspect-square rounded ' + (props.activeItem === index ? '!border-primary' : '')} onClick={() => props.onClick(item)}>
-						{url ? <Image1 src={url} alt="Ad Variant Image" width={600} height={100} className="mb-[0.5em] w-full" /> : 
-						<NoImage />}
-					</div>
-				)
-			})}
+            {props.list.map((item, index) => <CanvasImageItem key={item.id} item={item} onClick={props.onClick} isActive={props.activeItem === index} />)}
             {[1,2].slice(props.list.length).map(c => <div key={c} className='aspect-square rounded bg-black'></div>)}
         </div>
     )
@@ -86,16 +110,9 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 	const [isEdittingImage, setIsEdittingImage] = useState<boolean>(false);
 	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 	const [activeTab, setActiveTab] = useState<number>(0);
-
-	function handleLike() {
-		setReactionState(c => c === REACTION.LIKED ? REACTION.NEUTRAL : REACTION.LIKED);
-	}
-
-	function handleDislike() {
-		setReactionState(c => c === REACTION.DISLIKED ? REACTION.NEUTRAL : REACTION.DISLIKED);
-	}
-
 	const isCreatedImageMapRef = useRef<boolean>(false);
+
+	const [sampleState, setSampleState] = useState<string | null>(null);
 
 	useEffect(() => {
 		if(editVariantState.variant && !isCreatedImageMapRef.current) {
@@ -245,12 +262,14 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 		handleClose();
 	}
 
-	function handleImageClick(imageObj: VariantImageMap) {
-		if(!editVariantState.variant) return;
-		const newVariant = {...editVariantState.variant};
-		newVariant.imageUrl = imageObj.get('url') as string;
+	function handleImageClick(sampleImage: SampleImageState) {
+		// if(!editVariantState.variant) return;
+		// const newVariant = {...editVariantState.variant};
+		// newVariant.imageUrl = imageObj.get('url') as string;
 
-		updateVariant(editDispatch, newVariant);
+		// updateVariant(editDispatch, newVariant);
+
+		setSampleState(sampleImage.canvasState);
 	}
 
 	const imageObject = useMemo(() => {
@@ -336,16 +355,24 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({showConfi
 									})}
 								</SwipeableViews>
 							</div> 
-							<EditCanvas key={imageUrlToEdit} imageObject={imageObject} canvasState={imageObject?.get('canvasState')} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
+							<EditCanvas sampleState={sampleState} key={imageUrlToEdit} imageObject={imageObject} canvasState={imageObject?.get('canvasState')} handleClose={handleClose} handleExport={handleExport} imageUrl={imageUrlToEdit} />
 						</div>
-						{/* <div className="my-[1em] w-full px-3 py-2 border-2 border-gray-600 bg-gray-800 rounded divide-y divide-gray-700">
+						<div className="my-[1em] w-full px-3 py-2 border-2 border-gray-600 bg-gray-800 rounded divide-y divide-gray-700">
 							<div className="text-[1.5em] leading-[1.55em] mt-1 mb-2 text-white text-opacity-60 font-medium">
-								<span>Previous Images:</span>
+								<span>Pre-made samples:</span>
 							</div>
 							<div className="flex gap-1 flex-col items-start mt-2 py-3">
-								<CanvasImageViewer list={editVariantState?.variantImages ?? []} onClick={handleImageClick} />
+								<CanvasImageViewer 
+									list={[
+										{id: 1, bgUrl: imageObject?.get('bgImage') ?? '', canvasState: dummyCanvasState},
+										{id: 2, bgUrl: imageObject?.get('bgImage') ?? '', canvasState: dummyCanvasState2},
+										{id: 3, bgUrl: imageObject?.get('bgImage') ?? '', canvasState: dummyCanvasState3},
+										{id: 4, bgUrl: imageObject?.get('bgImage') ?? '', canvasState: dummyCanvasState4},
+									]} 
+									onClick={handleImageClick}
+								/>
 							</div>
-						</div> */}
+						</div>
 					</>
 				) : <EditControl type={'image'} handleClose={handleClose} controlKey={REGENERATE_SECTION.IMAGE} containerClassName={'text-[1.6em] ' + getBlurClassName(REGENERATE_SECTION.IMAGE)} handleEdit={handleEdit}>
 					{imageContainerJSX}
