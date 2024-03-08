@@ -1,12 +1,12 @@
 import { REGENERATE_SECTION } from "@/components/ArtiBot/EditAdVariant/EditAdVariant";
 
 export const apiConfig = {
-  //   baseUrl:
-  // process.env.NODE_ENV === "production"
-  //   ? "https://api.artiai.org"
-  //   : "http://localhost:8081",
-  // baseUrl: 'https://api.artiai.org',
-  baseUrl: "http://localhost:8081",
+  baseUrl:
+    process.env.NODE_ENV === "production"
+      ? "https://api.artiai.org"
+      : "http://localhost:8081",
+  //   baseUrl: 'https://api.artiai.org',
+  //   baseUrl: "http://localhost:8081",
   version: "/v1",
 };
 
@@ -89,18 +89,18 @@ export const ROUTES = {
     INSTAGRAM_POSTS: apiUrl(`/social/posts/instagram`),
   },
   ADS: {
-    CAMPAIGNS: apiUrl("/account/campaigns"),
-    ADSETS: apiUrl("/account/adsets"),
-    ADCREATIVES: apiUrl("/account/adcreatives"),
-    ADIMAGES: apiUrl("/account/adimages"),
-    AD_ENTITIES: apiUrl("/account/ad_entities"),
-    GET_AD_ACCOUNT_ID: apiUrl("/account/account_id_info?preventAdblock=true"),
-    GET_ALL_COUNTRIES: apiUrl("/account/get_all_countries"),
-    INTERESTS: apiUrl("/account/interests"),
-    TEMPLATES: apiUrl("/account/templates"),
-    MAILCHIMP_CAMPAIGNS: apiUrl("/account/mailchimp_campaigns"),
-    SEND_CAMPAIGN: apiUrl("/account/send_campaign"),
-    CUSTOM_AUDIENCE: apiUrl("/account/custom_audience"),
+    CAMPAIGNS: apiUrl("/marketing/campaigns"),
+    ADSETS: apiUrl("/marketing/adsets"),
+    ADCREATIVES: apiUrl("/marketing/adcreatives"),
+    ADIMAGES: apiUrl("/marketing/adimages"),
+    AD_ENTITIES: apiUrl("/marketing/ad_entities"),
+    GET_AD_ACCOUNT_ID: apiUrl("/marketing/account_id"),
+    GET_ALL_COUNTRIES: apiUrl("/marketing/get_all_countries"),
+    INTERESTS: apiUrl("/marketing/interests"),
+    TEMPLATES: apiUrl("/marketing/templates"),
+    MAILCHIMP_CAMPAIGNS: apiUrl("/marketing/mailchimp_campaigns"),
+    SEND_CAMPAIGN: apiUrl("/marketing/send_campaign"),
+    CUSTOM_AUDIENCE: apiUrl("/marketing/custom_audience"),
   },
   LOCATION: {
     ZIPCODE: apiUrl("/location/zipcode"),
