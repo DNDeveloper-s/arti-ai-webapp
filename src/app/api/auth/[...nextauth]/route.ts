@@ -53,7 +53,7 @@ export const authOptions: AuthOptions = {
           ? process.env.FACEBOOK_DEV_CLIENT_SECRET
           : process.env.FACEBOOK_PROD_CLIENT_SECRET,
       authorization:
-        "https://www.facebook.com/v11.0/dialog/oauth?scope=instagram_basic,instagram_manage_insights,instagram_content_publish, business_management,public_profile,ads_management,pages_show_list,pages_read_engagement",
+        "https://www.facebook.com/v11.0/dialog/oauth?scope=instagram_basic,instagram_manage_insights,instagram_content_publish,business_management,public_profile,ads_management,pages_show_list,pages_read_engagement,read_insights",
       // idToken: true,
       // profile(profile: any, token: any) {
       // 	console.log(`Facebook Profile: ${JSON.stringify(profile)} and token: ${JSON.stringify(token)}`);
@@ -107,81 +107,8 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile, ...rest }) {
-      console.log("user - ", JSON.stringify(user));
-      console.log("account - ", JSON.stringify(account));
-      console.log("profile - ", JSON.stringify(profile));
-      console.log("rest - ", JSON.stringify(rest));
-
       try {
-        if (rest.linking) {
-          const userId = rest.userId;
-          const existingUser = await prisma.user.findUnique({
-            where: { id: userId },
-          });
-
-          if (existingUser) {
-            // Update the user's first_name and last_name
-            const accountObject = {
-              type: account.type as string,
-              id_token: account.id_token,
-              token_type: account.token_type,
-              access_token: account.access_token,
-              scope: account.scope,
-              expires_at: account.expires_at,
-              provider: account.provider,
-              providerAccountId: account.providerAccountId,
-            };
-
-            const existingAccount = await prisma.account.findUnique({
-              where: {
-                provider_providerAccountId: {
-                  provider: account.provider,
-                  providerAccountId: account.providerAccountId,
-                },
-              },
-            });
-
-            if (!existingAccount) {
-              await prisma.account.create({
-                data: {
-                  provider: account.provider as string,
-                  providerAccountId: account.providerAccountId as string,
-                  type: account.type as string,
-                  user: { connect: { id: existingUser.id as string } },
-                  id_token: account.id_token,
-                  token_type: account.token_type,
-                  access_token: account.access_token,
-                  scope: account.scope,
-                  expires_at: account.expires_at,
-                },
-              });
-            } else {
-              await prisma.account.update({
-                where: {
-                  provider_providerAccountId: {
-                    provider: account.provider,
-                    providerAccountId: account.providerAccountId,
-                  },
-                },
-                data: accountObject,
-              });
-            }
-
-            await prisma.user.update({
-              where: { id: userId },
-              data: {
-                accounts: {
-                  connect: {
-                    provider_providerAccountId: {
-                      provider: account.provider,
-                      providerAccountId: account.providerAccountId,
-                    },
-                  },
-                },
-              },
-            });
-          }
-        } else if (profile?.name) {
+        if (profile?.name) {
           // Split the "name" field into "first_name" and "last_name"
           const [first_name, last_name] = profile.name.split(" ");
 
@@ -272,6 +199,8 @@ export const authOptions: AuthOptions = {
                 token_type: account.token_type,
                 access_token: account.access_token,
                 scope: account.scope,
+                email: profile.email,
+                name: profile.name,
                 expires_at: account.expires_at,
               },
             });

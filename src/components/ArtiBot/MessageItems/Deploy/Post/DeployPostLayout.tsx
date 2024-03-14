@@ -1,11 +1,11 @@
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import CreatePostView from "./components/CreatePostView";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { ROUTES } from "@/config/api-config";
 import { IAdVariant } from "@/interfaces/IArtiBot";
 import Loader from "@/components/Loader";
-import ViewUserPosts from "./components/View/ViewUserPosts";
+import ViewFacebookPosts from "./components/View/ViewFacebookPosts";
 import { MdArrowBackIos, MdEmail } from "react-icons/md";
 import FacebookSignInButton from "@/components/Auth/FacebookSigninButton";
 import { signIn, useSession } from "next-auth/react";
@@ -13,7 +13,9 @@ import { useSearchParams } from "next/navigation";
 import FacebookLogin from "react-facebook-login";
 import { linkAccount } from "@/context/UserContext";
 import { useUser } from "@/context/UserContext";
-import { IUserAccount } from "@/interfaces/IUser";
+import { IUserAccount, IUserPage } from "@/interfaces/IUser";
+import { useUserPages } from "@/api/user";
+import useErrorNotification from "@/hooks/useErrorNotification";
 
 interface FacebookPage {
   id: string;
@@ -28,59 +30,45 @@ const delay = (delay: number) =>
 export default function DeployPostLayout({
   accessToken,
   variant,
-  fetchingProviders,
-  setAccessToken,
 }: {
-  accessToken: string | null;
+  accessToken: string;
   variant: IAdVariant;
-  fetchingProviders: boolean;
-  setAccessToken: (token: string) => void;
 }) {
-  const session = useSession();
   const [isLoadingPages, setLoadingPages] = useState(false);
   const [snackBarData, setSnackBarData] =
     useContext(SnackbarContext).snackBarData;
   const [showPreview, setShowPreview] = useState<boolean>(false);
-  const [pagesData, setPagesData] = useState<FacebookPage[]>([]);
-  const [selectedPage, selectPage] = useState<FacebookPage | null>();
+  // const [pagesData, setPagesData] = useState<FacebookPage[]>([]);
+  const [selectedPage, selectPage] = useState<IUserPage | null>();
   const [isInCreateMode, setIsInCreateMode] = useState<boolean>(false);
   const fetchedRef = useRef(false);
   const searchParams = useSearchParams();
-  const { dispatch } = useUser();
+  const { state } = useUser();
+  const {
+    data: pagesData,
+    isError,
+    isSuccess,
+    error,
+    refetch,
+    isLoading,
+  } = useUserPages(accessToken);
 
-  const getUserPages = useCallback(async () => {
-    if (fetchingProviders || fetchedRef.current || !accessToken) return;
-    selectPage(null);
-    console.log(`token for get all pages: ${accessToken}`);
+  const showConnectFacebookButton = !accessToken;
 
-    try {
-      if (isLoadingPages) return;
-      setLoadingPages(true);
+  useEffect(() => {
+    if (accessToken && !fetchedRef.current) {
+      refetch();
       fetchedRef.current = true;
-      const response = await axios.get(ROUTES.SOCIAL.PAGES, {
-        params: {
-          access_token: accessToken,
-        },
-      });
-
-      setPagesData(response.data.data);
-    } catch (error: any) {
-      setSnackBarData({
-        status: "error",
-        message: "An error occurred while fetching pages!",
-      });
-    } finally {
-      setLoadingPages(false);
     }
-  }, [
-    accessToken,
-    fetchingProviders,
-    isLoadingPages,
-    setPagesData,
-    setSnackBarData,
-  ]);
+  }, [accessToken, refetch]);
 
-  const onPageButtonClick = async ({ page }: { page: FacebookPage }) => {
+  useErrorNotification({
+    isError,
+    error,
+    fallbackMessage: "An error occurred while fetching pages!",
+  });
+
+  const onPageButtonClick = async ({ page }: { page: IUserPage }) => {
     selectPage(null);
     setIsInCreateMode(false);
     await delay(100);
@@ -92,70 +80,14 @@ export default function DeployPostLayout({
     if (selectedPage) {
       setIsInCreateMode(true);
     } else {
-      getUserPages();
     }
   };
 
-  useEffect(() => {
-    getUserPages();
-  }, [getUserPages]);
+  return <CreatePostView selectedVariant={variant} isPagesLoading={isLoading} />;
 
-  function handleFacebookClick() {
-    console.log("session - ", session);
-    signIn("facebook", {
-      callbackUrl:
-        "/artibot/ad_creative?conversation_id=" +
-        searchParams.get("conversation_id"),
-      linking: true,
-      userId: session.data?.user?.id,
-    });
-    // const signInUrl = `https://localhost:3001/api/auth/signin/facebook`;
-    // const newWindow = window.open(signInUrl, "_blank", "noopener,noreferrer");
-    // window.addEventListener("message", (event) => {
-    //   if (event.origin === process.env.NEXT_PUBLIC_BASE_URL) {
-    //     // Check if the message indicates a successful sign-in
-    //     if (event.data === "signin-success") {
-    //       // Close the new window upon success
-    //       if (!newWindow) return;
-    //       newWindow.close();
-    //     }
-    //   }
-    // });
-  }
-
-  async function responseFacebook(response: any) {
-    console.log("response - ", response);
-    const userId = session.data?.user?.id;
-    if (!userId) {
-      return setSnackBarData({
-        status: "error",
-        message: "Please login again!",
-      });
-    }
-
-    const object: IUserAccount = {
-      userId,
-      type: "oauth",
-      provider: "facebook",
-      providerAccountId: response.id,
-      access_token: response.accessToken,
-      expires_at: response.data_access_expiration_time,
-      token_type: "bearer",
-    };
-
-    const data = await linkAccount(dispatch, object);
-    setSnackBarData({
-      message: data?.message,
-      status: data?.ok ? "success" : "error",
-    });
-
-    if (data?.ok) {
-      setAccessToken(response.accessToken);
-    }
-  }
-
-  function componentClicked() {}
-
+  /**
+   * @deprecated
+   */
   return (
     <>
       <div className="overflow-scroll h-[500px]">
@@ -179,7 +111,7 @@ export default function DeployPostLayout({
               className="px-8 bg-green-600 text-white rounded-md"
               onClick={handleActionButtonClick}
             >
-              {isLoadingPages || fetchingProviders ? (
+              {isLoadingPages ? (
                 <Loader />
               ) : selectedPage ? (
                 "Create Post"
@@ -191,26 +123,7 @@ export default function DeployPostLayout({
         </div>
         <div className="mt-8 flex items-start">
           <div className="flex flex-col">
-            {fetchingProviders && <Loader />}
-            {!accessToken && !fetchingProviders && (
-              <div>
-                <FacebookLogin
-                  appId="713068484341612"
-                  //   autoLoad={true}
-                  fields="name,email,picture"
-                  onClick={componentClicked}
-                  callback={responseFacebook}
-                  returnScopes={true}
-                  scope="public_profile,ads_management,pages_show_list,pages_read_engagement"
-                />
-                {/* <FacebookSignInButton
-                  onClick={handleFacebookClick}
-                  label={"Connect Facebook"}
-                /> */}
-              </div>
-            )}
             {accessToken &&
-              !fetchingProviders &&
               pagesData &&
               pagesData.map((item, index) => {
                 return (
@@ -245,18 +158,16 @@ export default function DeployPostLayout({
             isInCreateMode ? (
               <CreatePostView
                 pageId={selectedPage.id}
-                pageAccessToken={
-                  selectedPage.access_token ?? selectedPage.page_access_token
-                }
+                pageAccessToken={selectedPage.page_access_token}
                 selectedVariant={variant}
               />
             ) : (
-              <ViewUserPosts
-                pageId={selectedPage.id}
-                pageAccessToken={
-                  selectedPage.access_token ?? selectedPage.page_access_token
-                }
-              />
+              selectedPage.account_type === "facebook" && (
+                <ViewFacebookPosts
+                  pageId={selectedPage.id}
+                  pageAccessToken={selectedPage.page_access_token}
+                />
+              )
             )
           ) : (
             <></>

@@ -1,18 +1,15 @@
 import { IAdVariant } from "@/interfaces/IArtiBot";
 import { GrDeploy } from "react-icons/gr";
 import { useSession } from "next-auth/react";
-import axios, { AxiosError } from "axios";
-import { ROUTES } from "@/config/api-config";
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import Snackbar from "@/components/Snackbar";
 import { SnackbarContext } from "@/context/SnackbarContext";
-import { signIn } from "next-auth/react";
-import { usePathname } from "next/navigation";
 import Modal from "@/components/Modal";
-import DeployPostLayout from "./Deploy/Post/DeployPostLayout";
-import DeployAdLayout from "./Deploy/Ad/DeployAdLayout";
+import DeployView from "./Deploy/DeployView";
+import CreateSocialPostModal from "./Deploy/Post/CreateSocialPostModal";
+import DeployAdModal from "./Deploy/Ad/DeployAdModal";
 
-enum UserChoice {
+export enum UserChoice {
   post,
   ad,
 }
@@ -21,11 +18,8 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
   const { data: session, status } = useSession();
   const [snackBarData, setSnackBarData] =
     useContext(SnackbarContext).snackBarData;
-  const pathName = usePathname();
   const [showModal, setShowModal] = useState(false);
-  const [userChoice, setUserChoice] = useState(UserChoice.ad);
-  const [accessToken, setUserAccessToken] = useState(null);
-  const [fetchingProviders, setFetchingProviders] = useState(false);
+  const [userChoice, setUserChoice] = useState<UserChoice | null>(null);
 
   const handleUserChoice = async (choice: UserChoice) => {
     if (!session || !session.user) {
@@ -35,41 +29,17 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
 
     setUserChoice(choice);
     setShowModal(true);
+  };
 
-    try {
-      setFetchingProviders(true);
-      const response = await axios.get(ROUTES.USERS.ACCOUNTS(session.user.id));
-      const facebookAccounts = response.data.filter(
-        (c) => c.provider === "facebook"
-      );
-      if (facebookAccounts.length === 0) {
-        setSnackBarData({
-          message: "No Facebook account found",
-          status: "error",
-        });
-        setFetchingProviders(false);
-        return;
-      }
-      const userAccessToken = facebookAccounts[0].access_token;
+  const isOpen = useCallback(
+    (choice: UserChoice) => {
+      return userChoice === choice;
+    },
+    [userChoice]
+  );
 
-      if (!userAccessToken) {
-        setSnackBarData({
-          message: "Access token was invalid",
-          status: "error",
-        });
-        await signIn("facebook", { callbackUrl: pathName });
-        setFetchingProviders(false);
-        return;
-      }
-
-      setFetchingProviders(false);
-      setUserAccessToken(userAccessToken);
-      // setUserChoice(choice);
-      // setShowModal(true);
-    } catch (e: any) {
-      setFetchingProviders(false);
-      console.log(e.response);
-    }
+  const handleClose = () => {
+    setUserChoice(null);
   };
 
   return (
@@ -92,28 +62,29 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
         <GrDeploy className="fill-white stroke-white [&>path]:stroke-white" />
         <span>Deploy Ad</span>
       </button>
-      <Modal
+      {/* <Modal
         PaperProps={{
-          className: "bg-black bg-opacity-90 p-6 w-[800px] h-[80vh]",
+          className:
+            userChoice === UserChoice.ad
+              ? "bg-black bg-opacity-90 p-6 w-[800px] h-[80vh]"
+              : "bg-black bg-opacity-90 p-6",
         }}
         handleClose={() => setShowModal(false)}
         open={showModal}
       >
-        {userChoice === UserChoice.ad ? (
-          <DeployAdLayout
-            fetchingProviders={fetchingProviders}
-            variant={variant}
-            accessToken={accessToken}
-          />
-        ) : (
-          <DeployPostLayout
-            fetchingProviders={fetchingProviders}
-            accessToken={accessToken}
-            setAccessToken={setUserAccessToken}
-            variant={variant}
-          />
-        )}
-      </Modal>
+        <DeployView variant={variant} userChoice={userChoice} />
+      </Modal> */}
+      <DeployAdModal
+        open={isOpen(UserChoice.ad)}
+        handleClose={handleClose}
+        selectedVariant={variant}
+      />
+      <CreateSocialPostModal
+        open={isOpen(UserChoice.post)}
+        handleClose={handleClose}
+        selectedVariant={variant}
+      />
+      {/* <DeployView variant={variant} userChoice={userChoice} /> */}
       <Snackbar />
     </>
   );

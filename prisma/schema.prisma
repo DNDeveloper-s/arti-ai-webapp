@@ -11,12 +11,13 @@ generator client {
 
 model Account {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId            String   @db.ObjectId
+  userId            String?   @db.ObjectId
   type              String
   name              String?
   image             String?
   provider          String
   emailVerified     String?
+  email             String?
   providerAccountId String?
   refresh_token     String?
   access_token      String?
@@ -27,7 +28,7 @@ model Account {
   session_state     String?
   createdAt         DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -50,6 +51,7 @@ model User {
   password      String?
   accounts      Account[]
   sessions      Session[]
+  createdAt         DateTime? @default(now())
 }
 
 model VerificationToken {

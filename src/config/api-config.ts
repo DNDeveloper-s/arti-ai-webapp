@@ -1,12 +1,12 @@
 import { REGENERATE_SECTION } from "@/components/ArtiBot/EditAdVariant/EditAdVariant";
 
 export const apiConfig = {
-  baseUrl:
-    process.env.NODE_ENV === "production"
-      ? "https://api.artiai.org"
-      : "http://localhost:8081",
-  //   baseUrl: 'https://api.artiai.org',
-  //   baseUrl: "http://localhost:8081",
+  // baseUrl:
+  // process.env.NODE_ENV === "production"
+  // ? "https://api.artiai.org"
+  // : "http://localhost:8081",
+  // baseUrl: 'https://api.artiai.org',
+  baseUrl: "http://localhost:8081",
   version: "/v1",
 };
 
@@ -87,6 +87,10 @@ export const ROUTES = {
     PAGES: apiUrl(`/social/pages`),
     FACEBOOK_POSTS: apiUrl(`/social/posts/facebook`),
     INSTAGRAM_POSTS: apiUrl(`/social/posts/instagram`),
+    FACEBOOK_POST: (post_id: string) =>
+      apiUrl(`/social/posts/facebook/${post_id}`),
+    FACEBOOK_PAGE: (page_id: string) =>
+      apiUrl(`/social/pages/facebook/${page_id}`),
   },
   ADS: {
     CAMPAIGNS: apiUrl("/marketing/campaigns"),
@@ -95,7 +99,6 @@ export const ROUTES = {
     ADIMAGES: apiUrl("/marketing/adimages"),
     AD_ENTITIES: apiUrl("/marketing/ad_entities"),
     GET_AD_ACCOUNT_ID: apiUrl("/marketing/account_id"),
-    GET_ALL_COUNTRIES: apiUrl("/marketing/get_all_countries"),
     INTERESTS: apiUrl("/marketing/interests"),
     TEMPLATES: apiUrl("/marketing/templates"),
     MAILCHIMP_CAMPAIGNS: apiUrl("/marketing/mailchimp_campaigns"),
@@ -104,9 +107,13 @@ export const ROUTES = {
   },
   LOCATION: {
     ZIPCODE: apiUrl("/location/zipcode"),
+    GET_ALL_COUNTRIES: apiUrl("/location/countries"),
   },
   USERS: {
     ACCOUNTS: (userId: string) => apiUrl(`/users/${userId}/accounts`),
     LINK_ACCOUNT: (userId: string) => apiUrl(`/users/${userId}/link-account`),
+    VALIDATE_FACEBOOK_ACCESS_TOKEN: apiUrl(
+      `/tokens/validate/facebook-access-token`
+    ),
   },
 };
