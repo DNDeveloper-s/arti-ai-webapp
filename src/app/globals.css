@@ -12,11 +12,11 @@
   }
 
   .arti-card {
-    @apply p-[2px] relative bg-gray-800 before:bg-primary rounded-3xl before:absolute before:w-96 before:h-96 before:-left-48 before:-top-48 before:rounded-full before:opacity-0 before:pointer-events-none before:transition-opacity before:duration-500 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] before:hover:opacity-20 before:z-30 before:blur-[100px] after:absolute after:inset-0 after:rounded-[inherit] after:opacity-0 after:hover:opacity-100 after:transition-opacity after:duration-500 after:[background:_radial-gradient(250px_circle_at_var(--mouse-x)_var(--mouse-y),theme(colors.gray.400),transparent)] after:group-hover:opacity-100 after:z-10 overflow-hidden
+    @apply p-[2px] relative bg-gray-800 before:bg-primary rounded-3xl before:absolute before:w-96 before:h-96 before:-left-48 before:-top-48 before:rounded-full before:opacity-0 before:pointer-events-none before:transition-opacity before:duration-500 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] before:hover:opacity-20 before:z-30 before:blur-[100px] after:absolute after:inset-0 after:rounded-[inherit] after:opacity-0 after:hover:opacity-100 after:transition-opacity after:duration-500 after:[background:_radial-gradient(250px_circle_at_var(--mouse-x)_var(--mouse-y),theme(colors.gray.400),transparent)] after:group-hover:opacity-100 after:z-10 overflow-hidden;
   }
 
   .arti-card-primary {
-    @apply p-[2px] relative bg-gray-600 before:bg-primary rounded-3xl before:absolute before:w-96 before:h-96 before:-left-48 before:-top-48 before:rounded-full before:opacity-0 before:pointer-events-none before:transition-opacity before:duration-500 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] before:hover:opacity-20 before:z-30 before:blur-[100px] after:absolute after:inset-0 after:rounded-[inherit] after:opacity-0 after:hover:opacity-100 after:transition-opacity after:duration-500 after:[background:_radial-gradient(250px_circle_at_var(--mouse-x)_var(--mouse-y),theme(colors.gray.400),transparent)] after:group-hover:opacity-100 after:z-10 overflow-hidden
+    @apply p-[2px] relative bg-gray-600 before:bg-primary rounded-3xl before:absolute before:w-96 before:h-96 before:-left-48 before:-top-48 before:rounded-full before:opacity-0 before:pointer-events-none before:transition-opacity before:duration-500 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] before:hover:opacity-20 before:z-30 before:blur-[100px] after:absolute after:inset-0 after:rounded-[inherit] after:opacity-0 after:hover:opacity-100 after:transition-opacity after:duration-500 after:[background:_radial-gradient(250px_circle_at_var(--mouse-x)_var(--mouse-y),theme(colors.gray.400),transparent)] after:group-hover:opacity-100 after:z-10 overflow-hidden;
   }
 
   .landing-page-title {
@@ -29,9 +29,9 @@
   }
 
   .landing-page-grad-title {
-    @apply text-4xl px-2 text-center font-medium bg-clip-text !text-transparent bg-gradient-to-r from-gray-200/60 via-gray-200 to-gray-200/60 pb-4
+    @apply text-4xl px-2 text-center font-medium bg-clip-text !text-transparent bg-gradient-to-r from-gray-200/60 via-gray-200 to-gray-200/60 pb-4;
   }
-  
+
   .disable-editting {
     @apply pointer-events-none blur-sm opacity-60 cursor-none;
   }
@@ -46,8 +46,8 @@
 
     /* Hide scrollbar for IE, Edge and Firefox */
     .no-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
     }
   }
 }
@@ -97,7 +97,7 @@
   font-family: Salsa Regular;
   font-style: normal;
   font-weight: 500;
-  src: url(../assets/fonts/Salsa-Regular.woff2) format("woff2")
+  src: url(../assets/fonts/Salsa-Regular.woff2) format("woff2");
 }
 
 @font-face {
@@ -105,7 +105,7 @@
   font-family: Mali Regular;
   font-style: normal;
   font-weight: 500;
-  src: url(../assets/fonts/Mali-Regular.woff2) format("woff2")
+  src: url(../assets/fonts/Mali-Regular.woff2) format("woff2");
 }
 
 @font-face {
@@ -113,7 +113,7 @@
   font-family: ABC Diatype;
   font-style: normal;
   font-weight: 400;
-  src: url(../assets/fonts/ABCDiatype-Regular.woff2) format("woff2")
+  src: url(../assets/fonts/ABCDiatype-Regular.woff2) format("woff2");
 }
 
 @font-face {
@@ -121,7 +121,7 @@
   font-family: ABC Diatype;
   font-style: normal;
   font-weight: 500;
-  src: url(../assets/fonts/ABCDiatype-Medium.woff2) format("woff2")
+  src: url(../assets/fonts/ABCDiatype-Medium.woff2) format("woff2");
 }
 
 @font-face {
@@ -129,7 +129,7 @@
   font-family: ABC Diatype;
   font-style: normal;
   font-weight: 700;
-  src: url(../assets/fonts/ABCDiatype-Bold.woff2) format("woff2")
+  src: url(../assets/fonts/ABCDiatype-Bold.woff2) format("woff2");
 }
 
 @font-face {
@@ -137,7 +137,7 @@
   font-family: ABC Diatype Mono;
   font-style: normal;
   font-weight: 400;
-  src: url(../assets/fonts/ABCDiatypeMono-Medium.woff2) format("woff2")
+  src: url(../assets/fonts/ABCDiatypeMono-Medium.woff2) format("woff2");
 }
 
 @font-face {
@@ -145,21 +145,25 @@
   font-family: ABC Gaisyr;
   font-style: normal;
   font-weight: 400;
-  src: url(../assets/fonts/ABCGaisyr-Regular.woff2) format("woff2")
+  src: url(../assets/fonts/ABCGaisyr-Regular.woff2) format("woff2");
 }
 
 @font-face {
-  font-family: 'Gilroy-Bold';
+  font-family: "Gilroy-Bold";
   font-style: normal;
   font-weight: normal;
-  src: local('Gilroy-Bold'), url(../assets/fonts/Gilroy-Bold.woff) format('woff');
+  src:
+    local("Gilroy-Bold"),
+    url(../assets/fonts/Gilroy-Bold.woff) format("woff");
 }
 
 @font-face {
-  font-family: 'Gilroy-Regular';
+  font-family: "Gilroy-Regular";
   font-style: normal;
   font-weight: normal;
-  src: local('Gilroy-Regular'), url(../assets/fonts/Gilroy-Regular.woff) format('woff');
+  src:
+    local("Gilroy-Regular"),
+    url(../assets/fonts/Gilroy-Regular.woff) format("woff");
 }
 
 body {
@@ -172,24 +176,32 @@ body {
     rgb(var(--background-start-rgb));
 }
 
-
 .cursor-blink {
-  animation: blink .5s infinite;
+  animation: blink 0.5s infinite;
 }
 
 @keyframes blink {
-  0% {opacity: 1}
-  50% {opacity: 0}
-  100% {opacity: 1}
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-.like-animation path, .like-animation * {
+.like-animation path,
+.like-animation * {
   fill: var(--color-primary);
   stroke: var(--color-primary);
 }
 
 .modal-shadow {
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+  box-shadow:
+    rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
 }
 
 .app-shimmer {
@@ -203,7 +215,7 @@ body {
 }
 
 .breathing-button::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 100%;
   height: 100%;
@@ -216,9 +228,8 @@ body {
   border-radius: inherit;
 }
 
-
 .breathing-button::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 100%;
   height: 100%;
@@ -226,7 +237,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   animation: pulse-animation 2s infinite;
-  animation-delay: .2s;
+  animation-delay: 0.2s;
   background: transparent;
   z-index: 1;
   border-radius: inherit;
@@ -249,7 +260,7 @@ body {
 }
 
 .breathing-button-primary::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 100%;
   height: 100%;
@@ -262,9 +273,8 @@ body {
   border-radius: inherit;
 }
 
-
 .breathing-button-primary::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 100%;
   height: 100%;
@@ -272,7 +282,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   animation: pulse-animation-primary 2s infinite;
-  animation-delay: .2s;
+  animation-delay: 0.2s;
   background: transparent;
   z-index: 1;
   border-radius: inherit;
@@ -311,15 +321,20 @@ body {
 }
 
 .image-carousel-whyus-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 300px;
-  background: rgb(2,0,36);
-  background: linear-gradient(0deg, rgba(2,0,36,0) 0%, rgba(1,0,23,0.5802696078431373) 28%, rgba(1,0,11,1) 67%, rgba(0,0,0,1) 100%);
-
+  background: rgb(2, 0, 36);
+  background: linear-gradient(
+    0deg,
+    rgba(2, 0, 36, 0) 0%,
+    rgba(1, 0, 23, 0.5802696078431373) 28%,
+    rgba(1, 0, 11, 1) 67%,
+    rgba(0, 0, 0, 1) 100%
+  );
 
   /*background: rgb(2,0,36);*/
   /*background: linear-gradient(0deg, rgba(2,0,36,0) 0%, rgba(1,0,11,1) 52%, rgba(0,0,0,1) 100%);*/
@@ -327,15 +342,20 @@ body {
 }
 
 .image-carousel-whyus-container::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0px;
   left: 0;
   width: 100%;
   height: 300px;
-  background: rgb(2,0,36);
-  background: linear-gradient(180deg, rgba(2,0,36,0) 0%, rgba(1,0,23,0.5802696078431373) 28%, rgba(1,0,11,1) 67%, rgba(0,0,0,1) 100%);
-
+  background: rgb(2, 0, 36);
+  background: linear-gradient(
+    180deg,
+    rgba(2, 0, 36, 0) 0%,
+    rgba(1, 0, 23, 0.5802696078431373) 28%,
+    rgba(1, 0, 11, 1) 67%,
+    rgba(0, 0, 0, 1) 100%
+  );
 
   /*background: rgb(2,0,36);*/
   /*background: linear-gradient(180deg, rgba(2,0,36,0) 0%, rgba(1,0,11,1) 52%, rgba(0,0,0,1) 100%);*/
@@ -348,23 +368,17 @@ body {
 
 .hero-image-container {
   -webkit-mask: linear-gradient(
-          90deg,
-          transparent,
-          white 20%,
-          white 80%,
-          transparent
+    90deg,
+    transparent,
+    white 20%,
+    white 80%,
+    transparent
   );
-  mask: linear-gradient(
-          90deg,
-          transparent,
-          white 20%,
-          white 80%,
-          transparent
-  );
+  mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
 }
 
 .hero-image-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -436,19 +450,13 @@ body {
 
 .mask-black {
   -webkit-mask: linear-gradient(
-          90deg,
-          transparent,
-          white 20%,
-          white 80%,
-          transparent
+    90deg,
+    transparent,
+    white 20%,
+    white 80%,
+    transparent
   );
-  mask: linear-gradient(
-          90deg,
-          transparent,
-          white 20%,
-          white 80%,
-          transparent
-  );
+  mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
 }
 
 .testimonial-animation {
@@ -492,7 +500,14 @@ body {
 }
 
 .border-animation.paused::before {
-  background-image: conic-gradient(var(--color-primary),var(--color-primary),var(--color-primary),var(--color-primary),var(--color-primary),var(--color-primary));
+  background-image: conic-gradient(
+    var(--color-primary),
+    var(--color-primary),
+    var(--color-primary),
+    var(--color-primary),
+    var(--color-primary),
+    var(--color-primary)
+  );
   /*animation-play-state: paused;*/
 }
 
@@ -501,20 +516,28 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   width: 100vw;
   height: 100vw;
-  background-image: conic-gradient(transparent,transparent,var(--color-primary),transparent,transparent,var(--color-primary),transparent,transparent);
+  background-image: conic-gradient(
+    transparent,
+    transparent,
+    var(--color-primary),
+    transparent,
+    transparent,
+    var(--color-primary),
+    transparent,
+    transparent
+  );
   animation: loadingbox 4s linear infinite;
 }
 
-
 @keyframes loadingbox {
   0% {
-    transform: translate(-50%,-50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
   }
   100% {
-    transform: translate(-50%,-50%) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
@@ -524,7 +547,7 @@ body {
 /*}*/
 
 .lottie-anim-demo svg {
-  zoom: 0.5
+  zoom: 0.5;
 }
 
 .canvasjs-chart-credit {
@@ -536,4 +559,19 @@ body {
   height: 100px !important;
   background: transparent !important;
   color: white !important;
+}
+
+.slick-dots li.slick-active button:before {
+  color: #fff !important;
+  font-size: 8px !important;
+}
+
+.slick-dots li button:before {
+  color: #fff !important;
+  font-size: 6px !important;
+}
+
+.slick-dots {
+  position: relative !important;
+  bottom: 0 !important;
 }

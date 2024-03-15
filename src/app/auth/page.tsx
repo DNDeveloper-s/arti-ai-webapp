@@ -1,12 +1,12 @@
 'use client';
-import React, {FormEvent, HTMLInputTypeAttribute, useContext, useState} from 'react';
+import React, { FormEvent, HTMLInputTypeAttribute, useContext, useState } from 'react';
 import Logo from '@/components/Logo';
 import Image from 'next/image';
-import {GrGoogle} from 'react-icons/gr';
+import { GrGoogle } from 'react-icons/gr';
 import Loader from '@/components/Loader';
-import {signIn} from 'next-auth/react';
-import {SnackbarContext} from '@/context/SnackbarContext';
-import {wait} from '@/helpers';
+import { signIn } from 'next-auth/react';
+import { SnackbarContext } from '@/context/SnackbarContext';
+import { wait } from '@/helpers';
 import Snackbar from '@/components/Snackbar';
 import GoogleSignInButton from '@/components/Auth/GoogleSigninButton';
 import AuthForm from '@/components/Auth/AuthForm';
@@ -93,6 +93,7 @@ export default function Auth() {
 			initValues={initValues}
 			submitButtonLabel={"Sign In"}
 			googleLabel={"Sign In with Google"}
+			facebookLabel={"Sign In with Facebook"}
 			handleFormSubmit={handleSignIn}
 			snackBarData={snackBarData}
 			successMessage={'Signed in successfully!'}

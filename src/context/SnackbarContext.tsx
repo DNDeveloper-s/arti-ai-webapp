@@ -1,28 +1,39 @@
-'use client';
+"use client";
 
-import React, {createContext, FC, useState} from 'react';
+import React, { createContext, FC, useState } from "react";
 
-interface ISnackbarData {
-	status: 'warning' | 'error' | 'success' | 'info',
-	message: string;
+export interface ISnackbarData {
+  status: "warning" | "error" | "success" | "info";
+  message: string;
 }
 
 export type SnackbarData = ISnackbarData | null | false;
 
 interface ISnackbarContext {
-	snackBarData: [snackBarData: SnackbarData, setSnackBarData: React.Dispatch<React.SetStateAction<SnackbarData>>]
+  snackBarData: [
+    snackBarData: SnackbarData,
+    setSnackBarData: React.Dispatch<React.SetStateAction<SnackbarData>>,
+  ];
 }
 
-export const SnackbarContext = createContext<ISnackbarContext>({} as ISnackbarContext);
+export const SnackbarContext = createContext<ISnackbarContext>(
+  {} as ISnackbarContext
+);
 
-const SnackbarContextProvider: FC<{children: React.ReactElement}> = (props) => {
-	const [snackBarData, setSnackBarData] = useState<SnackbarData>(null);
+const SnackbarContextProvider: FC<{ children: React.ReactElement }> = (
+  props
+) => {
+  const [snackBarData, setSnackBarData] = useState<SnackbarData>(null);
 
-	return <SnackbarContext.Provider value={{
-		snackBarData: [snackBarData, setSnackBarData]
-	}}>
-		{props.children}
-	</SnackbarContext.Provider>
-}
+  return (
+    <SnackbarContext.Provider
+      value={{
+        snackBarData: [snackBarData, setSnackBarData],
+      }}
+    >
+      {props.children}
+    </SnackbarContext.Provider>
+  );
+};
 
 export default SnackbarContextProvider;

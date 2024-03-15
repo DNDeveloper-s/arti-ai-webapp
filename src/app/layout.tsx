@@ -1,42 +1,63 @@
-'use client';
+"use client";
 
-import './globals.css'
-import type { Metadata } from 'next'
-import SnackbarContextProvider from '@/context/SnackbarContext';
-import React from 'react';
-import {SessionProvider} from 'next-auth/react';
-import {ConversationContextProvider, initConversationState} from '@/context/ConversationContext';
-import { Analytics } from '@vercel/analytics/react';
-import {EditVariantContextProvider} from '@/context/EditVariantContext';
+import "./globals.css";
+import type { Metadata } from "next";
+import SnackbarContextProvider from "@/context/SnackbarContext";
+import React from "react";
+import { SessionProvider } from "next-auth/react";
+import {
+  ConversationContextProvider,
+  initConversationState,
+} from "@/context/ConversationContext";
+import { Analytics } from "@vercel/analytics/react";
+import { EditVariantContextProvider } from "@/context/EditVariantContext";
+import { UserContextProvider } from "@/context/UserContext";
+import Providers from "./providers";
+import { NextUIProvider } from "@nextui-org/react";
 
 const metadata: Metadata = {
-  title: 'Arti AI',
-  description: 'Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI',
-}
+  title: "Arti AI",
+  description:
+    "Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-
   return (
     <html lang="en" className="dark">
       <body className="bg-black">
-        <SessionProvider>
-          <SnackbarContextProvider>
-            <ConversationContextProvider {...initConversationState}>
-              <EditVariantContextProvider>
-                <>
-                  {children}
-                  <div id='myportal' className="z-[1000] fixed top-0 left-0" />
-                  <div id='canvastoolsportal' className="z-[1001] fixed top-0 left-0" />
-                  <div id='contextmenuportal' className="z-[1002] fixed top-0 left-0" />
-                </>
-              </EditVariantContextProvider>
-            </ConversationContextProvider>
-          </SnackbarContextProvider>
-        </SessionProvider>
+        <NextUIProvider>
+          <SessionProvider>
+            <Providers>
+              <UserContextProvider status="loading">
+                <SnackbarContextProvider>
+                  <ConversationContextProvider {...initConversationState}>
+                    <EditVariantContextProvider>
+                      <>
+                        {children}
+                        <div
+                          id="myportal"
+                          className="z-[1000] fixed top-0 left-0"
+                        />
+                        <div
+                          id="canvastoolsportal"
+                          className="z-[1001] fixed top-0 left-0"
+                        />
+                        <div
+                          id="contextmenuportal"
+                          className="z-[1002] fixed top-0 left-0"
+                        />
+                      </>
+                    </EditVariantContextProvider>
+                  </ConversationContextProvider>
+                </SnackbarContextProvider>
+              </UserContextProvider>
+            </Providers>
+          </SessionProvider>
+        </NextUIProvider>
         <Analytics />
         {/*<Script*/}
         {/*  id={"gtag"}*/}
@@ -58,5 +79,5 @@ export default function RootLayout({
         {/*/>*/}
       </body>
     </html>
-  )
+  );
 }

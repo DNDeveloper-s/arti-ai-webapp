@@ -104,7 +104,7 @@ interface ElementDetails {
 	order?: number;
 }
 
-function parseRoughState(element: Pick<Element, 'x1' | 'x2' | 'y1' | 'y2' | 'type'>, roughOptions: Options) {
+export function parseRoughState(element: Pick<Element, 'x1' | 'x2' | 'y1' | 'y2' | 'type'>, roughOptions: Options) {
 	const {type, x1, y1, x2, y2} = element;
 	const options = roughOptions;
 	let rough;
@@ -192,7 +192,7 @@ function orientation(p1: Point, p2: Point, p3: Point) {
 	return (p2.x - p1.x) * (p3.y - p1.y) - (p3.x - p1.x) * (p2.y - p1.y);
 }
 
-const wrapText = function(ctx, text, x, y, maxWidth, lineHeight) {
+export const wrapText = function(ctx, text, x, y, maxWidth, lineHeight) {
 	// First, start by splitting all of our text into words, but splitting it into an array split by spaces
 	let words = text.split(' ');
 	let line = ''; // This will store the text of the current line
@@ -781,13 +781,14 @@ function getElementCoordinatedWithElementRect(rectCoords: Coords, type: ElementT
 
 interface EditCanvasProps {
 	canvasState?: string | null; 
+	sampleState?: string | null;
 	imageObject?: VariantImageMap | null;
 	imageUrl: string | null; 
 	handleClose: () => void; 
 	handleExport: (url: string, oldUrl?: string | null, state?: string, newImage?: string, bgImage?: string) => void
 }
 
-export default function EditCanvas({canvasState, imageObject, imageUrl, handleExport, handleClose}: EditCanvasProps) {
+export default function EditCanvas({sampleState, canvasState, imageObject, imageUrl, handleExport, handleClose}: EditCanvasProps) {
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const drawCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -805,7 +806,11 @@ export default function EditCanvas({canvasState, imageObject, imageUrl, handleEx
 	const [elementRects, setElementRects] = useState<SelectedRect[]>([]);
 	const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 
-	useEffect(() => {}, [])
+	useEffect(() => {
+		if(sampleState) {
+			setElements(JSON.parse(sampleState));
+		}
+	}, [sampleState])
 
 	// const [selectionCanvasElement, setSelectionCanvasElement] = useState<SelectionElement | null>(null);
 
@@ -1523,26 +1528,6 @@ export default function EditCanvas({canvasState, imageObject, imageUrl, handleEx
 						<Loader />
 					</div>
 				</div>}
-				{/* {bgImage && <div className="relative w-full h-full pointer-events-none"> */}
-					{/* <Image1 key={bgImage} src={bgImage} alt="Image" className='w-full h-full' width={500} height={500} /> */}
-					{/* {exporting && <div className='flex items-center z-30 justify-center absolute top-0 left-0 w-full h-full bg-black bg-opacity-30'>
-						<Loader />
-					</div>}
-					<SwipeableViews
-						axis="x"
-						index={activeTab}
-						onChangeIndex={(e) => setActiveTab(e)}
-						scrolling={"false"}
-						ignoreNativeScroll={true}
-						disabled={true}
-						style={{height: '100%'}}
-						containerStyle={{height: '100%'}}
-					>
-						{bgImages.map((imageUrl, index) => (
-							<Image1 key={imageUrl} src={imageUrl} alt="Image" className='w-full h-full' width={500} height={500} />
-						))}
-					</SwipeableViews> */}
-				{/* </div>} */}
 			</div>
 			<Portal id='canvastoolsportal'>
 				<div ref={toolItemRef} style={{opacity: containerPos.top !== 0 && containerPos.left !== 0 ? 1 : 0, top: containerPos.top, left: containerPos.left}} className='absolute left-[calc(100%+10px)] top-1/2 transform -translate-y-1/2 z-20'>

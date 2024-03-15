@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import ArtiBot from '@/components/ArtiBot/ArtiBot';
-import {dummy} from '@/constants/dummy';
-import React, {useEffect} from 'react';
-import {redirect, useParams, useSearchParams} from 'next/navigation';
-import {ConversationType, IConversation} from '@/interfaces/IConversation';
-import {createConversation, getConversation, useConversation} from '@/context/ConversationContext';
-import useSessionToken from '@/hooks/useSessionToken';
-import ArtiBotPage from './ArtiBot/ConversationPage';
+import ArtiBot from "@/components/ArtiBot/ArtiBot";
+import { dummy } from "@/constants/dummy";
+import React, { useEffect } from "react";
+import { redirect, useParams, useSearchParams } from "next/navigation";
+import { ConversationType, IConversation } from "@/interfaces/IConversation";
+import {
+  createConversation,
+  getConversation,
+  useConversation,
+} from "@/context/ConversationContext";
+import useSessionToken from "@/hooks/useSessionToken";
+import ArtiBotPage from "./ArtiBot/ConversationPage";
+import { useGetUserProviders } from "@/api/user";
+import { useUser } from "@/context/UserContext";
 
 // Fetch the conversation from the database
 // If the conversation doesn't exist, create a new conversation
@@ -25,51 +31,74 @@ import ArtiBotPage from './ArtiBot/ConversationPage';
 // 3. When the user dislikes the ad creative
 // 4. When the user comments on the ad creative
 
-export default function Conversation({type = ConversationType.AD_CREATIVE}: {type: ConversationType}) {
-	let conversation: IConversation | undefined;
-	const {state, dispatch} = useConversation();
-	// const params = useParams();
-	const searchParams = useSearchParams();
-	const token = useSessionToken();
-	const conversationId = searchParams.get('conversation_id');
+export default function Conversation({
+  type = ConversationType.AD_CREATIVE,
+}: {
+  type: ConversationType;
+}) {
+  let conversation: IConversation | undefined;
+  const { state, dispatch } = useConversation();
+  // const params = useParams();
+  const searchParams = useSearchParams();
+  const token = useSessionToken();
+  const conversationId = searchParams.get("conversation_id");
+  const { data: accounts } = useGetUserProviders();
+  const { setAccounts } = useUser();
 
-	useEffect(() => {
-		if(conversationId && token) getConversation(dispatch, conversationId.toString());
-	}, [dispatch, token, conversationId])
+  useEffect(() => {
+    if (accounts) {
+      setAccounts(accounts);
+    }
+  }, [setAccounts, accounts]);
 
-	useEffect(() => {
-		if(state.loading.conversation || !dispatch || !conversationId) return;
+  useEffect(() => {
+    if (conversationId && token)
+      getConversation(dispatch, conversationId.toString());
+  }, [dispatch, token, conversationId]);
 
-		if(!state.conversation.map || !state.conversation.map[conversationId]) {
-			const projectName = searchParams.get('project_name');
-			if(!projectName) return redirect('/artibot');
-			const newConversation: IConversation = {
-				id: Array.isArray(conversationId) ? conversationId[0] : conversationId,
-				messages: [],
-				last_activity: new Date().toISOString(),
-				title: 'New Chat',
-				conversation_type: type,
-				// Check if the conversation has any activity
-				has_activity: false,
-				project_name: projectName ? projectName : '',
-			}
-			createConversation(dispatch, newConversation);
-		}
-	}, [dispatch, state.loading.conversation, state.conversation.map, conversationId, state.conversation, type])
+  useEffect(() => {
+    if (state.loading.conversation || !dispatch || !conversationId) return;
 
-	useEffect(() => {
-		console.log('mounted | Conversation - ');
-	}, [])
+    if (!state.conversation.map || !state.conversation.map[conversationId]) {
+      const projectName = searchParams.get("project_name");
+      if (!projectName) return redirect("/artibot");
+      const newConversation: IConversation = {
+        id: Array.isArray(conversationId) ? conversationId[0] : conversationId,
+        messages: [],
+        last_activity: new Date().toISOString(),
+        title: "New Chat",
+        conversation_type: type,
+        // Check if the conversation has any activity
+        has_activity: false,
+        project_name: projectName ? projectName : "",
+      };
+      createConversation(dispatch, newConversation);
+    }
+  }, [
+    dispatch,
+    state.loading.conversation,
+    state.conversation.map,
+    conversationId,
+    state.conversation,
+    type,
+    searchParams,
+  ]);
 
-	return (
-		<main>
-			{/*<Logo />*/}
-			<div className="grid grid-cols-[1fr] h-screen">
-				{/*<div className="bg-background">*/}
+  useEffect(() => {
+    console.log("mounted | Conversation - ");
+  }, []);
 
-				{/*</div>*/}
-				<ArtiBotPage conversation={state.conversation.map[conversationId.toString()]} />
-			</div>
-		</main>
-	)
+  return (
+    <main>
+      {/*<Logo />*/}
+      <div className="grid grid-cols-[1fr] h-screen">
+        {/*<div className="bg-background">*/}
+
+        {/*</div>*/}
+        <ArtiBotPage
+          conversation={state.conversation.map[conversationId.toString()]}
+        />
+      </div>
+    </main>
+  );
 }

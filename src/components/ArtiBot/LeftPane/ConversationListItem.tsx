@@ -1,18 +1,29 @@
-import React, {FC, useEffect, useState} from 'react';
-import Link from 'next/link';
-import {getConversationURL} from '@/helpers';
-import {ConversationType} from '@/interfaces/IConversation';
-import useConversations from '@/hooks/useConversations';
-import {useParams, useSearchParams} from 'next/navigation';
-import useAdCreatives from '@/hooks/useAdCreatives';
-import Image1, {StaticImageData} from 'next/image';
-import { useConversation } from '@/context/ConversationContext';
-import { IoMdImages } from 'react-icons/io';
+import React, { FC, useEffect, useState } from "react";
+import Link from "next/link";
+import { getConversationURL } from "@/helpers";
+import { ConversationType } from "@/interfaces/IConversation";
+import useConversations from "@/hooks/useConversations";
+import { useParams, useSearchParams } from "next/navigation";
+import useAdCreatives from "@/hooks/useAdCreatives";
+import Image1, { StaticImageData } from "next/image";
+import { useConversation } from "@/context/ConversationContext";
+import { IoMdImages } from "react-icons/io";
 
-export function NoImage({className, children}: {className?: string, children?: React.ReactNode}) {
-	return (
-		<div className={'w-full h-full flex rounded items-center justify-center text-xl text-gray-600 bg-secondaryBackground ' + (className ?? '')}>
-			{/* <svg
+export function NoImage({
+  className,
+  children,
+}: {
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div
+      className={
+        "w-full h-full flex rounded items-center justify-center text-xl text-gray-600 bg-secondaryBackground " +
+        (className ?? "")
+      }
+    >
+      {/* <svg
 				xmlns="http://www.w3.org/2000/svg"
 				xmlSpace="preserve"
 				width={512}
@@ -29,99 +40,176 @@ export function NoImage({className, children}: {className?: string, children?: R
 					data-original="#000000"
 				/>
 			</svg> */}
-			<IoMdImages />
-			{children}
-		</div>
-	)
+      <IoMdImages />
+      {children}
+    </div>
+  );
 }
 
 export type ImageType = StaticImageData | string;
 interface CardStackImagesProps {
-	images: ImageType[];
+  images: ImageType[];
 }
-export const CardStackImages: FC<CardStackImagesProps> = ({images: _images}) => {
-	const [images, setImages] = useState<(ImageType | null)[]>([null, null]);
-	const [s, setS] = useState('');
+export const CardStackImages: FC<CardStackImagesProps> = ({
+  images: _images,
+}) => {
+  const [images, setImages] = useState<(ImageType | null)[]>([null, null]);
+  const [s, setS] = useState("");
 
-	function loadImage(image: ImageType, index: number) {
-		const img = new Image();
-		img.src = image as string;
+  function loadImage(image: ImageType, index: number) {
+    const img = new Image();
+    img.src = image as string;
 
-		img.onerror = () => {
-			setS('e ' + img.src);
-			setImages(c => {
-				c[index] = null;
-				return c;
-			});
-		}
+    img.onerror = () => {
+      setS("e " + img.src);
+      setImages((c) => {
+        c[index] = null;
+        return c;
+      });
+    };
 
-		img.onload = () => {
-			setS('s');
-			setImages(c => {
-				c[index] = image;
-				return c;
-			});
-		}
-	} 
+    img.onload = () => {
+      setS("s");
+      setImages((c) => {
+        c[index] = image;
+        return c;
+      });
+    };
+  }
 
-	useEffect(() => {
-		loadImage(_images[0], 0);
-		loadImage(_images[1], 1);
-	}, [_images])
+  useEffect(() => {
+    loadImage(_images[0], 0);
+    loadImage(_images[1], 1);
+  }, [_images]);
 
-	return (
-		<>
-			<div className={'w-8 h-8 rounded relative flex-shrink-0'}>
-				{images[1] ? <div
-					className={'absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-600'}>
-					<Image1 width={100} height={100} className={'w-full h-full object-cover rounded'} src={images[1]} alt={'Carousel Image'}/>
-				</div> : <div className={'absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-700'}>
-					<NoImage />
-				</div>}
-				{images[0] ? <div className={'absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-100'}>
-					<Image1 width={100} height={100} className={'w-full h-full object-cover rounded'} src={images[0]} alt={'Carousel Image'}/>
-				</div> : <div className={'absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-700'}>
-					<NoImage />
-				</div>}
-			</div>
-			{/*<span className='text-white'>{s}</span>*/}
-		</>
-	)
-}
+  return !images[1] && !images[2] ? (
+    <div className={"w-8 h-8 rounded relative flex-shrink-0"}>
+      <div
+        className={
+          "absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-700"
+        }
+      >
+        <NoImage />
+      </div>
+    </div>
+  ) : (
+    <>
+      <div className={"w-8 h-8 rounded relative flex-shrink-0"}>
+        {images[1] ? (
+          <div
+            className={
+              "absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-600"
+            }
+          >
+            <Image1
+              width={100}
+              height={100}
+              className={"w-full h-full object-cover rounded"}
+              src={images[1]}
+              alt={"Carousel Image"}
+            />
+          </div>
+        ) : (
+          <div
+            className={
+              "absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-700"
+            }
+          >
+            <NoImage />
+          </div>
+        )}
+        {images[0] ? (
+          <div
+            className={
+              "absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-100"
+            }
+          >
+            <Image1
+              width={100}
+              height={100}
+              className={"w-full h-full object-cover rounded"}
+              src={images[0]}
+              alt={"Carousel Image"}
+            />
+          </div>
+        ) : (
+          <div
+            className={
+              "absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-700"
+            }
+          >
+            <NoImage />
+          </div>
+        )}
+      </div>
+      {/*<span className='text-white'>{s}</span>*/}
+    </>
+  );
+};
 
 interface ConversationListItemProps {
-	conversationId: string;
+  conversationId: string;
 }
-const ConversationListItem: FC<ConversationListItemProps> = ({conversationId, ...props}) => {
-	const {getConversationById} = useConversations();
-	const [images, setImages] = useState<ImageType[]>([]);
-	const {adVariantsByConversationId, getLastAdCreativeByConversationId, sortedConversationIds} = useAdCreatives();
-	const searchParams = useSearchParams();
-	const isActive = searchParams.get('conversation_id') === conversationId;
-	const {state} = useConversation();
-	
-	useEffect(() => {
-		const list = getLastAdCreativeByConversationId(conversationId);
-		if(!list) {
-			return setImages([]);
-		}
-		const variantImages = list.variants.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map(v => v.imageUrl);
-		setImages(variantImages);
-	}, [getLastAdCreativeByConversationId, conversationId, state.adCreative.list]);
+const ConversationListItem: FC<ConversationListItemProps> = ({
+  conversationId,
+  ...props
+}) => {
+  const { getConversationById } = useConversations();
+  const [images, setImages] = useState<ImageType[]>([]);
+  const {
+    adVariantsByConversationId,
+    getLastAdCreativeByConversationId,
+    sortedConversationIds,
+  } = useAdCreatives();
+  const searchParams = useSearchParams();
+  const isActive = searchParams.get("conversation_id") === conversationId;
+  const { state } = useConversation();
 
-	useEffect(() => {
-		// console.log('testing variantImages - ', images, conversationId);
-	}, [images])
+  useEffect(() => {
+    const list = getLastAdCreativeByConversationId(conversationId);
+    if (!list) {
+      return setImages([]);
+    }
+    const variantImages = list.variants
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )
+      .map((v) => v.imageUrl);
+    setImages(variantImages);
+  }, [
+    getLastAdCreativeByConversationId,
+    conversationId,
+    state.adCreative.list,
+  ]);
 
-	return (
-		<Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)} key={conversationId} className={'flex gap-4 mx-2 items-start px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-900 rounded overflow-hidden transition-all text-sm leading-6 ' + (isActive ? 'bg-gray-900' : 'bg-gray-950')}>
-			<CardStackImages images={images} />
-			<div className={'flex-shrink-0 flex flex-col justify-center gap-1'}>
-				<p className={(isActive ? 'text-white' : ' truncate')}>{getConversationById(conversationId)?.project_name}</p>
-				<p className={'text-xs text-gray-500'}>{getConversationById(conversationId)?.conversation_type === ConversationType.STRATEGY ? 'Strategy' : 'Ad Creative'}</p>
-			</div>
-		</Link>
-	)
+  useEffect(() => {
+    // console.log('testing variantImages - ', images, conversationId);
+  }, [images]);
+
+  return (
+    <Link
+      href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)}
+      key={conversationId}
+      className={
+        "flex gap-4 mx-2 items-start px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-900 rounded overflow-hidden transition-all text-sm leading-6 " +
+        (isActive ? "bg-gray-900" : "bg-gray-950")
+      }
+    >
+      <CardStackImages images={images} />
+      <div className={"flex-shrink-0 flex flex-col justify-center gap-1"}>
+        <p className={isActive ? "text-white" : " truncate"}>
+          {getConversationById(conversationId)?.project_name}
+        </p>
+        <p className={"text-xs text-gray-500"}>
+          {getConversationById(conversationId)?.conversation_type ===
+          ConversationType.STRATEGY
+            ? "Strategy"
+            : "Ad Creative"}
+        </p>
+      </div>
+    </Link>
+  );
 };
 
 export default ConversationListItem;

@@ -1,5 +1,5 @@
-import {Dispatch, FC, SetStateAction, useEffect, useRef, useState} from 'react';
-import {AdCreativeVariant} from '@/interfaces/IAdCreative';
+import { Dispatch, FC, SetStateAction, useEffect, useRef, useState } from 'react';
+import { AdCreativeVariant } from '@/interfaces/IAdCreative';
 import { AD_VARIANT_MODE } from '../VariantItem';
 import { useEditVariant } from '@/context/EditVariantContext';
 
@@ -10,10 +10,10 @@ interface TabViewProps {
 	setShowConfirmModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function TabViewItem({container, isActive, label, tabItem, index}) {
+function TabViewItem({ container, isActive, label, tabItem, index }) {
 	const ref = useRef<HTMLDivElement>(null);
 	useEffect(() => {
-		if(!ref.current || !isActive) return;
+		if (!ref.current || !isActive) return;
 		// ref.current.scrollIntoView({
 		// 	behavior: 'smooth',
 		// 	block: 'nearest',
@@ -27,8 +27,8 @@ function TabViewItem({container, isActive, label, tabItem, index}) {
 	)
 }
 
-const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items, setShowConfirmModal}) => {
-	const {state} = useEditVariant();
+const TabView: FC<TabViewProps> = ({ activeAdTab, setActiveAdTab, items, setShowConfirmModal }) => {
+	const { state } = useEditVariant();
 
 	const tabItemProps = (tabItem: AdCreativeVariant) => {
 		const isActive = tabItem.id === activeAdTab.id;
@@ -37,7 +37,7 @@ const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items, setShowC
 				className: 'flex py-3 px-4 rounded-t-lg cursor-pointer hover:scale-[1.04] transition-all flex-col-reverse items-center ' + (isActive ? ' bg-primary ' : ' bg-secondaryBackground '),
 				onClick: () => {
 					const isEdittingOtherVariant = state.variant && state.variant.id !== tabItem.id;
-					if(isEdittingOtherVariant) {
+					if (isEdittingOtherVariant) {
 						setShowConfirmModal(true);
 						return;
 					}
@@ -48,7 +48,7 @@ const TabView: FC<TabViewProps> = ({activeAdTab, setActiveAdTab, items, setShowC
 				className: 'text-xs text-white whitespace-nowrap' + (isActive ? ' text-opacity-100' : ' text-opacity-60')
 			},
 			icon: {
-				style: {fontSize: '1.7em'}
+				style: { fontSize: '1.7em' }
 			}
 		})
 	}
