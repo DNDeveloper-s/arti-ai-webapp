@@ -15,7 +15,7 @@ import axios, { AxiosError } from "axios";
 import { access } from "fs";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { useCallback, useContext } from "react";
-import { IAdCampaign } from "@/interfaces/ISocial";
+import { IAd, IAdCampaign, IAdSet } from "@/interfaces/ISocial";
 
 export function useUserPages(
   accessToken?: string | null
@@ -427,7 +427,7 @@ export function useGetCampaigns({
 }: {
   accessToken: string | null;
   accountId: string | null;
-}) {
+}): UseQueryResult<IAdCampaign[], Error> {
   const getCampaigns = async ({ queryKey }: QueryFunctionContext) => {
     const [, accessToken, accountId] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
@@ -457,31 +457,68 @@ export function useGetCampaigns({
 export function useGetAdSets({
   accessToken,
   accountId,
-  campaignId,
+  campaignIds,
 }: {
   accessToken: string | null;
   accountId: string | null;
-  campaignId: string | null;
-}): UseQueryResult<any, Error> {
+  campaignIds?: string[] | null;
+}): UseQueryResult<IAdSet[], Error> {
   const getAdSets = async ({ queryKey }: QueryFunctionContext) => {
-    const [, accessToken, accountId, campaignId] = queryKey;
+    const [, accessToken, accountId, campaignIds] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
-    if (!campaignId) throw new Error("Campaign id is required");
+    if (!campaignIds) throw new Error("Campaign id is required");
     const response = await axios.get(ROUTES.ADS.ADSETS, {
       params: {
         access_token: accessToken,
         account_id: accountId,
-        campaign_id: campaignId,
+        campaign_ids: campaignIds,
       },
     });
     return response.data.data;
   };
 
   return useQuery({
-    queryKey: API_QUERIES.GET_ADSETS(accessToken, accountId, campaignId),
+    queryKey: API_QUERIES.GET_ADSETS(accessToken, accountId, campaignIds),
     queryFn: getAdSets,
-    enabled: !!accessToken && !!accountId && !!campaignId,
+    enabled: !!accessToken && !!accountId && !!campaignIds,
+    retry(failureCount, error) {
+      if (error instanceof Error && error instanceof AxiosError) {
+        return false;
+      }
+      return failureCount < 3;
+    },
+  });
+}
+
+export function useGetAds({
+  accessToken,
+  accountId,
+  adSetIds,
+}: {
+  accessToken: string | null;
+  accountId: string | null;
+  adSetIds?: string[] | null;
+}): UseQueryResult<IAd[], Error> {
+  const getAds = async ({ queryKey }: QueryFunctionContext) => {
+    const [, accessToken, accountId, adSetIds] = queryKey;
+    if (!accessToken) throw new Error("Access token is required");
+    if (!accountId) throw new Error("Account id is required");
+    if (!adSetIds) throw new Error("Ad set id is required");
+    const response = await axios.get(ROUTES.ADS.AD_ENTITIES, {
+      params: {
+        access_token: accessToken,
+        account_id: accountId,
+        adset_ids: adSetIds,
+      },
+    });
+    return response.data.data;
+  };
+
+  return useQuery({
+    queryKey: API_QUERIES.GET_ADS(accessToken, accountId, adSetIds),
+    queryFn: getAds,
+    enabled: !!accessToken && !!accountId && !!adSetIds,
     retry(failureCount, error) {
       if (error instanceof Error && error instanceof AxiosError) {
         return false;

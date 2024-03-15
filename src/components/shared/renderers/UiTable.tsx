@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import React, { Key } from "react";
+import React, { Key, ReactNode } from "react";
 import { FiPlus } from "react-icons/fi";
 import { GoSearch } from "react-icons/go";
 import { IoChevronDown } from "react-icons/io5";
@@ -28,6 +28,9 @@ interface UiTableProps {
   pronoun?: string;
   selectedKeys: Selection;
   setSelectedKeys: (keys: Selection) => any;
+  isLoading?: boolean;
+  loadingContent?: ReactNode;
+  emptyContent?: ReactNode;
 }
 export default function UiTable(props: UiTableProps) {
   const {
@@ -230,6 +233,8 @@ export default function UiTable(props: UiTableProps) {
     onClear,
   ]);
 
+  const pluralPronoun = props.pronoun ? props.pronoun + "s" : "items";
+
   const handleSelectionChange: (keys: Selection) => any = (keys: Selection) => {
     console.log("keys - ", keys);
     setSelectedKeys(keys as any);
@@ -316,7 +321,16 @@ export default function UiTable(props: UiTableProps) {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody emptyContent={"No users found"} items={sortedItems}>
+      <TableBody
+        isLoading={props.isLoading}
+        loadingContent={props.loadingContent ?? `Loading ${pluralPronoun}...`}
+        emptyContent={
+          props.isLoading
+            ? ""
+            : props.emptyContent ?? `No ${pluralPronoun} found`
+        }
+        items={sortedItems}
+      >
         {(item) => (
           <TableRow key={item.id}>
             {(columnKey) => (

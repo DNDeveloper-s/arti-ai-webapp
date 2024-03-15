@@ -34,10 +34,11 @@ import useCampaignStore, { CampaignTab } from "@/store/campaign";
 import CampaignView from "./components/Campaign/CampaignView";
 import TabView from "./components/TabView";
 import AdsetView from "./components/Adset/AdsetView";
+import AdsView from "./components/Ads/AdsView";
 
 interface DeployAdModalContentProps {}
 function DeployAdModalContent(props: DeployAdModalContentProps) {
-  const { selectedTab } = useCampaignStore();
+  const { selected } = useCampaignStore();
   return (
     <ModalContent>
       {(onClose) => (
@@ -46,8 +47,9 @@ function DeployAdModalContent(props: DeployAdModalContentProps) {
           <ModalBody>
             <TabView />
             <div className="!p-4">
-              {selectedTab === CampaignTab.CAMPAIGNS && <CampaignView />}
-              {selectedTab === CampaignTab.ADSETS && <AdsetView />}
+              {selected.tab === CampaignTab.CAMPAIGNS && <CampaignView />}
+              {selected.tab === CampaignTab.ADSETS && <AdsetView />}
+              {selected.tab === CampaignTab.ADS && <AdsView />}
             </div>
           </ModalBody>
         </>

@@ -8,6 +8,8 @@ import Modal from "@/components/Modal";
 import DeployView from "./Deploy/DeployView";
 import CreateSocialPostModal from "./Deploy/Post/CreateSocialPostModal";
 import DeployAdModal from "./Deploy/Ad/DeployAdModal";
+import { useUser } from "@/context/UserContext";
+import ConnectProviderModal from "./Deploy/ConnectProviderModal";
 
 export enum UserChoice {
   post,
@@ -20,6 +22,7 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
     useContext(SnackbarContext).snackBarData;
   const [showModal, setShowModal] = useState(false);
   const [userChoice, setUserChoice] = useState<UserChoice | null>(null);
+  const { state } = useUser();
 
   const handleUserChoice = async (choice: UserChoice) => {
     if (!session || !session.user) {
@@ -41,6 +44,12 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
   const handleClose = () => {
     setUserChoice(null);
   };
+
+  const hasNoAccount = (state.data?.accounts ?? []).length === 0;
+
+  if (hasNoAccount) {
+    return <ConnectProviderModal />;
+  }
 
   return (
     <>

@@ -36,8 +36,13 @@ const API_QUERIES = {
   GET_ADSETS: (
     access_token?: string | null,
     account_id?: string | null,
-    campaign_id?: string | null
-  ) => ["get-adsets", access_token, account_id, campaign_id],
+    campaign_ids?: string[] | null
+  ) => ["get-adsets", access_token, account_id, campaign_ids],
+  GET_ADS: (
+    access_token?: string | null,
+    account_id?: string | null,
+    adset_ids?: string[] | null
+  ) => ["get-ads", access_token, account_id, adset_ids],
 };
 
 export default API_QUERIES;

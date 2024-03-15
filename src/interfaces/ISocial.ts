@@ -72,3 +72,32 @@ export interface IAdCampaign {
   effective_status: string;
   id: string;
 }
+
+export interface IAdSet {
+  id: string;
+  name: string;
+  optimization_goal: string;
+  bid_strategy: string;
+  status: string;
+  effective_status: string;
+  campaign_id: string;
+}
+
+export interface IAd {
+  id: string;
+  name: string;
+  status: string;
+  effective_status: string;
+  adset_id: string;
+  campaign_id: string;
+  adlabels?: string[];
+  adset: {
+    name: string;
+    id: string;
+    bid_strategy: string;
+  };
+  bid_amount: number;
+  last_updated_by_app_id: string;
+  preview_shareable_link?: string;
+  ad_active_time: string;
+}
