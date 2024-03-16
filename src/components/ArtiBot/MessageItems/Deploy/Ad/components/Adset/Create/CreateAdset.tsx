@@ -1,732 +1,501 @@
-import { useContext, useEffect, useState } from "react";
-import api from "../../../api/arti_api";
-import ActionButton from "../../ActionButton";
-import SwitchComponent from "../../SwitchComponent";
-import axios from "axios";
-import { SnackbarContext } from "@/context/SnackbarContext";
-import { ROUTES } from "@/config/api-config";
+import {
+  ICreateAdset,
+  useCreateAdset,
+  useGetAdAccountId,
+  useGetCampaigns,
+} from "@/api/user";
+import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Button,
+  Input,
+  Switch,
+} from "@nextui-org/react";
+import { DatePicker } from "antd";
+import { Key, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { object, string } from "yup";
+import SelectCountries from "./SelectCountries";
+import SelectZipCodes from "./SelectZipCodes";
+import { Platform, useUser } from "@/context/UserContext";
+import dayjs, { Dayjs } from "dayjs";
+import Element from "@/components/shared/renderers/Element";
+import useCampaignStore, { CampaignTab } from "@/store/campaign";
 
-const delay = (delay: number) =>
-  new Promise((res) => {
-    setTimeout(res, delay);
+{
+  /* <option value="">None</option>
+<option value="APP_INSTALLS">App Installs</option>
+<option value="AD_RECALL_LIFT">Ad Recall Lift</option>
+<option value="ENGAGED_USERS">Engaged Users</option>
+<option value="EVENT_RESPONSES">Event Responses</option>
+<option value="IMPRESSIONS">Impressions</option>
+<option value="LEAD_GENERATION">Lead Generation</option>
+<option value="LINK_CLICKS">Link Clicks</option>
+<option value="OFFSITE_CONVERSIONS">Offsite Conversions</option>
+<option value="PAGE_LIKES">Page Likes</option>
+<option value="POST_ENGAGEMENT">Post Engagement</option>
+<option value="REACH">Reach</option>
+<option value="LANDING_PAGE_VIEWS">Landing Page Views</option>
+<option value="VALUE">Value</option>
+<option value="THRUPLAY">ThruPlay</option>
+<option value="SOCIAL_IMPRESSIONS">Social Impressions</option> */
+}
+
+const OPTIMISATION_GOALS = [
+  { name: "None", uid: "" },
+  { name: "App Installs", uid: "APP_INSTALLS" },
+  { name: "Ad Recall Lift", uid: "AD_RECALL_LIFT" },
+  { name: "Engaged Users", uid: "ENGAGED_USERS" },
+  { name: "Event Responses", uid: "EVENT_RESPONSES" },
+  { name: "Impressions", uid: "IMPRESSIONS" },
+  { name: "Lead Generation", uid: "LEAD_GENERATION" },
+  { name: "Link Clicks", uid: "LINK_CLICKS" },
+  { name: "Offsite Conversions", uid: "OFFSITE_CONVERSIONS" },
+  { name: "Page Likes", uid: "PAGE_LIKES" },
+  { name: "Post Engagement", uid: "POST_ENGAGEMENT" },
+  { name: "Reach", uid: "REACH" },
+  { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
+  { name: "Value", uid: "VALUE" },
+  { name: "ThruPlay", uid: "THRUPLAY" },
+  { name: "Social Impressions", uid: "SOCIAL_IMPRESSIONS" },
+];
+
+const getBillingEventList = (optimizationGoal: string) => {
+  switch (optimizationGoal) {
+    case "THRUPLAY":
+      return [
+        { name: "Thruplay", uid: "THRUPLAY" },
+        { name: "Impressions", uid: "IMPRESSIONS" },
+      ];
+    case "LINK_CLICKS":
+      return [
+        { name: "Link Clicks", uid: "LINK_CLICKS" },
+        { name: "Impressions", uid: "IMPRESSIONS" },
+      ];
+    default:
+      return [{ name: "Impressions", uid: "IMPRESSIONS" }];
+  }
+};
+
+const CUSTOM_AUDIENCES = [
+  { name: "Website Audience", uid: "website_audience" },
+  { name: "Audience", uid: "audience" },
+];
+
+const ZIP_CODES = [
+  { uid: "10001", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10002", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10003", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10004", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10005", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10006", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10007", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10008", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10009", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10010", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10011", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10012", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10013", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10014", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10015", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10016", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10017", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10018", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10019", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10020", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10021", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10022", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10023", name: "UA Ukraine 123 Chernyakhiv" },
+  { uid: "10024", name: "UA Ukraine 123 Chernyakhiv" },
+];
+
+type CreateAdsetFormValues = Omit<
+  ICreateAdset,
+  "targeting" | "promoted_object" | "start_time" | "end_time"
+> & {
+  countries: string;
+  zip_codes: string;
+  demographics: string;
+  start_time: Dayjs;
+  end_time: Dayjs;
+};
+
+const validationSchema = object({
+  name: string().required("Adset Name is required"),
+  daily_budget: string().required("Daily Budget is required"),
+  bid_amount: string().required("Bid Amount is required"),
+  billing_event: string().required("Billing Event is required"),
+  optimization_goal: string().required("Optimization Goal is required"),
+  status: string().required("Status is required"),
+  start_time: string().required("Start Time is required"),
+  end_time: string().required("End Time is required"),
+  countries: string().required("Countries is required"),
+  campaign_id: string().required("Campaign ID is required"),
+  zip_codes: string(),
+  demographics: string(),
+});
+
+export default function CreateAdset() {
+  const resolver = useYupValidationResolver(validationSchema);
+  const { handleSubmit, formState, register, setValue, watch } =
+    useForm<CreateAdsetFormValues>({
+      resolver,
+    });
+  const { state } = useUser();
+  const accessToken = Platform.getPlatform(
+    state.data?.facebook
+  ).userAccessToken;
+  const { data: accountId } = useGetAdAccountId(accessToken);
+  const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns({
+    accessToken,
+    accountId,
   });
 
-interface UserInterest {
-  id: string;
-  name: string;
-  type: string;
-  path: any[];
-  audience_size_lower_bound: number;
-  audience_size_upper_bound: number;
-  description?: string;
-}
+  const {
+    mutate: postCreateAdset,
+    isPending: isCreating,
+    isSuccess,
+  } = useCreateAdset();
 
-// Define the data object
-interface Location {
-  key: string;
-  name: string;
-  type: string;
-  country_code: string;
-  country_name: string;
-  region: string;
-  primary_city: string;
-  region_id: number;
-  primary_city_id: number;
-  supports_region: boolean;
-  supports_city: boolean;
-}
+  const { setCreateState } = useCampaignStore();
 
-interface Country {
-  code: string;
-  name: string;
-}
+  const campaignValue = watch("campaign_id");
+  const optimisationValue = watch("optimization_goal");
+  const billingEventValue = watch("billing_event");
+  const countryValue = watch("countries");
+  const zipCodeValue = watch("zip_codes");
+  const demographicsValue = watch("demographics");
+  const statusValue = watch("status");
+  const startTimeValue = watch("start_time");
+  const endTimeValue = watch("end_time");
 
-export default function CreateAdset({
-  accessToken,
-  campaignId,
-  campaignObjective,
-  onAdsetCreation,
-}: {
-  accessToken: string;
-  campaignId?: string;
-  campaignObjective?: string;
-  onAdsetCreation: any;
-}) {
-  const [name, updateName] = useState("");
-  const [optimizationGoal, updateOptimizationGoal] = useState("NONE");
-  const [billingEvent, updateBillingEvent] = useState("IMPRESSIONS");
-  const [status, updateStatus] = useState("ACTIVE");
-  const [bidAmount, updateBidAmount] = useState(0);
-  const [dailyBudget, updateDailyBudget] = useState(0);
-  const [isLoading, setLoadingState] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [adAccountId, setAdAccountId] = useState("");
-  const [audienceList, setAudienceList] = useState();
-  const [selectedAudienceId, setAudienceId] = useState("");
-
-  const [interestList, setInterestList] = useState<UserInterest[]>([]);
-  const [zipcodeList, setZipcodeList] = useState<Location[]>([]);
-
-  const [selectedZipcodeList, setSelectedZipcodeList] = useState<Location[]>(
-    []
-  );
-  const [selectedInterestList, setSelectedInterestList] = useState<
-    UserInterest[]
-  >([]);
-
-  const [selectedCountry, updateSelectedCountry] = useState<Country>();
-  const [selectedCountryList, updateSelectedCountryList] = useState<Country[]>(
-    []
-  );
-  const [countriesMap, updateCountries] = useState();
-
-  const [startTime, updateStartTime] = useState<Date>();
-  const [endTime, updateEndTime] = useState<Date>();
-  const [snackBarData, setSnackBarData] =
-    useContext(SnackbarContext).snackBarData;
-
-  const customEventType = [
-    {
-      name: "Ad Impression",
-      value: "AD_IMPRESSION",
-    },
-    {
-      name: "Rate",
-      value: "RATE",
-    },
-    {
-      name: "Tutorial Completion",
-      value: "TUTORIAL_COMPLETION",
-    },
-    {
-      name: "Contact",
-      value: "CONTACT",
-    },
-    {
-      name: "Customize Product",
-      value: "CUSTOMIZE_PRODUCT",
-    },
-    {
-      name: "Donate",
-      value: "DONATE",
-    },
-    {
-      name: "Find Location",
-      value: "FIND_LOCATION",
-    },
-    {
-      name: "Schedule",
-      value: "SCHEDULE",
-    },
-    {
-      name: "Start Trial",
-      value: "START_TRIAL",
-    },
-    {
-      name: "Submit Application",
-      value: "SUBMIT_APPLICATION",
-    },
-    {
-      name: "Subscribe",
-      value: "SUBSCRIBE",
-    },
-    {
-      name: "Add to Cart",
-      value: "ADD_TO_CART",
-    },
-    {
-      name: "Add to Wishlist",
-      value: "ADD_TO_WISHLIST",
-    },
-    {
-      name: "Initiated Checkout",
-      value: "INITIATED_CHECKOUT",
-    },
-    {
-      name: "Add Payment Info",
-      value: "ADD_PAYMENT_INFO",
-    },
-    {
-      name: "Purchase",
-      value: "PURCHASE",
-    },
-    {
-      name: "Lead",
-      value: "LEAD",
-    },
-    {
-      name: "Complete Registration",
-      value: "COMPLETE_REGISTRATION",
-    },
-    {
-      name: "Content View",
-      value: "CONTENT_VIEW",
-    },
-    {
-      name: "Search",
-      value: "SEARCH",
-    },
-    {
-      name: "Service Booking Request",
-      value: "SERVICE_BOOKING_REQUEST",
-    },
-    {
-      name: "Messaging Conversation Started (7D)",
-      value: "MESSAGING_CONVERSATION_STARTED_7D",
-    },
-    {
-      name: "Level Achieved",
-      value: "LEVEL_ACHIEVED",
-    },
-    {
-      name: "Achievement Unlocked",
-      value: "ACHIEVEMENT_UNLOCKED",
-    },
-    {
-      name: "Spent Credits",
-      value: "SPENT_CREDITS",
-    },
-    {
-      name: "Listing Interaction",
-      value: "LISTING_INTERACTION",
-    },
-    {
-      name: "(D2) Retention",
-      value: "D2_RETENTION",
-    },
-    {
-      name: "(D7) Retention",
-      value: "D7_RETENTION",
-    },
-    {
-      name: "Other",
-      value: "OTHER",
-    },
-  ];
-
-  useEffect(() => {
-    const queryData = async () => {
-      await delay(1000);
-      queryCountries();
-      setInterestList([]);
-      setZipcodeList([]);
-
-      const adAccountId = await queryAdAccountId();
-      if (adAccountId) {
-        queryAudiences(adAccountId);
-      }
-    };
-
-    queryData();
-  }, []);
-
-  const handleNameUpdate = (e: any) => {
-    updateName(e.target.value);
-  };
-  const handleBidUpdate = (e: any) => {
-    updateBidAmount(e.target.value);
-  };
-  const handleDailyBudgetUpdate = (e: any) => {
-    updateDailyBudget(e.target.value);
-  };
-  const handleBillingEventDropdownChange = (e: any) => {
-    updateBillingEvent(e.target.value);
-  };
-  const handleOptimizationGoalChange = (e: any) => {
-    updateOptimizationGoal(e.target.value);
-  };
-  const handleCountryChange = (e: any) => {
-    updateSelectedCountry({
-      code: e.target.value,
-      name: countriesMap![e.target.value]["country"],
-    });
-  };
-  const handleSwitchChange = (e: any) => {
-    updateStatus(e ? "ACTIVE" : "PAUSED");
-  };
-  const handleAudienceChange = (e: any) => {
-    setAudienceId(e.target.value);
-  };
-
-  const handleCountrySelection = () => {
-    if (!selectedCountry) {
-      setSnackBarData({ message: "Please select a country", status: "error" });
-      return;
-    }
-
-    if (!selectedCountryList.includes(selectedCountry)) {
-      updateSelectedCountryList([...selectedCountryList, selectedCountry]);
-    }
-  };
-
-  const removeSelectedCountry = (country: Country) => {
-    // const oldSelectedCountryList = selectedCountryList;
-    // oldSelectedCountryList.splice(oldSelectedCountryList.indexOf(country))
-    updateSelectedCountryList(selectedCountryList.filter((c) => c != country));
-  };
-
-  // const handleStartDateTimeChange = (e: any) => {
-  //     new Date(e.target.value)
-  // }
-
-  async function queryAudiences(adAccountId: string) {
-    try {
-      const response = await axios.get(ROUTES.ADS.CUSTOM_AUDIENCE, {
-        params: {
-          account_id: adAccountId,
-          access_token: accessToken,
+  function handleCreate(data: CreateAdsetFormValues) {
+    const adset = {
+      ...data,
+      targeting: {
+        device_platforms: ["mobile"],
+        facebook_positions: ["feed"],
+        publisher_platforms: ["facebook", "audience_network"],
+        geo_locations: {
+          countries: data.countries.split(","),
+          location_types: ["home", "recent"],
+          regions: [],
         },
-      });
-
-      setAudienceId(response.data.data[0].id);
-      setAudienceList(response.data.data);
-    } catch (error: any) {
-      console.log(error);
-      setSnackBarData({
-        status: "error",
-        message: error.response.data.message,
-      });
-    } finally {
-    }
-  }
-
-  async function queryCountries() {
-    try {
-      console.log("querying countries");
-      const response = await axios.get(ROUTES.LOCATION.GET_ALL_COUNTRIES);
-      const countryCode = Object.keys(response.data.data)[0];
-
-      updateSelectedCountry({
-        code: countryCode,
-        name: response.data.data![countryCode]["country"],
-      });
-      updateCountries(response.data.data);
-    } catch (error: any) {
-      console.log(error);
-      setSnackBarData({
-        status: "error",
-        message: error.response.data.message,
-      });
-    } finally {
-    }
-  }
-
-  async function queryAdAccountId() {
-    try {
-      const { adAccountId, getAdAccountIdError } =
-        await api.getAdAccountId(accessToken);
-      if (getAdAccountIdError) {
-        setErrorMessage(getAdAccountIdError);
-        return;
-      }
-      setAdAccountId(adAccountId);
-      return adAccountId;
-    } catch (error: any) {
-      setSnackBarData({
-        status: "error",
-        message: error.response.data.message,
-      });
-      return null;
-    } finally {
-    }
-  }
-
-  const getBillingEventList = (optimizationGoal: string) => {
-    switch (optimizationGoal) {
-      case "THRUPLAY":
-        return [
-          { name: "Thruplay", value: "THRUPLAY" },
-          { name: "Impressions", value: "IMPRESSIONS" },
-        ];
-      case "LINK_CLICKS":
-        return [
-          { name: "Link Clicks", value: "LINK_CLICKS" },
-          { name: "Impressions", value: "IMPRESSIONS" },
-        ];
-      default:
-        return [{ name: "Impressions", value: "IMPRESSIONS" }];
-    }
-  };
-
-  const getAppropriateSpec = () => {
-    const output = selectedInterestList.reduce(
-      (acc: any, curr) => {
-        if (curr.type === "interests") {
-          acc[0].interests.push({ id: curr.id, name: curr.name });
-        } else if (curr.type === "behaviors") {
-          acc[0].behaviors.push({ id: curr.id, name: curr.name });
-        } else if (curr.type === "work_employers") {
-          acc[0].work_employers.push({ id: curr.id, name: curr.name });
-        } else if (curr.type === "work_positions") {
-          acc[0].work_positions.push({ id: curr.id, name: curr.name });
-        }
-        return acc;
+        user_os: ["android", "ios"],
       },
-      [{ interests: [], behaviors: [], work_employers: [], work_positions: [] }]
-    );
-
-    return output;
-  };
-
-  function convertToRegionId(input: Location[]) {
-    return input.map((item) => ({ key: item.region_id }));
-  }
-
-  const handleSubmit = async () => {
-    setLoadingState(true);
-
-    try {
-      const adSet: any = {
-        name: name,
-        daily_budget: dailyBudget * 100,
-        bid_amount: bidAmount * 100,
-        billing_event: billingEvent,
-        optimization_goal: optimizationGoal,
-        campaign_id: campaignId,
-        start_time: startTime,
-        end_time: endTime,
-        targeting: {
-          device_platforms: ["mobile"],
-          facebook_positions: ["feed"],
-          publisher_platforms: ["facebook", "audience_network"],
-        },
-        status: status,
-      };
-
-      if (selectedAudienceId) {
-      }
-
-      if (selectedInterestList) {
-        adSet.targeting.flexible_spec = getAppropriateSpec();
-      }
-
-      if (selectedCountryList) {
-        if (!adSet.targeting["geo_locations"]) {
-          adSet.targeting["geo_locations"] = {};
-        }
-        adSet.targeting["geo_locations"]["countries"] = selectedCountryList.map(
-          (item) => item.code
-        );
-      }
-
-      if (selectedZipcodeList) {
-        if (!adSet.targeting["geo_locations"]) {
-          adSet.targeting["geo_locations"] = {};
-        }
-        adSet.targeting["geo_locations"]["regions"] =
-          convertToRegionId(selectedZipcodeList);
-      }
-
-      adSet.promoted_object = {
+      promoted_object: {
         application_id: "645064660474863",
         object_store_url:
           "http://www.facebook.com/gaming/play/645064660474863/",
-      };
+      },
+      start_time: dayjs(data.start_time).format("YYYY-MM-DDTHH:mm:ssZ"),
+      end_time: dayjs(data.end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
+    };
 
-      const { adSetId, createAdSetError } = await api.createAdSet(
-        adSet,
-        adAccountId,
-        accessToken
-      );
+    postCreateAdset({
+      adset,
+      accessToken,
+      accountId,
+    });
+  }
 
-      console.log(createAdSetError);
-
-      if (createAdSetError) {
-        setErrorMessage(createAdSetError);
-        return;
-      } else {
-        onAdsetCreation(adSetId);
-      }
-    } finally {
-      setLoadingState(false);
+  useEffect(() => {
+    if (isSuccess) {
+      setCreateState({ tab: CampaignTab.ADSETS, open: false });
     }
-  };
+  }, [isSuccess, setCreateState]);
 
-  const queryInterests = async (e: any) => {
-    const query = e.target.value;
-    if (query.length === 0) return;
-    try {
-      const response = await axios.get(ROUTES.ADS.INTERESTS, {
-        params: {
-          account_id: adAccountId,
-          access_token: accessToken,
-          query: query,
-        },
-      });
-      setSelectedInterestList([]);
-      setInterestList(response.data.data);
-    } catch (error: any) {
-      setSnackBarData({
-        status: "error",
-        message: error.response.data.message,
-      });
-    }
-  };
-
-  const queryZipCodes = async (e: any) => {
-    const query = e.target.value;
-    if (query.length === 0) return;
-    try {
-      const response = await axios.get(ROUTES.LOCATION.ZIPCODE, {
-        params: {
-          zip_code: query,
-          access_token: accessToken,
-        },
-      });
-      setSelectedZipcodeList([]);
-      setZipcodeList(response.data.data);
-    } catch (error: any) {
-      console.log(error.response.data);
-      setSnackBarData({
-        status: "error",
-        message: error.response.data.message,
-      });
-    }
-  };
-
-  const handleZipcodeSelection = (item: Location) => {
-    setSelectedZipcodeList([...selectedZipcodeList, item]);
-  };
-
-  const handleInterestSelection = (item: UserInterest) => {
-    setSelectedInterestList([...selectedInterestList, item]);
-  };
+  function handleDateChange(name: "start_time" | "end_time") {
+    return (date: Dayjs, dateString: string | string[]) => {
+      setValue(name, date);
+    };
+  }
 
   return (
-    <>
-      <div className="flex flex-col p-6 rounded-lg mb-4 h-[580px] overflow-scroll">
-        <input
-          className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 bg-black rounded-lg"
-          placeholder="Adset Name"
-          onChange={handleNameUpdate}
+    <form
+      action=""
+      onSubmit={handleSubmit(handleCreate)}
+      className="flex gap-4 pb-6"
+    >
+      <div className="flex flex-col gap-4 flex-1">
+        <Autocomplete
+          inputProps={{
+            classNames: {
+              input: "!text-white",
+              label: "!text-gray-500",
+            },
+          }}
+          disabled={isCampaignsFetching}
+          label="Campaign"
+          placeholder={
+            isCampaignsFetching ? "Fetching Campaigns" : "Select Campaign"
+          }
+          onSelectionChange={(key: Key) => {
+            setValue("campaign_id", key as string);
+          }}
+          selectedKey={campaignValue}
+          errorMessage={formState.errors.campaign_id?.message}
+        >
+          {campaigns && campaigns.length > 0 ? (
+            campaigns.map((campaign) => (
+              <AutocompleteItem key={campaign.id} textValue={campaign.name}>
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {campaign.name}
+                </div>
+              </AutocompleteItem>
+            ))
+          ) : (
+            <AutocompleteItem key={"no-country-found"} isReadOnly>
+              No campaigns found
+            </AutocompleteItem>
+          )}
+        </Autocomplete>
+        <Input
+          classNames={{
+            label: "!text-gray-500",
+          }}
+          label="Adset Name"
+          variant="flat"
+          {...register("name")}
+          errorMessage={formState.errors.name?.message}
+          // errorMessage={formState.errors.description?.message}
         />
-
-        <input
-          className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 bg-black rounded-lg mt-2"
+        <Input
+          classNames={{
+            label: "!text-gray-500",
+          }}
+          label="Daily Budget"
+          variant="flat"
           type="number"
-          placeholder="Daily Budget"
-          onChange={handleDailyBudgetUpdate}
+          {...register("daily_budget")}
+          errorMessage={formState.errors.daily_budget?.message}
+          // errorMessage={formState.errors.description?.message}
         />
-
-        <input
-          className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 bg-black rounded-lg mt-2"
+        <Input
+          classNames={{
+            label: "!text-gray-500",
+          }}
+          label="Bid Cap"
+          variant="flat"
           type="number"
-          placeholder="Bid Cap"
-          onChange={handleBidUpdate}
+          {...register("bid_amount")}
+          errorMessage={formState.errors.bid_amount?.message}
+          // errorMessage={formState.errors.description?.message}
         />
-
-        <div className="flex mt-2 mb-2">
-          <div className="flex flex-col mr-4">
-            <label>Start Time</label>
-            <input
-              type="datetime-local"
-              onChange={(e) => updateStartTime(new Date(e.target.value))}
-              className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 bg-black rounded-lg mt-2"
-            ></input>
-          </div>
-          <div className="flex flex-col">
-            <label>End Time</label>
-            <input
-              type="datetime-local"
-              onChange={(e) => updateEndTime(new Date(e.target.value))}
-              className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 bg-black rounded-lg mt-2"
-            ></input>
-          </div>
-        </div>
-
-        <div className="border-slate-500 border placeholder-slate-400 p-2  rounded-lg mt-2">
-          <label htmlFor="dropdown">Optimization Goal:</label>
-          <select
-            id="dropdown"
-            name="dropdown"
-            onChange={handleOptimizationGoalChange}
-            className="border-0 outline-0 bg-black"
-          >
-            <option value="">None</option>
-            <option value="APP_INSTALLS">App Installs</option>
-            <option value="AD_RECALL_LIFT">Ad Recall Lift</option>
-            <option value="ENGAGED_USERS">Engaged Users</option>
-            <option value="EVENT_RESPONSES">Event Responses</option>
-            <option value="IMPRESSIONS">Impressions</option>
-            <option value="LEAD_GENERATION">Lead Generation</option>
-            <option value="LINK_CLICKS">Link Clicks</option>
-            <option value="OFFSITE_CONVERSIONS">Offsite Conversions</option>
-            <option value="PAGE_LIKES">Page Likes</option>
-            <option value="POST_ENGAGEMENT">Post Engagement</option>
-            <option value="REACH">Reach</option>
-            <option value="LANDING_PAGE_VIEWS">Landing Page Views</option>
-            <option value="VALUE">Value</option>
-            <option value="THRUPLAY">ThruPlay</option>
-            <option value="SOCIAL_IMPRESSIONS">Social Impressions</option>
-          </select>
-        </div>
-        <div className="border-slate-500 border placeholder-slate-400 p-2  rounded-lg mt-2">
-          <label htmlFor="dropdown">Billing Event:</label>
-          <select
-            id="dropdown"
-            name="dropdown"
-            onChange={handleBillingEventDropdownChange}
-            className="border-0 outline-0 bg-black"
-          >
-            {getBillingEventList(optimizationGoal).map((item, index) => (
-              <option key={index} value={item.value}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        {audienceList ? (
-          <div className="border-slate-500 border placeholder-slate-400 p-2  rounded-lg mt-2">
-            <label htmlFor="dropdown">Custom Audience:</label>
-            <select
-              id="dropdown"
-              name="dropdown"
-              onChange={handleAudienceChange}
-              className="border-0 outline-0 bg-black"
+        <div className="flex gap-3 items-center">
+          <div className="flex-1">
+            <label
+              htmlFor=""
+              className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
             >
-              {audienceList.map((item, index) => (
-                <option key={index} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : (
-          <></>
-        )}
-        {countriesMap ? (
-          <div className="border-slate-500 border placeholder-slate-400 p-2  rounded-lg mt-2 bg-black">
-            <div className="flex">
-              <label htmlFor="dropdown">Select Country:</label>
-              <select
-                id="dropdown"
-                name="dropdown"
-                onChange={handleCountryChange}
-                className="border-0 bg-black outline-0"
-              >
-                {Object.keys(countriesMap).map((item, index) => (
-                  <option key={index} value={item}>
-                    {countriesMap[item]["country"]}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={handleCountrySelection}
-                className="ml-4 bg-green-700 text-white text-sm px-2 rounded-md"
-              >
-                Add Country
-              </button>
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
-        {selectedCountryList.length != 0 ? (
-          <div className="flex">
-            {selectedCountryList.map((item, index) => (
-              <button
-                key={index}
-                className={`flex rounded-md p-2 mr-2 mt-1 bg-blue-500 align-center bg-black`}
-              >
-                <span className={`text-xs font-bold md-2 text-white`}>
-                  {item.name}, {item.code}
-                </span>
-                <button onClick={() => removeSelectedCountry(item)}>
-                  <div className="bg-blue-700 text-xs ml-2 rounded-lg text-white px-1">
-                    x
-                  </div>
-                </button>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <></>
-        )}
-        <input
-          className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 bg-black rounded-lg mt-2"
-          placeholder="Zip Codes"
-          onChange={queryZipCodes}
-        />
-        {zipcodeList.length != 0 ? (
-          <div className="flex">
-            {zipcodeList.map((item, index) => (
-              <button
-                key={index}
-                className={`flex flex-col rounded-md p-2 mr-2 mt-4 ${selectedZipcodeList.some((e) => e.key === item.key) ? "bg-blue-500" : "bg-blue-300"}`}
-                onClick={(_) => handleZipcodeSelection(item)}
-              >
-                <span
-                  className={`text-xs font-bold md-2 ${selectedZipcodeList.some((e) => e.key === item.key) ? "text-white" : " "}`}
-                >
-                  {item.country_code} {item.country_name}
-                </span>
-                <span
-                  className={`text-xs font-bold md-2 ${selectedZipcodeList.some((e) => e.key === item.key) ? "text-white" : " "}`}
-                >
-                  {item.name} {item.primary_city} {item.region_id}
-                </span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <></>
-        )}
-        <input
-          className="border-slate-500 border placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 p-2 bg-black rounded-lg mt-2"
-          placeholder="Add demographics, interest or behaviours"
-          onChange={queryInterests}
-        />
-        {interestList.length != 0 ? (
-          <div className="flex">
-            {interestList.map((item, index) => (
-              <button
-                key={index}
-                className={`flex flex-col rounded-md p-2 mr-2 mt-4 ${selectedInterestList.some((e) => e.id === item.id) ? "bg-blue-500" : "bg-blue-300"}`}
-                onClick={(_) => handleInterestSelection(item)}
-              >
-                <span
-                  className={`text-xs font-bold md-2 ${selectedInterestList.some((e) => e.id === item.id) ? "text-white" : " "}`}
-                >
-                  {item.type}
-                </span>
-                <span
-                  className={`text-xs md-2 ${selectedInterestList.some((e) => e.id === item.id) ? "text-white" : ""}`}
-                >
-                  {item.name}
-                </span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <></>
-        )}
-
-        <div />
-
-        <div className="border-slate-500 placeholder-slate-400 p-2  mt-2 flex space-x-4">
-          <label>Status:</label>
-          <div className="flex flex-col items-center">
-            <SwitchComponent
-              checked={status == "ACTIVE"}
-              onChange={handleSwitchChange}
+              Start Time
+            </label>
+            <DatePicker
+              format={"DD/MM/YYYY hh:mm a"}
+              className="!h-[40px] !w-full"
+              showTime
+              variant="filled"
+              value={startTimeValue}
+              onChange={handleDateChange("start_time")}
             />
-            <p className="font-bold text-xs"> {status}</p>
+            <Element
+              type="p"
+              className="text-small text-danger mt-1"
+              content={formState.errors.start_time?.message}
+            />
+          </div>
+          <div className="flex-1">
+            <label
+              htmlFor=""
+              className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
+            >
+              End Time
+            </label>
+            <DatePicker
+              format={"DD/MM/YYYY hh:mm a"}
+              className="!h-[40px] !w-full"
+              showTime
+              variant="filled"
+              value={endTimeValue}
+              onChange={handleDateChange("end_time")}
+            />
+            <Element
+              type="p"
+              className="text-small text-danger mt-1"
+              content={formState.errors.end_time?.message}
+            />
           </div>
         </div>
-        {errorMessage ? (
-          <p className="mt-4 text-red-700 align-middle text-sm">
-            {errorMessage}
-          </p>
-        ) : (
-          <></>
-        )}
-        <ActionButton
-          isLoading={isLoading}
-          normalText={campaignObjective}
-          loadingText="Creating..."
-          handleSubmit={handleSubmit}
-        />
+        <Autocomplete
+          inputProps={{
+            classNames: {
+              input: "!text-white",
+              label: "!text-gray-500",
+            },
+          }}
+          label="Optimisation Goal"
+          placeholder={"Select Optimisation Goal"}
+          onSelectionChange={(key: Key) => {
+            setValue("optimization_goal", key as string);
+          }}
+          selectedKey={optimisationValue}
+          errorMessage={formState.errors.optimization_goal?.message}
+        >
+          {OPTIMISATION_GOALS.map((optimisationGoal) => (
+            <AutocompleteItem
+              key={optimisationGoal.uid}
+              textValue={optimisationGoal.name}
+            >
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {optimisationGoal.name}
+              </div>
+            </AutocompleteItem>
+          ))}
+        </Autocomplete>
+        <Autocomplete
+          inputProps={{
+            classNames: {
+              input: "!text-white",
+              label: "!text-gray-500",
+            },
+          }}
+          label="Billing Event"
+          placeholder={"Select Billing Event"}
+          onSelectionChange={(key: Key) => {
+            setValue("billing_event", key as string);
+          }}
+          selectedKey={billingEventValue}
+          errorMessage={formState.errors.billing_event?.message}
+        >
+          {getBillingEventList(optimisationValue).map((billingEvent) => (
+            <AutocompleteItem
+              key={billingEvent.uid}
+              textValue={billingEvent.name}
+            >
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {billingEvent.name}
+              </div>
+            </AutocompleteItem>
+          ))}
+        </Autocomplete>
       </div>
-    </>
+      <div className="flex flex-col gap-4 flex-1 space-between">
+        <div className="flex flex-col gap-4 flex-1">
+          <Autocomplete
+            inputProps={{
+              classNames: {
+                input: "!text-white",
+                label: "!text-gray-500",
+              },
+            }}
+            label="Custom Audience"
+            placeholder={"Select Custom Audience"}
+          >
+            {CUSTOM_AUDIENCES.map((customAudience) => (
+              <AutocompleteItem
+                key={customAudience.uid}
+                textValue={customAudience.name}
+              >
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {customAudience.name}
+                </div>
+              </AutocompleteItem>
+            ))}
+          </Autocomplete>
+          <SelectCountries
+            onSelectionChange={(key: Key) => {
+              setValue("countries", key as string);
+            }}
+            selectedKey={countryValue}
+            errorMessage={formState.errors.countries?.message}
+          />
+          <SelectZipCodes
+            onSelectionChange={(key: Key) => {
+              setValue("zip_codes", key as string);
+            }}
+            isDisabled
+            selectedKey={zipCodeValue}
+            errorMessage={formState.errors.zip_codes?.message}
+            defaultFilter={() => true}
+          />
+
+          <Autocomplete
+            inputProps={{
+              classNames: {
+                input: "!text-white",
+                label: "!text-gray-500",
+              },
+            }}
+            label="Add Demographics, Interests or Behaviours"
+            placeholder={"Select Demographics, Interests or Behaviours"}
+            onSelectionChange={(key: Key) => {
+              setValue("demographics", key as string);
+            }}
+            selectedKey={demographicsValue}
+          >
+            {ZIP_CODES.map((zipCode) => (
+              <AutocompleteItem key={zipCode.uid} textValue={zipCode.name}>
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {zipCode.name}
+                </div>
+              </AutocompleteItem>
+            ))}
+          </Autocomplete>
+        </div>
+        <div className="w-full flex justify-end gap-2 text-small items-center">
+          <Switch
+            defaultSelected
+            classNames={{
+              // wrapper: "flex w-full justify-between items-center gap-3",
+              label: "!text-gray-300 !text-small",
+            }}
+            color="primary"
+            size="sm"
+            onValueChange={(value) => {
+              setValue("status", value ? "ACTIVE" : "PAUSED");
+            }}
+            isSelected={statusValue === "ACTIVE"}
+          >
+            Active
+          </Switch>
+        </div>
+
+        <Button isLoading={isCreating} type="submit" color="primary">
+          <span>{isCreating ? "Creating..." : "Create Adset"}</span>
+        </Button>
+      </div>
+    </form>
   );
+}
+
+{
+  /* <Autocomplete
+  inputProps={{
+    classNames: {
+      input: "!text-white",
+      label: "!text-gray-500",
+    },
+  }}
+  label="Zip Codes"
+  placeholder={"Select Zip Code"}
+  onSelectionChange={(key: Key) => {
+    setValue("zip_codes", key as string);
+  }}
+  selectedKey={zipCodeValue}
+>
+  {ZIP_CODES.map((zipCode) => (
+    <AutocompleteItem key={zipCode.uid} textValue={zipCode.name}>
+      <div className="flex items-center gap-3">
+
+        {zipCode.name}
+      </div>
+    </AutocompleteItem>
+  ))}
+</Autocomplete>; */
 }

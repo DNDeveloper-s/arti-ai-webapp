@@ -14,11 +14,19 @@ import { EditVariantContextProvider } from "@/context/EditVariantContext";
 import { UserContextProvider } from "@/context/UserContext";
 import Providers from "./providers";
 import { NextUIProvider } from "@nextui-org/react";
+import { ConfigProvider, ThemeConfig, theme } from "antd";
 
 const metadata: Metadata = {
   title: "Arti AI",
   description:
     "Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI",
+};
+
+const config: ThemeConfig = {
+  token: {
+    colorPrimary: "#ed02eb",
+  },
+  algorithm: theme.darkAlgorithm,
 };
 
 export default function RootLayout({
@@ -30,33 +38,35 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="bg-black">
         <NextUIProvider>
-          <SessionProvider>
-            <Providers>
-              <UserContextProvider status="loading">
-                <SnackbarContextProvider>
-                  <ConversationContextProvider {...initConversationState}>
-                    <EditVariantContextProvider>
-                      <>
-                        {children}
-                        <div
-                          id="myportal"
-                          className="z-[1000] fixed top-0 left-0"
-                        />
-                        <div
-                          id="canvastoolsportal"
-                          className="z-[1001] fixed top-0 left-0"
-                        />
-                        <div
-                          id="contextmenuportal"
-                          className="z-[1002] fixed top-0 left-0"
-                        />
-                      </>
-                    </EditVariantContextProvider>
-                  </ConversationContextProvider>
-                </SnackbarContextProvider>
-              </UserContextProvider>
-            </Providers>
-          </SessionProvider>
+          <ConfigProvider theme={config}>
+            <SessionProvider>
+              <Providers>
+                <UserContextProvider status="loading">
+                  <SnackbarContextProvider>
+                    <ConversationContextProvider {...initConversationState}>
+                      <EditVariantContextProvider>
+                        <>
+                          {children}
+                          <div
+                            id="myportal"
+                            className="z-[1000] fixed top-0 left-0"
+                          />
+                          <div
+                            id="canvastoolsportal"
+                            className="z-[1001] fixed top-0 left-0"
+                          />
+                          <div
+                            id="contextmenuportal"
+                            className="z-[1002] fixed top-0 left-0"
+                          />
+                        </>
+                      </EditVariantContextProvider>
+                    </ConversationContextProvider>
+                  </SnackbarContextProvider>
+                </UserContextProvider>
+              </Providers>
+            </SessionProvider>
+          </ConfigProvider>
         </NextUIProvider>
         <Analytics />
         {/*<Script*/}

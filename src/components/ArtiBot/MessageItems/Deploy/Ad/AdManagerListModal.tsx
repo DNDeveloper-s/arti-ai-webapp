@@ -58,12 +58,12 @@ function DeployAdModalContent(props: DeployAdModalContentProps) {
   );
 }
 
-interface DeployAdModalProps {
+interface AdManagerListModalProps {
   open: boolean;
   handleClose: () => void;
   selectedVariant: IAdVariant;
 }
-export default function DeployAdModal(props: DeployAdModalProps) {
+export default function AdManagerListModal(props: AdManagerListModalProps) {
   const { open, handleClose, selectedVariant } = props;
 
   return (
@@ -71,7 +71,7 @@ export default function DeployAdModal(props: DeployAdModalProps) {
       keepMounted={false}
       isOpen={open}
       onClose={handleClose}
-      isDismissable={true}
+      isDismissable={false}
       isKeyboardDismissDisabled={true}
       classNames={{
         wrapper: "bg-black bg-opacity-50",

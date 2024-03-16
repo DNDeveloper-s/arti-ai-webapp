@@ -1,25 +1,28 @@
 "use client";
 
-import ArtiBot from '@/components/ArtiBot/ArtiBot';
-import {IConversation} from '@/interfaces/IConversation';
-import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
-import AdVariants from '@/components/ArtiBot/RIghtPane/AdVariants';
-import {useConversation} from '@/context/ConversationContext';
-import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
-import EditAdVariantScreen from '@/components/ArtiBot/EditAdVariant/EditAdVariantScreen';
-import {useEditVariant} from '@/context/EditVariantContext';
-import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
-import {ChatGPTRole} from '@/interfaces/IArtiBot';
-import {AiOutlineCaretDown, AiOutlineCaretUp} from 'react-icons/ai';
-import { Tooltip } from 'react-tooltip';
-import LeftPane from './LeftPane/LeftPane';
-import { useSearchParams } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
-import Link from 'next/link';
-import { FaTiktok, FaFacebookF } from 'react-icons/fa6';
-import { MdEmail } from 'react-icons/md';
-import { RxCaretDown } from 'react-icons/rx';
-import Logo from '../Logo';
+import ArtiBot from "@/components/ArtiBot/ArtiBot";
+import { IConversation } from "@/interfaces/IConversation";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import AdVariants from "@/components/ArtiBot/RIghtPane/AdVariants";
+import { useConversation } from "@/context/ConversationContext";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import EditAdVariantScreen from "@/components/ArtiBot/EditAdVariant/EditAdVariantScreen";
+import { useEditVariant } from "@/context/EditVariantContext";
+import ChatGPTMessageItem from "@/components/ArtiBot/MessageItems/ChatGPTMessageItem";
+import { ChatGPTRole } from "@/interfaces/IArtiBot";
+import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
+import { Tooltip } from "react-tooltip";
+import LeftPane from "./LeftPane/LeftPane";
+import { useSearchParams } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
+import { FaTiktok, FaFacebookF } from "react-icons/fa6";
+import { MdEmail } from "react-icons/md";
+import { RxCaretDown } from "react-icons/rx";
+import Logo from "../Logo";
+import CreateAdManagerModal from "./MessageItems/Deploy/Ad/CreateAdManagerModal";
+import AdManagerListModal from "./MessageItems/Deploy/Ad/AdManagerListModal";
+import CreateSocialPostModal from "./MessageItems/Deploy/Post/CreateSocialPostModal";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -297,6 +300,7 @@ export default function ArtiBotPage({
         )}
         <Tooltip id="edit-ad-variant-tooltip" />
       </div>
+      <CreateAdManagerModal />
     </div>
   );
 

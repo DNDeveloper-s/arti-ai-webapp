@@ -39,7 +39,8 @@ export default function ViewAdset() {
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   ).userAccessToken;
-  const { selected, setSelected, viewAdsByAdset } = useCampaignStore();
+  const { setCreateState, selected, setSelected, viewAdsByAdset } =
+    useCampaignStore();
   const { data: accountId, isFetching: isAccountIdFetching } =
     useGetAdAccountId(accessToken);
   const { data: adsets, isFetching: isAdSetsFetching } = useGetAdSets({
@@ -119,6 +120,13 @@ export default function ViewAdset() {
     [viewAdsByAdset]
   );
 
+  function handleAddClick() {
+    setCreateState({
+      open: true,
+      tab: CampaignTab.ADSETS,
+    });
+  }
+
   return (
     <UiTable
       columns={columns}
@@ -129,6 +137,7 @@ export default function ViewAdset() {
       setSelectedKeys={setSelected(CampaignTab.ADSETS)}
       isLoading={isAdSetsFetching || isAccountIdFetching}
       emptyContent="No adsets found"
+      onAddClick={handleAddClick}
     />
   );
 }

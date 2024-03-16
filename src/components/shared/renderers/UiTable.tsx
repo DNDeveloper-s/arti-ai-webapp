@@ -33,6 +33,7 @@ interface UiTableProps {
   isLoading?: boolean;
   loadingContent?: ReactNode;
   emptyContent?: ReactNode;
+  onAddClick?: () => any;
 }
 export default function UiTable(props: UiTableProps) {
   const {
@@ -42,6 +43,7 @@ export default function UiTable(props: UiTableProps) {
     initialVisibleColumns,
     selectedKeys,
     setSelectedKeys,
+    onAddClick,
   } = props;
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
@@ -202,7 +204,11 @@ export default function UiTable(props: UiTableProps) {
                 ))}
               </DropdownMenu>
             </Dropdown> */}
-            <Button color="primary" endContent={<FiPlus />}>
+            <Button
+              onClick={onAddClick ?? function () {}}
+              color="primary"
+              endContent={<FiPlus />}
+            >
               Add New
             </Button>
           </div>

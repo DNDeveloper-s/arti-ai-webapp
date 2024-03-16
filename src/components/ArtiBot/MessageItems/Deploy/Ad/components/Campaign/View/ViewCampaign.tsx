@@ -64,7 +64,8 @@ export default function ViewCampaign(
     accessToken: accessToken,
   });
 
-  const { selected, setSelected, viewAdsetsByCampaign } = useCampaignStore();
+  const { setCreateState, selected, setSelected, viewAdsetsByCampaign } =
+    useCampaignStore();
 
   const renderCell = useCallback(
     (campaign: any, columnKey: Key) => {
@@ -133,6 +134,10 @@ export default function ViewCampaign(
     [viewAdsetsByCampaign]
   );
 
+  function handleAddClick() {
+    setCreateState({ tab: CampaignTab.CAMPAIGNS, open: true });
+  }
+
   //   useEffect(() => {
   //     const queryData = async () => {
   //       setCampaignList([]);
@@ -181,6 +186,7 @@ export default function ViewCampaign(
       setSelectedKeys={setSelected(CampaignTab.CAMPAIGNS)}
       emptyContent={isFetching ? "" : "No campaigns found"}
       isLoading={isFetching}
+      onAddClick={handleAddClick}
     />
   );
 }

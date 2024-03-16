@@ -12,11 +12,17 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Link,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
   Snippet,
   Switch,
+  useDisclosure,
 } from "@nextui-org/react";
 import { FaEllipsisVertical } from "react-icons/fa6";
 import UiTable from "@/components/shared/renderers/UiTable";
+import CreateAdset from "../../Adset/Create/CreateAdset";
 
 const columns = [
   { name: "OFF/ON", uid: "status" },
@@ -33,7 +39,7 @@ export default function ViewAds() {
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   ).userAccessToken;
-  const { selected, setSelected } = useCampaignStore();
+  const { selected, setSelected, setCreateState } = useCampaignStore();
   const { data: accountId, isFetching: isAccountIdFetching } =
     useGetAdAccountId(accessToken);
   const { data: ads, isFetching: isAdsFetching } = useGetAds({
@@ -118,16 +124,26 @@ export default function ViewAds() {
     }
   }, []);
 
+  function handleAddClick() {
+    setCreateState({
+      open: true,
+      tab: CampaignTab.ADS,
+    });
+  }
+
   return (
-    <UiTable
-      columns={columns}
-      renderCell={renderCell}
-      totalItems={ads ?? []}
-      pronoun="ad"
-      selectedKeys={selected.ads}
-      setSelectedKeys={setSelected(CampaignTab.ADS)}
-      isLoading={isAdsFetching || isAccountIdFetching}
-      emptyContent="No ads found"
-    />
+    <>
+      <UiTable
+        columns={columns}
+        renderCell={renderCell}
+        totalItems={ads ?? []}
+        pronoun="ad"
+        selectedKeys={selected.ads}
+        setSelectedKeys={setSelected(CampaignTab.ADS)}
+        isLoading={isAdsFetching || isAccountIdFetching}
+        emptyContent="No ads found"
+        onAddClick={handleAddClick}
+      />
+    </>
   );
 }

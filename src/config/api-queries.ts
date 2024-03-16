@@ -5,10 +5,8 @@ const API_QUERIES = {
     page_id,
     page_access_token,
   ],
-  CREATE_SOCIAL_POST: (page_id: string, page_access_token: string) => [
+  CREATE_SOCIAL_POST: [
     "create-social-post",
-    page_id,
-    page_access_token,
   ],
   GET_AD_ACCOUNT_ID: (access_token?: string | null) => [
     "get-ad-account-id",
@@ -43,6 +41,20 @@ const API_QUERIES = {
     account_id?: string | null,
     adset_ids?: string[] | null
   ) => ["get-ads", access_token, account_id, adset_ids],
+  CREATE_CAMPAIGN: ["create-campaign"],
+  CREATE_ADSET: ["create-adset"],
+  CREATE_AD: ["create-ad"],
+  GET_ALL_COUNTRIES: ["get-all-countries"],
+  GET_ZIP_CODES: (zipCode: string, accessToken?: string | null) => [
+    "get-zipcodes",
+    zipCode,
+    accessToken,
+  ],
+  GET_INTERESTS: (
+    query: string,
+    accountId?: string | null,
+    access_token?: string | null
+  ) => ["get-interests", query, accountId, access_token],
 };
 
 export default API_QUERIES;

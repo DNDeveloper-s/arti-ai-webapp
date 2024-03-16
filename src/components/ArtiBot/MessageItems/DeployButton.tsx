@@ -7,9 +7,10 @@ import { SnackbarContext } from "@/context/SnackbarContext";
 import Modal from "@/components/Modal";
 import DeployView from "./Deploy/DeployView";
 import CreateSocialPostModal from "./Deploy/Post/CreateSocialPostModal";
-import DeployAdModal from "./Deploy/Ad/DeployAdModal";
 import { useUser } from "@/context/UserContext";
 import ConnectProviderModal from "./Deploy/ConnectProviderModal";
+import AdManagerListModal from "./Deploy/Ad/AdManagerListModal";
+import CreateAdManagerModal from "./Deploy/Ad/CreateAdManagerModal";
 
 export enum UserChoice {
   post,
@@ -83,11 +84,13 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
       >
         <DeployView variant={variant} userChoice={userChoice} />
       </Modal> */}
-      <DeployAdModal
+
+      <AdManagerListModal
         open={isOpen(UserChoice.ad)}
         handleClose={handleClose}
         selectedVariant={variant}
       />
+
       <CreateSocialPostModal
         open={isOpen(UserChoice.post)}
         handleClose={handleClose}
