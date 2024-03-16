@@ -266,6 +266,12 @@ export function useGetFacebookPage({
     queryFn: getFacebookPage,
     staleTime: 1000 * 60 * 60,
     enabled: isInView && !!accessToken && !!pageId,
+    retry(failureCount, error) {
+      if (error instanceof Error) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 
@@ -299,6 +305,12 @@ export function useGetVariantPost({
     queryFn: getVariantPost,
     enabled: isInView && !!accessToken && !!postId,
     staleTime: 1000 * 60 * 5,
+    retry(failureCount, error) {
+      if (error instanceof Error) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 

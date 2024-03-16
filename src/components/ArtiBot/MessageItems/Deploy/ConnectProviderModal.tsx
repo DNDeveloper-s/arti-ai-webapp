@@ -1,23 +1,26 @@
 import { useLinkAccount } from "@/api/user";
+import FacebookSignInButton from "@/components/Auth/FacebookSigninButton";
 import Modal from "@/components/Modal";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { useUser } from "@/context/UserContext";
 import { IUserAccount } from "@/interfaces/IUser";
+import { Button } from "@nextui-org/react";
 import React, { useContext } from "react";
-import FacebookLogin from "react-facebook-login";
+import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
+import { AiFillFacebook } from "react-icons/ai";
 
 interface ConnectProviderModalProps {}
 export default function ConnectProviderModal(props: ConnectProviderModalProps) {
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
   const { state } = useUser();
-  const { mutate: linkAccount } = useLinkAccount();
+  const { mutate: linkAccount, isPending } = useLinkAccount();
 
   const componentClicked = () => {
     console.log("clicked");
   };
 
   const responseFacebook = async (response: any) => {
-    console.log(response);
+    console.log("Response from facebook login", response);
     const userId = state.data?.id;
     if (!userId) {
       return setSnackBarData({
@@ -40,14 +43,6 @@ export default function ConnectProviderModal(props: ConnectProviderModalProps) {
     };
 
     linkAccount({ account: object });
-    // setSnackBarData({
-    //   message: data?.message,
-    //   status: data?.ok ? "success" : "error",
-    // });
-
-    // if (data?.ok) {
-    //   setFacebookAccessToken(response.accessToken);
-    // }
   };
 
   return (
@@ -59,6 +54,16 @@ export default function ConnectProviderModal(props: ConnectProviderModalProps) {
         callback={responseFacebook}
         returnScopes={true}
         scope="instagram_basic,instagram_manage_insights,instagram_content_publish,business_management,public_profile,ads_management,pages_show_list,pages_read_engagement,read_insights"
+        render={(renderProps: any) => (
+          <Button
+            className="text-white border-2 border-blue-500 bg-blue-600"
+            isLoading={isPending}
+            onClick={renderProps.onClick}
+          >
+            <AiFillFacebook className="text-lg" />
+            Connect Facebook
+          </Button>
+        )}
       />
     </div>
   );

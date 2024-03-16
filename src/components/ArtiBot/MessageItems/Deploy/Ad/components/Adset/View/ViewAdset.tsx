@@ -71,7 +71,11 @@ export default function ViewAdset() {
             </div>
           );
         case "name":
-          return <div className="flex items-center gap-3">{adset.name}</div>;
+          return (
+            <div className="flex items-center gap-3 min-w-[120px]">
+              {adset.name}
+            </div>
+          );
         case "objective":
           return (
             <div className="flex flex-col">
@@ -124,7 +128,6 @@ export default function ViewAdset() {
       selectedKeys={selected.adsets}
       setSelectedKeys={setSelected(CampaignTab.ADSETS)}
       isLoading={isAdSetsFetching || isAccountIdFetching}
-      loadingContent={<Loader />}
       emptyContent="No adsets found"
     />
   );

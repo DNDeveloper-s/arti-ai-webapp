@@ -8,6 +8,7 @@ import {
   Pagination,
   Selection,
   SortDescriptor,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -15,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
+import { popGraphicsState } from "pdf-lib";
 import React, { Key, ReactNode } from "react";
 import { FiPlus } from "react-icons/fi";
 import { GoSearch } from "react-icons/go";
@@ -323,7 +325,7 @@ export default function UiTable(props: UiTableProps) {
       </TableHeader>
       <TableBody
         isLoading={props.isLoading}
-        loadingContent={props.loadingContent ?? `Loading ${pluralPronoun}...`}
+        loadingContent={props.loadingContent ?? <Spinner label="Loading..." />}
         emptyContent={
           props.isLoading
             ? ""

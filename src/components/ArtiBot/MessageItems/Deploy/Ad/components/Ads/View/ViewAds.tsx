@@ -127,7 +127,6 @@ export default function ViewAds() {
       selectedKeys={selected.ads}
       setSelectedKeys={setSelected(CampaignTab.ADS)}
       isLoading={isAdsFetching || isAccountIdFetching}
-      loadingContent={<Loader />}
       emptyContent="No ads found"
     />
   );

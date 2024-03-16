@@ -179,7 +179,6 @@ export default function ViewCampaign(
       pronoun="campaign"
       selectedKeys={selected.campaigns}
       setSelectedKeys={setSelected(CampaignTab.CAMPAIGNS)}
-      loadingContent={<Loader />}
       emptyContent={isFetching ? "" : "No campaigns found"}
       isLoading={isFetching}
     />
