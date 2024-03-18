@@ -15,13 +15,15 @@ import {
 import { DatePicker } from "antd";
 import { Key, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { object, string } from "yup";
+import { object, string, mixed, number } from "yup";
 import SelectCountries from "./SelectCountries";
 import SelectZipCodes from "./SelectZipCodes";
 import { Platform, useUser } from "@/context/UserContext";
 import dayjs, { Dayjs } from "dayjs";
 import Element from "@/components/shared/renderers/Element";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
+import SelectInterests from "./SelectInterests";
+import { omit } from "lodash";
 
 {
   /* <option value="">None</option>
@@ -114,26 +116,26 @@ type CreateAdsetFormValues = Omit<
   ICreateAdset,
   "targeting" | "promoted_object" | "start_time" | "end_time"
 > & {
-  countries: string;
-  zip_codes: string;
-  demographics: string;
+  countries: any[];
+  zip_codes: any;
+  demographics: any;
   start_time: Dayjs;
   end_time: Dayjs;
 };
 
 const validationSchema = object({
   name: string().required("Adset Name is required"),
-  daily_budget: string().required("Daily Budget is required"),
-  bid_amount: string().required("Bid Amount is required"),
+  daily_budget: number().required("Daily Budget is required"),
+  bid_amount: number().required("Bid Amount is required"),
   billing_event: string().required("Billing Event is required"),
   optimization_goal: string().required("Optimization Goal is required"),
   status: string().required("Status is required"),
   start_time: string().required("Start Time is required"),
   end_time: string().required("End Time is required"),
-  countries: string().required("Countries is required"),
+  countries: mixed(),
   campaign_id: string().required("Campaign ID is required"),
-  zip_codes: string(),
-  demographics: string(),
+  zip_codes: mixed(),
+  demographics: mixed(),
 });
 
 export default function CreateAdset() {
@@ -170,18 +172,53 @@ export default function CreateAdset() {
   const startTimeValue = watch("start_time");
   const endTimeValue = watch("end_time");
 
+  useEffect(() => {
+    setValue("status", "ACTIVE");
+  }, [setValue]);
+
+  function formDemographics() {
+    const output =
+      demographicsValue?.reduce(
+        (acc: any, curr: any) => {
+          if (curr.type === "interests") {
+            acc[0].interests.push({ id: curr.id, name: curr.name });
+          } else if (curr.type === "behaviors") {
+            acc[0].behaviors.push({ id: curr.id, name: curr.name });
+          } else if (curr.type === "work_employers") {
+            acc[0].work_employers.push({ id: curr.id, name: curr.name });
+          } else if (curr.type === "work_positions") {
+            acc[0].work_positions.push({ id: curr.id, name: curr.name });
+          }
+          return acc;
+        },
+        [
+          {
+            interests: [],
+            behaviors: [],
+            work_employers: [],
+            work_positions: [],
+          },
+        ]
+      ) ?? [];
+
+    return output;
+  }
+
   function handleCreate(data: CreateAdsetFormValues) {
+    console.log("data - ", data);
+    const formData = omit(data, ["countries", "zip_codes", "demographics"]);
     const adset = {
-      ...data,
+      ...formData,
       targeting: {
         device_platforms: ["mobile"],
         facebook_positions: ["feed"],
         publisher_platforms: ["facebook", "audience_network"],
         geo_locations: {
-          countries: data.countries.split(","),
+          countries: data.countries?.map((c) => c.uid) ?? [],
           location_types: ["home", "recent"],
-          regions: [],
+          regions: data.zip_codes?.map((c: any) => ({ key: c.uid })) ?? [],
         },
+        flexible_spec: formDemographics(),
         user_os: ["android", "ios"],
       },
       promoted_object: {
@@ -191,6 +228,8 @@ export default function CreateAdset() {
       },
       start_time: dayjs(data.start_time).format("YYYY-MM-DDTHH:mm:ssZ"),
       end_time: dayjs(data.end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
+      bid_amount: +data.bid_amount,
+      daily_budget: +data.daily_budget,
     };
 
     postCreateAdset({
@@ -212,10 +251,15 @@ export default function CreateAdset() {
     };
   }
 
+  function handleError() {
+    console.log("error - ", formState.errors);
+  }
+
   return (
     <form
       action=""
       onSubmit={handleSubmit(handleCreate)}
+      onError={handleError}
       className="flex gap-4 pb-6"
     >
       <div className="flex flex-col gap-4 flex-1">
@@ -408,23 +452,22 @@ export default function CreateAdset() {
             ))}
           </Autocomplete>
           <SelectCountries
-            onSelectionChange={(key: Key) => {
-              setValue("countries", key as string);
+            onChange={(value: string, option: any) => {
+              setValue("countries", option);
             }}
-            selectedKey={countryValue}
-            errorMessage={formState.errors.countries?.message}
           />
           <SelectZipCodes
-            onSelectionChange={(key: Key) => {
-              setValue("zip_codes", key as string);
+            onChange={(value: string, option: any) => {
+              setValue("zip_codes", option);
             }}
-            isDisabled
-            selectedKey={zipCodeValue}
-            errorMessage={formState.errors.zip_codes?.message}
-            defaultFilter={() => true}
+          />
+          <SelectInterests
+            onChange={(value: string, option: any) => {
+              setValue("demographics", option);
+            }}
           />
 
-          <Autocomplete
+          {/* <Autocomplete
             inputProps={{
               classNames: {
                 input: "!text-white",
@@ -440,13 +483,10 @@ export default function CreateAdset() {
           >
             {ZIP_CODES.map((zipCode) => (
               <AutocompleteItem key={zipCode.uid} textValue={zipCode.name}>
-                <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {zipCode.name}
-                </div>
+                <div className="flex items-center gap-3">{zipCode.name}</div>
               </AutocompleteItem>
             ))}
-          </Autocomplete>
+          </Autocomplete> */}
         </div>
         <div className="w-full flex justify-end gap-2 text-small items-center">
           <Switch

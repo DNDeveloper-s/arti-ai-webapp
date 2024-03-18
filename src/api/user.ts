@@ -3,6 +3,7 @@ import API_QUERIES from "@/config/api-queries";
 import { IUserAccount, IUserFacebookPost, IUserPage } from "@/interfaces/IUser";
 import { SupportedPlatform, useUser } from "@/context/UserContext";
 import {
+  Query,
   QueryFunctionContext,
   UseQueryResult,
   useMutation,
@@ -18,6 +19,25 @@ import { useCallback, useContext } from "react";
 import { IAd, IAdCampaign, IAdSet } from "@/interfaces/ISocial";
 import { ZipCodeResponseObject } from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/Adset/Create/SelectZipCodes";
 import { useSession } from "next-auth/react";
+
+function getAxiosResponseError(error: any) {
+  if (error instanceof Error && error instanceof AxiosError) {
+    return error;
+  }
+  return null;
+}
+
+// Axios interceptors
+axios.interceptors.response.use(
+  function (response) {
+    return response;
+  },
+  function (error) {
+    if (error.response?.data) return Promise.reject(error.response?.data);
+
+    return Promise.reject(error);
+  }
+);
 
 export function useUserPages(
   accessToken?: string | null
@@ -455,6 +475,7 @@ export function useLinkAccount() {
       });
     },
     onError: (error) => {
+      console.log("error - ", error);
       setSnackBarData({
         message: error.message ?? "An error occurred!",
         status: "error",
@@ -685,11 +706,19 @@ export const useCreateAdset = () => {
     mutationFn: createAdset,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: API_QUERIES.GET_ADSETS(
-          variables.accessToken,
-          variables.accountId,
-          [variables.adset.campaign_id]
-        ),
+        predicate: (query: Query) => {
+          const cond =
+            query.queryKey[0] === API_QUERIES.GET_ADSETS()[0] &&
+            query.queryKey[1] === variables.accessToken &&
+            query.queryKey[2] === variables.accountId &&
+            (query.queryKey[3] === null ||
+              query.queryKey[3] === undefined ||
+              (query.queryKey[3] as string[]).includes(
+                variables.adset.campaign_id
+              ) ||
+              (query.queryKey[3] as string[])?.length === 0);
+          return cond;
+        },
       });
       setSnackBarData({
         message: "Adset created successfully!",
@@ -827,7 +856,7 @@ export const useGetCountries = () => {
 export const useGetZipCodes = (
   zipCode: string,
   accessToken?: string | null
-) => {
+): UseQueryResult<ZipCodeResponseObject[]> => {
   const getZipCodes = async ({ queryKey }: QueryFunctionContext) => {
     const [, zipCode, accessToken] = queryKey;
     const response = await axios.get(ROUTES.LOCATION.ZIPCODE, {
@@ -853,11 +882,19 @@ export const useGetZipCodes = (
   });
 };
 
+interface IInterestsResponseObject {
+  id: string;
+  name: string;
+  audience_size_lower_bound: number;
+  audience_size_upper_bound: number;
+  path: string[];
+  type: string;
+}
 export const useGetInterests = (
   query: string,
   accountId?: string | null,
   accessToken?: string | null
-) => {
+): UseQueryResult<IInterestsResponseObject[]> => {
   const getInterests = async ({ queryKey }: QueryFunctionContext) => {
     const [, query, accountId, accessToken] = queryKey;
     const response = await axios.get(ROUTES.ADS.INTERESTS, {
@@ -871,7 +908,7 @@ export const useGetInterests = (
     return response.data.data;
   };
 
-  return useQuery({
+  return useQuery<IInterestsResponseObject[]>({
     queryKey: API_QUERIES.GET_INTERESTS(query, accountId, accessToken),
     queryFn: getInterests,
     enabled: query.length > 0 && !!accountId && !!accessToken,

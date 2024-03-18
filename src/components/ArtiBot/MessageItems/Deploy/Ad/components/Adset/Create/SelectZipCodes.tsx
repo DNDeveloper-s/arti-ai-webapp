@@ -1,12 +1,13 @@
 import { useGetCountries, useGetZipCodes } from "@/api/user";
 import { Platform, useUser } from "@/context/UserContext";
+import { debounce } from "@/helpers";
 import {
   Autocomplete,
   AutocompleteItem,
   AutocompleteProps,
 } from "@nextui-org/react";
-import { Select } from "antd";
-import { useRef, useState } from "react";
+import { Select, SelectProps, Spin } from "antd";
+import { useMemo, useRef, useState } from "react";
 
 export interface ZipCodeResponseObject {
   country_code: string;
@@ -21,85 +22,53 @@ export interface ZipCodeResponseObject {
   supports_region: boolean;
   type: "zip";
 }
-export default function SelectZipCodes(
-  props: Omit<AutocompleteProps, "children">
-) {
+
+export default function SelectZipCodes(props: SelectProps) {
   const { state } = useUser();
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   )?.userAccessToken;
   const [value, setValue] = useState("");
   const [zipCode, setZipCode] = useState("");
-  const { data: zipCodes, isLoading } = useGetZipCodes(zipCode, accessToken);
+  const { data, isFetching } = useGetZipCodes(zipCode, accessToken);
   const timerRef = useRef<NodeJS.Timeout>();
 
-  console.log("testing | zipCodes - ", zipCodes);
+  const debounceFetcher = useMemo(() => {
+    const loadOptions = (value: string, option: any) => {
+      console.log("loadOptions - ", value, option);
+      setZipCode(value);
+    };
+
+    return debounce(loadOptions, 400);
+  }, []);
+
+  const options = useMemo(() => {
+    return data?.map((zipCode) => ({
+      label: `${zipCode.name}, ${zipCode.primary_city}, ${zipCode.region}, ${zipCode.country_name}, ${zipCode.country_code}`,
+      value: zipCode.key,
+      uid: zipCode.region_id,
+    }));
+  }, [data]);
 
   return (
-    <Autocomplete
-      inputProps={{
-        classNames: {
-          input: "!text-white",
-          label: "!text-gray-500",
-        },
-      }}
-      label="Zip Code"
-      {...props}
-      onInputChange={(_val) => {
-        clearTimeout(timerRef.current);
-        setValue(_val);
-        timerRef.current = setTimeout(() => {
-          setZipCode(_val);
-        }, 500);
-      }}
-      inputValue={value}
-    >
-      {zipCodes && zipCodes.length > 0 ? (
-        zipCodes.map((zipCode) => (
-          <AutocompleteItem
-            key={zipCode.region_id}
-            textValue={`${zipCode.name}, ${zipCode.primary_city}, ${zipCode.region}, ${zipCode.country_name}, ${zipCode.country_code}`}
-          >
-            <div className="flex items-center gap-3">
-              {zipCode.name}, {zipCode.primary_city}, {zipCode.region},{" "}
-              {zipCode.country_name}, {zipCode.country_code}
-            </div>
-          </AutocompleteItem>
-        ))
-      ) : (
-        <AutocompleteItem key={"no-country-found"} isReadOnly>
-          No countries found
-        </AutocompleteItem>
-      )}
-    </Autocomplete>
-  );
-}
-
-function SelectZipCodes2(props: Omit<AutocompleteProps, "children">) {
-  const { state } = useUser();
-  const accessToken = Platform.getPlatform(
-    state.data?.facebook
-  )?.userAccessToken;
-  const [value, setValue] = useState("");
-  const [zipCode, setZipCode] = useState("");
-  const { data: zipCodes, isLoading } = useGetZipCodes(zipCode, accessToken);
-  const timerRef = useRef<NodeJS.Timeout>();
-
-  console.log("testing | zipCodes - ", zipCodes);
-
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-  };
-
-  return (
-    <div></div>
-    // <Select
-    //   mode="tags"
-    //   style={{ width: "100%" }}
-    //   placeholder="Tags Mode"
-    //   on
-    //   onChange={handleChange}
-    //   options={options}
-    // />
+    <div className="w-full flex flex-col">
+      <label
+        htmlFor=""
+        className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
+      >
+        Zip Codes
+      </label>
+      <Select
+        mode="multiple"
+        labelInValue
+        variant="filled"
+        filterOption={false}
+        onSearch={debounceFetcher}
+        notFoundContent={isFetching ? <Spin size="small" /> : null}
+        options={options}
+        placeholder="Select Zip Codes"
+        {...props}
+      />
+    </div>
   );
 }

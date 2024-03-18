@@ -1,3 +1,4 @@
+import { IAdVariant } from "@/interfaces/IArtiBot";
 import { IAdCampaign } from "@/interfaces/ISocial";
 import { Selection } from "@nextui-org/react";
 import { Key } from "react";
@@ -38,10 +39,15 @@ export type CreateState = {
   tab: CampaignTab;
 };
 
+type CampaignStateMeta = {
+  selectedVariant?: IAdVariant;
+};
+
 type CampaignState = {
   campaigns: IAdCampaign[];
   selected: SelectedMap;
   createState: CreateState;
+  meta: CampaignStateMeta;
 };
 
 type CampaignActions = {
@@ -49,6 +55,10 @@ type CampaignActions = {
   viewAdsByAdset: (adSetId: string) => any;
   setSelected: (key: keyof SelectedMap) => (value: any) => any;
   setCreateState: (value: CreateState) => any;
+  setMeta: (
+    key: keyof CampaignStateMeta,
+    value: CampaignStateMeta[keyof CampaignStateMeta]
+  ) => any;
 };
 
 const initialCampaignState: CampaignState = {
@@ -63,6 +73,7 @@ const initialCampaignState: CampaignState = {
     open: false,
     tab: CampaignTab.CAMPAIGNS,
   },
+  meta: {},
 };
 
 const useCampaignStore = create<CampaignState & CampaignActions>((set) => ({
@@ -98,6 +109,15 @@ const useCampaignStore = create<CampaignState & CampaignActions>((set) => ({
         ...state.selected,
         [key]: value,
       },
+    }));
+  },
+  setMeta: (
+    key: keyof CampaignStateMeta,
+    value: CampaignStateMeta[keyof CampaignStateMeta]
+  ) => {
+    set((state) => ({
+      ...state,
+      [key]: value,
     }));
   },
   reset: () => {

@@ -28,7 +28,7 @@ import { BsUiRadiosGrid } from "react-icons/bs";
 import { HiMiniFolder } from "react-icons/hi2";
 import UiTable from "@/components/shared/renderers/UiTable";
 import { FaEllipsisVertical } from "react-icons/fa6";
-import React, { Key, useState } from "react";
+import React, { Key, useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
 import CampaignView from "./components/Campaign/CampaignView";
@@ -65,6 +65,11 @@ interface AdManagerListModalProps {
 }
 export default function AdManagerListModal(props: AdManagerListModalProps) {
   const { open, handleClose, selectedVariant } = props;
+  const { setMeta } = useCampaignStore();
+
+  useEffect(() => {
+    setMeta("selectedVariant", selectedVariant);
+  }, [selectedVariant, setMeta]);
 
   return (
     <UiModal

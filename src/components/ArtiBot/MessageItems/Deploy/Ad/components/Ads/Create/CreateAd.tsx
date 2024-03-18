@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Key, useEffect, useMemo, useState } from "react";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -13,6 +13,17 @@ import {
 import { Divider } from "antd";
 import Image from "next/image";
 import { carouselImage1 as ProfileImage } from "@/assets/images/carousel-images";
+import useCampaignStore from "@/store/campaign";
+import useConversations from "@/hooks/useConversations";
+import useAdCreatives from "@/hooks/useAdCreatives";
+import { useSearchParams } from "next/navigation";
+import { difference, sortBy } from "lodash";
+import { IAdVariant } from "@/interfaces/IArtiBot";
+import { useGetAdAccountId, useGetAdSets, useGetCampaigns } from "@/api/user";
+import { Platform, useUser } from "@/context/UserContext";
+import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
 
 const BILLING_EVENT = [{ name: "Impressions", uid: "impressions" }];
 
@@ -152,8 +163,93 @@ const SOCIAL_PAGES = [
   { name: "button", uid: "button" },
 ];
 
+interface CreateAdFormValues {
+  campaign_id: string;
+  adset_id: string;
+  adName: string;
+  primaryText: string;
+  callToAction: string;
+  status: boolean;
+}
+
+const validationSchema = yup.object().shape({
+  campaign_id: yup.string().required("Campaign is required"),
+  adset_id: yup.string().required("Ad Set is required"),
+  adName: yup.string().required("Ad Name is required"),
+  primaryText: yup.string().required("Primary Text is required"),
+  callToAction: yup.string().required("Call to Action is required"),
+});
+
 export default function CreateAd() {
-  const [isSelected, setIsSelected] = React.useState(false);
+  const resolver = useYupValidationResolver(validationSchema);
+  const { handleSubmit, formState, register, setValue, watch } =
+    useForm<CreateAdFormValues>({
+      resolver,
+    });
+
+  const campaignValue = watch("campaign_id");
+  const adsetValue = watch("adset_id");
+  const adNameValue = watch("adName");
+  const primaryTextValue = watch("primaryText");
+
+  const { meta } = useCampaignStore();
+  const [selectedVariantId, setSelectedVariantId] = React.useState<string>("");
+
+  useEffect(() => {
+    setSelectedVariantId(meta.selectedVariant?.id ?? "");
+  }, [meta.selectedVariant?.id]);
+
+  const { state } = useUser();
+  const accessToken = Platform.getPlatform(
+    state.data?.facebook
+  ).userAccessToken;
+  const { data: accountId } = useGetAdAccountId(accessToken);
+  const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns({
+    accessToken,
+    accountId,
+  });
+  const { data: adsets, isLoading: isAdsetFetching } = useGetAdSets({
+    accessToken,
+    accountId,
+    campaignIds: [campaignValue],
+  });
+
+  const { adVariantsByConversationId } = useAdCreatives();
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get("conversation_id")?.toString();
+
+  const unSortedAdCreatives =
+    adVariantsByConversationId[conversationId as string].list;
+
+  const adCreatives = sortBy(unSortedAdCreatives, "updatedAt").reverse();
+
+  const [erroredAdVariants, setErroredAdVariants] = useState<IAdVariant[]>([]);
+
+  const selectedVariant = useMemo(() => {
+    return unSortedAdCreatives
+      .map((adCreative) => adCreative.variants)
+      .flat()
+      .find((variant) => variant.id === selectedVariantId);
+  }, [unSortedAdCreatives, selectedVariantId]);
+
+  useEffect(() => {
+    console.log("testing | selectedVariant - ", selectedVariant);
+  }, [selectedVariant]);
+
+  useEffect(() => {
+    console.log("testing | unSortedAdCreatives - ", unSortedAdCreatives);
+  }, [unSortedAdCreatives]);
+
+  useEffect(() => {
+    console.log("testing | selectedVariantId - ", selectedVariantId);
+  }, [selectedVariantId]);
+
+  useEffect(() => {
+    if (selectedVariant?.oneLiner)
+      setValue("adName", selectedVariant?.oneLiner);
+    if (selectedVariant?.text) setValue("primaryText", selectedVariant?.text);
+  }, [selectedVariant, setValue]);
+
   return (
     <form action="" className="flex gap-4 pb-6 overflow-hidden flex-1">
       <div className="flex flex-col gap-4 justify-between flex-1">
@@ -169,20 +265,31 @@ export default function CreateAd() {
                   label: "!text-gray-500",
                 },
               }}
+              isDisabled={isCampaignsFetching}
               label="Campaign"
-              placeholder={"Select Campaign"}
+              placeholder={
+                isCampaignsFetching ? "Fetching Campaigns" : "Select Campaign"
+              }
+              onSelectionChange={(key: Key) => {
+                setValue("campaign_id", key as string);
+              }}
+              selectedKey={campaignValue}
+              errorMessage={formState.errors.campaign_id?.message}
             >
-              {CTA.map((optimisationGoal) => (
-                <AutocompleteItem
-                  key={optimisationGoal.value}
-                  textValue={optimisationGoal.name}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {optimisationGoal.name}
-                  </div>
+              {campaigns && campaigns.length > 0 ? (
+                campaigns.map((campaign) => (
+                  <AutocompleteItem key={campaign.id} textValue={campaign.name}>
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {campaign.name}
+                    </div>
+                  </AutocompleteItem>
+                ))
+              ) : (
+                <AutocompleteItem key={"no-country-found"} isReadOnly>
+                  No campaigns found
                 </AutocompleteItem>
-              ))}
+              )}
             </Autocomplete>
             <Autocomplete
               inputProps={{
@@ -191,20 +298,29 @@ export default function CreateAd() {
                   label: "!text-gray-500",
                 },
               }}
+              isDisabled={isAdsetFetching || !campaignValue}
               label="Ad Set"
-              placeholder={"Select Ad Set"}
+              placeholder={isAdsetFetching ? "Fetching Adsets" : "Select Adset"}
+              onSelectionChange={(key: Key) => {
+                setValue("adset_id", key as string);
+              }}
+              selectedKey={adsetValue}
+              errorMessage={formState.errors.adset_id?.message}
             >
-              {CTA.map((optimisationGoal) => (
-                <AutocompleteItem
-                  key={optimisationGoal.value}
-                  textValue={optimisationGoal.name}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {optimisationGoal.name}
-                  </div>
+              {adsets && adsets.length > 0 ? (
+                adsets.map((adset) => (
+                  <AutocompleteItem key={adset.id} textValue={adset.name}>
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {adset.name}
+                    </div>
+                  </AutocompleteItem>
+                ))
+              ) : (
+                <AutocompleteItem key={"no-country-found"} isReadOnly>
+                  No adsets found
                 </AutocompleteItem>
-              ))}
+              )}
             </Autocomplete>
             <Divider className="my-2" />
             <Input
@@ -213,7 +329,9 @@ export default function CreateAd() {
               }}
               label="Ad Name"
               variant="flat"
-              // errorMessage={formState.errors.description?.message}
+              value={adNameValue}
+              onValueChange={(value: string) => setValue("adName", value)}
+              errorMessage={formState.errors.adName?.message}
             />
           </div>
           <Input
@@ -222,7 +340,9 @@ export default function CreateAd() {
             }}
             label="Primary Text"
             variant="flat"
-            // errorMessage={formState.errors.description?.message}
+            value={primaryTextValue}
+            onValueChange={(value: string) => setValue("primaryText", value)}
+            errorMessage={formState.errors.primaryText?.message}
           />
           <Autocomplete
             inputProps={{
@@ -277,301 +397,72 @@ export default function CreateAd() {
               base: "overflow-hidden",
             }}
             orientation="vertical"
+            onChange={(value: any) => {
+              setSelectedVariantId(value[1]);
+            }}
+            value={[
+              selectedVariantId ??
+                meta.selectedVariant?.id ??
+                adCreatives[0]?.variants[0]?.id,
+            ]}
           >
-            <Checkbox
-              classNames={{
-                base: cn(
-                  "inline-flex w-full max-w-md bg-content2",
-                  "hover:bg-content3 items-center justify-start",
-                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                  "data-[selected=true]:border-primary, !m-0"
-                ),
-                label: "w-full",
-              }}
-              isSelected={isSelected}
-              onValueChange={setIsSelected}
-              value="buenos-aires"
-            >
-              <div className="w-full flex justify-between gap-2">
-                <div className="flex gap-2">
-                  <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                    <Image
-                      className="w-full h-full object-cover hover:object-contain"
-                      src={ProfileImage}
-                      alt="Profile Image"
-                    />
-                  </div>
-                  <span className="text-small max-w-[170px]">
-                    This is some ad objective of your choice
-                  </span>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  {/* <span className="text-tiny text-default-500">
+            {adCreatives?.map((adCreative) => {
+              return (
+                <div key={adCreative.id} className="flex flex-col gap-3">
+                  <p className="text-xs text-gray-300">
+                    {adCreative.adObjective}
+                  </p>
+                  {difference(adCreative.variants, erroredAdVariants)?.map(
+                    (variant) => {
+                      return (
+                        <Checkbox
+                          key={variant.id}
+                          classNames={{
+                            base: cn(
+                              "inline-flex w-full max-w-md bg-content2",
+                              "hover:bg-content3 items-center justify-start",
+                              "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
+                              "data-[selected=true]:border-primary, !m-0"
+                            ),
+                            label: "w-full",
+                          }}
+                          value={variant.id}
+                        >
+                          <div className="w-full flex justify-between gap-2">
+                            <div className="flex gap-2">
+                              <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
+                                <Image
+                                  className="w-full h-full object-cover hover:object-contain"
+                                  src={variant.imageUrl}
+                                  alt="Profile Image"
+                                  onError={() => {
+                                    setErroredAdVariants((c) => [
+                                      ...c,
+                                      variant,
+                                    ]);
+                                  }}
+                                />
+                              </div>
+                              <span className="text-small max-w-[170px]">
+                                {variant.oneLiner}
+                              </span>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              {/* <span className="text-tiny text-default-500">
                               Facebook
                             </span> */}
-                  <Chip color="success" size="sm" variant="flat">
-                    New
-                  </Chip>
+                              <Chip color="success" size="sm" variant="flat">
+                                New
+                              </Chip>
+                            </div>
+                          </div>
+                        </Checkbox>
+                      );
+                    }
+                  )}
                 </div>
-              </div>
-            </Checkbox>
-            <Checkbox
-              classNames={{
-                base: cn(
-                  "inline-flex w-full max-w-md bg-content2",
-                  "hover:bg-content3 items-center justify-start",
-                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                  "data-[selected=true]:border-primary, !m-0"
-                ),
-                label: "w-full",
-              }}
-              isSelected={isSelected}
-              onValueChange={setIsSelected}
-              value="buenos-aires"
-            >
-              <div className="w-full flex justify-between gap-2">
-                <div className="flex gap-2">
-                  <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                    <Image
-                      className="w-full h-full object-cover hover:object-contain"
-                      src={ProfileImage}
-                      alt="Profile Image"
-                    />
-                  </div>
-                  <span className="text-small max-w-[170px]">
-                    This is some ad objective of your choice
-                  </span>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  {/* <span className="text-tiny text-default-500">
-                              Facebook
-                            </span> */}
-                  <Chip color="success" size="sm" variant="flat">
-                    New
-                  </Chip>
-                </div>
-              </div>
-            </Checkbox>
-            <Checkbox
-              classNames={{
-                base: cn(
-                  "inline-flex w-full max-w-md bg-content2",
-                  "hover:bg-content3 items-center justify-start",
-                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                  "data-[selected=true]:border-primary, !m-0"
-                ),
-                label: "w-full",
-              }}
-              isSelected={isSelected}
-              onValueChange={setIsSelected}
-              value="buenos-aires"
-            >
-              <div className="w-full flex justify-between gap-2">
-                <div className="flex gap-2">
-                  <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                    <Image
-                      className="w-full h-full object-cover hover:object-contain"
-                      src={ProfileImage}
-                      alt="Profile Image"
-                    />
-                  </div>
-                  <span className="text-small max-w-[170px]">
-                    This is some ad objective of your choice
-                  </span>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  {/* <span className="text-tiny text-default-500">
-                              Facebook
-                            </span> */}
-                  <Chip color="success" size="sm" variant="flat">
-                    New
-                  </Chip>
-                </div>
-              </div>
-            </Checkbox>
-            <Checkbox
-              classNames={{
-                base: cn(
-                  "inline-flex w-full max-w-md bg-content2",
-                  "hover:bg-content3 items-center justify-start",
-                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                  "data-[selected=true]:border-primary, !m-0"
-                ),
-                label: "w-full",
-              }}
-              isSelected={isSelected}
-              onValueChange={setIsSelected}
-              value="buenos-aires"
-            >
-              <div className="w-full flex justify-between gap-2">
-                <div className="flex gap-2">
-                  <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                    <Image
-                      className="w-full h-full object-cover hover:object-contain"
-                      src={ProfileImage}
-                      alt="Profile Image"
-                    />
-                  </div>
-                  <span className="text-small max-w-[170px]">
-                    This is some ad objective of your choice
-                  </span>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  {/* <span className="text-tiny text-default-500">
-                              Facebook
-                            </span> */}
-                  <Chip color="success" size="sm" variant="flat">
-                    New
-                  </Chip>
-                </div>
-              </div>
-            </Checkbox>
-            <Checkbox
-              classNames={{
-                base: cn(
-                  "inline-flex w-full max-w-md bg-content2",
-                  "hover:bg-content3 items-center justify-start",
-                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                  "data-[selected=true]:border-primary, !m-0"
-                ),
-                label: "w-full",
-              }}
-              isSelected={isSelected}
-              onValueChange={setIsSelected}
-              value="buenos-aires"
-            >
-              <div className="w-full flex justify-between gap-2">
-                <div className="flex gap-2">
-                  <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                    <Image
-                      className="w-full h-full object-cover hover:object-contain"
-                      src={ProfileImage}
-                      alt="Profile Image"
-                    />
-                  </div>
-                  <span className="text-small max-w-[170px]">
-                    This is some ad objective of your choice
-                  </span>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  {/* <span className="text-tiny text-default-500">
-                              Facebook
-                            </span> */}
-                  <Chip color="success" size="sm" variant="flat">
-                    New
-                  </Chip>
-                </div>
-              </div>
-            </Checkbox>
-            <Checkbox
-              classNames={{
-                base: cn(
-                  "inline-flex w-full max-w-md bg-content2",
-                  "hover:bg-content3 items-center justify-start",
-                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                  "data-[selected=true]:border-primary, !m-0"
-                ),
-                label: "w-full",
-              }}
-              isSelected={isSelected}
-              onValueChange={setIsSelected}
-              value="london"
-            >
-              <div className="w-full flex justify-between gap-2">
-                <div className="flex gap-2">
-                  <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                    <Image
-                      className="w-full h-full object-cover hover:object-contain"
-                      src={ProfileImage}
-                      alt="Profile Image"
-                    />
-                  </div>
-                  <span className="text-small max-w-[170px]">
-                    This is some ad objective of your choice
-                  </span>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  {/* <span className="text-tiny text-default-500">
-                              Facebook
-                            </span> */}
-                  {/* <Chip color="success" size="sm" variant="flat"></Chip> */}
-                </div>
-              </div>
-            </Checkbox>
-            <Checkbox
-              classNames={{
-                base: cn(
-                  "inline-flex w-full max-w-md bg-content2",
-                  "hover:bg-content3 items-center justify-start",
-                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                  "data-[selected=true]:border-primary, !m-0"
-                ),
-                label: "w-full",
-              }}
-              isSelected={isSelected}
-              onValueChange={setIsSelected}
-              value="nonon"
-            >
-              <div className="w-full flex justify-between gap-2">
-                <div className="flex gap-2">
-                  <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                    <Image
-                      className="w-full h-full object-cover hover:object-contain"
-                      src={ProfileImage}
-                      alt="Profile Image"
-                    />
-                  </div>
-                  <span className="text-small max-w-[170px]">
-                    This is some ad objective of your choice
-                  </span>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  {/* <span className="text-tiny text-default-500">
-                              Facebook
-                            </span>
-                            <Chip color="success" size="sm" variant="flat">
-                              Active
-                            </Chip> */}
-                </div>
-              </div>
-            </Checkbox>
-            <Checkbox
-              classNames={{
-                base: cn(
-                  "inline-flex w-full max-w-md bg-content2",
-                  "hover:bg-content3 items-center justify-start",
-                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                  "data-[selected=true]:border-primary, !m-0"
-                ),
-                label: "w-full",
-              }}
-              isSelected={isSelected}
-              onValueChange={setIsSelected}
-              value="123"
-            >
-              <div className="w-full flex justify-between gap-2">
-                <div className="flex gap-2">
-                  <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                    <Image
-                      className="w-full h-full object-cover hover:object-contain"
-                      src={ProfileImage}
-                      alt="Profile Image"
-                    />
-                  </div>
-                  <span className="text-small max-w-[170px]">
-                    This is some ad objective of your choice
-                  </span>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  {/* <span className="text-tiny text-default-500">
-                              Facebook
-                            </span>
-                            <Chip color="success" size="sm" variant="flat">
-                              Active
-                            </Chip> */}
-                </div>
-              </div>
-            </Checkbox>
+              );
+            })}
           </CheckboxGroup>
           <Divider className="my-2" />
           <Autocomplete

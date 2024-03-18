@@ -26,6 +26,11 @@ const config: ThemeConfig = {
   token: {
     colorPrimary: "#ed02eb",
   },
+  components: {
+    Select: {
+      controlHeight: 40,
+    },
+  },
   algorithm: theme.darkAlgorithm,
 };
 

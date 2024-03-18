@@ -1,45 +1,50 @@
 import { useGetCountries } from "@/api/user";
-import {
-  Autocomplete,
-  AutocompleteItem,
-  AutocompleteProps,
-} from "@nextui-org/react";
+import { Select, SelectProps, Spin } from "antd";
+import { useMemo } from "react";
 
-export default function SelectCountries(
-  props: Omit<AutocompleteProps, "children">
-) {
-  const { data: countries, isLoading } = useGetCountries();
+export default function SelectCountries(props: SelectProps) {
+  const { data: countries, isFetching } = useGetCountries();
+
+  const options = useMemo(() => {
+    return (
+      countries?.map((country) => ({
+        value: country.uid,
+        label: country.country + ", " + country.region,
+        uid: country.uid,
+        countryObj: country,
+      })) ?? []
+    );
+  }, [countries]);
+
+  const filterOption = (input: string, option?: any) => {
+    return (
+      (option?.countryObj.country ?? "")
+        .toLowerCase()
+        .includes(input.toLowerCase()) ||
+      (option?.countryObj.region ?? "")
+        .toLowerCase()
+        .includes(input.toLowerCase())
+    );
+  };
 
   return (
-    <Autocomplete
-      inputProps={{
-        classNames: {
-          input: "!text-white",
-          label: "!text-gray-500",
-        },
-      }}
-      isDisabled={isLoading}
-      label="Country"
-      placeholder={isLoading ? "Fetching Countries..." : "Select Country"}
-      {...props}
-    >
-      {countries && countries.length > 0 ? (
-        countries.map((country) => (
-          <AutocompleteItem
-            key={country.uid}
-            textValue={`${country.country}, ${country.region}`}
-          >
-            <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              {country.country}, {country.region}
-            </div>
-          </AutocompleteItem>
-        ))
-      ) : (
-        <AutocompleteItem key={"no-country-found"} isReadOnly>
-          No countries found
-        </AutocompleteItem>
-      )}
-    </Autocomplete>
+    <div className="w-full flex flex-col">
+      <label
+        htmlFor=""
+        className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
+      >
+        Country
+      </label>
+      <Select
+        mode="multiple"
+        labelInValue
+        variant="filled"
+        filterOption={filterOption}
+        notFoundContent={isFetching ? <Spin size="small" /> : null}
+        options={options}
+        placeholder="Select Countries"
+        {...props}
+      />
+    </div>
   );
 }
