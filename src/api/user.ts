@@ -493,7 +493,7 @@ export function useLinkAccount() {
 }
 
 export function useGetCampaigns(): UseQueryResult<IAdCampaign[], Error> {
-  const { accessToken, accountId } = useCredentials();
+  const { accessToken, accountId, isFetching } = useCredentials();
   const getCampaigns = async ({ queryKey }: QueryFunctionContext) => {
     const [, accessToken, accountId] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
@@ -507,7 +507,7 @@ export function useGetCampaigns(): UseQueryResult<IAdCampaign[], Error> {
     return response.data.data;
   };
 
-  return useQuery<IAdCampaign[]>({
+  const query = useQuery<IAdCampaign[]>({
     queryKey: API_QUERIES.GET_CAMPAIGNS(accessToken, accountId),
     queryFn: getCampaigns,
     enabled: !!accessToken && !!accountId,
@@ -518,6 +518,11 @@ export function useGetCampaigns(): UseQueryResult<IAdCampaign[], Error> {
       return failureCount < 3;
     },
   });
+
+  return {
+    ...query,
+    isFetching: isFetching || query.isFetching,
+  };
 }
 
 export function useGetAdSets({
@@ -947,8 +952,8 @@ export const useCredentials = () => {
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   ).userAccessToken;
-  const { data: accountId } = useGetAdAccountId(accessToken);
-  return { accessToken, accountId };
+  const { data: accountId, isFetching } = useGetAdAccountId(accessToken);
+  return { accessToken, accountId, isFetching };
 };
 
 export const useAdImageUpload = () => {

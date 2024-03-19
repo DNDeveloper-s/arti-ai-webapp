@@ -13,7 +13,7 @@ import {
 import { Divider } from "antd";
 import Image from "next/image";
 import { carouselImage1 as ProfileImage } from "@/assets/images/carousel-images";
-import useCampaignStore from "@/store/campaign";
+import useCampaignStore, { CampaignTab } from "@/store/campaign";
 import useConversations from "@/hooks/useConversations";
 import useAdCreatives from "@/hooks/useAdCreatives";
 import { useSearchParams } from "next/navigation";
@@ -198,9 +198,9 @@ export default function CreateAd() {
       resolver,
     });
 
-  const { mutate: postCreateAd, isPending } = useCreateAd();
+  const { mutate: postCreateAd, isPending, isSuccess } = useCreateAd();
 
-  const { meta } = useCampaignStore();
+  const { meta, setCreateState } = useCampaignStore();
 
   const campaignValue = watch("campaign_id");
   const adsetValue = watch("adset_id");
@@ -276,6 +276,12 @@ export default function CreateAd() {
       },
     });
   }
+
+  useEffect(() => {
+    if (isSuccess) {
+      setCreateState({ tab: CampaignTab.ADSETS, open: false });
+    }
+  }, [isSuccess, setCreateState]);
 
   return (
     <form
