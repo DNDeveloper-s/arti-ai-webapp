@@ -1,9 +1,4 @@
-import {
-  ICreateAdset,
-  useCreateAdset,
-  useGetAdAccountId,
-  useGetCampaigns,
-} from "@/api/user";
+import { ICreateAdset, useCreateAdset, useGetCampaigns } from "@/api/user";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import {
   Autocomplete,
@@ -13,7 +8,7 @@ import {
   Switch,
 } from "@nextui-org/react";
 import { DatePicker } from "antd";
-import { Key, useEffect } from "react";
+import { Key, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { object, string, mixed, number } from "yup";
 import SelectCountries from "./SelectCountries";
@@ -63,11 +58,59 @@ const OPTIMISATION_GOALS = [
   { name: "Social Impressions", uid: "SOCIAL_IMPRESSIONS" },
 ];
 
-const getBillingEventList = (optimizationGoal: string) => {
-  switch (optimizationGoal) {
-    case "THRUPLAY":
+const conditionalData = {
+  OUTCOME_APP_PROMOTION: {
+    billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
+    optimisationGoals: [
+      { name: "App Installs", uid: "APP_INSTALLS" },
+      { name: "Impressions", uid: "IMPRESSIONS" },
+      { name: "Link Clicks", uid: "LINK_CLICKS" },
+      { name: "Reach", uid: "REACH" },
+      {
+        name: "App Installs and Offsite Conversions",
+        uid: "APP_INSTALLS_AND_OFFSITE_CONVERSIONS",
+      },
+    ],
+    promotedObject: {
+      application_id: "645064660474863",
+      object_store_url: "http://www.facebook.com/gaming/play/645064660474863/",
+    },
+  },
+  OUTCOME_LEADS: {
+    billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
+    optimisationGoals: [
+      { name: "Impressions", uid: "IMPRESSIONS" },
+      { name: "Link Clicks", uid: "LINK_CLICKS" },
+      { name: "Reach", uid: "REACH" },
+      { name: "Lead Generation", uid: "LEAD_GENERATION" },
+      { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
+    ],
+    promotedObject: {
+      application_id: "645064660474863",
+      object_store_url: "http://www.facebook.com/gaming/play/645064660474863/",
+    },
+  },
+  OUTCOME_SALES: {
+    billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
+    optimisationGoals: [
+      { name: "Impressions", uid: "IMPRESSIONS" },
+      { name: "Link Clicks", uid: "LINK_CLICKS" },
+      { name: "Reach", uid: "REACH" },
+      { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
+      { name: "Offsite Conversions", uid: "OFFSITE_CONVERSIONS" },
+      { name: "Conversations", uid: "CONVERSATIONS" },
+    ],
+    promotedObject: {
+      product_catalog_id: "",
+    },
+  },
+};
+
+const getOptimisationGoalList = (objective: string) => {
+  switch (objective) {
+    case "OUTCOME_APP_PROMOTION":
       return [
-        { name: "Thruplay", uid: "THRUPLAY" },
+        { name: "App Installs", uid: "APP_INSTALLS" },
         { name: "Impressions", uid: "IMPRESSIONS" },
       ];
     case "LINK_CLICKS":
@@ -78,6 +121,23 @@ const getBillingEventList = (optimizationGoal: string) => {
     default:
       return [{ name: "Impressions", uid: "IMPRESSIONS" }];
   }
+};
+
+const getBillingEventList = (optimizationGoal: string) => {
+  // switch (optimizationGoal) {
+  //   case "THRUPLAY":
+  //     return [
+  //       { name: "Thruplay", uid: "THRUPLAY" },
+  //       { name: "Impressions", uid: "IMPRESSIONS" },
+  //     ];
+  //   case "LINK_CLICKS":
+  //     return [
+  //       { name: "Link Clicks", uid: "LINK_CLICKS" },
+  //       { name: "Impressions", uid: "IMPRESSIONS" },
+  //     ];
+  //   default:
+  return [{ name: "Impressions", uid: "IMPRESSIONS" }];
+  // }
 };
 
 const CUSTOM_AUDIENCES = [
@@ -112,6 +172,12 @@ const ZIP_CODES = [
   { uid: "10024", name: "UA Ukraine 123 Chernyakhiv" },
 ];
 
+const BID_STRATEGIES = [
+  { name: "Lowest Cost without Cap", uid: "LOWEST_COST_WITHOUT_CAP" },
+  { name: "Lowest Cost with Bid Cap", uid: "LOWEST_COST_WITH_BID_CAP" },
+  { name: "Cost Cap", uid: "COST_CAP" },
+];
+
 type CreateAdsetFormValues = Omit<
   ICreateAdset,
   "targeting" | "promoted_object" | "start_time" | "end_time"
@@ -121,14 +187,17 @@ type CreateAdsetFormValues = Omit<
   demographics: any;
   start_time: Dayjs;
   end_time: Dayjs;
+  product_catalog_id: string;
 };
 
 const validationSchema = object({
   name: string().required("Adset Name is required"),
   daily_budget: number().required("Daily Budget is required"),
-  bid_amount: number().required("Bid Amount is required"),
   billing_event: string().required("Billing Event is required"),
   optimization_goal: string().required("Optimization Goal is required"),
+  bid_strategy: string().required("Bid Strategy is required"),
+  bid_amount: number(),
+  product_catalog_id: string(),
   status: string().required("Status is required"),
   start_time: string().required("Start Time is required"),
   end_time: string().required("End Time is required"),
@@ -144,15 +213,7 @@ export default function CreateAdset() {
     useForm<CreateAdsetFormValues>({
       resolver,
     });
-  const { state } = useUser();
-  const accessToken = Platform.getPlatform(
-    state.data?.facebook
-  ).userAccessToken;
-  const { data: accountId } = useGetAdAccountId(accessToken);
-  const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns({
-    accessToken,
-    accountId,
-  });
+  const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns();
 
   const {
     mutate: postCreateAdset,
@@ -171,6 +232,7 @@ export default function CreateAdset() {
   const statusValue = watch("status");
   const startTimeValue = watch("start_time");
   const endTimeValue = watch("end_time");
+  const bidStrategyValue = watch("bid_strategy");
 
   useEffect(() => {
     setValue("status", "ACTIVE");
@@ -206,8 +268,27 @@ export default function CreateAdset() {
 
   function handleCreate(data: CreateAdsetFormValues) {
     console.log("data - ", data);
-    const formData = omit(data, ["countries", "zip_codes", "demographics"]);
-    const adset = {
+    const formData = omit(data, [
+      "countries",
+      "zip_codes",
+      "demographics",
+      "bid_amount",
+    ]);
+
+    let promotedObject = {};
+    if (campaignObjective === "OUTCOME_SALES") {
+      promotedObject = {
+        product_catalog_id: data.product_catalog_id,
+      };
+    } else if (campaignObjective === "OUTCOME_APP_PROMOTION") {
+      promotedObject = {
+        application_id: "645064660474863",
+        object_store_url:
+          "http://www.facebook.com/gaming/play/645064660474863/",
+      };
+    }
+
+    const adset: any = {
       ...formData,
       targeting: {
         device_platforms: ["mobile"],
@@ -221,21 +302,19 @@ export default function CreateAdset() {
         flexible_spec: formDemographics(),
         user_os: ["android", "ios"],
       },
-      promoted_object: {
-        application_id: "645064660474863",
-        object_store_url:
-          "http://www.facebook.com/gaming/play/645064660474863/",
-      },
+      promoted_object: promotedObject,
       start_time: dayjs(data.start_time).format("YYYY-MM-DDTHH:mm:ssZ"),
       end_time: dayjs(data.end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
-      bid_amount: +data.bid_amount,
+      bid_strategy: data.bid_strategy,
       daily_budget: +data.daily_budget,
     };
 
+    if (data.bid_strategy !== "LOWEST_COST_WITHOUT_CAP") {
+      adset.bid_amount = +data.bid_amount;
+    }
+
     postCreateAdset({
       adset,
-      accessToken,
-      accountId,
     });
   }
 
@@ -254,6 +333,10 @@ export default function CreateAdset() {
   function handleError() {
     console.log("error - ", formState.errors);
   }
+
+  const campaignObjective = useMemo(() => {
+    return campaigns?.find((c) => c.id === campaignValue)?.objective;
+  }, [campaignValue, campaigns]);
 
   return (
     <form
@@ -317,17 +400,48 @@ export default function CreateAdset() {
           errorMessage={formState.errors.daily_budget?.message}
           // errorMessage={formState.errors.description?.message}
         />
-        <Input
-          classNames={{
-            label: "!text-gray-500",
+        <Autocomplete
+          inputProps={{
+            classNames: {
+              input: "!text-white",
+              label: "!text-gray-500",
+            },
           }}
-          label="Bid Cap"
-          variant="flat"
-          type="number"
-          {...register("bid_amount")}
-          errorMessage={formState.errors.bid_amount?.message}
-          // errorMessage={formState.errors.description?.message}
-        />
+          label="Bid Strategy"
+          placeholder={"Select Bid Strategy"}
+          onSelectionChange={(key: Key) => {
+            setValue("bid_strategy", key as string);
+          }}
+          selectedKey={bidStrategyValue}
+          errorMessage={formState.errors.bid_strategy?.message}
+        >
+          {BID_STRATEGIES.map((bidStrategy) => (
+            <AutocompleteItem
+              key={bidStrategy.uid}
+              textValue={bidStrategy.name}
+            >
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {bidStrategy.name}
+              </div>
+            </AutocompleteItem>
+          ))}
+        </Autocomplete>
+        {["LOWEST_COST_WITH_BID_CAP", "COST_CAP"].includes(
+          bidStrategyValue
+        ) && (
+          <Input
+            classNames={{
+              label: "!text-gray-500",
+            }}
+            label="Bid Cap"
+            variant="flat"
+            type="number"
+            {...register("bid_amount")}
+            errorMessage={formState.errors.bid_amount?.message}
+            // errorMessage={formState.errors.description?.message}
+          />
+        )}
         <div className="flex gap-3 items-center">
           <div className="flex-1">
             <label
@@ -387,7 +501,10 @@ export default function CreateAdset() {
           selectedKey={optimisationValue}
           errorMessage={formState.errors.optimization_goal?.message}
         >
-          {OPTIMISATION_GOALS.map((optimisationGoal) => (
+          {(
+            conditionalData[campaignObjective as keyof typeof conditionalData]
+              ?.optimisationGoals ?? OPTIMISATION_GOALS
+          ).map((optimisationGoal) => (
             <AutocompleteItem
               key={optimisationGoal.uid}
               textValue={optimisationGoal.name}
@@ -414,7 +531,10 @@ export default function CreateAdset() {
           selectedKey={billingEventValue}
           errorMessage={formState.errors.billing_event?.message}
         >
-          {getBillingEventList(optimisationValue).map((billingEvent) => (
+          {(
+            conditionalData[campaignObjective as keyof typeof conditionalData]
+              ?.billingEvent ?? getBillingEventList(optimisationValue)
+          ).map((billingEvent) => (
             <AutocompleteItem
               key={billingEvent.uid}
               textValue={billingEvent.name}
@@ -466,6 +586,17 @@ export default function CreateAdset() {
               setValue("demographics", option);
             }}
           />
+          {campaignObjective === "OUTCOME_SALES" && (
+            <Input
+              classNames={{
+                label: "!text-gray-500",
+              }}
+              label="Product Catalog Id"
+              variant="flat"
+              {...register("product_catalog_id")}
+              errorMessage={formState.errors.product_catalog_id?.message}
+            />
+          )}
 
           {/* <Autocomplete
             inputProps={{

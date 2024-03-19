@@ -5,9 +5,7 @@ const API_QUERIES = {
     page_id,
     page_access_token,
   ],
-  CREATE_SOCIAL_POST: [
-    "create-social-post",
-  ],
+  CREATE_SOCIAL_POST: ["create-social-post"],
   GET_AD_ACCOUNT_ID: (access_token?: string | null) => [
     "get-ad-account-id",
     access_token,
@@ -55,6 +53,15 @@ const API_QUERIES = {
     accountId?: string | null,
     access_token?: string | null
   ) => ["get-interests", query, accountId, access_token],
+  UPLOAD_AD_IMAGE: (accountId?: string, accessToken?: string | null) => [
+    "upload-ad-image",
+    accountId,
+    accessToken,
+  ],
+  CREATE_FACEBOOK_AD_CREATIVE: (
+    accountId?: string,
+    accessToken?: string | null
+  ) => ["create-facebook-ad-creative", accountId, accessToken],
 };
 
 export default API_QUERIES;

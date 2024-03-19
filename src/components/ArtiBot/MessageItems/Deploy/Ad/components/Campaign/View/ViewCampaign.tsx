@@ -53,16 +53,8 @@ export default function ViewCampaign(
     onCampaignSelection?: any;
   }
 ) {
-  const { state } = useUser();
-  const accessToken = Platform.getPlatform(
-    state.data?.facebook
-  ).userAccessToken;
-  const { data: accountId, isFetching: isAccountIdFetching } =
-    useGetAdAccountId(accessToken);
-  const { data: campaigns, isFetching: isCampaignsFetching } = useGetCampaigns({
-    accountId: accountId,
-    accessToken: accessToken,
-  });
+  const { data: campaigns, isFetching: isCampaignsFetching } =
+    useGetCampaigns();
 
   const { setCreateState, selected, setSelected, viewAdsetsByCampaign } =
     useCampaignStore();
@@ -175,7 +167,7 @@ export default function ViewCampaign(
   //     }
   //   }
 
-  const isFetching = isAccountIdFetching || isCampaignsFetching;
+  const isFetching = isCampaignsFetching;
   return (
     <UiTable
       columns={columns}

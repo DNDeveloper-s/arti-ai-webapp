@@ -19,11 +19,20 @@ import useAdCreatives from "@/hooks/useAdCreatives";
 import { useSearchParams } from "next/navigation";
 import { difference, sortBy } from "lodash";
 import { IAdVariant } from "@/interfaces/IArtiBot";
-import { useGetAdAccountId, useGetAdSets, useGetCampaigns } from "@/api/user";
+import {
+  useAdImageUpload,
+  useCreateAd,
+  useCreateFacebookAdCreative,
+  useGetAdAccountId,
+  useGetAdSets,
+  useGetCampaigns,
+  useUserPages,
+} from "@/api/user";
 import { Platform, useUser } from "@/context/UserContext";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { imageUrlToBase64 } from "@/utils/transformers";
 
 const BILLING_EVENT = [{ name: "Impressions", uid: "impressions" }];
 
@@ -166,15 +175,17 @@ const SOCIAL_PAGES = [
 interface CreateAdFormValues {
   campaign_id: string;
   adset_id: string;
+  page_id: string;
   adName: string;
   primaryText: string;
   callToAction: string;
-  status: boolean;
+  status: "ACTIVE" | "PAUSED";
 }
 
 const validationSchema = yup.object().shape({
   campaign_id: yup.string().required("Campaign is required"),
   adset_id: yup.string().required("Ad Set is required"),
+  page_id: yup.string().required("Page is required"),
   adName: yup.string().required("Ad Name is required"),
   primaryText: yup.string().required("Primary Text is required"),
   callToAction: yup.string().required("Call to Action is required"),
@@ -187,43 +198,45 @@ export default function CreateAd() {
       resolver,
     });
 
+  const { mutate: postCreateAd, isPending } = useCreateAd();
+
+  const { meta } = useCampaignStore();
+
   const campaignValue = watch("campaign_id");
   const adsetValue = watch("adset_id");
   const adNameValue = watch("adName");
   const primaryTextValue = watch("primaryText");
+  const callToActionValue = watch("callToAction");
+  const statusValue = watch("status");
 
-  const { meta } = useCampaignStore();
   const [selectedVariantId, setSelectedVariantId] = React.useState<string>("");
-
-  useEffect(() => {
-    setSelectedVariantId(meta.selectedVariant?.id ?? "");
-  }, [meta.selectedVariant?.id]);
-
-  const { state } = useUser();
-  const accessToken = Platform.getPlatform(
-    state.data?.facebook
-  ).userAccessToken;
-  const { data: accountId } = useGetAdAccountId(accessToken);
-  const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns({
-    accessToken,
-    accountId,
-  });
+  const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns();
   const { data: adsets, isLoading: isAdsetFetching } = useGetAdSets({
-    accessToken,
-    accountId,
     campaignIds: [campaignValue],
   });
+  const { state } = useUser();
+
+  const {
+    data: pagesData,
+    // isError,
+    // isSuccess,
+    error,
+    refetch,
+    isLoading: isPagesLoading,
+  } = useUserPages();
+
+  const pageIdValue = watch("page_id");
+  const facebookPages = state.data?.facebook?.pages;
 
   const { adVariantsByConversationId } = useAdCreatives();
   const searchParams = useSearchParams();
+  const [erroredAdVariants, setErroredAdVariants] = useState<IAdVariant[]>([]);
+
   const conversationId = searchParams.get("conversation_id")?.toString();
 
   const unSortedAdCreatives =
     adVariantsByConversationId[conversationId as string].list;
-
   const adCreatives = sortBy(unSortedAdCreatives, "updatedAt").reverse();
-
-  const [erroredAdVariants, setErroredAdVariants] = useState<IAdVariant[]>([]);
 
   const selectedVariant = useMemo(() => {
     return unSortedAdCreatives
@@ -233,16 +246,8 @@ export default function CreateAd() {
   }, [unSortedAdCreatives, selectedVariantId]);
 
   useEffect(() => {
-    console.log("testing | selectedVariant - ", selectedVariant);
-  }, [selectedVariant]);
-
-  useEffect(() => {
-    console.log("testing | unSortedAdCreatives - ", unSortedAdCreatives);
-  }, [unSortedAdCreatives]);
-
-  useEffect(() => {
-    console.log("testing | selectedVariantId - ", selectedVariantId);
-  }, [selectedVariantId]);
+    setSelectedVariantId(meta.selectedVariant?.id ?? "");
+  }, [meta.selectedVariant?.id]);
 
   useEffect(() => {
     if (selectedVariant?.oneLiner)
@@ -250,9 +255,34 @@ export default function CreateAd() {
     if (selectedVariant?.text) setValue("primaryText", selectedVariant?.text);
   }, [selectedVariant, setValue]);
 
+  async function handleCreateAd(data: CreateAdFormValues) {
+    if (!selectedVariant?.imageUrl) return null;
+
+    postCreateAd({
+      imageUrl: selectedVariant?.imageUrl,
+      ad: {
+        adSetId: data.adset_id,
+        status: data.status,
+        campaignId: data.campaign_id,
+        name: data.adName,
+      },
+      adCreativeData: {
+        ad_creative: {
+          call_to_action_type: data.callToAction,
+          message: data.primaryText,
+          name: data.adName,
+        },
+        pageId: data.page_id,
+      },
+    });
+  }
+
   return (
-    <form action="" className="flex gap-4 pb-6 overflow-hidden flex-1">
-      <div className="flex flex-col gap-4 justify-between flex-1">
+    <form
+      onSubmit={handleSubmit(handleCreateAd)}
+      className="flex gap-4 pb-6 overflow-auto flex-1"
+    >
+      <div className="flex flex-col gap-4 justify-between flex-1 h-full">
         <div className="flex flex-col gap-4 flex-1">
           <div className="flex flex-col gap-2">
             <label htmlFor="" className="!text-gray-500 !text-small">
@@ -353,15 +383,17 @@ export default function CreateAd() {
             }}
             label="Call to Action"
             placeholder={"Select CTA"}
+            onSelectionChange={(key: Key) => {
+              setValue("callToAction", key as string);
+            }}
+            selectedKey={callToActionValue}
+            errorMessage={formState.errors.callToAction?.message}
           >
-            {CTA.map((optimisationGoal) => (
-              <AutocompleteItem
-                key={optimisationGoal.value}
-                textValue={optimisationGoal.name}
-              >
+            {CTA.map((cta) => (
+              <AutocompleteItem key={cta.value} textValue={cta.name}>
                 <div className="flex items-center gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {optimisationGoal.name}
+                  {cta.name}
                 </div>
               </AutocompleteItem>
             ))}
@@ -376,13 +408,17 @@ export default function CreateAd() {
             }}
             color="primary"
             size="sm"
+            onValueChange={(value) => {
+              setValue("status", value ? "ACTIVE" : "PAUSED");
+            }}
+            isSelected={statusValue === "ACTIVE"}
           >
             Active
           </Switch>
         </div>
 
-        <Button type="submit" color="primary">
-          <span>Create Adset</span>
+        <Button isLoading={isPending} type="submit" color="primary">
+          <span>Create Ad</span>
         </Button>
       </div>
 
@@ -433,6 +469,8 @@ export default function CreateAd() {
                               <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
                                 <Image
                                   className="w-full h-full object-cover hover:object-contain"
+                                  width={200}
+                                  height={200}
                                   src={variant.imageUrl}
                                   alt="Profile Image"
                                   onError={() => {
@@ -472,35 +510,30 @@ export default function CreateAd() {
                 label: "!text-gray-500",
               },
             }}
+            isDisabled={isPagesLoading}
             label="Social Media Page"
-            placeholder={"Select Page"}
-            selectedKey={"michael_scott"}
+            placeholder={isPagesLoading ? "Fetching Pages..." : "Select a Page"}
+            onSelectionChange={(key: Key) => {
+              setValue("page_id", key as string);
+            }}
+            selectedKey={pageIdValue}
+            errorMessage={formState.errors.page_id?.message}
           >
-            {SOCIAL_PAGES.map((billingEvent, ind) => {
-              const isLastItem = ind === SOCIAL_PAGES.length - 1;
-              return (
-                <AutocompleteItem
-                  key={billingEvent.uid}
-                  textValue={billingEvent.name}
-                  classNames={{
-                    base: isLastItem ? "!bg-transparent" : "",
-                    selectedIcon: isLastItem ? "hidden" : "",
-                  }}
-                  isReadOnly={isLastItem}
-                >
-                  {isLastItem ? (
-                    <div className="flex flex-1">
-                      <Button className="w-full">Create Social Page</Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {billingEvent.name}
-                    </div>
-                  )}
+            {facebookPages && facebookPages.length > 0 ? (
+              facebookPages.map((page) => (
+                <AutocompleteItem key={page.id} textValue={page.name}>
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={page.picture} className="w-6 h-6" alt="Page" />
+                    {page.name}
+                  </div>
                 </AutocompleteItem>
-              );
-            })}
+              ))
+            ) : (
+              <AutocompleteItem key={"no-page-found"} isReadOnly>
+                No pages found
+              </AutocompleteItem>
+            )}
 
             {/* <AutocompleteItem key={"billingEvent.uid"} textValue={"Nice one"}>
                 

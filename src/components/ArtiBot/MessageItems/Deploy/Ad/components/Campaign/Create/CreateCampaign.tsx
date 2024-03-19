@@ -21,6 +21,7 @@ const CAMPAIGN_OBJECTIVES = [
   { name: "Engagement", uid: "OUTCOME_ENGAGEMENT" },
   { name: "Leads", uid: "OUTCOME_LEADS" },
   { name: "App Promotion", uid: "OUTCOME_APP_PROMOTION" },
+  { name: "Sales", uid: "OUTCOME_SALES" },
 ];
 
 const validationSchema = object({

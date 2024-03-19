@@ -34,15 +34,15 @@ export default function CreateAdManagerModal() {
       classNames={{
         base:
           createState.tab !== CampaignTab.CAMPAIGNS
-            ? "!max-w-[900px] !max-h-[600px] !w-full"
-            : "!max-w-[600px] !max-h-[600px] !w-full",
+            ? "!max-w-[900px] !max-h-[70vh] !w-full"
+            : "!max-w-[600px] !max-h-[90vh] !w-full",
       }}
     >
       <ModalContent>
         <ModalHeader>
           Create {AD_MANAGER_TABS[createState.tab]?.singular}
         </ModalHeader>
-        <ModalBody className="overflow-hidden">
+        <ModalBody className="overflow-auto">
           {createState.tab === CampaignTab.CAMPAIGNS && <CreateCampaign />}
           {createState.tab === CampaignTab.ADSETS && <CreateAdset />}
           {createState.tab === CampaignTab.ADS && <CreateAd />}

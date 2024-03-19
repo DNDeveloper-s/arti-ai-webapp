@@ -1,7 +1,7 @@
 import { ROUTES } from "@/config/api-config";
 import API_QUERIES from "@/config/api-queries";
 import { IUserAccount, IUserFacebookPost, IUserPage } from "@/interfaces/IUser";
-import { SupportedPlatform, useUser } from "@/context/UserContext";
+import { Platform, SupportedPlatform, useUser } from "@/context/UserContext";
 import {
   Query,
   QueryFunctionContext,
@@ -15,7 +15,7 @@ import { String } from "aws-sdk/clients/acm";
 import axios, { AxiosError } from "axios";
 import { access } from "fs";
 import { SnackbarContext } from "@/context/SnackbarContext";
-import { useCallback, useContext } from "react";
+import { use, useCallback, useContext } from "react";
 import { IAd, IAdCampaign, IAdSet } from "@/interfaces/ISocial";
 import { ZipCodeResponseObject } from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/Adset/Create/SelectZipCodes";
 import { useSession } from "next-auth/react";
@@ -33,7 +33,14 @@ axios.interceptors.response.use(
     return response;
   },
   function (error) {
-    if (error.response?.data) return Promise.reject(error.response?.data);
+    const responseData = error.response?.data;
+    console.log("error in axios - ", error);
+    if (responseData) {
+      if (responseData.error?.fbtrace_id) {
+        return Promise.reject({ message: responseData.error.error_user_msg });
+      }
+      return Promise.reject(error.response?.data);
+    }
 
     return Promise.reject(error);
   }
@@ -44,6 +51,7 @@ export function useUserPages(
 ): UseQueryResult<IUserPage[], Error> {
   const queryClient = useQueryClient();
   const { setUserPagesData } = useUser();
+  const { accessToken: _accessToken } = useCredentials();
 
   const fetchUserPages = async ({ queryKey, meta }: QueryFunctionContext) => {
     const _accessToken = queryKey[1];
@@ -59,7 +67,7 @@ export function useUserPages(
   };
 
   const query = useQuery<IUserPage[]>({
-    queryKey: API_QUERIES.USER_PAGES(accessToken),
+    queryKey: API_QUERIES.USER_PAGES(_accessToken),
     queryFn: fetchUserPages,
     networkMode: "offlineFirst",
     retry(failureCount, error) {
@@ -484,13 +492,8 @@ export function useLinkAccount() {
   });
 }
 
-export function useGetCampaigns({
-  accessToken,
-  accountId,
-}: {
-  accessToken: string | null;
-  accountId: string | null;
-}): UseQueryResult<IAdCampaign[], Error> {
+export function useGetCampaigns(): UseQueryResult<IAdCampaign[], Error> {
+  const { accessToken, accountId } = useCredentials();
   const getCampaigns = async ({ queryKey }: QueryFunctionContext) => {
     const [, accessToken, accountId] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
@@ -518,14 +521,11 @@ export function useGetCampaigns({
 }
 
 export function useGetAdSets({
-  accessToken,
-  accountId,
   campaignIds,
 }: {
-  accessToken: string | null;
-  accountId: string | null;
   campaignIds?: string[] | null;
 }): UseQueryResult<IAdSet[], Error> {
+  const { accessToken, accountId } = useCredentials();
   const getAdSets = async ({ queryKey }: QueryFunctionContext) => {
     const [, accessToken, accountId, campaignIds] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
@@ -657,6 +657,7 @@ export interface ICreateAdset {
   optimization_goal: string;
   status: string;
   campaign_id: string;
+  bid_strategy: string;
   start_time: string;
   end_time: string;
   targeting?: {
@@ -674,6 +675,7 @@ export interface ICreateAdset {
   promoted_object?: {
     application_id?: string;
     object_store_url?: string;
+    product_catalog_id?: string;
   };
 }
 
@@ -681,15 +683,9 @@ export const useCreateAdset = () => {
   const queryClient = useQueryClient();
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
-  const createAdset = async ({
-    adset,
-    accessToken,
-    accountId,
-  }: {
-    adset: ICreateAdset;
-    accessToken: string | null;
-    accountId: string;
-  }) => {
+  const { accessToken, accountId } = useCredentials();
+
+  const createAdset = async ({ adset }: { adset: ICreateAdset }) => {
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
     const response = await axios.post(ROUTES.ADS.ADSETS, {
@@ -709,8 +705,8 @@ export const useCreateAdset = () => {
         predicate: (query: Query) => {
           const cond =
             query.queryKey[0] === API_QUERIES.GET_ADSETS()[0] &&
-            query.queryKey[1] === variables.accessToken &&
-            query.queryKey[2] === variables.accountId &&
+            query.queryKey[1] === accessToken &&
+            query.queryKey[2] === accountId &&
             (query.queryKey[3] === null ||
               query.queryKey[3] === undefined ||
               (query.queryKey[3] as string[]).includes(
@@ -747,34 +743,53 @@ interface ICreateAdCreative {
     call_to_action_type: string;
     message: string;
   };
-  imageHash: string;
+  imageHash?: string;
   pageId: string;
 }
 
 export const useCreateAd = () => {
   const queryClient = useQueryClient();
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+  const { accessToken, accountId } = useCredentials();
 
   const createAd = async ({
     ad,
     adCreativeData,
-    accessToken,
-    accountId,
+    imageUrl,
   }: {
     ad: ICreateAd;
     adCreativeData: ICreateAdCreative;
-    accessToken: string;
-    accountId: string;
+    imageUrl: string | File;
   }) => {
+    if (!accessToken) throw new Error("Access token is required");
+    if (!accountId) throw new Error("Account id is required");
+
+    const formData = new FormData();
+    formData.append("imageUrl", imageUrl);
+    formData.append("access_token", accessToken);
+    formData.append("account_id", accountId);
+
+    const uploadImageresponse = await axios.post(
+      ROUTES.ADS.ADIMAGES,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    const imageHash = uploadImageresponse.data.data;
+
     const adCreativeResponse = await axios.post(ROUTES.ADS.ADCREATIVES, {
       ad_creative: adCreativeData.ad_creative,
-      imageHash: adCreativeData.imageHash,
-      adAccountId: accountId,
-      accessToken,
-      pageId: adCreativeData.pageId,
+      image_hash: imageHash,
+      account_id: accountId,
+      access_token: accessToken,
+      page_id: adCreativeData.pageId,
     });
 
-    const adCreativeId = adCreativeResponse.data["id"];
+    const adCreativeId = adCreativeResponse.data.data;
 
     const response = await axios.post(ROUTES.ADS.AD_ENTITIES, {
       ad: {
@@ -793,11 +808,17 @@ export const useCreateAd = () => {
     mutationFn: createAd,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: API_QUERIES.GET_ADS(
-          variables.accessToken,
-          variables.accountId,
-          [variables.ad.adSetId]
-        ),
+        predicate: (query: Query) => {
+          const cond =
+            query.queryKey[0] === API_QUERIES.GET_ADS()[0] &&
+            query.queryKey[1] === accessToken &&
+            query.queryKey[2] === accountId &&
+            (query.queryKey[3] === null ||
+              query.queryKey[3] === undefined ||
+              (query.queryKey[3] as string[]).includes(variables.ad.adSetId) ||
+              (query.queryKey[3] as string[])?.length === 0);
+          return cond;
+        },
       });
       setSnackBarData({
         message: "Ad created successfully!",
@@ -917,6 +938,93 @@ export const useGetInterests = (
         return false;
       }
       return failureCount < 3;
+    },
+  });
+};
+
+export const useCredentials = () => {
+  const { state } = useUser();
+  const accessToken = Platform.getPlatform(
+    state.data?.facebook
+  ).userAccessToken;
+  const { data: accountId } = useGetAdAccountId(accessToken);
+  return { accessToken, accountId };
+};
+
+export const useAdImageUpload = () => {
+  const { accessToken, accountId } = useCredentials();
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+  const uploadImage = async ({ imageBytes }: { imageBytes: any }) => {
+    const response = await axios.post(
+      ROUTES.ADS.ADIMAGES,
+      { bytes: imageBytes, access_token: accessToken },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data["images"]["bytes"]["hash"];
+  };
+
+  return useMutation({
+    mutationKey: API_QUERIES.UPLOAD_AD_IMAGE(accountId, accessToken),
+    mutationFn: uploadImage,
+    retry(failureCount, error) {
+      if (error instanceof Error) {
+        return false;
+      }
+      return failureCount < 3;
+    },
+    onError: (error) => {
+      setSnackBarData({
+        message: error.message ?? "Couldn't upload the image for the Ad!",
+        status: "error",
+      });
+    },
+  });
+};
+
+export const useCreateFacebookAdCreative = () => {
+  const { accessToken, accountId } = useCredentials();
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+  const createFacebookAdCreative = async ({
+    adCreative,
+    imageHash,
+    pageId,
+  }: {
+    adCreative: any;
+    imageHash: string;
+    pageId: string;
+  }) => {
+    const response = await axios.post(ROUTES.ADS.ADCREATIVES, {
+      ad_creative: adCreative,
+      image_hash: imageHash,
+      account_id: accountId,
+      access_token: accessToken,
+      page_id: pageId,
+    });
+
+    return response.data["id"];
+  };
+
+  return useMutation({
+    mutationKey: API_QUERIES.CREATE_FACEBOOK_AD_CREATIVE(
+      accountId,
+      accessToken
+    ),
+    mutationFn: createFacebookAdCreative,
+    retry(failureCount, error) {
+      if (error instanceof Error) {
+        return false;
+      }
+      return failureCount < 3;
+    },
+    onError: (error) => {
+      setSnackBarData({
+        message: error.message ?? "Couldn't create the Ad Creative!",
+        status: "error",
+      });
     },
   });
 };

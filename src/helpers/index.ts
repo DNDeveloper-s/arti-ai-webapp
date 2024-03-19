@@ -151,7 +151,7 @@ export const getConversationURL = (
 export const isProduction = process.env.NODE_ENV === "production";
 
 export const getNextImageProxyUrl = (url: string) => {
-  return `https://artiai.org/_next/image?url=${url}&w=1080&q=75`;
+  return `${window ? window.location.origin : "https://artiai.org"}/_next/image?url=${url}&w=1080&q=75`;
 };
 
 export const debounce = (fn: Function, delay: number) => {
