@@ -46,7 +46,8 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
     setUserChoice(null);
   };
 
-  const hasNoAccount = (state.data?.accounts ?? []).length === 0;
+  const hasNoAccount =
+    (state.data?.accounts ?? []).filter(c => c.provider === "facebook").length === 0;
 
   if (hasNoAccount) {
     return <ConnectProviderModal />;
