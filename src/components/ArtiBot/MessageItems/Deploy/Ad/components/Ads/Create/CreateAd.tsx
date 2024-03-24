@@ -1,4 +1,4 @@
-import React, { Key, useEffect, useMemo, useState } from "react";
+import React, { FC, Key, useEffect, useMemo, useState } from "react";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -13,19 +13,21 @@ import {
 import { Divider } from "antd";
 import Image from "next/image";
 import { carouselImage1 as ProfileImage } from "@/assets/images/carousel-images";
+import UserAvatar from "@/assets/images/UserAvatar.webp";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
 import useConversations from "@/hooks/useConversations";
 import useAdCreatives from "@/hooks/useAdCreatives";
 import { useSearchParams } from "next/navigation";
 import { difference, sortBy } from "lodash";
 import { IAdVariant } from "@/interfaces/IArtiBot";
+import everyOneImage from "@/assets/images/case-study/everyone.png";
 import {
   useAdImageUpload,
   useCreateAd,
   useCreateFacebookAdCreative,
-  useGetAdAccountId,
   useGetAdSets,
   useGetCampaigns,
+  useUpdateAd,
   useUserPages,
 } from "@/api/user";
 import { Platform, useUser } from "@/context/UserContext";
@@ -33,39 +35,20 @@ import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { imageUrlToBase64 } from "@/utils/transformers";
+import { Brand, brands } from "@/constants/landingPageData";
+import { RxCross1 } from "react-icons/rx";
+import { SlOptionsVertical } from "react-icons/sl";
+import { AiOutlineLike } from "react-icons/ai";
+import { GoComment } from "react-icons/go";
+import { TbShare3 } from "react-icons/tb";
+import { IAd } from "@/interfaces/ISocial";
+import { getSubmitText } from "../../../CreateAdManagerModal";
 
 const BILLING_EVENT = [{ name: "Impressions", uid: "impressions" }];
 
 const CUSTOM_AUDIENCES = [
   { name: "Website Audience", uid: "website_audience" },
   { name: "Audience", uid: "audience" },
-];
-
-const ZIP_CODES = [
-  { uid: "10001", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10002", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10003", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10004", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10005", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10006", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10007", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10008", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10009", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10010", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10011", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10012", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10013", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10014", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10015", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10016", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10017", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10018", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10019", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10020", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10021", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10022", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10023", name: "UA Ukraine 123 Chernyakhiv" },
-  { uid: "10024", name: "UA Ukraine 123 Chernyakhiv" },
 ];
 
 const CTA = [
@@ -172,6 +155,116 @@ const SOCIAL_PAGES = [
   { name: "button", uid: "button" },
 ];
 
+interface FacebookAdPreviewProps {
+  text: string;
+  image: string;
+  brandLogo?: string;
+  brandLabel?: string;
+}
+const FacebookAdPreview = ({
+  text,
+  image,
+  brandLogo,
+  brandLabel,
+}: FacebookAdPreviewProps) => {
+  return (
+    <div
+      className={"w-[300px] h-auto bg-gray-800 ad-preview-card py-3"}
+      style={
+        {
+          // "--shadow": "0 0 50px #bebebe45",
+        }
+      }
+    >
+      <div className={"flex items-center justify-between px-3 gap-4"}>
+        <div className={"flex items-center gap-4"}>
+          <div className={"w-7 h-7 rounded-full overflow-hidden"}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={"w-full h-full object-cover"}
+              src={brandLogo ?? UserAvatar.src}
+              alt={brandLabel ?? "Brand Name"}
+            />
+          </div>
+          <div className={"flex flex-col justify-center gap-1"}>
+            <div className={"text-xs text-white font-bold overflow-hidden"}>
+              <span className={"truncate block max-w-[160px]"}>
+                {brandLabel ?? "Brand Name"}
+              </span>
+            </div>
+            <div className={"flex items-center gap-2"}>
+              <span className={"text-[9px] font-light text-gray-300"}>
+                Sponsored
+              </span>
+              <div className={"w-0.5 h-0.5 bg-gray-200 rounded-full"} />
+              <Image
+                className={"w-2 h-2"}
+                src={everyOneImage}
+                alt={"Everyone Image"}
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          className={
+            "flex items-center gap-3 text-sm text-white cursor-pointer"
+          }
+        >
+          <RxCross1 />
+          <SlOptionsVertical />
+        </div>
+      </div>
+      <div className={"text-white text-[11px] mt-1.5 px-3 line-clamp-3"}>
+        <span>{text}</span>
+      </div>
+      <div className={"w-full h-auto mt-2"}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className={"w-full h-auto"}
+          src={image}
+          alt={"Amplified Ad Creative"}
+        />
+      </div>
+      {/* <div
+        className={"bg-gray-700 py-4 px-3 flex items-center justify-between"}
+      >
+        <div className={"text-white flex flex-col text-[10px]"}>
+          <span>FORM ON FACEBOOK</span>
+          <span className={"font-bold"}>{brand.offer}</span>
+          <span>{brand.subOffer}</span>
+        </div>
+        <div>
+          <button
+            className={
+              "py-1.5 px-3 bg-gray-600 rounded text-white text-[13px] font-bold cursor-pointer"
+            }
+          >
+            {brand.cta}
+          </button>
+        </div>
+      </div> */}
+      <div
+        className={
+          "flex text-sm items-center justify-evenly text-white text-[10px] mt-1.5 px-1.5"
+        }
+      >
+        <div className={"flex items-center gap-2 text-[12px]"}>
+          <AiOutlineLike />
+          <span>Like</span>
+        </div>
+        <div className={"flex items-center gap-2 text-[12px]"}>
+          <GoComment />
+          <span>Comment</span>
+        </div>
+        <div className={"flex items-center gap-2 text-[12px]"}>
+          <TbShare3 />
+          <span>Share</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface CreateAdFormValues {
   campaign_id: string;
   adset_id: string;
@@ -198,9 +291,27 @@ export default function CreateAd() {
       resolver,
     });
 
-  const { mutate: postCreateAd, isPending, isSuccess } = useCreateAd();
+  const {
+    mutate: postCreateAd,
+    isPending: isCreating,
+    isSuccess: isCreateSuccess,
+  } = useCreateAd();
 
-  const { meta, setCreateState } = useCampaignStore();
+  const {
+    mutate: postUpdateAd,
+    isPending: isUpdating,
+    isSuccess: isUpdateSuccess,
+  } = useUpdateAd();
+
+  const isSuccess = isCreateSuccess || isUpdateSuccess;
+  const isPending = isCreating || isUpdating;
+
+  const {
+    meta,
+    formState: storeFormState,
+    selected,
+    setFormState,
+  } = useCampaignStore();
 
   const campaignValue = watch("campaign_id");
   const adsetValue = watch("adset_id");
@@ -224,6 +335,18 @@ export default function CreateAd() {
     refetch,
     isLoading: isPagesLoading,
   } = useUserPages();
+
+  const immutableFields = useMemo((): Partial<
+    Record<keyof CreateAdFormValues, boolean>
+  > => {
+    if (storeFormState.mode !== "edit") return {};
+    return {
+      campaign_id: true,
+      adset_id: true,
+      callToAction: true,
+      page_id: true,
+    };
+  }, [storeFormState.mode]);
 
   const pageIdValue = watch("page_id");
   const facebookPages = state.data?.facebook?.pages;
@@ -256,32 +379,106 @@ export default function CreateAd() {
   }, [selectedVariant, setValue]);
 
   async function handleCreateAd(data: CreateAdFormValues) {
-    if (!selectedVariant?.imageUrl) return null;
+    if (!selectedVariant?.imageUrl && storeFormState.mode === "create")
+      return null;
 
-    postCreateAd({
-      imageUrl: selectedVariant?.imageUrl,
-      ad: {
-        adSetId: data.adset_id,
-        status: data.status,
-        campaignId: data.campaign_id,
-        name: data.adName,
-      },
-      adCreativeData: {
-        ad_creative: {
-          call_to_action_type: data.callToAction,
-          message: data.primaryText,
-          name: data.adName,
-        },
-        pageId: data.page_id,
-      },
-    });
+    storeFormState.mode === "edit" && storeFormState.open === true
+      ? postUpdateAd({
+          ad: {
+            name: data.adName,
+            status: data.status,
+            adsetId: data.adset_id,
+            creativeId: storeFormState.rawData.creative.id,
+          },
+          adId: storeFormState.rawData.id,
+        })
+      : postCreateAd({
+          imageUrl: selectedVariant?.imageUrl,
+          ad: {
+            adsetId: data.adset_id,
+            status: data.status,
+            campaignId: data.campaign_id,
+            name: data.adName,
+          },
+          adCreativeData: {
+            ad_creative: {
+              call_to_action_type: data.callToAction,
+              message: data.primaryText,
+              name: data.adName,
+            },
+            pageId: data.page_id,
+          },
+        });
   }
+
+  const previewData = useMemo(() => {
+    if (selectedVariant) {
+      return {
+        text: selectedVariant.text,
+        image: selectedVariant.imageUrl,
+      };
+    }
+
+    if (storeFormState.mode === "edit" && storeFormState.open === true) {
+      const formData = storeFormState.rawData as IAd;
+      return {
+        text: formData.creative.object_story_spec?.link_data?.message ?? "",
+        image: formData.creative.image_url ?? "",
+      };
+    }
+  }, [selectedVariant, storeFormState]);
+
+  useEffect(() => {
+    if (storeFormState.mode === "edit" && storeFormState.open === true) {
+      const formData = storeFormState.rawData as IAd;
+      if (!formData) return;
+      setValue("campaign_id", formData.campaign.id);
+      setValue("adset_id", formData.adset.id);
+      setValue("page_id", formData.creative.object_story_spec?.page_id ?? "");
+      setValue("adName", formData.name);
+      setValue(
+        "primaryText",
+        formData.creative.object_story_spec?.link_data?.message ?? ""
+      );
+      setValue(
+        "callToAction",
+        formData.creative.object_story_spec?.link_data?.call_to_action?.type ??
+          ""
+      );
+      setValue("status", formData.status);
+    } else {
+      if (selected.campaigns !== "all" && selected.campaigns.size === 1) {
+        const campaignId = Array.from(selected.campaigns)[0].toString();
+        setValue("campaign_id", campaignId);
+      }
+      if (selected.adsets !== "all" && selected.adsets.size === 1) {
+        const adsetId = Array.from(selected.adsets)[0].toString();
+        setValue("adset_id", adsetId);
+      }
+    }
+  }, [storeFormState, selected, setValue]);
 
   useEffect(() => {
     if (isSuccess) {
-      setCreateState({ tab: CampaignTab.ADSETS, open: false });
+      setFormState({ tab: CampaignTab.ADSETS, open: false });
     }
-  }, [isSuccess, setCreateState]);
+  }, [isSuccess, setFormState]);
+
+  const variants = useMemo(() => {
+    return difference(
+      unSortedAdCreatives.map((adCreative) => adCreative.variants).flat(),
+      erroredAdVariants
+    );
+  }, [unSortedAdCreatives, erroredAdVariants]);
+
+  const selectedPage = useMemo(() => {
+    if (facebookPages && pageIdValue) {
+      return facebookPages.find((page) => page.id === pageIdValue);
+    }
+  }, [pageIdValue, facebookPages]);
+
+  // Check for the image url
+  //
 
   return (
     <form
@@ -301,7 +498,7 @@ export default function CreateAd() {
                   label: "!text-gray-500",
                 },
               }}
-              isDisabled={isCampaignsFetching}
+              isDisabled={isCampaignsFetching || immutableFields["campaign_id"]}
               label="Campaign"
               placeholder={
                 isCampaignsFetching ? "Fetching Campaigns" : "Select Campaign"
@@ -334,7 +531,9 @@ export default function CreateAd() {
                   label: "!text-gray-500",
                 },
               }}
-              isDisabled={isAdsetFetching || !campaignValue}
+              isDisabled={
+                isAdsetFetching || !campaignValue || immutableFields["adset_id"]
+              }
               label="Ad Set"
               placeholder={isAdsetFetching ? "Fetching Adsets" : "Select Adset"}
               onSelectionChange={(key: Key) => {
@@ -359,6 +558,84 @@ export default function CreateAd() {
               )}
             </Autocomplete>
             <Divider className="my-2" />
+            <Autocomplete
+              inputProps={{
+                classNames: {
+                  input: "!text-white",
+                  label: "!text-gray-500",
+                },
+              }}
+              label="Ad Variant"
+              placeholder={"Select Ad Variant"}
+              onSelectionChange={(key: Key) => {
+                setSelectedVariantId(key as string);
+              }}
+              isRequired={false}
+              // disabledKeys={[""]}
+              allowsEmptyCollection
+              formNoValidate={true}
+              selectedKey={selectedVariantId}
+              startContent={
+                selectedVariant ? (
+                  <div className="w-5 h-5 rounded flex-shrink-0 overflow-hidden">
+                    <Image
+                      className="w-full h-full object-cover"
+                      src={selectedVariant.imageUrl}
+                      width={30}
+                      height={30}
+                      alt={"Ad Variant"}
+                    />
+                  </div>
+                ) : null
+              }
+            >
+              {["", ...variants].map((variant) =>
+                typeof variant === "string" ? (
+                  <AutocompleteItem
+                    key={variant}
+                    textValue={variant}
+                    classNames={{
+                      base: "hidden",
+                    }}
+                  ></AutocompleteItem>
+                ) : (
+                  <AutocompleteItem
+                    key={variant.id}
+                    textValue={variant.oneLiner}
+                  >
+                    <>
+                      <div className="w-full flex justify-between gap-2">
+                        <div className="flex gap-2">
+                          <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
+                            <Image
+                              className="w-full h-full object-cover hover:object-contain"
+                              width={200}
+                              height={200}
+                              src={variant.imageUrl}
+                              alt="Profile Image"
+                              onError={() => {
+                                setErroredAdVariants((c) => [...c, variant]);
+                              }}
+                            />
+                          </div>
+                          <span className="text-small max-w-[170px]">
+                            {variant.oneLiner}
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          {/* <span className="text-tiny text-default-500">
+                              Facebook
+                            </span> */}
+                          <Chip color="success" size="sm" variant="flat">
+                            New
+                          </Chip>
+                        </div>
+                      </div>
+                    </>
+                  </AutocompleteItem>
+                )
+              )}
+            </Autocomplete>
             <Input
               classNames={{
                 label: "!text-gray-500",
@@ -389,6 +666,7 @@ export default function CreateAd() {
             }}
             label="Call to Action"
             placeholder={"Select CTA"}
+            isDisabled={immutableFields["campaign_id"]}
             onSelectionChange={(key: Key) => {
               setValue("callToAction", key as string);
             }}
@@ -424,90 +702,27 @@ export default function CreateAd() {
         </div>
 
         <Button isLoading={isPending} type="submit" color="primary">
-          <span>Create Ad</span>
+          <span>{getSubmitText(storeFormState, isPending, "Ad")}</span>
         </Button>
       </div>
 
       <div className="flex flex-col gap-4 flex-1 space-between">
         <div className="flex flex-col gap-4 flex-1 overflow-hidden">
-          <CheckboxGroup
-            label="Select Ad Variants"
-            defaultValue={["buenos-aires", "london"]}
-            classNames={{
-              label: "!text-gray-500 !text-small",
-              wrapper: "overflow-auto !flex-col flex-nowrap",
-              base: "overflow-hidden",
-            }}
-            orientation="vertical"
-            onChange={(value: any) => {
-              setSelectedVariantId(value[1]);
-            }}
-            value={[
-              selectedVariantId ??
-                meta.selectedVariant?.id ??
-                adCreatives[0]?.variants[0]?.id,
-            ]}
-          >
-            {adCreatives?.map((adCreative) => {
-              return (
-                <div key={adCreative.id} className="flex flex-col gap-3">
-                  <p className="text-xs text-gray-300">
-                    {adCreative.adObjective}
-                  </p>
-                  {difference(adCreative.variants, erroredAdVariants)?.map(
-                    (variant) => {
-                      return (
-                        <Checkbox
-                          key={variant.id}
-                          classNames={{
-                            base: cn(
-                              "inline-flex w-full max-w-md bg-content2",
-                              "hover:bg-content3 items-center justify-start",
-                              "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                              "data-[selected=true]:border-primary, !m-0"
-                            ),
-                            label: "w-full",
-                          }}
-                          value={variant.id}
-                        >
-                          <div className="w-full flex justify-between gap-2">
-                            <div className="flex gap-2">
-                              <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                                <Image
-                                  className="w-full h-full object-cover hover:object-contain"
-                                  width={200}
-                                  height={200}
-                                  src={variant.imageUrl}
-                                  alt="Profile Image"
-                                  onError={() => {
-                                    setErroredAdVariants((c) => [
-                                      ...c,
-                                      variant,
-                                    ]);
-                                  }}
-                                />
-                              </div>
-                              <span className="text-small max-w-[170px]">
-                                {variant.oneLiner}
-                              </span>
-                            </div>
-                            <div className="flex flex-col items-end gap-1">
-                              {/* <span className="text-tiny text-default-500">
-                              Facebook
-                            </span> */}
-                              <Chip color="success" size="sm" variant="flat">
-                                New
-                              </Chip>
-                            </div>
-                          </div>
-                        </Checkbox>
-                      );
-                    }
-                  )}
-                </div>
-              );
-            })}
-          </CheckboxGroup>
+          <div className="flex-1 flex justify-center">
+            {previewData ? (
+              <FacebookAdPreview
+                text={previewData.text}
+                image={previewData.image}
+                brandLabel={selectedPage?.name}
+                brandLogo={selectedPage?.picture}
+              />
+            ) : (
+              <div className="w-[300px] h-[400px] rounded-lg bg-gray-800 flex items-center justify-center text-lg text-gray-600">
+                <p>Select Ad variant to preview</p>
+              </div>
+            )}
+          </div>
+          {/* <AdPreview3 brand={brands["amplified"]} /> */}
           <Divider className="my-2" />
           <Autocomplete
             inputProps={{
@@ -516,7 +731,7 @@ export default function CreateAd() {
                 label: "!text-gray-500",
               },
             }}
-            isDisabled={isPagesLoading}
+            isDisabled={isPagesLoading || immutableFields["page_id"]}
             label="Social Media Page"
             placeholder={isPagesLoading ? "Fetching Pages..." : "Select a Page"}
             onSelectionChange={(key: Key) => {

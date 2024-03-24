@@ -7,6 +7,7 @@ import {
   AutocompleteProps,
 } from "@nextui-org/react";
 import { Select, SelectProps, Spin } from "antd";
+import { compact } from "lodash";
 import { useMemo, useRef, useState } from "react";
 
 export interface ZipCodeResponseObject {
@@ -21,16 +22,18 @@ export interface ZipCodeResponseObject {
   supports_city: boolean;
   supports_region: boolean;
   type: "zip";
+  label?: string;
 }
 
 export default function SelectZipCodes(props: SelectProps) {
+  const { value: zipCodeValue } = props;
   const { state } = useUser();
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   )?.userAccessToken;
   const [value, setValue] = useState("");
   const [zipCode, setZipCode] = useState("");
-  const { data, isFetching } = useGetZipCodes(zipCode, accessToken);
+  const { data, isFetching } = useGetZipCodes(zipCode, zipCodeValue);
   const timerRef = useRef<NodeJS.Timeout>();
 
   const debounceFetcher = useMemo(() => {
@@ -43,11 +46,23 @@ export default function SelectZipCodes(props: SelectProps) {
   }, []);
 
   const options = useMemo(() => {
-    return data?.map((zipCode) => ({
-      label: `${zipCode.name}, ${zipCode.primary_city}, ${zipCode.region}, ${zipCode.country_name}, ${zipCode.country_code}`,
-      value: zipCode.key,
-      uid: zipCode.region_id,
-    }));
+    return data?.map((zipCode) => {
+      if (zipCode.label) {
+        return zipCode;
+      }
+      const zipCodeArr = compact([
+        zipCode.name,
+        zipCode.primary_city,
+        zipCode.region,
+        zipCode.country_name,
+        zipCode.country_code,
+      ]);
+      return {
+        label: zipCodeArr.join(", "),
+        value: zipCode.key,
+        uid: zipCode.region_id,
+      };
+    });
   }, [data]);
 
   return (

@@ -21,15 +21,12 @@ export interface SelectInterestResponseObject {
   supports_city: boolean;
   supports_region: boolean;
   type: "zip";
+  initial?: boolean;
 }
 export default function SelectInterests(props: SelectProps) {
-  const { state } = useUser();
-  const accessToken = Platform.getPlatform(
-    state.data?.facebook
-  )?.userAccessToken;
-  const { data: accountId } = useGetAdAccountId(accessToken);
+  const { value: initialData } = props;
   const [query, setQuery] = useState("");
-  const { data, isFetching } = useGetInterests(query, accountId, accessToken);
+  const { data, isFetching } = useGetInterests(query, initialData);
   const timerRef = useRef<NodeJS.Timeout>();
 
   const debounceFetcher = useMemo(() => {
@@ -42,21 +39,24 @@ export default function SelectInterests(props: SelectProps) {
 
   const options = useMemo(() => {
     return (
-      data?.map((interest) => ({
-        value: interest.id + "-" + interest.type,
-        label: (
-          <div className="flex items-center justify-between gap-3 px-1">
-            <span>{interest.name}</span>
-            <div className="bg-default-200 px-1 text-white rounded text-[10px]">
-              <span>{interest.type}</span>
+      data?.map((interest) => {
+        if (interest.initial) return interest;
+        return {
+          value: interest.id + "-" + interest.type,
+          label: (
+            <div className="flex items-center justify-between gap-3 px-1">
+              <span>{interest.name}</span>
+              <div className="bg-default-200 px-1 text-white rounded text-[10px]">
+                <span>{interest.type}</span>
+              </div>
             </div>
-          </div>
-        ),
-        name: interest.name,
-        id: interest.id,
-        path: interest.path,
-        type: interest.type,
-      })) ?? []
+          ),
+          name: interest.name,
+          id: interest.id,
+          path: interest.path,
+          type: interest.type,
+        };
+      }) ?? []
     );
   }, [data]);
 
@@ -82,6 +82,7 @@ export default function SelectInterests(props: SelectProps) {
         notFoundContent={isFetching ? <Spin size="small" /> : null}
         options={options}
         placeholder="Search for Demographics, Interests or Behaviours"
+        value={initialData}
         tagRender={(props) => {
           const { label, value, closable, onClose } = props;
           return (

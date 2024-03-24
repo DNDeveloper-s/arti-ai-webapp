@@ -1,4 +1,11 @@
-import { Key, useCallback, useEffect, useState } from "react";
+import {
+  Key,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import api from "../../../api/arti_api";
 import Loader from "@/components/Loader";
 import {
@@ -22,8 +29,18 @@ import UiTable from "@/components/shared/renderers/UiTable";
 import { FaEllipsisVertical } from "react-icons/fa6";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
 import { Platform, useUser } from "@/context/UserContext";
-import { useGetAdAccountId, useGetCampaigns } from "@/api/user";
+import {
+  useCredentials,
+  useGetAdAccountId,
+  useGetCampaigns,
+  useUpdateCampaign,
+} from "@/api/user";
 import { access } from "fs";
+import { SnackbarContext } from "@/context/SnackbarContext";
+import { ADMANAGER_STATUS_TYPE, IAdCampaign } from "@/interfaces/ISocial";
+import { useQueryClient } from "@tanstack/react-query";
+import API_QUERIES from "@/config/api-queries";
+import SwitchStatus from "../../SwitchStatus";
 
 const delay = (delay: number) =>
   new Promise((res) => {
@@ -53,15 +70,43 @@ export default function ViewCampaign(
     onCampaignSelection?: any;
   }
 ) {
-  const { data: campaigns, isFetching: isCampaignsFetching } =
-    useGetCampaigns();
+  const queryClient = useQueryClient();
+  const { data: campaigns, isFetching, fetchStatus } = useGetCampaigns();
+  const [snackBarData, setSnackBarData] =
+    useContext(SnackbarContext).snackBarData;
 
-  const { setCreateState, selected, setSelected, viewAdsetsByCampaign } =
-    useCampaignStore();
+  const { mutate: postUpdateCampaign, isPending: isUpdating } =
+    useUpdateCampaign();
+
+  const {
+    setShowProgress,
+    setFormState,
+    selected,
+    setSelected,
+    viewAdsetsByCampaign,
+  } = useCampaignStore();
+
+  useEffect(() => {
+    setShowProgress(isUpdating);
+  }, [isUpdating, setShowProgress]);
+
+  const { accessToken, accountId } = useCredentials();
+
+  const handleToggle = useCallback(
+    (id: string, status: ADMANAGER_STATUS_TYPE) => {
+      postUpdateCampaign({
+        campaign: { status },
+        campaignId: id,
+        successMessage: "Campaign is now " + status + "",
+        errorMessage: "Failed to update campaign status!",
+      });
+    },
+    [postUpdateCampaign]
+  );
 
   const renderCell = useCallback(
-    (campaign: any, columnKey: Key) => {
-      const cellValue = campaign[columnKey];
+    (campaign: IAdCampaign, columnKey: Key) => {
+      const cellValue = campaign[columnKey as keyof IAdCampaign];
 
       switch (columnKey) {
         case "id":
@@ -94,13 +139,12 @@ export default function ViewCampaign(
           );
         case "status":
           return (
-            <div>
-              <Switch
-                isSelected={cellValue === "ACTIVE"}
-                color="primary"
-                size="sm"
-              ></Switch>
-            </div>
+            <SwitchStatus
+              onToggle={(status: ADMANAGER_STATUS_TYPE) =>
+                handleToggle(campaign.id, status)
+              }
+              value={cellValue}
+            />
           );
         case "actions":
           return (
@@ -112,7 +156,18 @@ export default function ViewCampaign(
                   </Button>
                 </DropdownTrigger>
                 <DropdownMenu>
-                  <DropdownItem>View</DropdownItem>
+                  <DropdownItem
+                    onClick={() => {
+                      queryClient.invalidateQueries({
+                        queryKey: API_QUERIES.GET_CAMPAIGNS(
+                          accessToken,
+                          accountId
+                        ),
+                      });
+                    }}
+                  >
+                    View
+                  </DropdownItem>
                   <DropdownItem>Edit</DropdownItem>
                   <DropdownItem>Delete</DropdownItem>
                 </DropdownMenu>
@@ -123,55 +178,46 @@ export default function ViewCampaign(
           return cellValue;
       }
     },
-    [viewAdsetsByCampaign]
+    [viewAdsetsByCampaign, handleToggle, queryClient, accessToken, accountId]
   );
 
   function handleAddClick() {
-    setCreateState({ tab: CampaignTab.CAMPAIGNS, open: true });
+    setFormState({ tab: CampaignTab.CAMPAIGNS, open: true, mode: "create" });
   }
 
-  //   useEffect(() => {
-  //     const queryData = async () => {
-  //       setCampaignList([]);
-  //       await delay(1000);
-  //       initializeCampaignList();
-  //     };
+  function handleEditClick() {
+    try {
+      const currentCampaignId =
+        selected.campaigns instanceof Set &&
+        (selected.campaigns.values().next().value as string);
 
-  //     queryData();
-  //   }, []);
+      const currentCampaign = campaigns?.find(
+        (campaign: IAdCampaign) => campaign.id === currentCampaignId
+      );
 
-  //   async function initializeCampaignList() {
-  //     setLoadingState(true);
+      if (!currentCampaign) {
+        throw new Error("Please select a single campaign to edit");
+      }
 
-  //     try {
-  //       const { adAccountId, getAdAccountIdError } =
-  //         await api.getAdAccountId(accessToken);
+      setFormState({
+        tab: CampaignTab.CAMPAIGNS,
+        open: true,
+        mode: "edit",
+        rawData: currentCampaign,
+      });
+    } catch (e: any) {
+      setSnackBarData({
+        status: "error",
+        message: e.message,
+      });
+    }
+  }
 
-  //       if (getAdAccountIdError) {
-  //         setErrorMessage(getAdAccountIdError);
-  //         return;
-  //       }
-
-  //       const { data, getAllCampaignsError } = await api.getAllCampaigns(
-  //         adAccountId!,
-  //         accessToken
-  //       );
-
-  //       if (getAllCampaignsError) {
-  //         setErrorMessage(getAllCampaignsError);
-  //       } else {
-  //         setCampaignList(data);
-  //       }
-  //     } finally {
-  //       setLoadingState(false);
-  //     }
-  //   }
-
-  const isFetching = isCampaignsFetching;
   return (
-    <UiTable
+    <UiTable<IAdCampaign>
       columns={columns}
       renderCell={renderCell}
+      fetchStatus={fetchStatus}
       totalItems={campaigns ?? []}
       pronoun="campaign"
       selectedKeys={selected.campaigns}
@@ -179,6 +225,7 @@ export default function ViewCampaign(
       emptyContent={isFetching ? "" : "No campaigns found"}
       isLoading={isFetching}
       onAddClick={handleAddClick}
+      onEditClick={handleEditClick}
     />
   );
 }

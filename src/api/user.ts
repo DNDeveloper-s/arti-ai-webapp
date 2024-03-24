@@ -14,11 +14,14 @@ import {
 import { String } from "aws-sdk/clients/acm";
 import axios, { AxiosError } from "axios";
 import { access } from "fs";
-import { SnackbarContext } from "@/context/SnackbarContext";
+import { ISnackbarData, SnackbarContext } from "@/context/SnackbarContext";
 import { use, useCallback, useContext } from "react";
 import { IAd, IAdCampaign, IAdSet } from "@/interfaces/ISocial";
 import { ZipCodeResponseObject } from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/Adset/Create/SelectZipCodes";
 import { useSession } from "next-auth/react";
+import { wait } from "@/helpers";
+import useCampaignStore from "@/store/campaign";
+import { omit } from "lodash";
 
 function getAxiosResponseError(error: any) {
   if (error instanceof Error && error instanceof AxiosError) {
@@ -34,7 +37,6 @@ axios.interceptors.response.use(
   },
   function (error) {
     const responseData = error.response?.data;
-    console.log("error in axios - ", error);
     if (responseData) {
       if (responseData.error?.fbtrace_id) {
         return Promise.reject({ message: responseData.error.error_user_msg });
@@ -199,12 +201,51 @@ export function useCreatePost() {
   });
 }
 
+export interface AdAccount {
+  name: string;
+  id: string;
+}
+
+export function useGetAdAccounts(): UseQueryResult<AdAccount[]> {
+  const { accessToken } = useCredentials();
+
+  const getAdAccounts = async ({ queryKey }: QueryFunctionContext) => {
+    const accessToken = queryKey[1];
+    if (!accessToken) throw new Error("Access token is required");
+    const response = await axios.get(ROUTES.ADS.GET_AD_ACCOUNTS, {
+      params: {
+        access_token: accessToken,
+      },
+    });
+    return response.data.data;
+  };
+
+  return useQuery<AdAccount[]>({
+    queryKey: API_QUERIES.GET_AD_ACCOUNTS(accessToken),
+    queryFn: getAdAccounts,
+    enabled: !!accessToken,
+    retry(failureCount, error) {
+      if (!accessToken && failureCount < 10) {
+        return true;
+      }
+      return failureCount < 3;
+    },
+    retryDelay: (retryCount) => {
+      return retryCount * 1000;
+    },
+    staleTime: 1000 * 60,
+  });
+}
+
+/**@deprecated */
 export function useGetAdAccountId(accessToken: string | null) {
   const getAdAccountId = async ({ queryKey }: QueryFunctionContext) => {
     const accessToken = queryKey[1];
     if (!accessToken) throw new Error("Access token is required");
-    const response = await axios.post(ROUTES.ADS.GET_AD_ACCOUNT_ID, {
-      access_token: accessToken,
+    const response = await axios.get(ROUTES.ADS.GET_AD_ACCOUNT_ID, {
+      params: {
+        access_token: accessToken,
+      },
     });
 
     return response.data.data;
@@ -494,6 +535,7 @@ export function useLinkAccount() {
 
 export function useGetCampaigns(): UseQueryResult<IAdCampaign[], Error> {
   const { accessToken, accountId, isFetching } = useCredentials();
+
   const getCampaigns = async ({ queryKey }: QueryFunctionContext) => {
     const [, accessToken, accountId] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
@@ -530,7 +572,7 @@ export function useGetAdSets({
 }: {
   campaignIds?: string[] | null;
 }): UseQueryResult<IAdSet[], Error> {
-  const { accessToken, accountId } = useCredentials();
+  const { accessToken, accountId, isFetching } = useCredentials();
   const getAdSets = async ({ queryKey }: QueryFunctionContext) => {
     const [, accessToken, accountId, campaignIds] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
@@ -541,12 +583,13 @@ export function useGetAdSets({
         access_token: accessToken,
         account_id: accountId,
         campaign_ids: campaignIds,
+        get_insights: true,
       },
     });
     return response.data.data;
   };
 
-  return useQuery({
+  const query = useQuery({
     queryKey: API_QUERIES.GET_ADSETS(accessToken, accountId, campaignIds),
     queryFn: getAdSets,
     enabled: !!accessToken && !!accountId && !!campaignIds,
@@ -557,36 +600,38 @@ export function useGetAdSets({
       return failureCount < 3;
     },
   });
+
+  return {
+    ...query,
+    isFetching: isFetching || query.isFetching,
+  };
 }
 
-export function useGetAds({
-  accessToken,
-  accountId,
-  adSetIds,
+export function useGetAdSet({
+  adsetId,
+  enabled,
 }: {
-  accessToken: string | null;
-  accountId: string | null;
-  adSetIds?: string[] | null;
-}): UseQueryResult<IAd[], Error> {
-  const getAds = async ({ queryKey }: QueryFunctionContext) => {
-    const [, accessToken, accountId, adSetIds] = queryKey;
+  adsetId?: string;
+  enabled?: boolean;
+}): UseQueryResult<IAdSet, Error> {
+  const { accessToken } = useCredentials();
+  const getAdSet = async ({ queryKey }: QueryFunctionContext) => {
+    const [, accessToken, adsetId] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
-    if (!accountId) throw new Error("Account id is required");
-    if (!adSetIds) throw new Error("Ad set id is required");
-    const response = await axios.get(ROUTES.ADS.AD_ENTITIES, {
+    if (!adsetId) throw new Error("Ad set id is required");
+    const response = await axios.get(ROUTES.ADS.ADSET(adsetId as string), {
       params: {
         access_token: accessToken,
-        account_id: accountId,
-        adset_ids: adSetIds,
+        get_insights: true,
       },
     });
     return response.data.data;
   };
 
-  return useQuery({
-    queryKey: API_QUERIES.GET_ADS(accessToken, accountId, adSetIds),
-    queryFn: getAds,
-    enabled: !!accessToken && !!accountId && !!adSetIds,
+  const query = useQuery({
+    queryKey: API_QUERIES.GET_ADSET(accessToken, adsetId),
+    queryFn: getAdSet,
+    enabled: enabled && !!accessToken && !!adsetId,
     retry(failureCount, error) {
       if (error instanceof Error && error instanceof AxiosError) {
         return false;
@@ -594,6 +639,48 @@ export function useGetAds({
       return failureCount < 3;
     },
   });
+
+  return query;
+}
+
+export function useGetAds({
+  adsetIds,
+}: {
+  adsetIds?: string[] | null;
+}): UseQueryResult<IAd[], Error> {
+  const { accessToken, accountId, isFetching } = useCredentials();
+  const getAds = async ({ queryKey }: QueryFunctionContext) => {
+    const [, accessToken, accountId, adsetIds] = queryKey;
+    if (!accessToken) throw new Error("Access token is required");
+    if (!accountId) throw new Error("Account id is required");
+    if (!adsetIds) throw new Error("Ad set id is required");
+    const response = await axios.get(ROUTES.ADS.AD_ENTITIES, {
+      params: {
+        access_token: accessToken,
+        account_id: accountId,
+        adset_ids: adsetIds,
+        get_insights: true,
+      },
+    });
+    return response.data.data;
+  };
+
+  const query = useQuery({
+    queryKey: API_QUERIES.GET_ADS(accessToken, accountId, adsetIds),
+    queryFn: getAds,
+    enabled: !!accessToken && !!accountId && !!adsetIds,
+    retry(failureCount, error) {
+      if (error instanceof Error && error instanceof AxiosError) {
+        return false;
+      }
+      return failureCount < 3;
+    },
+  });
+
+  return {
+    ...query,
+    isFetching: isFetching || query.isFetching,
+  };
 }
 
 export interface ICreateCampaign {
@@ -604,24 +691,22 @@ export interface ICreateCampaign {
 export const useCreateCampaign = () => {
   const queryClient = useQueryClient();
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+  const { accessToken, accountId } = useCredentials();
 
   const createCampaign = async ({
     campaign,
-    accessToken,
-    accountId,
   }: {
     campaign: ICreateCampaign;
-    accessToken?: string | null;
-    accountId: string;
   }) => {
     if (!accessToken) throw new Error("Access token is required");
-    const response = await axios.post(ROUTES.ADS.CAMPAIGNS, {
-      campaign,
-      access_token: accessToken,
-      account_id: accountId,
+    const response = await axios.post(ROUTES.ADS.CAMPAIGNS, campaign, {
+      params: {
+        access_token: accessToken,
+        account_id: accountId,
+      },
     });
 
-    return response.data;
+    return response.data.data;
   };
 
   return useMutation({
@@ -629,14 +714,11 @@ export const useCreateCampaign = () => {
     mutationFn: createCampaign,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: API_QUERIES.GET_CAMPAIGNS(
-          variables.accessToken,
-          variables.accountId
-        ),
+        queryKey: API_QUERIES.GET_CAMPAIGNS(accessToken, accountId),
       });
       setSnackBarData({
         message: "Campaign created successfully!",
-        status: data.ok ? "success" : "error",
+        status: "success",
       });
     },
     onError: (error) => {
@@ -650,6 +732,65 @@ export const useCreateCampaign = () => {
         return false;
       }
       return failureCount < 3;
+    },
+  });
+};
+
+export const useUpdateCampaign = () => {
+  const queryClient = useQueryClient();
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+
+  const { accessToken, accountId } = useCredentials();
+
+  const updateCampaign = async ({
+    campaignId,
+    campaign,
+    errorMessage,
+    successMessage,
+  }: {
+    campaignId: string;
+    campaign: Partial<ICreateCampaign>;
+    successMessage?: string;
+    errorMessage?: string;
+  }) => {
+    if (!accessToken) throw new Error("Access token is required");
+    if (!accountId) throw new Error("Account id is required");
+    const response = await axios.patch(
+      ROUTES.ADS.CAMPAIGN(campaignId),
+      campaign,
+      {
+        params: {
+          access_token: accessToken,
+          account_id: accountId,
+        },
+      }
+    );
+
+    return response.data;
+  };
+
+  return useMutation({
+    mutationKey: API_QUERIES.UPDATE_CAMPAIGN(accountId, accessToken),
+    mutationFn: updateCampaign,
+    onSuccess: (data, variables) => {
+      setSnackBarData({
+        message: variables.successMessage ?? "Campaign updated successfully!",
+        status: data.ok ? "success" : "error",
+      });
+    },
+    onSettled: (data, error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_CAMPAIGNS(accessToken, accountId),
+      });
+    },
+    onError: (error, variables) => {
+      setSnackBarData({
+        message:
+          variables.errorMessage ??
+          error.message ??
+          "Couldn't update campaign, Please try again!",
+        status: "error",
+      });
     },
   });
 };
@@ -693,13 +834,14 @@ export const useCreateAdset = () => {
   const createAdset = async ({ adset }: { adset: ICreateAdset }) => {
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
-    const response = await axios.post(ROUTES.ADS.ADSETS, {
-      adset,
-      access_token: accessToken,
-      account_id: accountId,
+    const response = await axios.post(ROUTES.ADS.ADSETS, adset, {
+      params: {
+        access_token: accessToken,
+        account_id: accountId,
+      },
     });
 
-    return response.data;
+    return response.data.data;
   };
 
   return useMutation({
@@ -723,7 +865,7 @@ export const useCreateAdset = () => {
       });
       setSnackBarData({
         message: "Adset created successfully!",
-        status: data.ok ? "success" : "error",
+        status: "success",
       });
     },
     onError: (error) => {
@@ -735,11 +877,98 @@ export const useCreateAdset = () => {
   });
 };
 
+interface MutateSnackbarData {
+  status?: ISnackbarData["status"];
+  message?: string;
+}
+
+interface MutateParams {
+  onSuccess?: {
+    snackbarData?: MutateSnackbarData;
+    fn?: (data: any, variables: any) => void;
+  };
+  onError?: {
+    snackbarData?: MutateSnackbarData;
+    fn?: (error: any, variables: any) => void;
+  };
+}
+
+export const useUpdateAdset = () => {
+  const queryClient = useQueryClient();
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+
+  const { accessToken, accountId } = useCredentials();
+
+  const updateAdset = async ({
+    adsetId,
+    adset,
+  }: {
+    adsetId: string;
+    adset: Partial<ICreateAdset>;
+  } & MutateParams) => {
+    if (!accessToken) throw new Error("Access token is required");
+    if (!accountId) throw new Error("Account id is required");
+    const response = await axios.patch(ROUTES.ADS.ADSET(adsetId), adset, {
+      params: {
+        access_token: accessToken,
+        account_id: accountId,
+      },
+    });
+
+    return response.data;
+  };
+
+  return useMutation({
+    mutationKey: API_QUERIES.UPDATE_ADSET(accountId, accessToken),
+    mutationFn: updateAdset,
+    onSuccess: (data, variables) => {
+      if (!data.ok) {
+        throw new Error("Couldn't update adset, Please try again!");
+      }
+      if (variables.onSuccess?.fn)
+        return variables.onSuccess?.fn?.(data, variables);
+      setSnackBarData({
+        message: "Adset updated successfully!",
+        status: "success",
+        ...(variables.onSuccess?.snackbarData ?? {}),
+      });
+    },
+    onSettled: (data, error, variables) => {
+      queryClient.invalidateQueries({
+        predicate: (query: Query) => {
+          const cond =
+            query.queryKey[0] === API_QUERIES.GET_ADSETS()[0] &&
+            query.queryKey[1] === accessToken &&
+            query.queryKey[2] === accountId &&
+            (!variables.adset.campaign_id ||
+              query.queryKey[3] === null ||
+              query.queryKey[3] === undefined ||
+              (query.queryKey[3] as string[]).includes(
+                variables.adset.campaign_id
+              ) ||
+              (query.queryKey[3] as string[])?.length === 0);
+          return !!cond;
+        },
+      });
+    },
+    onError: (error, variables) => {
+      if (variables.onError?.fn)
+        return variables.onError?.fn?.(error, variables);
+      setSnackBarData({
+        message: error.message ?? "Couldn't update adset, Please try again!",
+        status: "error",
+        ...(variables.onError?.snackbarData ?? {}),
+      });
+    },
+  });
+};
+
 interface ICreateAd {
   name: string;
   status: string;
-  adSetId: string;
+  adsetId: string;
   campaignId: string;
+  creativeId?: string;
 }
 
 interface ICreateAdCreative {
@@ -771,8 +1000,6 @@ export const useCreateAd = () => {
 
     const formData = new FormData();
     formData.append("imageUrl", imageUrl);
-    formData.append("access_token", accessToken);
-    formData.append("account_id", accountId);
 
     const uploadImageresponse = await axios.post(
       ROUTES.ADS.ADIMAGES,
@@ -781,29 +1008,45 @@ export const useCreateAd = () => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        params: {
+          access_token: accessToken,
+          account_id: accountId,
+        },
       }
     );
 
     const imageHash = uploadImageresponse.data.data;
 
-    const adCreativeResponse = await axios.post(ROUTES.ADS.ADCREATIVES, {
-      ad_creative: adCreativeData.ad_creative,
-      image_hash: imageHash,
-      account_id: accountId,
-      access_token: accessToken,
-      page_id: adCreativeData.pageId,
-    });
+    const adCreativeResponse = await axios.post(
+      ROUTES.ADS.ADCREATIVES,
+      {
+        ad_creative: adCreativeData.ad_creative,
+        image_hash: imageHash,
+        page_id: adCreativeData.pageId,
+      },
+      {
+        params: {
+          access_token: accessToken,
+          account_id: accountId,
+        },
+      }
+    );
 
     const adCreativeId = adCreativeResponse.data.data;
 
-    const response = await axios.post(ROUTES.ADS.AD_ENTITIES, {
-      ad: {
+    const response = await axios.post(
+      ROUTES.ADS.AD_ENTITIES,
+      {
         ...ad,
         creativeId: adCreativeId,
       },
-      access_token: accessToken,
-      account_id: accountId,
-    });
+      {
+        params: {
+          access_token: accessToken,
+          account_id: accountId,
+        },
+      }
+    );
 
     return response.data;
   };
@@ -820,14 +1063,14 @@ export const useCreateAd = () => {
             query.queryKey[2] === accountId &&
             (query.queryKey[3] === null ||
               query.queryKey[3] === undefined ||
-              (query.queryKey[3] as string[]).includes(variables.ad.adSetId) ||
+              (query.queryKey[3] as string[]).includes(variables.ad.adsetId) ||
               (query.queryKey[3] as string[])?.length === 0);
           return cond;
         },
       });
       setSnackBarData({
         message: "Ad created successfully!",
-        status: data.ok ? "success" : "error",
+        status: "success",
       });
     },
     onError: (error) => {
@@ -839,28 +1082,96 @@ export const useCreateAd = () => {
   });
 };
 
+export const useUpdateAd = () => {
+  const queryClient = useQueryClient();
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+
+  const { accessToken, accountId } = useCredentials();
+
+  const updateAd = async ({
+    adId,
+    ad,
+  }: {
+    adId: string;
+    ad: { adsetId: string } & Partial<ICreateAd>;
+    successMessage?: string;
+    errorMessage?: string;
+  } & MutateParams) => {
+    if (!accessToken) throw new Error("Access token is required");
+    if (!accountId) throw new Error("Account id is required");
+
+    const response = await axios.patch(ROUTES.ADS.AD(adId), ad, {
+      params: {
+        access_token: accessToken,
+        account_id: accountId,
+      },
+    });
+
+    return response.data;
+  };
+
+  return useMutation({
+    mutationKey: API_QUERIES.UPDATE_AD(accountId, accessToken),
+    mutationFn: updateAd,
+    onSuccess: (data, variables) => {
+      if (!data.ok) {
+        throw new Error("Couldn't update ad, Please try again!");
+      }
+      if (variables.onSuccess?.fn)
+        return variables.onSuccess?.fn?.(data, variables);
+      setSnackBarData({
+        message: "Ad updated successfully!",
+        status: "success",
+        ...(variables.onSuccess?.snackbarData ?? {}),
+      });
+    },
+    onSettled: (data, error, variables) => {
+      queryClient.invalidateQueries({
+        predicate: (query: Query) => {
+          const cond =
+            query.queryKey[0] === API_QUERIES.GET_ADS()[0] &&
+            query.queryKey[1] === accessToken &&
+            query.queryKey[2] === accountId &&
+            (query.queryKey[3] === null ||
+              query.queryKey[3] === undefined ||
+              (query.queryKey[3] as string[]).includes(variables.ad.adsetId) ||
+              (query.queryKey[3] as string[])?.length === 0);
+          return cond;
+        },
+      });
+    },
+    onError: (error, variables) => {
+      if (variables.onError?.fn)
+        return variables.onError?.fn?.(error, variables);
+      setSnackBarData({
+        message: error.message ?? "Couldn't update ad, Please try again!",
+        status: "error",
+        ...(variables.onError?.snackbarData ?? {}),
+      });
+    },
+  });
+};
+
 interface Country {
-  country: string;
-  region: string;
+  iso2: string;
+  lat: number;
+  long: number;
+  name: string;
 }
 
-type Countries = {
-  uid: string;
-  country: string;
-  region: string;
-}[];
+type Countries = ({ uid: string } & Country)[];
 
-type CountryResponse = Record<string, Country>;
+type CountryResponse = Country[];
 export const useGetCountries = () => {
   const getCountries = async () => {
     const response = await axios.get(ROUTES.LOCATION.GET_ALL_COUNTRIES);
 
     const countries: CountryResponse = response.data.data;
 
-    const countryArr = Object.keys(countries).map((key) => {
+    const countryArr = countries.map((country) => {
       return {
-        ...countries[key],
-        uid: key,
+        ...country,
+        uid: country.iso2,
       };
     });
 
@@ -881,8 +1192,9 @@ export const useGetCountries = () => {
 
 export const useGetZipCodes = (
   zipCode: string,
-  accessToken?: string | null
+  initialData?: any
 ): UseQueryResult<ZipCodeResponseObject[]> => {
+  const { accessToken } = useCredentials();
   const getZipCodes = async ({ queryKey }: QueryFunctionContext) => {
     const [, zipCode, accessToken] = queryKey;
     const response = await axios.get(ROUTES.LOCATION.ZIPCODE, {
@@ -895,6 +1207,8 @@ export const useGetZipCodes = (
     return response.data.data;
   };
 
+  console.log("zipCode - ", zipCode, accessToken);
+
   return useQuery<ZipCodeResponseObject[]>({
     queryKey: API_QUERIES.GET_ZIP_CODES(zipCode, accessToken),
     queryFn: getZipCodes,
@@ -905,6 +1219,7 @@ export const useGetZipCodes = (
       }
       return failureCount < 3;
     },
+    placeholderData: initialData,
   });
 };
 
@@ -915,12 +1230,14 @@ interface IInterestsResponseObject {
   audience_size_upper_bound: number;
   path: string[];
   type: string;
+  initial?: boolean;
 }
 export const useGetInterests = (
   query: string,
-  accountId?: string | null,
-  accessToken?: string | null
+  initialData?: any
 ): UseQueryResult<IInterestsResponseObject[]> => {
+  const { accessToken, accountId } = useCredentials();
+
   const getInterests = async ({ queryKey }: QueryFunctionContext) => {
     const [, query, accountId, accessToken] = queryKey;
     const response = await axios.get(ROUTES.ADS.INTERESTS, {
@@ -944,6 +1261,7 @@ export const useGetInterests = (
       }
       return failureCount < 3;
     },
+    placeholderData: initialData,
   });
 };
 
@@ -952,8 +1270,13 @@ export const useCredentials = () => {
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   ).userAccessToken;
-  const { data: accountId, isFetching } = useGetAdAccountId(accessToken);
-  return { accessToken, accountId, isFetching };
+  const { selectedAccountId } = useCampaignStore();
+  return {
+    accessToken,
+    accountId: selectedAccountId,
+    /**@deprecated */
+    isFetching: false,
+  };
 };
 
 export const useAdImageUpload = () => {

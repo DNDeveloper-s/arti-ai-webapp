@@ -10,6 +10,10 @@ const API_QUERIES = {
     "get-ad-account-id",
     access_token,
   ],
+  GET_AD_ACCOUNTS: (access_token?: string | null) => [
+    "get-ad-accounts",
+    access_token,
+  ],
   GET_FACEBOOK_USER_ACCESS_TOKEN: ["get-facebook-user-access-token"],
   VALIDATE_FACEBOOK_ACCESS_TOKEN: ["validate-facebook-access-token"],
   GET_FACEBOOK_POST: (access_token?: string, post_id?: string) => [
@@ -34,6 +38,11 @@ const API_QUERIES = {
     account_id?: string | null,
     campaign_ids?: string[] | null
   ) => ["get-adsets", access_token, account_id, campaign_ids],
+  GET_ADSET: (access_token?: string | null, adset_id?: string | null) => [
+    "get-adset",
+    access_token,
+    adset_id,
+  ],
   GET_ADS: (
     access_token?: string | null,
     account_id?: string | null,
@@ -62,6 +71,21 @@ const API_QUERIES = {
     accountId?: string,
     accessToken?: string | null
   ) => ["create-facebook-ad-creative", accountId, accessToken],
+  UPDATE_ADSET: (accountId?: string | null, accessToken?: string | null) => [
+    "update-adset",
+    accountId,
+    accessToken,
+  ],
+  UPDATE_CAMPAIGN: (accountId?: string | null, accessToken?: string | null) => [
+    "update-campaign",
+    accountId,
+    accessToken,
+  ],
+  UPDATE_AD: (accountId?: string | null, accessToken?: string | null) => [
+    "update-ad",
+    accountId,
+    accessToken,
+  ],
 };
 
 export default API_QUERIES;

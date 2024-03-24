@@ -94,11 +94,16 @@ export const ROUTES = {
   },
   ADS: {
     CAMPAIGNS: apiUrl("/marketing/campaigns"),
+    CAMPAIGN: (campaignId: string) =>
+      apiUrl(`/marketing/campaigns/${campaignId}`),
     ADSETS: apiUrl("/marketing/adsets"),
+    ADSET: (adsetId: string) => apiUrl(`/marketing/adsets/${adsetId}`),
     ADCREATIVES: apiUrl("/marketing/adcreatives"),
     ADIMAGES: apiUrl("/marketing/adimages"),
     AD_ENTITIES: apiUrl("/marketing/ad_entities"),
+    AD: (adId: string) => apiUrl(`/marketing/ad_entities/${adId}`),
     GET_AD_ACCOUNT_ID: apiUrl("/marketing/account_id"),
+    GET_AD_ACCOUNTS: apiUrl("/marketing/accounts"),
     INTERESTS: apiUrl("/marketing/interests"),
     TEMPLATES: apiUrl("/marketing/templates"),
     MAILCHIMP_CAMPAIGNS: apiUrl("/marketing/mailchimp_campaigns"),

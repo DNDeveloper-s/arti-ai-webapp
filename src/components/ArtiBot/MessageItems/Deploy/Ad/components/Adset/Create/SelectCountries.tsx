@@ -9,7 +9,7 @@ export default function SelectCountries(props: SelectProps) {
     return (
       countries?.map((country) => ({
         value: country.uid,
-        label: country.country + ", " + country.region,
+        label: country.name + ", " + country.iso2,
         uid: country.uid,
         countryObj: country,
       })) ?? []
@@ -18,10 +18,10 @@ export default function SelectCountries(props: SelectProps) {
 
   const filterOption = (input: string, option?: any) => {
     return (
-      (option?.countryObj.country ?? "")
+      (option?.countryObj.iso2 ?? "")
         .toLowerCase()
         .includes(input.toLowerCase()) ||
-      (option?.countryObj.region ?? "")
+      (option?.countryObj.name ?? "")
         .toLowerCase()
         .includes(input.toLowerCase())
     );

@@ -32,12 +32,7 @@ export interface SelectedMap extends Record<CampaignTab, Selection> {
   tab: CampaignTab;
 }
 
-export type CreateStateValue = "campaign" | "adset" | "ad";
-
-export type CreateState = {
-  open: boolean;
-  tab: CampaignTab;
-};
+export type FormStateMode = "create" | "edit";
 
 type CampaignStateMeta = {
   selectedVariant?: IAdVariant;
@@ -46,19 +41,47 @@ type CampaignStateMeta = {
 type CampaignState = {
   campaigns: IAdCampaign[];
   selected: SelectedMap;
-  createState: CreateState;
+  formState: FormState;
   meta: CampaignStateMeta;
+  showProgress: boolean;
+  selectedAccountId?: string;
 };
+
+interface FormStateOpenParamsWithEdit {
+  open: true;
+  tab: CampaignTab;
+  mode: "edit";
+  rawData: { id: string } & Record<string, any>;
+}
+
+interface FormStateOpenParamsWithOutEdit {
+  open: true;
+  tab: CampaignTab;
+  mode: "create";
+}
+
+interface FormStateCloseParams {
+  open: false;
+  tab?: CampaignTab;
+  mode?: FormStateMode;
+}
+
+export type FormState =
+  | FormStateOpenParamsWithEdit
+  | FormStateOpenParamsWithOutEdit
+  | FormStateCloseParams;
 
 type CampaignActions = {
   viewAdsetsByCampaign: (campaignId: string) => any;
-  viewAdsByAdset: (adSetId: string) => any;
+  viewAdsByAdset: (adsetId: string) => any;
   setSelected: (key: keyof SelectedMap) => (value: any) => any;
-  setCreateState: (value: CreateState) => any;
+  setFormState: (value: FormState) => any;
   setMeta: (
     key: keyof CampaignStateMeta,
     value: CampaignStateMeta[keyof CampaignStateMeta]
   ) => any;
+  setShowProgress: (value: boolean) => any;
+  setSelectAdAccount: (accountId: string) => any;
 };
 
 const initialCampaignState: CampaignState = {
@@ -69,11 +92,13 @@ const initialCampaignState: CampaignState = {
     [CampaignTab.ADSETS]: new Set([]),
     [CampaignTab.ADS]: new Set([]),
   },
-  createState: {
+  formState: {
     open: false,
     tab: CampaignTab.CAMPAIGNS,
+    mode: "create",
   },
   meta: {},
+  showProgress: false,
 };
 
 const useCampaignStore = create<CampaignState & CampaignActions>((set) => ({
@@ -90,18 +115,28 @@ const useCampaignStore = create<CampaignState & CampaignActions>((set) => ({
       },
     }));
   },
-  viewAdsByAdset: (adSetId: string) => {
+  setSelectAdAccount: (accountId: string) => {
+    set({ selectedAccountId: accountId });
+  },
+  viewAdsByAdset: (adsetId: string) => {
     set((state) => ({
       ...state,
       selected: {
         ...state.selected,
         tab: CampaignTab.ADS,
-        [CampaignTab.ADSETS]: new Set([adSetId]),
+        [CampaignTab.ADSETS]: new Set([adsetId]),
         [CampaignTab.ADS]: new Set([]),
       },
     }));
   },
-  setCreateState: (value: CreateState) => set({ createState: value }),
+  setShowProgress: (value: boolean) => {
+    set({ showProgress: value });
+  },
+  setFormState: (value: FormState) =>
+    set((state) => ({
+      ...state,
+      formState: { ...state.formState, ...value },
+    })),
   setSelected: (key: keyof SelectedMap) => (value: any) => {
     set((state) => ({
       ...state,

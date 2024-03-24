@@ -1,5 +1,6 @@
 import {
   Button,
+  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -15,15 +16,18 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  Tooltip,
 } from "@nextui-org/react";
+import { FetchStatus } from "@tanstack/react-query";
 import { popGraphicsState } from "pdf-lib";
-import React, { Key, ReactNode } from "react";
+import React, { Key, ReactNode, useEffect, useRef, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { GoSearch } from "react-icons/go";
 import { IoChevronDown } from "react-icons/io5";
+import { MdDelete, MdModeEditOutline } from "react-icons/md";
 
-interface UiTableProps {
-  renderCell: (item: any, columnKey: Key) => React.ReactNode;
+interface UiTableProps<T> {
+  renderCell: (item: T, columnKey: Key) => React.ReactNode;
   totalItems: any[];
   initialVisibleColumns?: string[];
   columns: any[];
@@ -34,8 +38,11 @@ interface UiTableProps {
   loadingContent?: ReactNode;
   emptyContent?: ReactNode;
   onAddClick?: () => any;
+  onEditClick?: () => any;
+  onDeleteClick?: () => any;
+  fetchStatus: FetchStatus;
 }
-export default function UiTable(props: UiTableProps) {
+export default function UiTable<T = any>(props: UiTableProps<T>) {
   const {
     renderCell,
     columns,
@@ -44,12 +51,26 @@ export default function UiTable(props: UiTableProps) {
     selectedKeys,
     setSelectedKeys,
     onAddClick,
+    onEditClick,
+    onDeleteClick,
+    fetchStatus,
   } = props;
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
-  //   const [selectedKeys, setSelectedKeys] = React.useState<Set<string> | "all">(
-  //     new Set([])
-  //   );
+
+  // Code for handling the key change when the fetch status changes
+  // Key change is required here because the table component does not always re-render whenever the data is fetched
+  // This was needed to ensure that the table re-renders when the data is fetched
+  // Specially for the toggle status button
+  const [key, setKey] = useState<number>(0);
+  const fetchStatusRef = useRef<typeof fetchStatus>(fetchStatus);
+  useEffect(() => {
+    if (fetchStatusRef.current === "fetching" && fetchStatus === "idle") {
+      setKey((prev) => prev + 1);
+    }
+    fetchStatusRef.current = fetchStatus;
+  }, [fetchStatus]);
+
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "age",
     direction: "ascending",
@@ -139,6 +160,8 @@ export default function UiTable(props: UiTableProps) {
     setPage(1);
   }, []);
 
+  const isSingularSelected = selectedKeys !== "all" && selectedKeys.size === 1;
+
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -156,6 +179,46 @@ export default function UiTable(props: UiTableProps) {
             }}
           />
           <div className="flex gap-3">
+            {onEditClick && (
+              <Tooltip
+                content={
+                  isSingularSelected
+                    ? "Edit"
+                    : "Edit can only be done on one item"
+                }
+                placement="bottom"
+                offset={5}
+              >
+                <Button
+                  isIconOnly
+                  color="default"
+                  variant="solid"
+                  aria-label="Edit"
+                  disabled={!isSingularSelected}
+                  style={{
+                    cursor: isSingularSelected ? "pointer" : "not-allowed",
+                    opacity: isSingularSelected ? 1 : 0.45,
+                  }}
+                  onClick={onEditClick}
+                >
+                  <MdModeEditOutline className="text-xl" />
+                </Button>
+              </Tooltip>
+            )}
+            {onDeleteClick && (
+              <Tooltip content="Delete" placement="bottom" offset={5}>
+                <Button
+                  isIconOnly
+                  color="danger"
+                  variant="solid"
+                  aria-label="Delete"
+                  onClick={onDeleteClick}
+                >
+                  <MdDelete className="text-xl" />
+                </Button>
+              </Tooltip>
+            )}
+            <Divider orientation="vertical" className="mx-2" />
             {/* <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button
@@ -235,6 +298,10 @@ export default function UiTable(props: UiTableProps) {
   }, [
     filterValue,
     onSearchChange,
+    onEditClick,
+    isSingularSelected,
+    onDeleteClick,
+    onAddClick,
     totalItems.length,
     props.pronoun,
     onRowsPerPageChange,
@@ -310,6 +377,7 @@ export default function UiTable(props: UiTableProps) {
       onCellAction={(key: Key) => {
         console.log("action - ", key);
       }}
+      key={key}
       selectedKeys={selectedKeys}
       selectionMode="multiple"
       sortDescriptor={sortDescriptor}
@@ -331,7 +399,7 @@ export default function UiTable(props: UiTableProps) {
       </TableHeader>
       <TableBody
         isLoading={props.isLoading}
-        loadingContent={props.loadingContent ?? <Spinner label="Loading..." />}
+        loadingContent={props.loadingContent ?? <Spinner label="" />}
         emptyContent={
           props.isLoading
             ? ""

@@ -1,4 +1,9 @@
-import { ICreateAdset, useCreateAdset, useGetCampaigns } from "@/api/user";
+import {
+  ICreateAdset,
+  useCreateAdset,
+  useGetCampaigns,
+  useUpdateAdset,
+} from "@/api/user";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import {
   Autocomplete,
@@ -8,7 +13,7 @@ import {
   Switch,
 } from "@nextui-org/react";
 import { DatePicker } from "antd";
-import { Key, useEffect, useMemo } from "react";
+import { Key, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { object, string, mixed, number } from "yup";
 import SelectCountries from "./SelectCountries";
@@ -18,7 +23,9 @@ import dayjs, { Dayjs } from "dayjs";
 import Element from "@/components/shared/renderers/Element";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
 import SelectInterests from "./SelectInterests";
-import { omit } from "lodash";
+import { compact, omit } from "lodash";
+import { FlexibleSpec, IAdSet } from "@/interfaces/ISocial";
+import { getSubmitText } from "../../../CreateAdManagerModal";
 
 {
   /* <option value="">None</option>
@@ -38,6 +45,8 @@ import { omit } from "lodash";
 <option value="THRUPLAY">ThruPlay</option>
 <option value="SOCIAL_IMPRESSIONS">Social Impressions</option> */
 }
+
+
 
 const OPTIMISATION_GOALS = [
   { name: "None", uid: "" },
@@ -172,6 +181,53 @@ const ZIP_CODES = [
   { uid: "10024", name: "UA Ukraine 123 Chernyakhiv" },
 ];
 
+function flatDemographics(flexible_spec: FlexibleSpec) {
+  const arr: any[] = [];
+
+  for (const key in flexible_spec) {
+    if (
+      ["interests", "behaviors", "work_employers", "work_positions"].includes(
+        key
+      )
+    ) {
+      const arr1 = flexible_spec[key as keyof FlexibleSpec].map((c) => ({
+        ...c,
+        type: key,
+      }));
+      arr.push(...arr1);
+    }
+  }
+
+  return arr;
+
+  // function formDemographics() {
+  //   const output =
+  //     demographicsValue?.reduce(
+  //       (acc: any, curr: any) => {
+  //         if (curr.type === "interests") {
+  //           acc[0].interests.push({ id: curr.id, name: curr.name });
+  //         } else if (curr.type === "behaviors") {
+  //           acc[0].behaviors.push({ id: curr.id, name: curr.name });
+  //         } else if (curr.type === "work_employers") {
+  //           acc[0].work_employers.push({ id: curr.id, name: curr.name });
+  //         } else if (curr.type === "work_positions") {
+  //           acc[0].work_positions.push({ id: curr.id, name: curr.name });
+  //         }
+  //         return acc;
+  //       },
+  //       [
+  //         {
+  //           interests: [],
+  //           behaviors: [],
+  //           work_employers: [],
+  //           work_positions: [],
+  //         },
+  //       ]
+  //     ) ?? [];
+  //   return output;
+  // }
+}
+
 const BID_STRATEGIES = [
   { name: "Lowest Cost without Cap", uid: "LOWEST_COST_WITHOUT_CAP" },
   { name: "Lowest Cost with Bid Cap", uid: "LOWEST_COST_WITH_BID_CAP" },
@@ -199,8 +255,8 @@ const validationSchema = object({
   bid_amount: number(),
   product_catalog_id: string(),
   status: string().required("Status is required"),
-  start_time: string().required("Start Time is required"),
-  end_time: string().required("End Time is required"),
+  start_time: string(),
+  end_time: string(),
   countries: mixed(),
   campaign_id: string().required("Campaign ID is required"),
   zip_codes: mixed(),
@@ -215,13 +271,31 @@ export default function CreateAdset() {
     });
   const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns();
 
+  // Ref for tracking whether it's a new campaign or continuing from editing
+  const createModeRef = useRef<"create" | "continue">("create");
+
   const {
+    data: createdAdsetId,
     mutate: postCreateAdset,
     isPending: isCreating,
-    isSuccess,
+    isSuccess: isCreationSuccess,
   } = useCreateAdset();
 
-  const { setCreateState } = useCampaignStore();
+  const {
+    mutate: postUpdateAdset,
+    isPending: isUpdating,
+    isSuccess: isUpdationSuccess,
+  } = useUpdateAdset();
+
+  const isSuccess = isCreationSuccess || isUpdationSuccess;
+  const isPending = isCreating || isUpdating;
+
+  const {
+    selected,
+    formState: storeFormState,
+    setFormState,
+    setSelected,
+  } = useCampaignStore();
 
   const campaignValue = watch("campaign_id");
   const optimisationValue = watch("optimization_goal");
@@ -233,6 +307,16 @@ export default function CreateAdset() {
   const startTimeValue = watch("start_time");
   const endTimeValue = watch("end_time");
   const bidStrategyValue = watch("bid_strategy");
+  const dailyBudgetValue = watch("daily_budget");
+  const bidAmountValue = watch("bid_amount");
+  const nameValue = watch("name");
+
+  const immutableFields = useMemo(() => {
+    if (storeFormState.mode !== "edit") return {};
+    return {
+      campaign_id: true,
+    };
+  }, [storeFormState.mode]);
 
   useEffect(() => {
     setValue("status", "ACTIVE");
@@ -288,13 +372,21 @@ export default function CreateAdset() {
       };
     }
 
+    let existingGeoLocationData = {};
+
+    if (storeFormState.mode === "edit" && storeFormState.open === true) {
+      const formData = storeFormState.rawData as IAdSet;
+      existingGeoLocationData = { ...formData.targeting.geo_locations };
+    }
+
     const adset: any = {
       ...formData,
       targeting: {
         device_platforms: ["mobile"],
         facebook_positions: ["feed"],
-        publisher_platforms: ["facebook", "audience_network"],
+        publisher_platforms: ["facebook", "audience_network", "instagram"],
         geo_locations: {
+          ...existingGeoLocationData,
           countries: data.countries?.map((c) => c.uid) ?? [],
           location_types: ["home", "recent"],
           regions: data.zip_codes?.map((c: any) => ({ key: c.uid })) ?? [],
@@ -313,16 +405,97 @@ export default function CreateAdset() {
       adset.bid_amount = +data.bid_amount;
     }
 
-    postCreateAdset({
-      adset,
-    });
+    storeFormState.mode === "edit" && storeFormState.open === true
+      ? postUpdateAdset({ adset, adsetId: storeFormState.rawData.id })
+      : postCreateAdset({ adset });
   }
 
   useEffect(() => {
-    if (isSuccess) {
-      setCreateState({ tab: CampaignTab.ADSETS, open: false });
+    if (storeFormState.mode === "edit" && storeFormState.open === true) {
+      const formData = storeFormState.rawData as IAdSet;
+      if (!formData) return;
+      console.log("formData - ", formData);
+      setValue("name", formData.name);
+      setValue("daily_budget", +formData.daily_budget);
+      setValue("billing_event", formData.billing_event);
+      setValue("optimization_goal", formData.optimization_goal);
+      setValue("bid_strategy", formData.bid_strategy);
+      setValue(
+        "countries",
+        formData.targeting.geo_locations.countries?.map((c) => ({
+          key: c,
+          uid: c,
+          country: c,
+        })) ?? []
+      );
+      setValue(
+        "zip_codes",
+        formData.targeting.geo_locations.regions?.map((c) => {
+          const arr = compact([c.key, c.name, c.country]);
+          return {
+            ...c,
+            key: arr.join(", "),
+            label: arr.join(", "),
+            value: arr.join(", "),
+            uid: c.key,
+            initial: true,
+          };
+        }) ?? []
+      );
+      formData.targeting.flexible_spec &&
+        setValue(
+          "demographics",
+          flatDemographics(formData.targeting.flexible_spec[0]).map((c) => {
+            return {
+              ...c,
+              key: c.name,
+              label: (
+                <div className="flex items-center justify-between gap-3 px-1">
+                  <span>{c.name}</span>
+                  <div className="bg-default-200 px-1 text-white rounded text-[10px]">
+                    <span>{c.type}</span>
+                  </div>
+                </div>
+              ),
+              value: c.id,
+              uid: c.id,
+              id: c.id,
+              name: c.name,
+              type: c.type,
+              initial: true,
+            };
+          })
+        );
+      formData.bid_amount && setValue("bid_amount", +formData.bid_amount);
+      setValue("status", formData.status);
+      formData.start_time && setValue("start_time", dayjs(formData.start_time));
+      formData.end_time && setValue("end_time", dayjs(formData.end_time));
+      setValue("campaign_id", formData.campaign.id);
+      // setValue("product_catalog_id", formData.product_catalog_id);
+    } else if (selected.campaigns !== "all" && selected.campaigns.size === 1) {
+      const campaignId = Array.from(selected.campaigns)[0].toString();
+      setValue("campaign_id", campaignId);
     }
-  }, [isSuccess, setCreateState]);
+  }, [storeFormState, setValue, selected]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setFormState({ tab: CampaignTab.ADSETS, open: false });
+    }
+  }, [isSuccess, setFormState]);
+
+  // Side effect to handle changes after campaign creation or update
+  useEffect(() => {
+    if (isSuccess) {
+      campaignValue &&
+        setSelected(CampaignTab.CAMPAIGNS)(new Set([campaignValue]));
+      createdAdsetId &&
+        setSelected(CampaignTab.ADSETS)(new Set([createdAdsetId]));
+      createModeRef.current === "create" && setFormState({ open: false });
+      createModeRef.current === "continue" &&
+        setFormState({ tab: CampaignTab.ADS, open: true, mode: "create" });
+    }
+  }, [isSuccess, setFormState, createdAdsetId, setSelected, campaignValue]);
 
   function handleDateChange(name: "start_time" | "end_time") {
     return (date: Dayjs, dateString: string | string[]) => {
@@ -353,7 +526,7 @@ export default function CreateAdset() {
               label: "!text-gray-500",
             },
           }}
-          disabled={isCampaignsFetching}
+          isDisabled={isCampaignsFetching || immutableFields["campaign_id"]}
           label="Campaign"
           placeholder={
             isCampaignsFetching ? "Fetching Campaigns" : "Select Campaign"
@@ -385,6 +558,7 @@ export default function CreateAdset() {
           }}
           label="Adset Name"
           variant="flat"
+          value={nameValue}
           {...register("name")}
           errorMessage={formState.errors.name?.message}
           // errorMessage={formState.errors.description?.message}
@@ -396,6 +570,7 @@ export default function CreateAdset() {
           label="Daily Budget"
           variant="flat"
           type="number"
+          value={dailyBudgetValue?.toString() ?? ""}
           {...register("daily_budget")}
           errorMessage={formState.errors.daily_budget?.message}
           // errorMessage={formState.errors.description?.message}
@@ -437,6 +612,7 @@ export default function CreateAdset() {
             label="Bid Cap"
             variant="flat"
             type="number"
+            value={bidAmountValue?.toString() ?? ""}
             {...register("bid_amount")}
             errorMessage={formState.errors.bid_amount?.message}
             // errorMessage={formState.errors.description?.message}
@@ -572,17 +748,23 @@ export default function CreateAdset() {
             ))}
           </Autocomplete>
           <SelectCountries
+            value={countryValue}
             onChange={(value: string, option: any) => {
               setValue("countries", option);
             }}
           />
           <SelectZipCodes
+            value={zipCodeValue}
             onChange={(value: string, option: any) => {
               setValue("zip_codes", option);
             }}
           />
           <SelectInterests
+            value={demographicsValue}
             onChange={(value: string, option: any) => {
+              console.log("demographicsValue - ", demographicsValue);
+              console.log("value - ", value);
+              console.log("option - ", option);
               setValue("demographics", option);
             }}
           />
@@ -597,27 +779,6 @@ export default function CreateAdset() {
               errorMessage={formState.errors.product_catalog_id?.message}
             />
           )}
-
-          {/* <Autocomplete
-            inputProps={{
-              classNames: {
-                input: "!text-white",
-                label: "!text-gray-500",
-              },
-            }}
-            label="Add Demographics, Interests or Behaviours"
-            placeholder={"Select Demographics, Interests or Behaviours"}
-            onSelectionChange={(key: Key) => {
-              setValue("demographics", key as string);
-            }}
-            selectedKey={demographicsValue}
-          >
-            {ZIP_CODES.map((zipCode) => (
-              <AutocompleteItem key={zipCode.uid} textValue={zipCode.name}>
-                <div className="flex items-center gap-3">{zipCode.name}</div>
-              </AutocompleteItem>
-            ))}
-          </Autocomplete> */}
         </div>
         <div className="w-full flex justify-end gap-2 text-small items-center">
           <Switch
@@ -636,10 +797,40 @@ export default function CreateAdset() {
             Active
           </Switch>
         </div>
-
-        <Button isLoading={isCreating} type="submit" color="primary">
-          <span>{isCreating ? "Creating..." : "Create Adset"}</span>
-        </Button>
+        <div className="w-full flex items-center justify-between gap-4 mb-2">
+          <Button
+            isLoading={createModeRef.current === "create" && isPending}
+            type="submit"
+            color="primary"
+            className="flex-1"
+            onClick={() => {
+              createModeRef.current = "create";
+            }}
+            isDisabled={isPending}
+          >
+            <span>
+              {getSubmitText(
+                storeFormState,
+                createModeRef.current === "create" && isPending,
+                "Adset"
+              )}
+            </span>
+          </Button>
+          {storeFormState.mode === "create" && (
+            <Button
+              isLoading={createModeRef.current === "continue" && isPending}
+              type="submit"
+              color="default"
+              className="flex-1"
+              onClick={() => {
+                createModeRef.current = "continue";
+              }}
+              isDisabled={isPending}
+            >
+              <span>Save & Create Ad</span>
+            </Button>
+          )}
+        </div>
       </div>
     </form>
   );

@@ -1,4 +1,8 @@
-import { IConversation, IConversationModel } from "@/interfaces/IConversation";
+import {
+  IConversation,
+  IConversationModel,
+  ValidConversationTypes,
+} from "@/interfaces/IConversation";
 
 export function humanFileSize(bytes: number, si = false, dp = 1) {
   const thresh = si ? 1000 : 1024;
@@ -141,11 +145,18 @@ export const getConversationURL = (
 ) => {
   if (typeof conversationParams === "string")
     return `/artibot/${conversationParams}?conversation_id=${id}`;
-  const endPoint =
-    conversationParams.conversation_type === "strategy"
-      ? "strategy"
-      : "ad_creative";
-  return `/artibot/${endPoint}?conversation_id=${id}`;
+
+  const isValidConversationType = ValidConversationTypes.includes(
+    conversationParams.conversation_type
+  );
+
+  if (!isValidConversationType) {
+    throw new Error(
+      "Invalid conversation type: " + conversationParams.conversation_type
+    );
+  }
+
+  return `/artibot/${conversationParams.conversation_type}?conversation_id=${id}`;
 };
 
 export const isProduction = process.env.NODE_ENV === "production";
