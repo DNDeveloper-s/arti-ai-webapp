@@ -46,8 +46,9 @@ const API_QUERIES = {
   GET_ADS: (
     access_token?: string | null,
     account_id?: string | null,
-    adset_ids?: string[] | null
-  ) => ["get-ads", access_token, account_id, adset_ids],
+    adset_ids?: string[] | null,
+    ad_ids?: string[] | null
+  ) => ["get-ads", access_token, account_id, adset_ids, ad_ids],
   CREATE_CAMPAIGN: ["create-campaign"],
   CREATE_ADSET: ["create-adset"],
   CREATE_AD: ["create-ad"],
@@ -86,6 +87,7 @@ const API_QUERIES = {
     accountId,
     accessToken,
   ],
+  UPDATE_USER: (userId?: string) => ["update-user", userId],
 };
 
 export default API_QUERIES;

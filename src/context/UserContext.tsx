@@ -6,7 +6,6 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useReducer,
 } from "react";
 import axios, { AxiosError } from "axios";
@@ -17,10 +16,6 @@ import {
   IUserPage,
 } from "@/interfaces/IUser";
 import { useSession } from "next-auth/react";
-import { UserAccount } from "aws-sdk/clients/kendra";
-import { useQueryClient } from "@tanstack/react-query";
-import { SpotAllocationStrategy } from "aws-sdk/clients/ec2";
-import { minimumPasswordLengthType } from "aws-sdk/clients/iam";
 
 export enum SupportedPlatform {
   facebook = "facebook",
@@ -163,6 +158,8 @@ const useUserContext = (initState: IUserState) => {
       const user = {
         id: session.data.user.id,
         name: session.data.user.first_name + " " + session.data.user.last_name,
+        firstName: session.data.user.first_name,
+        lastName: session.data.user.last_name,
         email: session.data.user.email,
         token: session.data.user.token?.accessToken as string,
         // image: session.data.user.image,

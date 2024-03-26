@@ -8,6 +8,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import moment from "moment";
 import { JWT } from "next-auth/jwt";
+import { facebookScopes } from "@/config/meta";
 
 const prisma = new PrismaClient();
 
@@ -28,6 +29,45 @@ function generateNewToken(token: JWT) {
     },
     secret
   );
+}
+
+/**
+ * Takes a token, and returns a new token with updated
+ * `accessToken` and `accessTokenExpires`. If an error occurs,
+ * returns the old token and an error property
+ */
+async function refreshAccessToken(token) {
+  try {
+    const url = "https://api.artiai.org/v1/tokens/generate";
+
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token }),
+      method: "POST",
+    });
+
+    const refreshedTokens = await response.json();
+
+    if (!response.ok) {
+      throw refreshedTokens;
+    }
+
+    return {
+      ...token,
+      accessToken: refreshedTokens.access_token,
+      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
+    };
+  } catch (error) {
+    console.log(error);
+
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
 }
 
 export const authOptions: AuthOptions = {
@@ -52,8 +92,7 @@ export const authOptions: AuthOptions = {
         process.env.NODE_ENV == "development"
           ? process.env.FACEBOOK_DEV_CLIENT_SECRET
           : process.env.FACEBOOK_PROD_CLIENT_SECRET,
-      authorization:
-        "https://www.facebook.com/v11.0/dialog/oauth?scope=instagram_basic,instagram_manage_insights,instagram_content_publish,business_management,public_profile,ads_management,pages_show_list,pages_read_engagement,read_insights",
+      authorization: `https://www.facebook.com/v11.0/dialog/oauth?scope=${facebookScopes}`,
       // idToken: true,
       // profile(profile: any, token: any) {
       // 	console.log(`Facebook Profile: ${JSON.stringify(profile)} and token: ${JSON.stringify(token)}`);
@@ -237,6 +276,12 @@ export const authOptions: AuthOptions = {
       };
     },
     async jwt({ token, user, account, profile, isNewUser }) {
+      // // Return previous token if the access token has not expired yet
+      // if (Date.now() < token.accessTokenExpires) {
+      //   return token;
+      // }
+      // // Access token has expired, try to update it
+      // return refreshAccessToken(token);
       return token;
     },
   },

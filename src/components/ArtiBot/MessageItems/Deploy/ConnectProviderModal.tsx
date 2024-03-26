@@ -1,6 +1,7 @@
 import { useLinkAccount } from "@/api/user";
 import FacebookSignInButton from "@/components/Auth/FacebookSigninButton";
 import Modal from "@/components/Modal";
+import { facebookScopes } from "@/config/meta";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { useUser } from "@/context/UserContext";
 import { IUserAccount } from "@/interfaces/IUser";
@@ -53,7 +54,7 @@ export default function ConnectProviderModal(props: ConnectProviderModalProps) {
         onClick={componentClicked}
         callback={responseFacebook}
         returnScopes={true}
-        scope="instagram_basic,instagram_manage_insights,instagram_content_publish,business_management,public_profile,ads_management,pages_show_list,pages_read_engagement,read_insights"
+        scope={facebookScopes}
         render={(renderProps: any) => (
           <Button
             className="text-white border-2 border-blue-500 bg-blue-600"

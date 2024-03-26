@@ -16,6 +16,8 @@ export interface IUserPages {}
 export interface IUserData {
   id: string;
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   image?: string;
   token?: string;
@@ -77,4 +79,12 @@ export interface Comment {
 
 export interface Shares {
   count: number;
+}
+
+export interface UserSettingsToUpdate {
+  settings: {
+    should_send_weekly_insights_email: boolean;
+  };
+  first_name: string;
+  last_name: string;
 }

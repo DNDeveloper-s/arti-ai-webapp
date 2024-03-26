@@ -184,6 +184,7 @@ const AdvancedConversationInfo = ({
 }: {
   projectType: ConversationType;
 }) => {
+  const router = useRouter();
   const { data: campaigns, isFetching: isCampaignsFetching } =
     useGetCampaigns();
   const [campaignValue, setCampaignValue] = useState("");
@@ -263,13 +264,19 @@ const AdvancedConversationInfo = ({
       <div className="flex-1" />
       <div className="flex gap-4">
         <Button color="primary" className="flex-1">
-          <Link href={"/artibot?conversation_type=" + projectType}>
-            <a>Continue</a>
+          <Link
+            href={"/artibot?conversation_type=" + projectType}
+            prefetch={true}
+          >
+            <span>Continue</span>
           </Link>
         </Button>
         <Button color="default" className="flex-1">
-          <Link href={"/artibot?conversation_type=" + projectType}>
-            <a>Skip</a>
+          <Link
+            href={"/artibot?conversation_type=" + projectType}
+            prefetch={true}
+          >
+            <span>Skip</span>
           </Link>
         </Button>
       </div>

@@ -45,7 +45,7 @@ export const SelectAdAccountPicker = ({
         ))
       ) : (
         <AutocompleteItem key={"no-country-found"} isReadOnly>
-          No adAccount found
+          No Ad Account found
         </AutocompleteItem>
       )}
     </Autocomplete>

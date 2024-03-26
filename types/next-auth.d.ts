@@ -10,6 +10,9 @@ declare module "next-auth" {
       token?: {
         accessToken?: string;
       };
+      id?: string;
+      first_name?: string;
+      last_name?: string;
     } & DefaultSession["user"];
   }
 }

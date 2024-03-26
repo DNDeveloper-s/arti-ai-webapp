@@ -1,6 +1,11 @@
 import { ROUTES } from "@/config/api-config";
 import API_QUERIES from "@/config/api-queries";
-import { IUserAccount, IUserFacebookPost, IUserPage } from "@/interfaces/IUser";
+import {
+  IUserAccount,
+  IUserFacebookPost,
+  IUserPage,
+  UserSettingsToUpdate,
+} from "@/interfaces/IUser";
 import { Platform, SupportedPlatform, useUser } from "@/context/UserContext";
 import {
   Query,
@@ -609,7 +614,7 @@ export function useGetAdSets({
 
 export function useGetAdSet({
   adsetId,
-  enabled,
+  enabled = true,
 }: {
   adsetId?: string;
   enabled?: boolean;
@@ -645,30 +650,38 @@ export function useGetAdSet({
 
 export function useGetAds({
   adsetIds,
+  adIds,
+  enabled = true,
+  accountId,
 }: {
   adsetIds?: string[] | null;
+  adIds?: string[] | null;
+  enabled?: boolean;
+  accountId?: string | null;
 }): UseQueryResult<IAd[], Error> {
-  const { accessToken, accountId, isFetching } = useCredentials();
+  const { accessToken, accountId: defaultAccountId } = useCredentials();
   const getAds = async ({ queryKey }: QueryFunctionContext) => {
-    const [, accessToken, accountId, adsetIds] = queryKey;
+    const [, accessToken, accountId, adsetIds, adIds] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
-    if (!adsetIds) throw new Error("Ad set id is required");
     const response = await axios.get(ROUTES.ADS.AD_ENTITIES, {
       params: {
         access_token: accessToken,
         account_id: accountId,
         adset_ids: adsetIds,
+        ad_ids: adIds,
         get_insights: true,
       },
     });
     return response.data.data;
   };
 
-  const query = useQuery({
-    queryKey: API_QUERIES.GET_ADS(accessToken, accountId, adsetIds),
+  const _accountId = accountId ?? defaultAccountId;
+
+  return useQuery({
+    queryKey: API_QUERIES.GET_ADS(accessToken, _accountId, adsetIds, adIds),
     queryFn: getAds,
-    enabled: !!accessToken && !!accountId && !!adsetIds,
+    enabled: !!enabled && !!accessToken && !!_accountId,
     retry(failureCount, error) {
       if (error instanceof Error && error instanceof AxiosError) {
         return false;
@@ -676,11 +689,6 @@ export function useGetAds({
       return failureCount < 3;
     },
   });
-
-  return {
-    ...query,
-    isFetching: isFetching || query.isFetching,
-  };
 }
 
 export interface ICreateCampaign {
@@ -1351,6 +1359,42 @@ export const useCreateFacebookAdCreative = () => {
     onError: (error) => {
       setSnackBarData({
         message: error.message ?? "Couldn't create the Ad Creative!",
+        status: "error",
+      });
+    },
+  });
+};
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+  const { state } = useUser();
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+
+  const updateUser = async (variables: UserSettingsToUpdate) => {
+    if (!state.data?.id) throw new Error("User not found, Please login again!");
+    const response = await axios.patch(
+      ROUTES.USERS.UPDATE(state.data?.id),
+      variables
+    );
+
+    return response.data;
+  };
+
+  return useMutation({
+    mutationKey: API_QUERIES.UPDATE_USER(state.data?.id),
+    mutationFn: updateUser,
+    onSuccess: (data) => {
+      // queryClient.invalidateQueries({
+      //   queryKey: API_QUERIES.GET_USER(state.data?.id),
+      // });
+      setSnackBarData({
+        message: "User updated successfully!",
+        status: "success",
+      });
+    },
+    onError: (error) => {
+      setSnackBarData({
+        message: error.message ?? "Couldn't update user, Please try again!",
         status: "error",
       });
     },

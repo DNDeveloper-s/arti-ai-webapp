@@ -7,6 +7,7 @@ export const apiConfig = {
   // : "http://localhost:8081",
   baseUrl: "https://api.artiai.org",
   // baseUrl: "http://localhost:8081",
+  // baseUrl: "http://192.168.107.6:8081",
   version: "/v1",
 };
 
@@ -115,6 +116,7 @@ export const ROUTES = {
     GET_ALL_COUNTRIES: apiUrl("/location/countries"),
   },
   USERS: {
+    UPDATE: (userId: string) => apiUrl(`/users/${userId}/settings`),
     ACCOUNTS: (userId: string) => apiUrl(`/users/${userId}/accounts`),
     LINK_ACCOUNT: (userId: string) => apiUrl(`/users/${userId}/link-account`),
     VALIDATE_FACEBOOK_ACCESS_TOKEN: apiUrl(

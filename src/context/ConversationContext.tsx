@@ -79,7 +79,7 @@ interface ConversationAction {
 //   list: T[];
 // }
 
-class StateRecord<T extends { id: string }, R extends (keyof T)[] = []> {
+class StateRecord<T extends { id: string }, R extends (keyof T)[] = ["id"]> {
   readonly map: Record<T["id"], T>;
   readonly list: T[];
 
@@ -96,8 +96,20 @@ class StateRecord<T extends { id: string }, R extends (keyof T)[] = []> {
     return this.map[id];
   }
 
+  /**
+   * @deprecated
+   * @description Use findOneBy instead
+   * */
   getBy(id: R[number], value: T[R[number]]) {
     return this.list.find((item) => item[id] === value);
+  }
+
+  findOneBy(id: R[number], value: T[R[number]]) {
+    return this.list.find((item) => item[id] === value);
+  }
+
+  findAllBy(id: R[number], value: T[R[number]]) {
+    return this.list.filter((item) => item[id] === value);
   }
 
   merge(record: StateRecord<T>): StateRecord<T> {
@@ -128,8 +140,8 @@ interface IConversationState {
   adCreative: StateRecord<IAdCreative>;
   variant: StateRecord<IAdVariant, ["id"]>;
   campaign: StateRecord<ICampaignMongoDB>;
-  adset: StateRecord<IAdsetMongoDB, ["adCreativeId"]>;
-  ad: StateRecord<IAdMongoDB>;
+  adset: StateRecord<IAdsetMongoDB, ["id", "adCreativeId"]>;
+  ad: StateRecord<IAdMongoDB, ["id", "adsetId"]>;
   conversations?: IConversation[];
   adCreatives?: IAdCreative[];
   conversationMap?: Record<IConversation["id"], IConversation>;

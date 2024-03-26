@@ -7,11 +7,15 @@ import {
 } from "@nextui-org/react";
 import { Collapse, CollapseProps } from "antd";
 import { AnimatePresence } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
-import { BiCaretDown, BiCaretUp } from "react-icons/bi";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { BiCaretDown, BiCaretRight, BiCaretUp } from "react-icons/bi";
 import { motion } from "framer-motion";
 import { omit } from "lodash";
-import { IAdSet, IFacebookAdInsight } from "@/interfaces/ISocial";
+import { IAd, IAdSet, IFacebookAdInsight } from "@/interfaces/ISocial";
+import { useGetAds } from "@/api/user";
+import { useConversation } from "@/context/ConversationContext";
+import { NoImage } from "../LeftPane/ConversationListItem";
+import { botData } from "@/constants/images";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -19,13 +23,13 @@ const text = `
   it can be found as a welcome guest in many households across the world.
 `;
 
-const itemsNest: CollapseProps["items"] = [
-  {
-    key: "1",
-    label: <AdTitle />,
-    children: <InsightCard show={true} className="mt-2" />,
-  },
-];
+// const itemsNest: CollapseProps["items"] = [
+//   {
+//     key: "1",
+//     label: <AdTitle />,
+//     children: <InsightCard show={true} className="mt-2" />,
+//   },
+// ];
 
 const insights = {
   impressions: "2825",
@@ -155,7 +159,7 @@ function InsightCard(
           <div {..._props}>
             <div
               className={
-                "grid grid-cols-2 gap-x-4 gap-y-2 " + (className ?? "")
+                "grid grid-cols-2 gap-x-8 gap-y-2 " + (className ?? "")
               }
               {..._props}
             >
@@ -185,26 +189,30 @@ function InsightCard(
                 {showMore ? <BiCaretUp /> : <BiCaretDown />}
               </div>
             </div>
-            {showMore && (
-              <Divider className="my-3 !w-auto flex-1 items-center" />
-            )}
             <AnimatePresence mode="wait">
               {showMore && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className={"grid grid-cols-2 gap-x-4 gap-y-2"}
-                >
-                  {insights.actions.map((action, index) => (
-                    <div key={index} className="flex gap-2 text-tiny items-end">
-                      <span className="opacity-50 flex-1">
-                        {formatInsightName(action.action_type)}:{" "}
-                      </span>
-                      <span>{formatInsightValue(action.value)}</span>
+                <>
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                  >
+                    <Divider className="my-3 !w-auto flex-1 items-center" />
+                    <div className={"grid grid-cols-2 gap-x-8 gap-y-2"}>
+                      {insights.actions.map((action, index) => (
+                        <div
+                          key={index}
+                          className="flex gap-2 text-tiny items-end"
+                        >
+                          <span className="opacity-50 flex-1">
+                            {formatInsightName(action.action_type)}:{" "}
+                          </span>
+                          <span>{formatInsightValue(action.value)}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </motion.div>
+                  </motion.div>
+                </>
               )}
             </AnimatePresence>
           </div>
@@ -241,7 +249,7 @@ function AdSetTitle({ adset }: { adset: IAdSet }) {
   );
 }
 
-function AdTitle() {
+function AdTitle({ ad }: { ad: IAd }) {
   return (
     <div className="flex gap-4 items-center ">
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -256,26 +264,91 @@ function AdTitle() {
         classNames={{
           base: "flex-shrink-0",
         }}
-        src="https://images.pexels.com/photos/1591447/pexels-photo-1591447.jpeg?cs=srgb&dl=pexels-guillaume-meurice-1591447.jpg&fm=jpg"
+        src={ad.creative.image_url ?? botData.image.src}
       />
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium">Amplified AMS Ad 1</span>
+        <span className="text-sm font-medium">{ad.name}</span>
         <span className="text-xs opacity-60 line-clamp-2">
-          This is the ad which is running for a while
+          {ad.creative.object_story_spec?.link_data?.message ?? (
+            <span className="opacity-40">No text provided for this ad.</span>
+          )}
         </span>
       </div>
     </div>
   );
 }
 
+// export const
+
+interface DeployAdChildCardProps {
+  isActive: boolean;
+  adsetId: string;
+}
+const DeployAdChildCard = ({ isActive, adsetId }: DeployAdChildCardProps) => {
+  const { state } = useConversation();
+  const adsData = state.ad.findAllBy("adsetId", adsetId ?? "");
+  const { data: ads, isLoading } = useGetAds({
+    adIds: adsData.map((ad) => ad.adId),
+    enabled: adsData.length > 0 && isActive,
+    accountId: adsData[0]?.adAccountId ?? undefined,
+  });
+
+  const adItemsNest: CollapseProps["items"] = useMemo(() => {
+    return (
+      ads?.map((ad) => {
+        return {
+          key: ad.id,
+          label: <AdTitle ad={ad} />,
+          children: (
+            <div className="flex flex-col gap-4">
+              {ad.insights?.data[0] && (
+                <InsightCard show={true} insights={ad.insights?.data[0]} />
+              )}
+            </div>
+          ),
+        };
+      }) ?? []
+    );
+  }, [ads]);
+
+  return (
+    <>
+      {isLoading && (
+        <div className="w-full flex gap-2 items-center justify-center text-xs">
+          <Spinner label="Loading Ads" />
+        </div>
+      )}
+      <div className="flex flex-col gap-4">
+        <Collapse
+          defaultActiveKey="1"
+          items={adItemsNest}
+          expandIcon={({ isActive }) => (
+            <BiCaretRight style={{ rotate: `${isActive ? 90 : 0}deg` }} />
+          )}
+        />
+      </div>
+    </>
+  );
+};
+
 interface DeployAdInsightsCardProps {
   adset?: IAdSet;
   isFetching?: boolean;
 }
 export const DeployAdInsightsCard = (props: DeployAdInsightsCardProps) => {
+  const [activeKeys, setActiveKeys] = useState<string[]>([]);
   const onChange = (key: string | string[]) => {
     console.log(key);
+    setActiveKeys(typeof key === "string" ? [key] : key);
   };
+
+  // [
+  //   {
+  //     key: "1",
+  //     label: <AdTitle />,
+  //     children: <InsightCard show={true} className="mt-2" />,
+  //   },
+  // ];
 
   const adsetItems = useMemo(() => {
     if (!props.adset) return [];
@@ -283,14 +356,15 @@ export const DeployAdInsightsCard = (props: DeployAdInsightsCardProps) => {
       {
         key: "1",
         label: <AdSetTitle adset={props.adset} />,
-        children: (
-          <div className="flex flex-col gap-4">
-            {/* <Collapse defaultActiveKey="1" items={itemsNest} /> */}
-          </div>
+        children: props.adset?.id && (
+          <DeployAdChildCard
+            isActive={activeKeys.includes("1")}
+            adsetId={props.adset?.id}
+          />
         ),
       },
     ];
-  }, [props.adset]);
+  }, [activeKeys, props.adset]);
 
   return (
     <>
@@ -302,9 +376,12 @@ export const DeployAdInsightsCard = (props: DeployAdInsightsCardProps) => {
       {props.adset && (
         <div className="w-full">
           <Collapse
-            className="w-[400px] bg-gray-800"
+            className="w-full bg-gray-800"
             onChange={onChange}
             items={adsetItems}
+            expandIcon={({ isActive }) => (
+              <BiCaretRight style={{ rotate: `${isActive ? 90 : 0}deg` }} />
+            )}
           />
         </div>
       )}

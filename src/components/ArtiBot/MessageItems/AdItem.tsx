@@ -25,6 +25,7 @@ import Loader from "@/components/Loader";
 import { dbImagesPrefixes } from "@/constants";
 import uploadImage from "@/services/uploadImage";
 import JSZip from "jszip";
+// @ts-ignore
 import { saveAs } from "file-saver";
 import DeployButton from "./DeployButton";
 import {
@@ -83,33 +84,18 @@ function ConversationAdVariant({ variantId }: { variantId: string }) {
   } = useConversation();
   const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
   const [updating, setUpdating] = useState(false);
-  const [url, setUrl] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
 
-  const isInView = useInView(containerRef, { timeInView: 1000 });
-
-  const variant = state.variant.getBy("id", variantId) ?? null;
+  const variant = state.variant.findOneBy("id", variantId) ?? null;
   const editMode = editState.variant && editState.variant.id === variantId;
 
-  const adCreativeId = variant?.adCreativeId;
-  const adset = state.adset.getBy("adCreativeId", adCreativeId ?? "");
-  const { data, isLoading, isSuccess } = useGetAdSet({
-    adsetId: adset?.adsetId,
-    enabled: isInView,
-  });
-
-  // const {
-  //   data: postData,
-  //   refetch: getVariantPost,
-  //   isLoading: isPostLoading,
-  //   isFetching: isPostFetching,
-  // } = useGetVariantPost({
-  //   accessToken: page?.page_access_token ?? undefined,
-  //   postId:
-  //     variant?.posts && variant.posts[0] ? variant.posts[0].postId : undefined,
-  // });
-
   async function handleDownload() {
+    if (!variant) {
+      return setSnackbarData({
+        message: "Failed to download ad variant",
+        status: "error",
+      });
+    }
     setDownloading(true);
     const zip = new JSZip();
     zip.file(
@@ -251,8 +237,6 @@ function ConversationAdVariant({ variantId }: { variantId: string }) {
 
   if (!variant) return null;
 
-  console.log("adset - ", adset, variant.oneLiner);
-
   return (
     <>
       <div ref={containerRef} key={variant.id} className="flex-shrink-0">
@@ -322,7 +306,6 @@ function ConversationAdVariant({ variantId }: { variantId: string }) {
             posts={postData}
           />
         )} */}
-        <DeployAdInsightsCard isFetching={isLoading} adset={data} />
       </div>
     </>
   );
@@ -418,7 +401,7 @@ function ConversationAdVariantWithPostInsights({
         const image = variant.images[i];
         const dataUrl = await fetchImage(image.url);
         const base64 = dataUrlToBase64(dataUrl);
-        img.file(`image_${i}.png`, base64, { base64: true });
+        base64 && img.file(`image_${i}.png`, base64, { base64: true });
       }
     } else {
       console.error("Failed to create images folder in zip file");
@@ -618,11 +601,12 @@ export default function AdItem({
   variantFontSize?: number;
 }) {
   // const json = messageItem.json && JSON.parse(messageItem.json) as AdJSONInput;
-  const json =
+  const adCreative =
     messageItem.adCreatives && (messageItem.adCreatives[0] as IAdCreative);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // TODO: Refactor to CurrentConversationContext
-  const { getConversationById } = useConversations();
+  const { state, getConversationById } = useConversations();
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("conversation_id");
   const currentConversation = useMemo(() => {
@@ -630,7 +614,14 @@ export default function AdItem({
     return getConversationById(conversationId);
   }, [conversationId, getConversationById]);
 
-  if (!json || !currentConversation) return null;
+  const isInView = useInView(containerRef, { timeInView: 1000 });
+  const adset = state.adset.findOneBy("adCreativeId", adCreative.id ?? "");
+  const { data, isLoading, isSuccess } = useGetAdSet({
+    adsetId: adset?.adsetId,
+    enabled: isInView,
+  });
+
+  if (!adCreative || !currentConversation) return null;
 
   const str = `<div class="">
 		<div>
@@ -641,7 +632,7 @@ export default function AdItem({
 		<div class="mt-[0.67em]">
 			<span class="font-semibold text-primary text-[1.1em]">Ad Summary</span>
 			<p
-				class="text-white text-opacity-80 font-diatype text-[0.9em] leading-[1.75em] my-[0.55em]"><!-- Insert your JSON data here -->${json.summary}</p>
+				class="text-white text-opacity-80 font-diatype text-[0.9em] leading-[1.75em] my-[0.55em]"><!-- Insert your JSON data here -->${adCreative.summary}</p>
 		</div>
 		<div class="border-t border-gray-600 pt-3 mt-5">
 			<ul class="list-disc px-4">
@@ -657,7 +648,7 @@ export default function AdItem({
 	</div>`;
 
   return (
-    <div>
+    <div ref={containerRef}>
       {/* <Markdown source={str} options={{html: true}} /> */}
       <div>
         <p className="text-white text-opacity-50 font-diatype text-[0.85em] leading-[1.75em] my-[0.4em]">
@@ -671,24 +662,25 @@ export default function AdItem({
           Ad Summary
         </span>
         <p className="text-white text-opacity-80 font-diatype text-[0.9em] leading-[1.75em] my-[0.55em]">
-          ${json.summary}
+          ${adCreative.summary}
         </p>
       </div>
       <div className="flex w-full overflow-auto items-start gap-6 my-[2.5em]">
         {currentConversation.conversation_type ===
           ConversationType.AD_CREATIVE &&
-          json.variants.map((variant, index) => (
+          adCreative.variants.map((variant, index) => (
             <ConversationAdVariant key={variant.id} variantId={variant.id} />
           ))}
         {currentConversation.conversation_type ===
           ConversationType.SOCIAL_MEDIA_POST &&
-          json.variants.map((variant, index) => (
+          adCreative.variants.map((variant, index) => (
             <ConversationAdVariantWithPostInsights
               key={variant.id}
               variantId={variant.id}
             />
           ))}
       </div>
+      <DeployAdInsightsCard isFetching={isLoading} adset={data} />
     </div>
   );
 
