@@ -181,14 +181,15 @@ const BasicConversationInfo = ({
 
 const AdvancedConversationInfo = ({
   projectType,
+  goBack,
 }: {
   projectType: ConversationType;
+  goBack: () => void;
 }) => {
   const router = useRouter();
   const { data: campaigns, isFetching: isCampaignsFetching } =
     useGetCampaigns();
   const [campaignValue, setCampaignValue] = useState("");
-  const [accountIdValue, setAccountIdValue] = useState<string | undefined>();
   const [pageValue, setPageValue] = useState<string | undefined>();
   const { selectedAccountId } = useCampaignStore();
 
@@ -196,7 +197,10 @@ const AdvancedConversationInfo = ({
     <div className={"flex-1 p-5 flex flex-col"}>
       <div className="w-full flex justify-between items-center pb-3 py-1">
         <div className="flex items-center gap-1">
-          {/*<MdArrowBackIos onClick={() => router.push('/')} style={{fontSize: '18px', cursor: 'pointer'}}/>*/}
+          <MdArrowBackIos
+            onClick={goBack}
+            style={{ fontSize: "18px", cursor: "pointer" }}
+          />
           <h2>Set Up Social Media Integration.</h2>
         </div>
         <div className="group relative flex items-center cursor-pointer justify-center">
@@ -305,6 +309,10 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
     return <ArtiBotPage projectName={projectName} />;
   }
 
+  function handleGoBack() {
+    setProjectType(null);
+  }
+
   return (
     <div className={`flex h-screen overflow-hidden`}>
       <div
@@ -348,7 +356,10 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
                 setProjectType={setProjectType}
               />
             ) : (
-              <AdvancedConversationInfo projectType={projectType} />
+              <AdvancedConversationInfo
+                projectType={projectType}
+                goBack={handleGoBack}
+              />
             )}
           </>
         </Modal>

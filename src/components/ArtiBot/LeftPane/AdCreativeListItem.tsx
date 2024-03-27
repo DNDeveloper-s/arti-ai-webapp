@@ -37,7 +37,7 @@ const AdCreativeListItem: FC<AdCreativeListItemProps> = ({
     <Link
       href={
         getConversationURL(conversationId, ConversationType.AD_CREATIVE) +
-        "&message_id=" + 
+        "&ad_creative=expand"
       }
       key={conversationId}
       className={

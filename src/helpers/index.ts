@@ -151,9 +151,9 @@ export const getConversationURL = (
   );
 
   if (!isValidConversationType) {
-    throw new Error(
-      "Invalid conversation type: " + conversationParams.conversation_type
-    );
+    // throw new Error(
+    //   "Invalid conversation type: " + conversationParams.conversation_type
+    // );
   }
 
   return `/artibot/${conversationParams.conversation_type}?conversation_id=${id}`;
