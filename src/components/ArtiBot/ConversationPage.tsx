@@ -17,12 +17,13 @@ import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { FaTiktok, FaFacebookF } from "react-icons/fa6";
-import { MdEmail } from "react-icons/md";
+import { MdEmail, MdInsights } from "react-icons/md";
 import { RxCaretDown } from "react-icons/rx";
 import Logo from "../Logo";
 import CreateAdManagerModal from "./MessageItems/Deploy/Ad/CreateAdManagerModal";
 import AdManagerListModal from "./MessageItems/Deploy/Ad/AdManagerListModal";
 import CreateSocialPostModal from "./MessageItems/Deploy/Post/CreateSocialPostModal";
+import AdCreativeIcon from "../shared/icons/AdCreativeIcon";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -49,10 +50,9 @@ export const CollapsedComponent: FC<CollapsedComponentProps> = ({
 };
 
 enum ArtiAiDropdownItems {
-  ArtiAiChat = "ArtiAi Chat",
-  TiktokAdCreatives = "Tiktok Ad Creatives",
-  FacebookAdCreatives = "Facebook Ad Creatives",
-  EmailMarketing = "Email Marketing",
+  Chat = "Chat",
+  AdCreatives = "Ad Creatives",
+  AdInsights = "Ad Insights",
 }
 
 interface ArtiAiDropdownItem {
@@ -200,25 +200,19 @@ export default function ArtiBotPage({
       {
         id: "1",
         icon: <Logo width={25} />,
-        label: ArtiAiDropdownItems.ArtiAiChat,
+        label: ArtiAiDropdownItems.Chat,
         disabled: false,
       },
       {
         id: "2",
-        icon: <FaTiktok />,
-        label: ArtiAiDropdownItems.TiktokAdCreatives,
+        icon: <AdCreativeIcon />,
+        label: ArtiAiDropdownItems.AdCreatives,
         disabled: !Boolean(adCreative),
       },
       {
         id: "3",
-        icon: <FaFacebookF />,
-        label: ArtiAiDropdownItems.FacebookAdCreatives,
-        disabled: !Boolean(adCreative),
-      },
-      {
-        id: "4",
-        icon: <MdEmail />,
-        label: ArtiAiDropdownItems.EmailMarketing,
+        icon: <MdInsights />,
+        label: ArtiAiDropdownItems.AdInsights,
         disabled: true,
       },
     ],

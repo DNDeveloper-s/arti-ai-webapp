@@ -116,9 +116,10 @@ export const ROUTES = {
     GET_ALL_COUNTRIES: apiUrl("/location/countries"),
   },
   USERS: {
-    UPDATE: (userId: string) => apiUrl(`/users/${userId}/settings`),
-    ACCOUNTS: (userId: string) => apiUrl(`/users/${userId}/accounts`),
-    LINK_ACCOUNT: (userId: string) => apiUrl(`/users/${userId}/link-account`),
+    ME: apiUrl("/users/me"),
+    UPDATE_ME: apiUrl(`/users/me/settings`),
+    ACCOUNTS: apiUrl(`/users/me/accounts`),
+    LINK_ACCOUNT: apiUrl(`/users/link-account`),
     VALIDATE_FACEBOOK_ACCESS_TOKEN: apiUrl(
       `/tokens/validate/facebook-access-token`
     ),

@@ -291,8 +291,10 @@ export const authOptions: AuthOptions = {
   },
   session: {
     strategy: "jwt",
+    maxAge: 60 * 60,
   },
   jwt: {
+    maxAge: 60 * 60,
     encode: async ({ secret, token, maxAge }) => {
       if (!token) return "";
       const accessTokenExpires = moment().add(60, "minutes");

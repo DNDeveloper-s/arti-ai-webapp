@@ -37,7 +37,7 @@ const BotsInfo = () => {
         <ol className="list-decimal pl-3">
           <li>
             <h2 className="font-semibold text-white mt-1 mb-0.5 text-base text-opacity-70 font-diatype">
-              Ad Creative Bot 🎨
+              Ad Creative Assistant
             </h2>
             <p className="text-sm text-white text-opacity-60">
               If you need a captivating Facebook Ad or an eye-catching billboard
@@ -46,11 +46,11 @@ const BotsInfo = () => {
           </li>
           <li>
             <h2 className="font-semibold text-white mt-2 mb-0.5 text-base text-opacity-70 font-diatype">
-              Strategy Bot 📈
+              Post Creative Assistant
             </h2>
             <p className="text-sm text-white text-opacity-60">
-              If you&apos;re looking for insights into your business, market
-              trends, or digital transformation strategies.
+              Craft and schedule eye-catching social media posts effortlessly,
+              driving engagement and boosting your online presence.
             </p>
           </li>
         </ol>
@@ -162,7 +162,7 @@ const BasicConversationInfo = ({
                         />
                       </div>
                       <span className="text-primary">
-                        Social Content Creator
+                        Post Creative Assistant
                       </span>
                     </>
                   </CTAButton>
@@ -313,15 +313,16 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
         }
       >
         <div className="flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
-          <div
+          <Link
             className="flex items-center cursor-pointer"
-            onClick={() => router.push("/")}
+            prefetch={true}
+            href="/"
           >
             <MdArrowBackIos style={{ fontSize: "21px" }} />
             <span className="ml-0.5 -mb-0.5 text-white text-opacity-60">
               Dashboard
             </span>
-          </div>
+          </Link>
           <Link href="/" className="flex justify-center items-center">
             <Logo width={35} className="mr-2" height={35} />
             <h3 className="text-lg">Arti AI</h3>

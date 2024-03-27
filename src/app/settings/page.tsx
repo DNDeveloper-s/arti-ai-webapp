@@ -1,10 +1,12 @@
 "use client";
 import { useUpdateUser } from "@/api/user";
 import Navbar from "@/components/Settings/Navbar";
+import Snackbar from "@/components/Snackbar";
+import { botData, dummyUser } from "@/constants/images";
 import { useUser } from "@/context/UserContext";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import { Avatar, Button, Checkbox, Divider, Input } from "@nextui-org/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { MdDone, MdEmail } from "react-icons/md";
 
@@ -33,6 +35,7 @@ export default function Settings() {
     });
 
   const { mutate: postUpdateUser, isPending } = useUpdateUser();
+  const [fileObj, setFileObj] = useState<File | null>(null);
 
   const shouldValue = watch("should_send_weekly_insights_email");
   const firstNameValue = watch("firstName");
@@ -41,6 +44,7 @@ export default function Settings() {
   const saveSettings = (data: SettingsFormValues) => {
     console.log("data - ", data);
     postUpdateUser({
+      imageBlob: fileObj,
       first_name: data.firstName,
       last_name: data.lastName,
       settings: {
@@ -50,7 +54,10 @@ export default function Settings() {
     });
   };
 
-  useEffect(() => {}, []);
+  const blobUrl = useMemo(() => {
+    if (!fileObj) return null;
+    return URL.createObjectURL(fileObj);
+  }, [fileObj]);
 
   useEffect(() => {
     if (state.data) {
@@ -72,7 +79,7 @@ export default function Settings() {
             classNames={{
               base: "w-24 h-24",
             }}
-            src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+            src={blobUrl ?? state.data?.image ?? dummyUser.image.src}
           />
           <label
             htmlFor="change-avatar"
@@ -83,6 +90,9 @@ export default function Settings() {
               hidden
               id="change-avatar"
               className="w-full h-full"
+              onChange={(e) => {
+                e.target.files && setFileObj(e.target.files[0]);
+              }}
             />
             Change Avatar
           </label>
@@ -153,6 +163,7 @@ export default function Settings() {
           </Button>
         </div>
       </form>
+      <Snackbar />
     </main>
   );
 }

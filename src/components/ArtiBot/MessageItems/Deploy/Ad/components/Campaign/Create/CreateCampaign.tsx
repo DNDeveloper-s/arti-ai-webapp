@@ -20,6 +20,7 @@ import { Key, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { object, string } from "yup";
 import { getSubmitText } from "../../../CreateAdManagerModal";
+import { useSearchParams } from "next/navigation";
 
 // Define constants for different campaign objectives
 const CAMPAIGN_OBJECTIVES = [
@@ -71,6 +72,9 @@ export default function CreateCampaign() {
   const { handleSubmit, register, setValue, watch } =
     useForm<CreateCampaignFormValues>({ resolver });
 
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get("conversation_id");
+
   // State management hooks from a campaign store
   const {
     setFormState,
@@ -84,14 +88,21 @@ export default function CreateCampaign() {
   const nameValue = watch("name");
 
   // Function to handle campaign creation or update
-  function handleCreate(data: ICreateCampaign) {
+  function handleCreate(data: CreateCampaignFormValues) {
+    if (!conversationId) {
+      console.error("No conversation id found");
+      return;
+    }
     storeFormState.mode === "edit" && storeFormState.open === true
       ? postUpdateCampaign({
           campaign: data,
           campaignId: storeFormState.rawData.id,
         })
       : postCreateCampaign({
-          campaign: data,
+          campaign: {
+            ...data,
+            conversation_id: conversationId,
+          },
         });
   }
 

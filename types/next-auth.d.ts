@@ -9,6 +9,12 @@ declare module "next-auth" {
       /** The user's postal address. */
       token?: {
         accessToken?: string;
+        email: string;
+        exp: number;
+        iat: number;
+        picture: null | string;
+        sub: string;
+        type: "ACCESS" | "REFRESH";
       };
       id?: string;
       first_name?: string;

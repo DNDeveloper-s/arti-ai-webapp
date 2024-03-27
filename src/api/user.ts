@@ -23,10 +23,12 @@ import { ISnackbarData, SnackbarContext } from "@/context/SnackbarContext";
 import { use, useCallback, useContext } from "react";
 import { IAd, IAdCampaign, IAdSet } from "@/interfaces/ISocial";
 import { ZipCodeResponseObject } from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/Adset/Create/SelectZipCodes";
-import { useSession } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 import { wait } from "@/helpers";
 import useCampaignStore from "@/store/campaign";
 import { omit } from "lodash";
+import { getServerSession } from "next-auth";
+import { RedirectType, redirect } from "next/navigation";
 
 function getAxiosResponseError(error: any) {
   if (error instanceof Error && error instanceof AxiosError) {
@@ -49,6 +51,55 @@ axios.interceptors.response.use(
       return Promise.reject(error.response?.data);
     }
 
+    return Promise.reject(error);
+  }
+);
+
+axios.interceptors.request.use(
+  async (config) => {
+    const session = await getSession();
+    console.log("session - ", session);
+    // try {
+    //   const response = await fetch("/api/auth/session");
+    //   const session = await response.json();
+    //   console.log("session from axios interceptor - ", session);
+    // } catch (e) {
+    //   console.log(
+    //     "error in fetching the session from axios interceptors - ",
+    //     e
+    //   );
+    // }
+    const tokenObj = session?.user.token;
+    let token = tokenObj?.accessToken;
+
+    // Check for the expiration of the tokenObj
+    // which has exp property containing the timestamp in unix
+    const isTokenExpired = !tokenObj?.exp || tokenObj?.exp * 1000 < Date.now();
+
+    if (!token || isTokenExpired) {
+      return redirect("/auth", RedirectType.push);
+    }
+    // const token = localStorage.getItem("accessToken");
+    // if (token) {
+    // config.headers.Authorization = `Bearer ${token}`;
+    // decode the token and check if (token.exp < Date.now() / 1000)
+    // if (isTokenExpired(token)) {
+    // Call your refresh token endpoint
+    // you have to implement an endpoint to get the refresh token
+    // if you use 3rd party auth servers, you make requests to their /refreh enpoints
+    // const newToken = await refreshToken();
+    // if (newToken) {
+    // Token refreshed, update the Authorization header with the new token
+    // config.headers.Authorization = `Bearer ${newToken}`;
+    // Retry the original request
+    // }
+    // }
+    // }
+    // }
+    config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  (error) => {
     return Promise.reject(error);
   }
 );
@@ -273,12 +324,8 @@ export function useGetAdAccountId(accessToken: string | null) {
 }
 
 export function useGetFacebookUserAccessToken() {
-  const { state } = useUser();
-
   const getFacebookUserAccessToken = async () => {
-    if (!state.data?.id) throw new Error("User not found, Please login again!");
-
-    const response = await axios.get(ROUTES.USERS.ACCOUNTS(state.data?.id));
+    const response = await axios.get(ROUTES.USERS.ACCOUNTS);
     const facebookAccounts = response.data.filter(
       (c: any) => c.provider === "facebook"
     );
@@ -473,15 +520,12 @@ export function useGetUserProviders() {
   const { state } = useUser();
 
   const getUserProviders = async ({ queryKey }: QueryFunctionContext) => {
-    const userId = queryKey[1];
-    if (!userId || typeof userId !== "string")
-      throw new Error("User not found, Please login again!");
-    const response = await axios.get(ROUTES.USERS.ACCOUNTS(userId));
+    const response = await axios.get(ROUTES.USERS.ACCOUNTS);
     return response.data;
   };
 
   return useQuery({
-    queryKey: API_QUERIES.GET_USER_ACCOUNTS(state.data?.id),
+    queryKey: API_QUERIES.GET_USER_ACCOUNTS,
     queryFn: getUserProviders,
     retry(failureCount, error) {
       if (!state.data?.id && failureCount < 10) {
@@ -496,32 +540,26 @@ export function useGetUserProviders() {
 }
 
 export function useLinkAccount() {
-  const { state } = useUser();
   const queryClient = useQueryClient();
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
   const linkAccount = useCallback(
     async (variables: { account: IUserAccount }) => {
       const { account } = variables;
-      if (!state.data?.id)
-        throw new Error("User not found, Please login again!");
-      const response = await axios.post(
-        ROUTES.USERS.LINK_ACCOUNT(state.data?.id),
-        {
-          account,
-        }
-      );
+      const response = await axios.post(ROUTES.USERS.LINK_ACCOUNT, {
+        account,
+      });
       return response.data;
     },
-    [state.data?.id]
+    []
   );
 
   return useMutation({
-    mutationKey: API_QUERIES.LINK_ACCOUNT(state.data?.id),
+    mutationKey: API_QUERIES.LINK_ACCOUNT,
     mutationFn: linkAccount,
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: API_QUERIES.GET_USER_ACCOUNTS(state.data?.id),
+        queryKey: API_QUERIES.GET_USER_ACCOUNTS,
       });
       setSnackBarData({
         message: "Account linked successfully!",
@@ -695,6 +733,7 @@ export interface ICreateCampaign {
   name: string;
   objective: string;
   status: string;
+  conversation_id: string;
 }
 export const useCreateCampaign = () => {
   const queryClient = useQueryClient();
@@ -1372,21 +1411,30 @@ export const useUpdateUser = () => {
 
   const updateUser = async (variables: UserSettingsToUpdate) => {
     if (!state.data?.id) throw new Error("User not found, Please login again!");
-    const response = await axios.patch(
-      ROUTES.USERS.UPDATE(state.data?.id),
-      variables
-    );
+
+    const formData = new FormData();
+
+    formData.append("first_name", variables.first_name);
+    formData.append("last_name", variables.last_name);
+    formData.append("settings", JSON.stringify(variables.settings));
+
+    if (variables.imageBlob) {
+      formData.append("file", variables.imageBlob);
+    }
+
+    const response = await axios.patch(ROUTES.USERS.UPDATE_ME, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     return response.data;
   };
 
   return useMutation({
-    mutationKey: API_QUERIES.UPDATE_USER(state.data?.id),
+    mutationKey: API_QUERIES.UPDATE_ME,
     mutationFn: updateUser,
     onSuccess: (data) => {
-      // queryClient.invalidateQueries({
-      //   queryKey: API_QUERIES.GET_USER(state.data?.id),
-      // });
       setSnackBarData({
         message: "User updated successfully!",
         status: "success",
@@ -1397,6 +1445,39 @@ export const useUpdateUser = () => {
         message: error.message ?? "Couldn't update user, Please try again!",
         status: "error",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_ME,
+      });
+    },
+  });
+};
+
+export interface IUserMeResponse {
+  createdAt: null | string;
+  email: string;
+  emailVerified: null | boolean;
+  first_name: string;
+  id: string;
+  image: null | string;
+  last_name: string;
+  updatedAt: null | string;
+}
+export const useGetMe = (): UseQueryResult<IUserMeResponse> => {
+  const getMe = async () => {
+    const response = await axios.get(ROUTES.USERS.ME);
+    return response.data;
+  };
+
+  return useQuery({
+    queryKey: API_QUERIES.GET_ME,
+    queryFn: getMe,
+    retry(failureCount, error) {
+      if (error instanceof Error) {
+        return false;
+      }
+      return failureCount < 3;
     },
   });
 };

@@ -14,6 +14,7 @@ const API_QUERIES = {
     "get-ad-accounts",
     access_token,
   ],
+  GET_ME: ["get-me"],
   GET_FACEBOOK_USER_ACCESS_TOKEN: ["get-facebook-user-access-token"],
   VALIDATE_FACEBOOK_ACCESS_TOKEN: ["validate-facebook-access-token"],
   GET_FACEBOOK_POST: (access_token?: string, post_id?: string) => [
@@ -21,8 +22,8 @@ const API_QUERIES = {
     access_token,
     post_id,
   ],
-  GET_USER_ACCOUNTS: (user_id?: string) => ["get-user-accounts", user_id],
-  LINK_ACCOUNT: (user_id?: string) => ["link-account", user_id],
+  GET_USER_ACCOUNTS: ["get-user-accounts"],
+  LINK_ACCOUNT: ["link-account"],
   GET_FACEBOOK_PAGE: (access_token?: string | null, page_id?: string) => [
     "get-facebook-page",
     access_token,
@@ -87,7 +88,7 @@ const API_QUERIES = {
     accountId,
     accessToken,
   ],
-  UPDATE_USER: (userId?: string) => ["update-user", userId],
+  UPDATE_ME: ["update-me"],
 };
 
 export default API_QUERIES;

@@ -662,7 +662,7 @@ export default function AdItem({
           Ad Summary
         </span>
         <p className="text-white text-opacity-80 font-diatype text-[0.9em] leading-[1.75em] my-[0.55em]">
-          ${adCreative.summary}
+          {adCreative.summary}
         </p>
       </div>
       <div className="flex w-full overflow-auto items-start gap-6 my-[2.5em]">

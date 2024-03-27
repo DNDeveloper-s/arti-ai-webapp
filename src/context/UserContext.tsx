@@ -16,6 +16,7 @@ import {
   IUserPage,
 } from "@/interfaces/IUser";
 import { useSession } from "next-auth/react";
+import { useGetMe } from "@/api/user";
 
 export enum SupportedPlatform {
   facebook = "facebook",
@@ -148,30 +149,44 @@ function UserReducer(state: IUserState, action: UserAction): IUserState {
 const useUserContext = (initState: IUserState) => {
   const [state, dispatch] = useReducer(UserReducer, initState);
   const session = useSession();
+  const { data: userData, isSuccess, isError } = useGetMe();
   // const {} = useGetFacebookPro;
+
+  useEffect(() => {
+    if (!isError) return;
+    dispatch({
+      type: USER_ACTION_TYPE.SET_USER_STATE,
+      payload: {
+        status: session.status,
+        data: null,
+      },
+    });
+  }, [isError, session.status]);
+
+  useEffect(() => {
+    if (!userData || !isSuccess) return;
+    const user = {
+      id: userData.id,
+      name: userData.first_name + " " + userData.last_name,
+      firstName: userData.first_name,
+      lastName: userData.last_name,
+      email: userData.email,
+      image: userData.image,
+      emailVerified: userData.emailVerified,
+    };
+    dispatch({
+      type: USER_ACTION_TYPE.SET_USER_STATE,
+      payload: {
+        status: session.status,
+        data: user,
+      },
+    });
+  }, [session.status, userData, isSuccess]);
 
   // This useeffect is responsible to update the user data in the context
   // when the session changes
   useEffect(() => {
     if (session.data && session.data.user && session.data.user.token) {
-      console.log("session - ", session);
-      const user = {
-        id: session.data.user.id,
-        name: session.data.user.first_name + " " + session.data.user.last_name,
-        firstName: session.data.user.first_name,
-        lastName: session.data.user.last_name,
-        email: session.data.user.email,
-        token: session.data.user.token?.accessToken as string,
-        // image: session.data.user.image,
-      };
-      dispatch({
-        type: USER_ACTION_TYPE.SET_USER_STATE,
-        payload: {
-          status: session.status,
-          data: user,
-        },
-      });
-    } else {
       dispatch({
         type: USER_ACTION_TYPE.SET_USER_STATE,
         payload: {

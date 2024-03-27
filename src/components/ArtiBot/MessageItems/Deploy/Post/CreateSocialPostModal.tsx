@@ -22,6 +22,7 @@ import React, { Key, useContext, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { current, trueGray } from "tailwindcss/colors";
 import { object, string } from "yup";
+import SelectMetaPage from "../SelectMetaPage";
 
 interface CreatePostFormValues {
   imageUrl: string;
@@ -169,44 +170,12 @@ function CreateSocialPostModalContent(
                       errorMessage={formState.errors.message?.message}
                     />
                     {/* Select Page Dropdown */}
-                    <Autocomplete
-                      inputProps={{
-                        classNames: {
-                          input: "!text-white",
-                          label: "!text-gray-500",
-                        },
-                      }}
-                      isDisabled={isPagesLoading}
-                      label="Social Media Page"
-                      placeholder={
-                        isPagesLoading ? "Fetching Pages..." : "Select a Page"
+                    <SelectMetaPage
+                      pageValue={pageIdValue ?? ""}
+                      setPageValue={(pageValue) =>
+                        setValue("pageId", pageValue)
                       }
-                      onSelectionChange={(key: Key) => {
-                        setValue("pageId", key as string);
-                      }}
-                      selectedKey={pageIdValue}
-                      errorMessage={formState.errors.pageId?.message}
-                    >
-                      {facebookPages && facebookPages.length > 0 ? (
-                        facebookPages.map((page) => (
-                          <AutocompleteItem key={page.id} textValue={page.name}>
-                            <div className="flex items-center gap-3">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={page.picture}
-                                className="w-6 h-6"
-                                alt="Page"
-                              />
-                              {page.name}
-                            </div>
-                          </AutocompleteItem>
-                        ))
-                      ) : (
-                        <AutocompleteItem key={"no-page-found"} isReadOnly>
-                          No pages found
-                        </AutocompleteItem>
-                      )}
-                    </Autocomplete>
+                    />
                   </div>
                   <Button
                     className="mt-4 w-full text-white"

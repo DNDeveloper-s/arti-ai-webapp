@@ -33,6 +33,7 @@ export default function SelectMetaPage({
       }}
       isDisabled={!pagesData || isPagesLoading}
       label="Social Media Page"
+      allowsEmptyCollection
       placeholder={isPagesLoading ? "Fetching Pages..." : "Select a Page"}
       onSelectionChange={(key: Key) => {
         setPageValue(key as string);
@@ -41,15 +42,25 @@ export default function SelectMetaPage({
       {...props}
     >
       {pagesData && pagesData.length > 0 ? (
-        pagesData.map((page) => (
-          <AutocompleteItem key={page.id} textValue={page.name}>
-            <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={page.picture} className="w-6 h-6" alt="Page" />
-              {page.name}
-            </div>
-          </AutocompleteItem>
-        ))
+        ["", ...pagesData].map((page) =>
+          typeof page === "string" ? (
+            <AutocompleteItem
+              key={""}
+              textValue={""}
+              classNames={{
+                base: "hidden",
+              }}
+            ></AutocompleteItem>
+          ) : (
+            <AutocompleteItem key={page.id} textValue={page.name}>
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={page.picture} className="w-6 h-6" alt="Page" />
+                {page.name}
+              </div>
+            </AutocompleteItem>
+          )
+        )
       ) : (
         <AutocompleteItem key={"no-page-found"} isReadOnly>
           No pages found
