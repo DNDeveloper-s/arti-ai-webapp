@@ -77,14 +77,13 @@ axios.interceptors.request.use(
     const isTokenExpired = !tokenObj?.exp || tokenObj?.exp * 1000 < Date.now();
 
     if (!token || isTokenExpired) {
-      await signIn();
-      const session = await getSession();
-      const tokenObj = session?.user.token;
-      token = tokenObj?.accessToken;
-
-      if (!token) {
-        return redirect("/auth", RedirectType.push);
-      }
+      // await signIn();
+      // const session = await getSession();
+      // const tokenObj = session?.user.token;
+      // token = tokenObj?.accessToken;
+      // if (!token) {
+      //   return redirect("/auth", RedirectType.push);
+      // }
     }
     // const token = localStorage.getItem("accessToken");
     // if (token) {

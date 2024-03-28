@@ -4,7 +4,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import SnackbarContextProvider from "@/context/SnackbarContext";
 import React from "react";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import {
   ConversationContextProvider,
   initConversationState,

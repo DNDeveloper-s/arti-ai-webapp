@@ -246,8 +246,8 @@ export default function Services_Sm() {
                 </ModalBody>
               </ModalContent>
             </Modal>
-            <div className="w-full absolute bottom-[-40px] font-diatype flex gap-2 justify-center items-center">
-              <span onClick={onOpen} className="cursor-pointer text-primary">
+            <div className="w-full absolute bottom-[-40px] font-diatype text-primary flex gap-2 justify-center items-center">
+              <span onClick={onOpen} className="cursor-pointer">
                 View More
               </span>
               <BiCaretUp />
