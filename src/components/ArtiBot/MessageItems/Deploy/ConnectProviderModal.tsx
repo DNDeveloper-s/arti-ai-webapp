@@ -49,7 +49,7 @@ export default function ConnectProviderModal(props: ConnectProviderModalProps) {
   return (
     <div>
       <FacebookLogin
-        appId="645064660474863"
+        appId={"683754897094286"}
         fields="name,email,picture"
         onClick={componentClicked}
         callback={responseFacebook}

@@ -46,8 +46,6 @@ import { getSubmitText } from "../../../CreateAdManagerModal";
 <option value="SOCIAL_IMPRESSIONS">Social Impressions</option> */
 }
 
-
-
 const OPTIMISATION_GOALS = [
   { name: "None", uid: "" },
   { name: "App Installs", uid: "APP_INSTALLS" },
@@ -81,8 +79,8 @@ const conditionalData = {
       },
     ],
     promotedObject: {
-      application_id: "645064660474863",
-      object_store_url: "http://www.facebook.com/gaming/play/645064660474863/",
+      application_id: "683754897094286",
+      object_store_url: "http://www.facebook.com/gaming/play/683754897094286/",
     },
   },
   OUTCOME_LEADS: {
@@ -95,8 +93,8 @@ const conditionalData = {
       { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
     ],
     promotedObject: {
-      application_id: "645064660474863",
-      object_store_url: "http://www.facebook.com/gaming/play/645064660474863/",
+      application_id: "683754897094286",
+      object_store_url: "http://www.facebook.com/gaming/play/683754897094286/",
     },
   },
   OUTCOME_SALES: {
@@ -366,9 +364,9 @@ export default function CreateAdset() {
       };
     } else if (campaignObjective === "OUTCOME_APP_PROMOTION") {
       promotedObject = {
-        application_id: "645064660474863",
+        application_id: "683754897094286",
         object_store_url:
-          "http://www.facebook.com/gaming/play/645064660474863/",
+          "http://www.facebook.com/gaming/play/683754897094286/",
       };
     }
 

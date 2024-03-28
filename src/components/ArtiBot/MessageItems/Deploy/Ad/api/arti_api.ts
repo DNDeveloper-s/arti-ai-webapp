@@ -172,11 +172,11 @@ const createAdCreative = async (
           call_to_action: {
             type: adCreative.call_to_action_type,
             value: {
-              link: "http://www.facebook.com/gaming/play/645064660474863/",
+              link: "http://www.facebook.com/gaming/play/683754897094286/",
             },
           },
           image_hash: imageHash,
-          link: "http://www.facebook.com/gaming/play/645064660474863/",
+          link: "http://www.facebook.com/gaming/play/683754897094286/",
           message: adCreative.message,
         },
       },

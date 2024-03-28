@@ -418,9 +418,9 @@ export default function CreateAdset({
       }
 
       adSet.promoted_object = {
-        application_id: "645064660474863",
+        application_id: "683754897094286",
         object_store_url:
-          "http://www.facebook.com/gaming/play/645064660474863/",
+          "http://www.facebook.com/gaming/play/683754897094286/",
       };
 
       const { adSetId, createAdSetError } = await api.createAdSet(

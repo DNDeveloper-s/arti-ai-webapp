@@ -225,3 +225,26 @@ export const servicesData = {
     },
   ],
 };
+
+export const mobileServicesData = {
+  cards: [
+    {
+      id: "1",
+      title: "​​Arti Chat: Supercharge Your Marketing",
+      description:
+        "Unlock the power of AI for your social media marketing. With Arti, elevate your marketing through dynamic content creation, strategic ad placements, automatic delivery and performance insights. Ready for growth? Arti awaits..",
+    },
+    {
+      id: "2",
+      title: "AI Chat that understand your business needs",
+      description:
+        "Our assistant understands your business goals and brings them to life by generating eye-catching advertisements and content creatives. You don’t need to be an expert in marketing,  just chat with our assistant to be guided through the marketing process seamlessly.",
+    },
+    {
+      id: "3",
+      title: "Dynamic Content & Ad Crafting",
+      description:
+        "Revolutionize your brand presence with AI. Based on the conversation, our assistant will craft content and ads that resonate, driving engagement and conversions. Elevate your connection to your audience, with Arti.",
+    },
+  ],
+};

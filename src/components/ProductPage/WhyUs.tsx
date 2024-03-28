@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { whyUsData, WhyUsItem } from "@/constants/productPageData/whyUs/whyUs";
 import { PiCaretRightBold } from "react-icons/pi";
+import Element from "../shared/renderers/Element";
 
 interface WhyUsCardProps {
   item: WhyUsItem;
@@ -141,8 +142,18 @@ export default function WhyUs({ focusedSection }) {
       id={"why-us"}
       ref={ref}
     >
-      <div className={"block text-center w-full mb-6"}>
+      <div className={"flex flex-col items-center text-center w-full mb-6"}>
         <h3 className="landing-page-grad-title inline-block pl-0">Why Us</h3>
+        <Element
+          content={whyUsData.subTitle}
+          type="h4"
+          className="inline-block pl-0 mt-3"
+        />
+        <Element
+          content={whyUsData.description}
+          type="p"
+          className="inline-block pl-0 mt-2"
+        />
       </div>
       <div
         data-groupid={"landing-section"}
