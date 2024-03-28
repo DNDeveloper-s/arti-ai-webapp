@@ -1,95 +1,91 @@
-import {FutureIcon, InnovationIcon, RevolutionIcon, UserCentricIcon} from '@/constants/productPageData/whyUs/icons';
-import {StaticImport} from 'next/dist/shared/lib/get-img-props';
-import React, {ReactElement} from 'react';
+import {
+  FutureIcon,
+  InnovationIcon,
+  RevolutionIcon,
+  UserCentricIcon,
+} from "@/constants/productPageData/whyUs/icons";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import React, { ReactElement, ReactNode } from "react";
 
 interface WhyUsData {
-	title: string;
-	description: string;
-	cta?: string;
-	bottomLine?: string;
-	bottomLine2?: string;
-	items: WhyUsItem[];
+  title: string;
+  subTitle?: string;
+  description: string;
+  cta?: string;
+  bottomLine?: string;
+  bottomLine2?: string;
+  items: WhyUsItem[];
 }
 
 export interface WhyUsItem {
-	id?: number;
-	title: string;
-	overview: string;
-	readMore?: string | WhyUsItem[];
-	icon?: ReactElement<React.SVGProps<SVGSVGElement>>;
-	groupId?: number,
+  id?: number;
+  title: string;
+  overview: string;
+  readMore?: string[];
+  icon?: (props: any) => JSX.Element;
+  groupId?: number;
 }
 
 export const whyUsData: WhyUsData = {
-	title: 'Why Arti?',
-	description: 'Revolutionizing Advertising and Strategy Planning with Artificial Intelligence. Unleash the Power of AI.',
-	// cta: 'Generate Ad Creatives',
-	// bottomLine: 'Try 100% free for 7 days. Cancel Anytime',
-	// bottomLine2: 'Look at our few generated ad creatives',
-	items: [
-		{
-			id: 1,
-			title: 'A Revolution in Digital Strategy & Design',
-			overview: 'Embrace the dawn of a new era in business innovation with our groundbreaking AI-powered platform. Designed with the dream to reshape strategic planning and creative design, we stand at the forefront of technological evolution.',
-			readMore: 'Our platform isn\'t just a product; it\'s a mission. We envision a world where every business, regardless of size or industry, can harness the power of cutting-edge AI technology to elevate their strategies and visuals. Join us on this transformative journey, where potential meets performance.',
-			icon: RevolutionIcon,
-			groupId: 1,
-		},
-		{
-			id: 2,
-			title: 'Our Innovation\'s Backbone: Core Technology',
-			overview: 'At our core lies a blend of technological marvels: GPT Models, the linguists of the digital age, and Diffusion Models, the visual maestros that translate text into captivating imagery.',
-			readMore: [
-				{
-					id: 21,
-					title: 'GPT Models',
-					overview: 'These models delve deep into the world of words, crafting narratives that resonate. They\'re not just processors; they\'re storytellers, driven by sophisticated algorithms and vast datasets.'
-				},
-				{
-					id: 22,
-					title: 'Diffusion Models',
-					overview: 'Where words end, our Diffusion models take over. With extensive training on diverse image databases, they transform concepts into visuals that not only stand out but also speak volumes.'
-				}
-			],
-			icon: InnovationIcon,
-			groupId: 1,
-		},
-		{
-			id: 3,
-			title: 'User-Centric Features: Elevating Every Interaction',
-			overview: 'Experience innovation that\'s designed for you. From a seamless interface and rock-solid security to an architecture that scales and an AI that learns, we\'ve thought of it all.',
-			readMore: [
-				{
-					id: 31,
-					title: 'User-friendly Interface',
-					overview: 'Engage with our platform effortlessly, exploring its depth without ever feeling lost.'
-				},
-				{
-					id: 32,
-					title: 'Data Security',
-					overview: 'We\'ve fortified our walls, ensuring your data remains untainted and untouched.'
-				},
-				{
-					id: 33,
-					title: 'Scalable Architecture',
-					overview: 'Our platform grows with you, ready to meet demands with unmatched efficiency.'
-				},
-				{
-					id: 34,
-					title: 'Continuous Learning',
-					overview: 'Every interaction makes us better, refining our capabilities to serve you with the latest and the best.'
-				}
-			],
-			icon: UserCentricIcon,
-			groupId: 2,
-		},
-		{
-			id: 4,
-			title: 'Shaping Tomorrow, Today',
-			overview: 'More than a tool, our platform is a paradigm shift. It\'s about breaking barriers, democratizing access, and enabling businesses to shine brighter.',
-			readMore: 'With AI as our backbone, we\'re redefining what\'s possible in the realms of strategic planning and design. Our platform stands as a beacon for businesses, offering them the tools to make informed decisions, streamline operations, and craft content that leaves a mark. Dive in, and experience the future of business technology today.',
-			icon: FutureIcon,
-			groupId: 2,
-		}
-	]
-}
+  title: "Why Us",
+  subTitle: "​​Transform Your Marketing with Precision and Impact",
+  description:
+    "Step into a world where your marketing efforts are not just seen but felt. Our platform provides the ultimate toolkit for crafting, deploying, and optimizing your digital marketing campaigns, ensuring every dollar you spend works harder for you. Discover why partnering with us means elevating your marketing strategy to its peak potential.",
+  // cta: 'Generate Ad Creatives',
+  // bottomLine: 'Try 100% free for 7 days. Cancel Anytime',
+  // bottomLine2: 'Look at our few generated ad creatives',
+  items: [
+    {
+      id: 1,
+      title: "Comprehensive Platform Integration: Expand Your Digital Horizon",
+      overview:
+        "Unleash the power of seamless integration across the biggest digital platforms. Our solution is your gateway to boundless marketing opportunities.",
+      readMore: [
+        "Seamlessly manage campaigns across Facebook, Instagram, Email Marketing, and TikTok.",
+        "Enjoy simplified campaign creation that lets you focus on creativity and strategy.",
+        "Reach broader audiences with targeted content that speaks directly to their interests.",
+      ],
+      icon: RevolutionIcon,
+      groupId: 1,
+    },
+    {
+      id: 2,
+      title: "Data-Driven Insights: The Key to Unlocked Potential",
+      overview:
+        "Delve into the heart of your marketing campaigns with analytics that illuminate the path to success. Our insights transform data into strategic power.",
+      readMore: [
+        "Gain actionable insights with our advanced analytics, understanding your audience like never before.",
+        "Make informed decisions that significantly boost campaign performance and ROI.",
+        "Leverage detailed reports to refine and perfect your marketing messages for peak engagement.",
+      ],
+      icon: InnovationIcon,
+      groupId: 1,
+    },
+    {
+      id: 3,
+      title: "Real-Time Campaign Optimization: Agile Marketing Mastery",
+      overview:
+        "Stay ahead in the fast-paced digital world. Our platform offers the agility to adapt and thrive, keeping your campaigns at the forefront of innovation.",
+      readMore: [
+        "Instantly tweak and tune your campaigns based on real-time data and feedback.",
+        "Optimize ad spend across channels for maximum impact and efficiency.",
+        "Harness the flexibility to pivot strategies swiftly, ensuring your brand remains relevant and engaging.",
+      ],
+      icon: UserCentricIcon,
+      groupId: 2,
+    },
+    {
+      id: 4,
+      title: "Dedicated Support and Innovation: A Customer-Centric Approach",
+      overview:
+        "Experience the difference of a partnership that puts you first. Our dedication to support and innovation is the bedrock of your marketing success.",
+      readMore: [
+        "Benefit from a team that's always on your side, ready to offer expert advice and support.",
+        "Enjoy continuous updates and new features designed with your feedback and needs in mind.",
+        "Rely on a platform that evolves with the market, ensuring you're always equipped with cutting-edge tools.",
+      ],
+      icon: FutureIcon,
+      groupId: 2,
+    },
+  ],
+};

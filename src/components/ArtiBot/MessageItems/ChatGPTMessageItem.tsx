@@ -115,8 +115,9 @@ function RenderMessageItem({
   }, [chunksRef, doneRef, messageItem, setMessages]);
 
   useEffect(() => {
+    // console.log("markdownChunks - ", markdownChunks, messageItem);
     // lastItemRef.current && lastItemRef.current.scrollIntoView({behavior: 'smooth'});
-  }, [markdownChunks]);
+  }, [markdownChunks, messageItem]);
 
   return (
     // <Markdown source={item} />
@@ -341,15 +342,6 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props) => {
     useState<ChatGPTMessageObj>(_messageItem);
   const { state, dispatch } = useConversation();
 
-  if (isGenerating) {
-    console.log(
-      "messageItem, isGenerating - ",
-      isGenerating,
-      messageItem.adCreatives,
-      messageItem.adCreatives?.length > 0
-    );
-  }
-
   useEffect(() => {
     setMessageItem(_messageItem);
   }, [_messageItem]);
@@ -439,7 +431,6 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props) => {
   if (messageItem.content && (conversationId || isMock)) {
     const jsonObjectInString = getJSONObjectFromAString(messageItem.content);
     const isJson = isValidJsonWithAdsArray(jsonObjectInString);
-    console.log("isJson - ", isJson, jsonObjectInString);
 
     if (messageItem.adCreatives && messageItem.adCreatives.length > 0) {
       const msgItem = {
@@ -473,6 +464,9 @@ const ChatGPTMessageItem: FC<ChatGPTMessageItemProps> = (props) => {
         content: null,
         adCreatives,
       };
+
+      console.log("message Details | " + messageItem.id + " | ", msgItem);
+
       setMessageItem(msgItem);
       // addAdCreatives(dispatch, adCreatives);
       item = <AdItem messageItem={msgItem} variantFontSize={variantFontSize} />;

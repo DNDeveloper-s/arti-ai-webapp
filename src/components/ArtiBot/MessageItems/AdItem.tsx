@@ -172,6 +172,8 @@ function ConversationAdVariant({ variantId }: { variantId: string }) {
     for (let i = 0; i < variantImages.length; i++) {
       const image = variantImages[i];
 
+      if (!image.get("url") && !image.get("bgImage")) continue;
+
       // Should get new when
       // 1. it's url matches with imageUrl
       // 2. it's url and bgImage both contains allowedBgImagesPrefixes

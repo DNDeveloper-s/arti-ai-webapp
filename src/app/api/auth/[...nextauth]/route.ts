@@ -291,13 +291,13 @@ export const authOptions: AuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60,
+    maxAge: 60 * 60 * 24 * 30, // 30 days,
   },
   jwt: {
-    maxAge: 60 * 60,
+    maxAge: 60 * 60 * 24 * 30, // 30 days
     encode: async ({ secret, token, maxAge }) => {
       if (!token) return "";
-      const accessTokenExpires = moment().add(60, "minutes");
+      const accessTokenExpires = moment().add(30, "days");
 
       // Create a new token with the user data and new expiration time
       return jwt.sign(

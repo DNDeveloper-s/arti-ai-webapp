@@ -14,7 +14,7 @@ import ChatGPTMessageItem, {
 import { ChatGPTMessageObj, ChatGPTRole } from "@/interfaces/IArtiBot";
 import WavingHand from "@/assets/images/waving-hand.webp";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { ConversationType } from "@/interfaces/IConversation";
 import { AnimatePresence, motion } from "framer-motion";
 import { framerContainer } from "@/config/framer-motion";
@@ -50,7 +50,8 @@ const MessageContainer: FC<MessageContainerProps> = ({
   doneRef,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const params = useParams();
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get("conversation_id");
 
   useEffect(() => {
     // if(messages) {
@@ -100,7 +101,7 @@ const MessageContainer: FC<MessageContainerProps> = ({
               chunksRef={chunksRef}
               doneRef={doneRef}
               isGenerating={isGenerating}
-              conversationId={params.conversation_id as string}
+              conversationId={conversationId as string}
               key={messageItem.id}
               setMessages={setMessages}
               messageItem={messageItem}

@@ -4,9 +4,6 @@ import React, { FC, Key, use, useEffect, useState } from "react";
 import { MdArrowBackIos } from "react-icons/md";
 import Link from "next/link";
 import Logo from "@/components/Logo";
-import MessageContainer from "@/components/ArtiBot/MessageContainer";
-import GetAdButton from "@/components/ArtiBot/GetAdButton";
-import FileItem from "@/components/ArtiBot/MessageItems/FileItem";
 import TextareaAutosize from "react-textarea-autosize";
 import { colors } from "@/config/theme";
 import { AnimatePresence, motion } from "framer-motion";
@@ -18,14 +15,11 @@ import Modal from "@/components/Modal";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { StringUtils } from "@/lib/String";
 import SocialMediaPostIcon from "./shared/icons/SocialMediaPostIcon";
-import { Autocomplete, AutocompleteItem, Button } from "@nextui-org/react";
-import { useGetCampaigns, useGetUserProviders } from "@/api/user";
-import SelectAdAccount, {
-  SelectAdAccountPicker,
-} from "./ArtiBot/MessageItems/Deploy/Ad/components/SelectAdAccount";
+import { Button } from "@nextui-org/react";
+import { useGetUserProviders } from "@/api/user";
+import SelectAdAccount from "./ArtiBot/MessageItems/Deploy/Ad/components/SelectAdAccount";
 import SelectMetaPage from "./ArtiBot/MessageItems/Deploy/SelectMetaPage";
 import { useUser } from "@/context/UserContext";
-import useCampaignStore from "@/store/campaign";
 import { ConversationType } from "@/interfaces/IConversation";
 
 interface AskConversationTypeProps {}
@@ -186,12 +180,7 @@ const AdvancedConversationInfo = ({
   projectType: ConversationType;
   goBack: () => void;
 }) => {
-  const router = useRouter();
-  const { data: campaigns, isFetching: isCampaignsFetching } =
-    useGetCampaigns();
-  const [campaignValue, setCampaignValue] = useState("");
   const [pageValue, setPageValue] = useState<string | undefined>();
-  const { selectedAccountId } = useCampaignStore();
 
   return (
     <div className={"flex-1 p-5 flex flex-col"}>
@@ -224,42 +213,6 @@ const AdvancedConversationInfo = ({
         {projectType === ConversationType.AD_CREATIVE ? (
           <>
             <SelectAdAccount />
-            <Autocomplete
-              inputProps={{
-                classNames: {
-                  input: "!text-white",
-                  label: "!text-gray-500",
-                },
-              }}
-              isDisabled={isCampaignsFetching || !selectedAccountId}
-              label="Campaign"
-              placeholder={
-                selectedAccountId
-                  ? isCampaignsFetching
-                    ? "Fetching Campaigns"
-                    : "Select Campaign"
-                  : "Select Ad Account First"
-              }
-              onSelectionChange={(key: Key) => {
-                setCampaignValue(key.toString());
-              }}
-              selectedKey={campaignValue}
-            >
-              {campaigns && campaigns.length > 0 ? (
-                campaigns.map((campaign) => (
-                  <AutocompleteItem key={campaign.id} textValue={campaign.name}>
-                    <div className="flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {campaign.name}
-                    </div>
-                  </AutocompleteItem>
-                ))
-              ) : (
-                <AutocompleteItem key={"no-country-found"} isReadOnly>
-                  No campaigns found
-                </AutocompleteItem>
-              )}
-            </Autocomplete>
           </>
         ) : (
           <SelectMetaPage pageValue={pageValue} setPageValue={setPageValue} />
