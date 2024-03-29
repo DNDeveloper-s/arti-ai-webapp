@@ -9,7 +9,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { servicesData } from "@/constants/productPageData/services";
+import {
+  mobileServicesData,
+  servicesData,
+} from "@/constants/productPageData/services";
 import { ChatGPTMessageObj } from "@/interfaces/IArtiBot";
 import useMounted from "@/hooks/useMounted";
 import {
@@ -85,6 +88,7 @@ const ServiceCard: React.FC<Props> = ({
   );
 };
 
+const ids = [1, 2, 3];
 export default function Services_Sm() {
   const [idInView, setIdInView] = useState<Props["id"]>(1);
   const isMounted = useMounted();
@@ -94,30 +98,37 @@ export default function Services_Sm() {
   const { scrollY } = useScroll();
   const sectionRef = useRef<HTMLDivElement>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useMotionValueEvent(scrollY, "change", (latest: number) => {
-    if (!sectionRef.current) return;
-    // Check the sectionRef which is MutableRefObject<HTMLDivElement>, how much is it from the scroll Top
-    // if it is less than 0, then set the viewScreen to ViewScreen.MOBILE
-    // if it is greater than 0 and less than 1, then set the viewScreen to ViewScreen.TABLET
-    // if it is greater than 1, then set the viewScreen to ViewScreen.DESKTOP
-    const fromTop = sectionRef.current.offsetTop;
+  useEffect(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    const intervalId = setInterval(() => {
+      setIdInView((prev) => {
+        if (prev === 3) return 1;
+        return prev + 1;
+      });
+    }, 8500);
+    intervalRef.current = intervalId;
 
-    const scrolledInSection = latest - fromTop;
-
-    if (scrolledInSection < 500) setIdInView(1);
-    if (scrolledInSection > 500 && scrolledInSection < 1000) setIdInView(2);
-    if (scrolledInSection > 1000) setIdInView(3);
-  });
-
-  const handleIdInView = useCallback((id: Props["id"]) => {
-    setIdInView(id);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, []);
 
-  function handleEnd(setKey: React.Dispatch<SetStateAction<number>>) {
-    // console.log('handling end --- ')
-    setKey((c: number) => c + 1);
-  }
+  // useMotionValueEvent(scrollY, "change", (latest: number) => {
+  //   if (!sectionRef.current) return;
+  //   // Check the sectionRef which is MutableRefObject<HTMLDivElement>, how much is it from the scroll Top
+  //   // if it is less than 0, then set the viewScreen to ViewScreen.MOBILE
+  //   // if it is greater than 0 and less than 1, then set the viewScreen to ViewScreen.TABLET
+  //   // if it is greater than 1, then set the viewScreen to ViewScreen.DESKTOP
+  //   const fromTop = sectionRef.current.offsetTop;
+
+  //   const scrolledInSection = latest - fromTop;
+
+  //   if (scrolledInSection < 500) setIdInView(1);
+  //   if (scrolledInSection > 500 && scrolledInSection < 1000) setIdInView(2);
+  //   if (scrolledInSection > 1000) setIdInView(3);
+  // });
 
   const mockMessages = useMemo(() => {
     return mock.messages.sort((a, b) => a.serialOrder - b.serialOrder);
@@ -127,18 +138,6 @@ export default function Services_Sm() {
     return mock.adCreativeMessages.sort(
       (a, b) => a.serialOrder - b.serialOrder
     );
-  }, []);
-
-  /**
-   *     width: 446px;
-   *     height: 278.4px;
-   *     top: 84px;
-   *     left: 52px;
-   *     border-radius: 11px 11px 0 0;
-   */
-
-  const handleChangeScreen = useCallback((screen: ViewScreen) => {
-    setViewScreen(screen);
   }, []);
 
   const dimensions = useMemo(() => {
@@ -162,8 +161,6 @@ export default function Services_Sm() {
     };
   }, [mounted]);
 
-  const serviceData = servicesData.cards[idInView - 1] ?? undefined;
-
   return (
     <div
       className="landing-page-section p-0 relative"
@@ -175,9 +172,11 @@ export default function Services_Sm() {
           {/*{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}*/}
           {servicesData.cards.map((serviceItem) => (
             <div
-              key={serviceItem.title}
+              key={serviceItem.id}
               className="absolute top-0 left-1/2 w-[80vw] bg-black bg-opacity-40 backdrop-blur-[1px] transform -translate-x-1/2 flex flex-col items-center justify-center"
-              style={{ opacity: idInView === serviceItem.id ? 1 : 0 }}
+              style={{
+                opacity: idInView === serviceItem.id ? 1 : 0,
+              }}
             >
               <div>
                 <h1 className="text-[33px] text-center text-white leading-[38px] font-diatype font-medium">
@@ -227,37 +226,12 @@ export default function Services_Sm() {
                 isInView={idInView === 3}
               />
             </div>
-            <Modal isOpen={serviceData && isOpen} onOpenChange={onOpenChange}>
-              <ModalContent>
-                <ModalHeader className="font-diatype">
-                  {serviceData.more.heading}
-                </ModalHeader>
-                <ModalBody>
-                  <ul className="list-disc font-diatype [&>*]:mb-2 mb-4 mx-3">
-                    {serviceData.more.list.map((item, ind) => (
-                      <li
-                        className="font-diatype text-gray-300 text-sm"
-                        key={ind}
-                      >
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </ModalBody>
-              </ModalContent>
-            </Modal>
-            <div className="w-full absolute bottom-[-40px] font-diatype text-primary flex gap-2 justify-center items-center">
-              <span onClick={onOpen} className="cursor-pointer">
-                View More
-              </span>
-              <BiCaretUp />
-            </div>
           </div>
         </div>
       </div>
       {/*{servicesData.cards.map(serviceItem => <ServiceCard handleIdInView={handleIdInView} isInView={idInView === serviceItem.id} key={serviceItem.title} {...serviceItem} />)}*/}
-      <div className="w-screen h-screen bg-red-300 bg-opacity-0" />
-      <div className="w-screen h-screen bg-red-300 bg-opacity-0" />
+      {/* <div className="w-screen h-screen bg-red-300 bg-opacity-0" />
+      <div className="w-screen h-screen bg-red-300 bg-opacity-0" /> */}
     </div>
   );
 }

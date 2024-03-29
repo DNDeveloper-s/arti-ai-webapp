@@ -147,12 +147,12 @@ export default function WhyUs({ focusedSection }) {
         <Element
           content={whyUsData.subTitle}
           type="h4"
-          className="inline-block pl-0 mt-3"
+          className="inline-block pl-0 mt-3 opacity-80 text-xl"
         />
         <Element
           content={whyUsData.description}
           type="p"
-          className="inline-block pl-0 mt-2"
+          className="inline-block pl-0 mt-2 opacity-60 max-w-[800px]"
         />
       </div>
       <div

@@ -53,6 +53,7 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
+import MarkdownRenderer from "../ArtiBot/MarkdownRenderer";
 
 const CanvasJS = CanvasJSReact.CanvasJS;
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
@@ -152,16 +153,25 @@ const ServiceCard: React.FC<Props> = ({
           Learn More
         </Button>
       </div>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          <ModalHeader className="font-diatype">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        classNames={{
+          base: "w-[70vw] max-w-[900px]",
+        }}
+      >
+        <ModalContent className="p-8">
+          <ModalHeader className="font-gilroyBold text-2xl">
             {serviceData.more.heading}
           </ModalHeader>
           <ModalBody>
-            <ul className="list-disc font-diatype [&>*]:mb-2 mb-4 mx-3">
+            <ul className="list-disc font-diatype [&>*]:mb-2 mb-6 mx-3">
               {serviceData.more.list.map((item, ind) => (
-                <li className="font-diatype text-gray-300 text-sm" key={ind}>
-                  {item}
+                <li
+                  className="font-gilroyRegular [&_strong]:font-gilroyBold text-white text-xl leading-5"
+                  key={ind}
+                >
+                  <MarkdownRenderer markdownContent={item} key={item} />
                 </li>
               ))}
             </ul>
@@ -343,7 +353,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({
   );
 
   const demo = useCallback(async () => {
-    console.log("demo called - ", isAdCreative);
+    const startedAt = new Date().getTime();
     setMessages(isAdCreative ? ([..._messages.slice(0, 6)] as any) : []);
     setAdCreative(null);
     setShowGetAdNowButton(false);
@@ -368,6 +378,11 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({
 
       await wait(5000);
       // return;
+
+      const endAt = new Date().getTime();
+
+      console.log("Time taken for Metric: ", endAt - startedAt, "ms");
+
       return await demo();
     }
 
@@ -399,6 +414,9 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({
       // eslint-disable-next-line react-hooks/exhaustive-deps
       timeoutIds.current.forEach(clearTimeout);
 
+      const endAt = new Date().getTime();
+
+      console.log("Time take for Chat: ", endAt - startedAt, "ms");
       return await demo();
     }
 
@@ -426,6 +444,10 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({
     intervalIds.current.forEach(clearInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     timeoutIds.current.forEach(clearTimeout);
+
+    const endAt = new Date().getTime();
+
+    console.log("Time taken for AdCreative: ", endAt - startedAt, "ms");
 
     return await demo();
   }, [_messages, isAdCreative, wait, sendUserMessage, printAiMessage]);
@@ -1182,6 +1204,7 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({
   // )
 };
 
+const ids = [1, 2, 3];
 export default function Services() {
   const [idInView, setIdInView] = useState<Props["id"]>(0);
   const isMounted = useMounted();

@@ -12,6 +12,8 @@ import MobileTextImage from "@/assets/images/mobile_bg_text.png";
 import Typist from "react-typist-component";
 import type { RenderPhotoProps } from "react-photo-album";
 import PhotoAlbum from "react-photo-album";
+import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 
 const breakpoints = [1080, 640, 384, 256, 128, 96, 64, 48];
 
@@ -282,9 +284,14 @@ export default function Hero() {
           <br />
           Every Dollar Spent, Amplified.
         </h2>
-        <p className="text-md my-2 md:my-4 opacity-50">
-          Maximize Impact Across FB, IG, TikTok, and Email.
-        </p>
+        <div className="text-md my-2 md:my-4 opacity-70 flex items-center gap-1.5">
+          <span>Maximize Impact Across</span> <FaFacebookF />
+          <div className="w-1 h-1 bg-gray-600 rounded-full" />
+          <FaInstagram /> <div className="w-1 h-1 bg-gray-600 rounded-full" />
+          <FaTiktok />
+          <div className="w-1 h-1 bg-gray-600 rounded-full" />
+          <MdEmail clasName="text-base" />.
+        </div>
         <CTAButton onClick={() => router.push("#contact")} className="my-4">
           <span>Join the Waitlist Today</span>
         </CTAButton>
