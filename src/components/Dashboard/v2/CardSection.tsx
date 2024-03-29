@@ -37,6 +37,7 @@ import { ChatGPTRole } from "@/interfaces/IArtiBot";
 import useAdCreatives from "@/hooks/useAdCreatives";
 import useConversations from "@/hooks/useConversations";
 import { useGetConversationInfinite } from "@/api/conversation";
+import ConversationSection from "./ConversationSection";
 
 enum EmptySectionType {
   CONVERSATION = "conversation",
@@ -279,9 +280,7 @@ export default function CardSection() {
           {/*	<Tabs items={tabItems} handleChange={handleTabChange} />*/}
           {/*</div>*/}
         </div>
-        <div className="flex gap-4 w-full overflow-x-auto">
-          {renderConversations()}
-        </div>
+        <ConversationSection />
       </section>
       {renderAdCreatives()}
       {/*{state.adCreatives && state.adCreatives.length > 0 && <section className="mb-10 w-full">*/}

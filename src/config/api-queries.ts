@@ -89,6 +89,7 @@ const API_QUERIES = {
     accessToken,
   ],
   UPDATE_ME: ["update-me"],
+  GET_INFINITE_CONVERSATIONS: ["get-infinite-conversations"],
 };
 
 export default API_QUERIES;
