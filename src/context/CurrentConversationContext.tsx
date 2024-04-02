@@ -1,39 +1,104 @@
 "use client";
 
-import React, { createContext, FC, useState } from "react";
+import React, {
+  createContext,
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+} from "react";
+import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import { useGetConversation } from "@/api/conversation";
+import { IConversation } from "@/interfaces/IConversation";
 
-export interface ISnackbarData {
-  status: "warning" | "error" | "success" | "info";
-  message: string;
+type ICurrentConversationState = {
+  conversation?: IConversation;
+};
+
+export const initCurrentConversationState: ICurrentConversationState = {
+  conversation: undefined,
+};
+
+enum CURRENT_CONVERSATION_ACTION_TYPE {
+  SET = "SET",
 }
 
-export type SnackbarData = ISnackbarData | null | false;
-
-interface ISnackbarContext {
-  snackBarData: [
-    snackBarData: SnackbarData,
-    setSnackBarData: React.Dispatch<React.SetStateAction<SnackbarData>>,
-  ];
+interface CurrentConversationAction {
+  type: CURRENT_CONVERSATION_ACTION_TYPE;
+  payload: Partial<ICurrentConversationState>;
 }
 
-export const SnackbarContext = createContext<ISnackbarContext>(
-  {} as ISnackbarContext
-);
+function CurrentConversationReducer(
+  state: ICurrentConversationState,
+  action: CurrentConversationAction
+): ICurrentConversationState {
+  const { type, payload } = action;
+  switch (type) {
+    case CURRENT_CONVERSATION_ACTION_TYPE.SET:
+      return {
+        ...state,
+        ...payload,
+      };
+    default:
+      return state;
+  }
+}
 
-const SnackbarContextProvider: FC<{ children: React.ReactElement }> = (
-  props
+const useCurrentConversationContext = (
+  initState: ICurrentConversationState
 ) => {
-  const [snackBarData, setSnackBarData] = useState<SnackbarData>(null);
+  const [state, dispatch] = useReducer(CurrentConversationReducer, initState);
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get("conversation_id");
+  const { data: conversation } = useGetConversation(conversationId);
+
+  return {
+    state,
+    dispatch,
+    conversation,
+  };
+};
+
+type UseCurrentConversationContextType = ReturnType<
+  typeof useCurrentConversationContext
+>;
+
+export const CurrentConversationContext =
+  createContext<UseCurrentConversationContextType>({
+    state: initCurrentConversationState,
+    dispatch: (action: CurrentConversationAction) => {},
+    conversation: undefined,
+  });
+
+const CurrentConversationContextProvider: FC<
+  { children: React.ReactElement } & ICurrentConversationState
+> = ({ children, ...initState }) => {
+  const context = useCurrentConversationContext(initState);
 
   return (
-    <SnackbarContext.Provider
-      value={{
-        snackBarData: [snackBarData, setSnackBarData],
-      }}
-    >
-      {props.children}
-    </SnackbarContext.Provider>
+    <CurrentConversationContext.Provider value={context}>
+      {children}
+    </CurrentConversationContext.Provider>
   );
 };
 
-export default SnackbarContextProvider;
+type UseCurrentConversationHookType = {
+  state: ICurrentConversationState;
+  dispatch: (action: CurrentConversationAction) => void;
+  conversation: IConversation | undefined;
+};
+
+function useCurrentConversation(): UseCurrentConversationHookType {
+  const context = useContext(CurrentConversationContext);
+  if (context === undefined) {
+    throw new Error(
+      "useCurrentConversation must be used within a CurrentConversationContextProvider"
+    );
+  }
+
+  return context;
+}
+
+export { useCurrentConversation, CurrentConversationContextProvider };

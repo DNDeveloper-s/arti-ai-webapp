@@ -15,6 +15,8 @@ export default function useInView(
   const [isInView, setIsInView] = React.useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  console.log("Testing in | ref - ", ref);
+
   useEffect(() => {
     const refEl = ref.current;
     if (!refEl) return;
@@ -50,7 +52,7 @@ export default function useInView(
         observer.unobserve(refEl);
       }
     };
-  }, [options?.timeInView, ref]);
+  }, [options?.timeInView, ref.current]);
 
   return isInView;
 }

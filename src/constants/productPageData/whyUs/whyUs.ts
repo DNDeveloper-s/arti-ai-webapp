@@ -18,7 +18,7 @@ interface WhyUsData {
 }
 
 export interface WhyUsItem {
-  id?: number;
+  id: number;
   title: string;
   overview: string;
   readMore?: string[];

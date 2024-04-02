@@ -100,18 +100,33 @@ export const mobileServicesData = {
       title: "​​Arti Chat: Supercharge Your Marketing",
       description:
         "Unlock the power of AI for your social media marketing. With Arti, elevate your marketing through dynamic content creation, strategic ad placements, automatic delivery and performance insights. Ready for growth? Arti awaits..",
+      list: [
+        `**Engage and Convert**: With Arti's **"creative content generation"** and **"dynamic advertising solutions"**, elevate your brand's message, captivate your audience, and drive conversions like never before.`,
+        `**Tailored to Your Needs**: Arti isn't just any assistant; it's your **"personal AI marketing assistant"**, designed to understand and respond to your unique business challenges with custom solutions.`,
+        `**Scheduling Made Simple**: Effortlessly plan and adjust your marketing campaigns with Arti, your go-to for **"AI-powered scheduling"**. Streamline your content strategy and ensure consistent engagement without the hassle.`,
+      ],
     },
     {
       id: "2",
-      title: "AI Chat that understand your business needs",
+      title: "Dynamic Content & Ad Crafting",
       description:
-        "Our assistant understands your business goals and brings them to life by generating eye-catching advertisements and content creatives. You don’t need to be an expert in marketing,  just chat with our assistant to be guided through the marketing process seamlessly.",
+        "Revolutionize your brand presence with AI. Based on the conversation, our assistant will craft content and ads that resonate, driving engagement and conversions. Elevate your connection to your audience, with Arti.",
+      list: [
+        "Target with AI: Find your audience for highest reach and conversion",
+        "Creative Engagement: Stand out with visually stunning content compared to your competition",
+        "Amplify Impact: Boost visibility and brand influence with tailored ads and content.",
+      ],
     },
     {
       id: "3",
       title: "Dynamic Content & Ad Crafting",
       description:
         "Revolutionize your brand presence with AI. Based on the conversation, our assistant will craft content and ads that resonate, driving engagement and conversions. Elevate your connection to your audience, with Arti.",
+      list: [
+        "Broad Platform Support: Reach your audience, no matter which platform they use",
+        "Insightful Analytics: Understand and adapt to campaign performance, and compare them across platform",
+        '**Scheduling Made Simple**: Effortlessly plan and adjust your marketing campaigns with Arti, your go-to for **"AI-powered scheduling”**',
+      ],
     },
   ],
 };

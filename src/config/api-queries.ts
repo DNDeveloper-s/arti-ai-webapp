@@ -22,6 +22,7 @@ const API_QUERIES = {
     access_token,
     post_id,
   ],
+  VARIANTS_BY_CONVERSATION: ["variants-by-conversation"],
   GET_USER_ACCOUNTS: ["get-user-accounts"],
   LINK_ACCOUNT: ["link-account"],
   GET_FACEBOOK_PAGE: (access_token?: string | null, page_id?: string) => [
@@ -33,6 +34,14 @@ const API_QUERIES = {
     "get-campaigns",
     access_token,
     account_id,
+  ],
+  GET_CONVERSATION: (conversation_id: string | null) => [
+    "get-conversation",
+    conversation_id,
+  ],
+  GET_MESSAGES: (conversation_id: string | null) => [
+    "get-messages",
+    conversation_id,
   ],
   GET_ADSETS: (
     access_token?: string | null,
@@ -48,8 +57,9 @@ const API_QUERIES = {
     access_token?: string | null,
     account_id?: string | null,
     adset_ids?: string[] | null,
+    campaign_ids?: string[] | null,
     ad_ids?: string[] | null
-  ) => ["get-ads", access_token, account_id, adset_ids, ad_ids],
+  ) => ["get-ads", access_token, account_id, adset_ids, campaign_ids, ad_ids],
   CREATE_CAMPAIGN: ["create-campaign"],
   CREATE_ADSET: ["create-adset"],
   CREATE_AD: ["create-ad"],

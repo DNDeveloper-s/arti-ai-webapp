@@ -1,5 +1,6 @@
 "use client";
 
+import ArtiBotV2 from "@/components/ArtiBot/v2/ArtiBot";
 import ArtiBot from "@/components/ArtiBot/ArtiBot";
 import { IConversation } from "@/interfaces/IConversation";
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
@@ -24,6 +25,7 @@ import CreateAdManagerModal from "./MessageItems/Deploy/Ad/CreateAdManagerModal"
 import AdManagerListModal from "./MessageItems/Deploy/Ad/AdManagerListModal";
 import CreateSocialPostModal from "./MessageItems/Deploy/Post/CreateSocialPostModal";
 import AdCreativeIcon from "../shared/icons/AdCreativeIcon";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -168,6 +170,9 @@ export default function ArtiBotPage({
   const [isConversationCollapsible, setIsConversationCollapsible] =
     useState<boolean>(false);
   const search = useSearchParams();
+  const { conversation: _currentConversation } = useCurrentConversation();
+
+  const useV2 = localStorage.getItem("use_v2") === "true";
 
   const adCreative = useMemo(() => {
     // Merge all the variants into one adCreative object within one conversation
@@ -260,14 +265,18 @@ export default function ArtiBotPage({
           }
         >
           <div className={"w-full mx-auto h-full overflow-hidden"}>
-            <ArtiBot
-              hideHeader={true}
-              toggleCollapse={toggleCollapse}
-              collapsed={false}
-              conversation={conversation}
-              adCreatives={adCreatives}
-              setAdCreatives={setAdCreatives}
-            />
+            {!useV2 ? (
+              <ArtiBot
+                hideHeader={true}
+                toggleCollapse={toggleCollapse}
+                collapsed={false}
+                conversation={conversation}
+                adCreatives={adCreatives}
+                setAdCreatives={setAdCreatives}
+              />
+            ) : (
+              <ArtiBotV2 hideHeader={true} />
+            )}
           </div>
         </div>
         {adCreative && (

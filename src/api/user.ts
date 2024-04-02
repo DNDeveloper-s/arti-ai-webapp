@@ -179,21 +179,6 @@ export function useGetFacebookPosts(pageId: string, pageAccessToken: string) {
   };
 }
 
-// const response = await axios.post(ROUTES.SOCIAL.POSTS, {
-//   post: {
-//     url: getNextImageProxyUrl(
-//       isImageReady ? imageUrl : selectedVariant.imageUrl!
-//     ),
-//     message: selectedVariant.text,
-//   },
-//   page_id: pageId,
-//   access_token: pageAccessToken,
-//   user_id: "6513be7a09527d141ebc30b8",
-//   conversation_id: "6513be7a09527d141ebc30b8",
-//   variant_id: "6513be7a09527d141ebc30b8",
-//   ad_creative_id: "6513be7a09527d141ebc30b8",
-// });
-
 export function useCreatePost() {
   const queryClient = useQueryClient();
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
@@ -694,10 +679,12 @@ export function useGetAdSet({
 
 export function useGetAds({
   adsetIds,
+  campaignIds,
   adIds,
   enabled = true,
   accountId,
 }: {
+  campaignIds?: string[] | null;
   adsetIds?: string[] | null;
   adIds?: string[] | null;
   enabled?: boolean;
@@ -705,7 +692,7 @@ export function useGetAds({
 }): UseQueryResult<IAd[], Error> {
   const { accessToken, accountId: defaultAccountId } = useCredentials();
   const getAds = async ({ queryKey }: QueryFunctionContext) => {
-    const [, accessToken, accountId, adsetIds, adIds] = queryKey;
+    const [, accessToken, accountId, adsetIds, campaignIds, adIds] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
     const response = await axios.get(ROUTES.ADS.AD_ENTITIES, {
@@ -713,6 +700,7 @@ export function useGetAds({
         access_token: accessToken,
         account_id: accountId,
         adset_ids: adsetIds,
+        campaign_ids: campaignIds,
         ad_ids: adIds,
         get_insights: true,
       },
@@ -723,7 +711,13 @@ export function useGetAds({
   const _accountId = accountId ?? defaultAccountId;
 
   return useQuery({
-    queryKey: API_QUERIES.GET_ADS(accessToken, _accountId, adsetIds, adIds),
+    queryKey: API_QUERIES.GET_ADS(
+      accessToken,
+      _accountId,
+      adsetIds,
+      campaignIds,
+      adIds
+    ),
     queryFn: getAds,
     enabled: !!enabled && !!accessToken && !!_accountId,
     retry(failureCount, error) {

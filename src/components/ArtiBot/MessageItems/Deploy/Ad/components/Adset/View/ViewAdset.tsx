@@ -29,16 +29,22 @@ import {
   useUpdateAdset,
 } from "@/api/user";
 import { access } from "fs";
-import { ADMANAGER_STATUS_TYPE, IAdSet } from "@/interfaces/ISocial";
+import {
+  ADMANAGER_STATUS_TYPE,
+  IAdSet,
+  OptimisationGoal,
+} from "@/interfaces/ISocial";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import SwitchStatus from "../../SwitchStatus";
+import { getResultsFromInsights } from "../../Ads/View/ViewAds";
 
 const columns = [
   { name: "OFF/ON", uid: "status" },
   { name: "ID", uid: "id", sortable: true },
   { name: "NAME", uid: "name", sortable: true },
-  { name: "OPTIMIZATION GOAL", uid: "optimization_goal", sortable: true },
-  { name: "BID STRATEGY", uid: "bid_strategy" },
+  { name: "AMOUNT SPENT", uid: "amount_spent", sortable: true },
+  { name: "REACH", uid: "reach" },
+  { name: "RESULTS", uid: "results" },
   { name: "ACTIONS", uid: "actions" },
 ];
 
@@ -113,6 +119,27 @@ export default function ViewAdset() {
           return (
             <div className="flex items-center gap-3 min-w-[120px]">
               {adset.name}
+            </div>
+          );
+        case "amount_spent":
+          return (
+            <div className="flex items-center gap-3">
+              {adset.insights?.data[0]?.spend}
+            </div>
+          );
+        case "reach":
+          return (
+            <div className="flex items-center gap-3">
+              {adset.insights?.data[0]?.reach}
+            </div>
+          );
+        case "results":
+          return (
+            <div className="flex items-center gap-3">
+              {getResultsFromInsights(
+                adset.insights,
+                adset.optimization_goal as OptimisationGoal
+              )}
             </div>
           );
         case "objective":

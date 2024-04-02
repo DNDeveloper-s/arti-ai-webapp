@@ -38,6 +38,7 @@ import useAdCreatives from "@/hooks/useAdCreatives";
 import useConversations from "@/hooks/useConversations";
 import { useGetConversationInfinite } from "@/api/conversation";
 import ConversationSection from "./ConversationSection";
+import AdCreativeSection from "./AdCreativeSection";
 
 enum EmptySectionType {
   CONVERSATION = "conversation",
@@ -178,135 +179,21 @@ export default function CardSection() {
     token && dispatch && getAdCreatives(dispatch);
   }, [dispatch, token]);
 
-  function handleLogOutButton() {
-    signOut();
-  }
-
   function handleAdCreativeClick(adCreativeItem: IAdCreative) {
     // setOpen(true);
     setCurrentAdCreative(adCreativeItem);
   }
 
-  function handleUploadItemClick(fileDetails: AttachmentDetails) {
-    setModalData(fileDetails);
-  }
-
-  const hasActiveConversations =
-    dummy.Conversations.filter((c) => c.messages?.length > 0).length > 0;
-
-  function handleTabChange(tabItem: TabItem) {
-    setActiveTabItem(tabItem);
-  }
-
-  function renderConversations() {
-    if (isConversationLoading)
-      return (
-        <div className="w-full flex gap-4 overflow-hidden">
-          <ConversationCardShimmer />
-          <ConversationCardShimmer />
-          <ConversationCardShimmer />
-        </div>
-      );
-    return (
-      <>
-        {!conversations || conversations?.length === 0 ? (
-          <EmptySection
-            style={{
-              backdropFilter: "blur(3px)",
-              background: "rgba(0,0,0,0.6)",
-            }}
-            type={EmptySectionType.CONVERSATION}
-          />
-        ) : (
-          // state.conversations.filter((c: IConversationModel & {has_activity: boolean}) => c.has_activity).map((conversation: IConversationModel) =>
-          conversations.map((conversation: IConversation) => (
-            <ConversationCard
-              key={conversation.id}
-              conversation={conversation}
-            />
-          ))
-        )}
-      </>
-    );
-  }
-
-  function renderAdCreatives() {
-    if (
-      isConversationLoading ||
-      (state.loading.adCreatives &&
-        (!state.adCreative?.list || state.adCreative?.list?.length === 0))
-    ) {
-      return (
-        <section className="mb-10 w-full">
-          <h2 className="mb-3">Past Ad Creatives</h2>
-          <div className="flex gap-4 w-full overflow-x-auto">
-            <div className="w-full flex gap-4 overflow-hidden">
-              <AdCreativeCardShimmer />
-              <AdCreativeCardShimmer />
-              <AdCreativeCardShimmer />
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    return (
-      <>
-        {state.adCreative.list && state.adCreative.list.length > 0 && (
-          <section className="mb-10 w-full">
-            <h2 className="mb-3">Past Ad Creatives</h2>
-            <div className="flex gap-4 w-full overflow-x-auto">
-              {sortedConversationIds.map((conversationId: string) => (
-                <AdCreativeCard
-                  key={conversationId}
-                  adCreatives={adVariantsByConversationId[conversationId].list}
-                  onClick={handleAdCreativeClick}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-      </>
-    );
-  }
-
   // TODO: Refactor them in corresponding component
   return (
     <>
-      <section className="mb-10 w-full">
-        <div className="flex mb-3 justify-between items-center">
-          <h2>Past Conversations</h2>
-          {/*<div className="h-8">*/}
-          {/*	<Tabs items={tabItems} handleChange={handleTabChange} />*/}
-          {/*</div>*/}
-        </div>
-        <ConversationSection />
-      </section>
-      {renderAdCreatives()}
-      {/*{state.adCreatives && state.adCreatives.length > 0 && <section className="mb-10 w-full">*/}
-      {/*	<h2 className="mb-3">Past Ad Creatives</h2>*/}
-      {/*	<div className="flex gap-4 w-full overflow-x-auto">*/}
-      {/*		{Object.keys(adVariantsByConversationId).map((conversationId: string) => <AdCreativeCard key={conversationId} adCreatives={adVariantsByConversationId[conversationId]} onClick={handleAdCreativeClick}/>)}*/}
-      {/*	</div>*/}
-      {/*</section>}*/}
-      {/*<section className="mb-10 w-full">*/}
-      {/*	<h2 className="mb-3">Past Uploads</h2>*/}
-      {/*	<div className="flex gap-4 w-full overflow-x-auto">*/}
-      {/*		<EmptySection style={{backdropFilter: 'blur(3px)', background: 'rgba(0,0,0,0.9)'}} type={EmptySectionType.UPLOAD} />*/}
-      {/*	</div>*/}
-      {/*</section>*/}
+      <ConversationSection />
+      <AdCreativeSection />
       <AttachmentModal
         fileDetails={modalData}
         open={!!modalData}
         setOpen={setModalData}
       />
-      <Drawer
-        open={!!currentAdCreative}
-        position={Position.RIGHT}
-        handelClose={() => setCurrentAdCreative(null)}
-      >
-        {currentAdCreative && <RightPane adCreative={currentAdCreative} />}
-      </Drawer>
       <Snackbar />
     </>
   );

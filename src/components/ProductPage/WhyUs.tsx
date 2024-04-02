@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { whyUsData, WhyUsItem } from "@/constants/productPageData/whyUs/whyUs";
 import { PiCaretRightBold } from "react-icons/pi";
 import Element from "../shared/renderers/Element";
+import { useMediaQuery } from "react-responsive";
 
 interface WhyUsCardProps {
   item: WhyUsItem;
@@ -120,9 +121,10 @@ interface TestimonialItemProps {
   };
 }
 
-export default function WhyUs({ focusedSection }) {
+export default function WhyUs() {
   const ref = useRef<HTMLDivElement>(null);
   const [expandGroup, setExpandGroup] = useState<null | number>(null);
+  const isSmallScreen = useMediaQuery({ query: "(max-width: 500px)" });
 
   function handleExpand(groupId: number) {
     setExpandGroup((c) => {
@@ -131,10 +133,10 @@ export default function WhyUs({ focusedSection }) {
     });
   }
 
-  useEffect(() => {
-    if (!expandGroup || focusedSection === "why_us") return;
-    setExpandGroup(null);
-  }, [expandGroup, focusedSection]);
+  // useEffect(() => {
+  //   if (!expandGroup || focusedSection === "why_us") return;
+  //   setExpandGroup(null);
+  // }, [expandGroup, focusedSection]);
 
   return (
     <div
@@ -164,9 +166,11 @@ export default function WhyUs({ focusedSection }) {
           <WhyUsCard
             key={whyUsItem.id}
             item={whyUsItem}
-            expand={expandGroup === whyUsItem.groupId}
+            expand={
+              expandGroup === (isSmallScreen ? whyUsItem.id : whyUsItem.groupId)
+            }
             handleExpand={handleExpand}
-            groupId={whyUsItem.groupId ?? 1}
+            groupId={isSmallScreen ? whyUsItem.id : whyUsItem.groupId ?? 1}
           />
         ))}
       </div>

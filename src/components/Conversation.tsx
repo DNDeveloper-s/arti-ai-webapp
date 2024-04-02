@@ -15,6 +15,7 @@ import ArtiBotPage from "./ArtiBot/ConversationPage";
 import { useGetUserProviders } from "@/api/user";
 import { useUser } from "@/context/UserContext";
 import { red } from "tailwindcss/colors";
+import { CurrentConversationContextProvider } from "@/context/CurrentConversationContext";
 
 // Fetch the conversation from the database
 // If the conversation doesn't exist, create a new conversation
@@ -95,9 +96,11 @@ export default function Conversation({
         {/*<div className="bg-background">*/}
 
         {/*</div>*/}
-        <ArtiBotPage
-          conversation={state.conversation.map[conversationId.toString()]}
-        />
+        <CurrentConversationContextProvider>
+          <ArtiBotPage
+            conversation={state.conversation.map[conversationId.toString()]}
+          />
+        </CurrentConversationContextProvider>
       </div>
     </main>
   );

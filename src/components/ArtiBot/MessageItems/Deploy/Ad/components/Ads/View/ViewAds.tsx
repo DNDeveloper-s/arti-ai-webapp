@@ -72,7 +72,7 @@ const resultKey: Partial<
   },
 };
 
-function getResultsFromInsights(
+export function getResultsFromInsights(
   insights: IAd["insights"],
   optimizationGoal: OptimisationGoal
 ) {
@@ -94,12 +94,21 @@ export default function ViewAds() {
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
   const { selected, setSelected, setFormState, setShowProgress } =
     useCampaignStore();
+
+  const adsetIds = Array.from(selected.adsets) as string[];
+  const filters = {
+    adsetIds: adsetIds,
+    campaignIds:
+      adsetIds && adsetIds.length > 0
+        ? undefined
+        : (Array.from(selected.campaigns) as string[]),
+  };
   const {
     data: _ads,
     isFetching,
     fetchStatus,
   } = useGetAds({
-    adsetIds: Array.from(selected.adsets) as string[],
+    ...filters,
   });
 
   const { mutate: postUpdateAd, isPending: isUpdating } = useUpdateAd();

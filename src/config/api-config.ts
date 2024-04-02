@@ -53,6 +53,9 @@ export const ROUTES = {
     GENERATE_IMAGES: (conversationId: string) =>
       apiUrl(`/ad_creatives/generate-images/${conversationId}`),
     QUERY_INFINITE: apiUrl("/conversations"),
+    QUERY_VARIANTS: apiUrl("/conversations/variants"),
+    GET_MESSAGES: (conversationId: string) =>
+      apiUrl(`/conversations/${conversationId}/messages`),
   },
   ADCREATIVE: {
     QUERY: (limit?: number, page?: number, sortBy?: "asc" | "desc") =>

@@ -74,7 +74,7 @@ export async function fetchImage(url: string): Promise<string> {
   return (await blobToBase64(blob)) as Promise<string>;
 }
 
-function ConversationAdVariant({ variantId }: { variantId: string }) {
+export function ConversationAdVariant({ variantId }: { variantId: string }) {
   const containerRef = useRef(null);
   const { dispatch, state: editState } = useEditVariant();
   const {
@@ -313,7 +313,7 @@ function ConversationAdVariant({ variantId }: { variantId: string }) {
   );
 }
 
-function ConversationAdVariantWithPostInsights({
+export function ConversationAdVariantWithPostInsights({
   variantId,
 }: {
   variantId: string;
@@ -685,48 +685,4 @@ export default function AdItem({
       <DeployAdInsightsCard isFetching={isLoading} adset={data} />
     </div>
   );
-
-  // return (
-  // 	<div className="">
-  // 		<div>
-  // 			<p className="text-white text-opacity-50 font-diatype text-[1em] leading-[1.6em] my-[0.4em]">Congratulations! We have successfully generated the ad for you. To explore different ad variants and make the best choice, simply navigate to the right pane and switch between tabs.</p>
-  // 		</div>
-  // 		<div className={"mt-[0.67em]"}>
-  // 			<span className="font-semibold text-primary text-[1.2em]">Ad Summary</span>
-  // 			<p className="text-white text-opacity-80 font-diatype text-[1em] leading-[1.6em] my-[0.55em]">{json.summary}</p>
-  // 		</div>
-  // 		<div className={"border-t border-gray-600 pt-3 mt-5"}>
-  // 			<ul className="list-disc px-4">
-  // 				<li className="text-white text-opacity-50 font-diatype text-[1em] leading-[1.6em] my-2">If you find the current advertisement unsatisfactory, please feel free to share additional information with us. This will enable us to create a better ad for you, and you can easily generate a new one by clicking the 'Regenerate Ad' button.</li>
-  // 				<li className="text-white text-opacity-50 font-diatype text-[1em] leading-[1.6em] my-2">Feel free to provide feedback on each ad variant by visiting the "Provide Feedback" section on the right-hand side of the tab.</li>
-  // 			</ul>
-  // 		</div>
-  // 	</div>
-  // )
 }
-
-// {
-//     "Version": "2012-10-17",
-//     "Id": "Policy1692512740516",
-//     "Statement": [
-//         {
-//             "Sid": "Stmt1692512736599",
-//             "Effect": "Allow",
-//             "Principal": {
-//                 "AWS": "*"
-//             },
-//             "Action": [
-//                 "s3:GetObject",
-//                 "s3:GetObjectAcl",
-//                 "s3:GetObjectAttributes",
-//                 "s3:GetObjectRetention",
-//                 "s3:GetObjectVersion",
-//                 "s3:GetObjectVersionAttributes",
-//                 "s3:GetObjectVersionForReplication",
-//                 "s3:GetObjectVersionTagging",
-//                 "s3:GetObjectVersionTorrent"
-//             ],
-//             "Resource": "arn:aws:s3:::srs-billing-storage/*"
-//         }
-//     ]
-// }

@@ -107,7 +107,7 @@ export default function Services_Sm() {
         if (prev === 3) return 1;
         return prev + 1;
       });
-    }, 8500);
+    }, 3000);
     intervalRef.current = intervalId;
 
     return () => {
