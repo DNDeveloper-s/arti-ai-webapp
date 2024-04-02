@@ -1,0 +1,1 @@
+export const facebookScopes = `instagram_basic,instagram_manage_insights,instagram_content_publish,business_management,public_profile,ads_management,pages_show_list,pages_read_engagement,read_insights,pages_manage_ads,leads_retrieval,pages_manage_metadata`;

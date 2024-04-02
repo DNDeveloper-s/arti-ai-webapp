@@ -14,6 +14,8 @@ import useSessionToken from "@/hooks/useSessionToken";
 import ArtiBotPage from "./ArtiBot/ConversationPage";
 import { useGetUserProviders } from "@/api/user";
 import { useUser } from "@/context/UserContext";
+import { red } from "tailwindcss/colors";
+import { CurrentConversationContextProvider } from "@/context/CurrentConversationContext";
 
 // Fetch the conversation from the database
 // If the conversation doesn't exist, create a new conversation
@@ -38,8 +40,8 @@ export default function Conversation({
 }) {
   let conversation: IConversation | undefined;
   const { state, dispatch } = useConversation();
-  // const params = useParams();
   const searchParams = useSearchParams();
+  const projectName = searchParams.get("project_name");
   const token = useSessionToken();
   const conversationId = searchParams.get("conversation_id");
   const { data: accounts } = useGetUserProviders();
@@ -60,7 +62,6 @@ export default function Conversation({
     if (state.loading.conversation || !dispatch || !conversationId) return;
 
     if (!state.conversation.map || !state.conversation.map[conversationId]) {
-      const projectName = searchParams.get("project_name");
       if (!projectName) return redirect("/artibot");
       const newConversation: IConversation = {
         id: Array.isArray(conversationId) ? conversationId[0] : conversationId,
@@ -81,12 +82,12 @@ export default function Conversation({
     conversationId,
     state.conversation,
     type,
-    searchParams,
+    projectName,
   ]);
 
-  useEffect(() => {
-    console.log("mounted | Conversation - ");
-  }, []);
+  if (!conversationId) return redirect("/artibot");
+
+  console.log("state - ", state);
 
   return (
     <main>
@@ -95,9 +96,11 @@ export default function Conversation({
         {/*<div className="bg-background">*/}
 
         {/*</div>*/}
-        <ArtiBotPage
-          conversation={state.conversation.map[conversationId.toString()]}
-        />
+        <CurrentConversationContextProvider>
+          <ArtiBotPage
+            conversation={state.conversation.map[conversationId.toString()]}
+          />
+        </CurrentConversationContextProvider>
       </div>
     </main>
   );

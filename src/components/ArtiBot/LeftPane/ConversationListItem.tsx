@@ -203,8 +203,8 @@ const ConversationListItem: FC<ConversationListItemProps> = ({
         </p>
         <p className={"text-xs text-gray-500"}>
           {getConversationById(conversationId)?.conversation_type ===
-          ConversationType.STRATEGY
-            ? "Strategy"
+          ConversationType.SOCIAL_MEDIA_POST
+            ? "Social Media Post"
             : "Ad Creative"}
         </p>
       </div>

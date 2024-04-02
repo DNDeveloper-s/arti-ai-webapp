@@ -1,15 +1,25 @@
 import { IAdVariant } from "@/interfaces/IArtiBot";
 import { GrDeploy } from "react-icons/gr";
 import { useSession } from "next-auth/react";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import Snackbar from "@/components/Snackbar";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import Modal from "@/components/Modal";
 import DeployView from "./Deploy/DeployView";
 import CreateSocialPostModal from "./Deploy/Post/CreateSocialPostModal";
-import DeployAdModal from "./Deploy/Ad/DeployAdModal";
 import { useUser } from "@/context/UserContext";
 import ConnectProviderModal from "./Deploy/ConnectProviderModal";
+import AdManagerListModal from "./Deploy/Ad/AdManagerListModal";
+import CreateAdManagerModal from "./Deploy/Ad/CreateAdManagerModal";
+import useConversations from "@/hooks/useConversations";
+import { useSearchParams } from "next/navigation";
+import { ConversationType } from "@/interfaces/IConversation";
 
 export enum UserChoice {
   post,
@@ -23,6 +33,9 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
   const [showModal, setShowModal] = useState(false);
   const [userChoice, setUserChoice] = useState<UserChoice | null>(null);
   const { state } = useUser();
+  const { getConversationById } = useConversations();
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get("conversation_id");
 
   const handleUserChoice = async (choice: UserChoice) => {
     if (!session || !session.user) {
@@ -45,7 +58,16 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
     setUserChoice(null);
   };
 
-  const hasNoAccount = (state.data?.accounts ?? []).length === 0;
+  const hasNoAccount =
+    (state.data?.accounts ?? []).filter((c) => c.provider === "facebook")
+      .length === 0;
+
+  const currentConversation = useMemo(() => {
+    if (!conversationId) return null;
+    return getConversationById(conversationId);
+  }, [conversationId, getConversationById]);
+
+  if (!currentConversation) return null;
 
   if (hasNoAccount) {
     return <ConnectProviderModal />;
@@ -53,47 +75,44 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
 
   return (
     <>
-      <button
-        onClick={() => {
-          handleUserChoice(UserChoice.post);
-        }}
-        className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all"
-      >
-        <GrDeploy className="fill-white stroke-white [&>path]:stroke-white" />
-        <span>Deploy Post</span>
-      </button>
-      <button
-        onClick={() => {
-          handleUserChoice(UserChoice.ad);
-        }}
-        className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all"
-      >
-        <GrDeploy className="fill-white stroke-white [&>path]:stroke-white" />
-        <span>Deploy Ad</span>
-      </button>
-      {/* <Modal
-        PaperProps={{
-          className:
-            userChoice === UserChoice.ad
-              ? "bg-black bg-opacity-90 p-6 w-[800px] h-[80vh]"
-              : "bg-black bg-opacity-90 p-6",
-        }}
-        handleClose={() => setShowModal(false)}
-        open={showModal}
-      >
-        <DeployView variant={variant} userChoice={userChoice} />
-      </Modal> */}
-      <DeployAdModal
-        open={isOpen(UserChoice.ad)}
-        handleClose={handleClose}
-        selectedVariant={variant}
-      />
-      <CreateSocialPostModal
-        open={isOpen(UserChoice.post)}
-        handleClose={handleClose}
-        selectedVariant={variant}
-      />
-      {/* <DeployView variant={variant} userChoice={userChoice} /> */}
+      {currentConversation.conversation_type ===
+        ConversationType.SOCIAL_MEDIA_POST && (
+        <>
+          <button
+            onClick={() => {
+              handleUserChoice(UserChoice.post);
+            }}
+            className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all"
+          >
+            <GrDeploy className="fill-white stroke-white [&>path]:stroke-white" />
+            <span>Deploy Post</span>
+          </button>
+          <CreateSocialPostModal
+            open={isOpen(UserChoice.post)}
+            handleClose={handleClose}
+            selectedVariant={variant}
+          />
+        </>
+      )}
+      {currentConversation.conversation_type ===
+        ConversationType.AD_CREATIVE && (
+        <>
+          <button
+            onClick={() => {
+              handleUserChoice(UserChoice.ad);
+            }}
+            className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all"
+          >
+            <GrDeploy className="fill-white stroke-white [&>path]:stroke-white" />
+            <span>Deploy Ad</span>
+          </button>
+          <AdManagerListModal
+            open={isOpen(UserChoice.ad)}
+            handleClose={handleClose}
+            selectedVariant={variant}
+          />
+        </>
+      )}
       <Snackbar />
     </>
   );

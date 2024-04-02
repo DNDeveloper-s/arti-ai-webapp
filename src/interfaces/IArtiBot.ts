@@ -117,11 +117,11 @@ export interface IAdVariant extends MongooseModel {
   adCreativeId: string;
   variantNo: string;
   adType: string;
-  confidence: string;
-  image: string;
+  confidence?: string;
+  image?: string;
   text: string;
   imageUrl: string;
-  images: VariantImageObj[];
+  images?: VariantImageObj[];
   posts?: VariantPost[];
   oneLiner: string;
   imageDescription: string;

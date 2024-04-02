@@ -51,6 +51,10 @@ export const ROUTES = {
       ),
     GENERATE_IMAGES: (conversationId: string) =>
       apiUrl(`/ad_creatives/generate-images/${conversationId}`),
+    QUERY_INFINITE: apiUrl("/conversations"),
+    QUERY_VARIANTS: apiUrl("/conversations/variants"),
+    GET_MESSAGES: (conversationId: string) =>
+      apiUrl(`/conversations/${conversationId}/messages`),
   },
   ADCREATIVE: {
     QUERY: (limit?: number, page?: number, sortBy?: "asc" | "desc") =>
@@ -94,11 +98,16 @@ export const ROUTES = {
   },
   ADS: {
     CAMPAIGNS: apiUrl("/marketing/campaigns"),
+    CAMPAIGN: (campaignId: string) =>
+      apiUrl(`/marketing/campaigns/${campaignId}`),
     ADSETS: apiUrl("/marketing/adsets"),
+    ADSET: (adsetId: string) => apiUrl(`/marketing/adsets/${adsetId}`),
     ADCREATIVES: apiUrl("/marketing/adcreatives"),
     ADIMAGES: apiUrl("/marketing/adimages"),
     AD_ENTITIES: apiUrl("/marketing/ad_entities"),
+    AD: (adId: string) => apiUrl(`/marketing/ad_entities/${adId}`),
     GET_AD_ACCOUNT_ID: apiUrl("/marketing/account_id"),
+    GET_AD_ACCOUNTS: apiUrl("/marketing/accounts"),
     INTERESTS: apiUrl("/marketing/interests"),
     TEMPLATES: apiUrl("/marketing/templates"),
     MAILCHIMP_CAMPAIGNS: apiUrl("/marketing/mailchimp_campaigns"),
@@ -110,8 +119,10 @@ export const ROUTES = {
     GET_ALL_COUNTRIES: apiUrl("/location/countries"),
   },
   USERS: {
-    ACCOUNTS: (userId: string) => apiUrl(`/users/${userId}/accounts`),
-    LINK_ACCOUNT: (userId: string) => apiUrl(`/users/${userId}/link-account`),
+    ME: apiUrl("/users/me"),
+    UPDATE_ME: apiUrl(`/users/me/settings`),
+    ACCOUNTS: apiUrl(`/users/me/accounts`),
+    LINK_ACCOUNT: apiUrl(`/users/link-account`),
     VALIDATE_FACEBOOK_ACCESS_TOKEN: apiUrl(
       `/tokens/validate/facebook-access-token`
     ),

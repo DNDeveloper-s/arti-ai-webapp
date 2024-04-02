@@ -1,25 +1,31 @@
 "use client";
 
-import ArtiBot from '@/components/ArtiBot/ArtiBot';
-import {IConversation} from '@/interfaces/IConversation';
-import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
-import AdVariants from '@/components/ArtiBot/RIghtPane/AdVariants';
-import {useConversation} from '@/context/ConversationContext';
-import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
-import EditAdVariantScreen from '@/components/ArtiBot/EditAdVariant/EditAdVariantScreen';
-import {useEditVariant} from '@/context/EditVariantContext';
-import ChatGPTMessageItem from '@/components/ArtiBot/MessageItems/ChatGPTMessageItem';
-import {ChatGPTRole} from '@/interfaces/IArtiBot';
-import {AiOutlineCaretDown, AiOutlineCaretUp} from 'react-icons/ai';
-import { Tooltip } from 'react-tooltip';
-import LeftPane from './LeftPane/LeftPane';
-import { useSearchParams } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
-import Link from 'next/link';
-import { FaTiktok, FaFacebookF } from 'react-icons/fa6';
-import { MdEmail } from 'react-icons/md';
-import { RxCaretDown } from 'react-icons/rx';
-import Logo from '../Logo';
+import ArtiBotV2 from "@/components/ArtiBot/v2/ArtiBot";
+import ArtiBot from "@/components/ArtiBot/ArtiBot";
+import { IConversation } from "@/interfaces/IConversation";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import AdVariants from "@/components/ArtiBot/RIghtPane/AdVariants";
+import { useConversation } from "@/context/ConversationContext";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import EditAdVariantScreen from "@/components/ArtiBot/EditAdVariant/EditAdVariantScreen";
+import { useEditVariant } from "@/context/EditVariantContext";
+import ChatGPTMessageItem from "@/components/ArtiBot/MessageItems/ChatGPTMessageItem";
+import { ChatGPTRole } from "@/interfaces/IArtiBot";
+import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
+import { Tooltip } from "react-tooltip";
+import LeftPane from "./LeftPane/LeftPane";
+import { useSearchParams } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
+import { FaTiktok, FaFacebookF } from "react-icons/fa6";
+import { MdEmail, MdInsights } from "react-icons/md";
+import { RxCaretDown } from "react-icons/rx";
+import Logo from "../Logo";
+import CreateAdManagerModal from "./MessageItems/Deploy/Ad/CreateAdManagerModal";
+import AdManagerListModal from "./MessageItems/Deploy/Ad/AdManagerListModal";
+import CreateSocialPostModal from "./MessageItems/Deploy/Post/CreateSocialPostModal";
+import AdCreativeIcon from "../shared/icons/AdCreativeIcon";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -46,10 +52,9 @@ export const CollapsedComponent: FC<CollapsedComponentProps> = ({
 };
 
 enum ArtiAiDropdownItems {
-  ArtiAiChat = "ArtiAi Chat",
-  TiktokAdCreatives = "Tiktok Ad Creatives",
-  FacebookAdCreatives = "Facebook Ad Creatives",
-  EmailMarketing = "Email Marketing",
+  Chat = "Chat",
+  AdCreatives = "Ad Creatives",
+  AdInsights = "Ad Insights",
 }
 
 interface ArtiAiDropdownItem {
@@ -165,6 +170,9 @@ export default function ArtiBotPage({
   const [isConversationCollapsible, setIsConversationCollapsible] =
     useState<boolean>(false);
   const search = useSearchParams();
+  const { conversation: _currentConversation } = useCurrentConversation();
+
+  const useV2 = localStorage.getItem("use_v2") === "true";
 
   const adCreative = useMemo(() => {
     // Merge all the variants into one adCreative object within one conversation
@@ -197,25 +205,19 @@ export default function ArtiBotPage({
       {
         id: "1",
         icon: <Logo width={25} />,
-        label: ArtiAiDropdownItems.ArtiAiChat,
+        label: ArtiAiDropdownItems.Chat,
         disabled: false,
       },
       {
         id: "2",
-        icon: <FaTiktok />,
-        label: ArtiAiDropdownItems.TiktokAdCreatives,
+        icon: <AdCreativeIcon />,
+        label: ArtiAiDropdownItems.AdCreatives,
         disabled: !Boolean(adCreative),
       },
       {
         id: "3",
-        icon: <FaFacebookF />,
-        label: ArtiAiDropdownItems.FacebookAdCreatives,
-        disabled: !Boolean(adCreative),
-      },
-      {
-        id: "4",
-        icon: <MdEmail />,
-        label: ArtiAiDropdownItems.EmailMarketing,
+        icon: <MdInsights />,
+        label: ArtiAiDropdownItems.AdInsights,
         disabled: true,
       },
     ],
@@ -263,14 +265,18 @@ export default function ArtiBotPage({
           }
         >
           <div className={"w-full mx-auto h-full overflow-hidden"}>
-            <ArtiBot
-              hideHeader={true}
-              toggleCollapse={toggleCollapse}
-              collapsed={false}
-              conversation={conversation}
-              adCreatives={adCreatives}
-              setAdCreatives={setAdCreatives}
-            />
+            {!useV2 ? (
+              <ArtiBot
+                hideHeader={true}
+                toggleCollapse={toggleCollapse}
+                collapsed={false}
+                conversation={conversation}
+                adCreatives={adCreatives}
+                setAdCreatives={setAdCreatives}
+              />
+            ) : (
+              <ArtiBotV2 hideHeader={true} />
+            )}
           </div>
         </div>
         {adCreative && (
@@ -297,6 +303,7 @@ export default function ArtiBotPage({
         )}
         <Tooltip id="edit-ad-variant-tooltip" />
       </div>
+      <CreateAdManagerModal />
     </div>
   );
 

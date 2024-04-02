@@ -1,8 +1,8 @@
-import { useUserPages } from "@/api/user";
+import { useCreatePost, useUserPages } from "@/api/user";
 import UiModal from "@/components/shared/renderers/UiModal";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { Platform, useUser } from "@/context/UserContext";
-import { wait } from "@/helpers";
+import { getNextImageProxyUrl, wait } from "@/helpers";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import { IAdVariant } from "@/interfaces/IArtiBot";
 import {
@@ -20,28 +20,30 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import React, { Key, useContext, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { trueGray } from "tailwindcss/colors";
+import { current, trueGray } from "tailwindcss/colors";
 import { object, string } from "yup";
+import SelectMetaPage from "../SelectMetaPage";
 
 interface CreatePostFormValues {
   imageUrl: string;
-  description: string;
+  message: string;
   pageId: string;
 }
 
 const validationSchema = object({
   imageUrl: string().required("Image URL is required"),
-  description: string().required("Description is required"),
+  message: string().required("Description is required"),
   pageId: string().required("Page is required"),
 });
 
 interface CreateSocialPostModalContentProps {
   selectedVariant: IAdVariant;
+  handleClose: () => void;
 }
 function CreateSocialPostModalContent(
   props: CreateSocialPostModalContentProps
 ) {
-  const { selectedVariant } = props;
+  const { handleClose, selectedVariant } = props;
   const [errorMessage, setErrorMessage] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [isLoading, setLoading] = useState(false);
@@ -58,9 +60,10 @@ function CreateSocialPostModalContent(
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   )?.userAccessToken;
+  const conversationId = searchParams.get("conversation_id");
 
   const {
-    // data: pagesData,
+    data: pagesData,
     // isError,
     // isSuccess,
     error,
@@ -68,27 +71,57 @@ function CreateSocialPostModalContent(
     isLoading: isPagesLoading,
   } = useUserPages(accessToken);
 
+  const {
+    mutate: postCreatePost,
+    isPending: isPosting,
+    isSuccess,
+  } = useCreatePost();
+
   const pageIdValue = watch("pageId");
   const facebookPages = state.data?.facebook?.pages;
 
   useEffect(() => {
     if (selectedVariant.text) {
-      setValue("description", selectedVariant.text);
+      setValue("message", selectedVariant.text);
     }
   }, [selectedVariant.text, setValue]);
 
+  console.log("formState", formState.errors);
+
   const onSubmit: SubmitHandler<CreatePostFormValues> = async (data) => {
-    console.log("data - ", data);
-    setLoading(true);
-    setSnackBarData({
-      status: "info",
-      message: "Posting...",
-    });
+    console.log("data - ", data, selectedVariant, pagesData);
 
-    await wait(2000);
+    const currentPage = pagesData?.find((page) => page.id === data.pageId);
 
-    setLoading(false);
+    if (!conversationId) {
+      setSnackBarData({ message: "Conversation not found", status: "error" });
+      return;
+    }
+
+    if (!currentPage || !currentPage.page_access_token) {
+      setSnackBarData({
+        message: "Try selecting another page",
+        status: "error",
+      });
+      return;
+    }
+
+    const postData = {
+      ...data,
+      conversationId,
+      pageAccessToken: currentPage.page_access_token,
+      variantId: selectedVariant.id,
+      adCreativeId: selectedVariant.adCreativeId,
+    };
+
+    postCreatePost(postData);
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      handleClose();
+    }
+  }, [handleClose, isSuccess]);
 
   return (
     <ModalContent>
@@ -112,6 +145,12 @@ function CreateSocialPostModalContent(
                     <Image
                       className="w-full h-full object-cover hover:object-contain"
                       src={selectedVariant.imageUrl}
+                      onLoad={() => {
+                        setValue(
+                          "imageUrl",
+                          getNextImageProxyUrl(selectedVariant.imageUrl)
+                        );
+                      }}
                       alt="placeholder"
                     />
                   </div>
@@ -128,55 +167,23 @@ function CreateSocialPostModalContent(
                       value={selectedVariant.text}
                       variant="flat"
                       maxRows={7}
-                      errorMessage={formState.errors.description?.message}
+                      errorMessage={formState.errors.message?.message}
                     />
                     {/* Select Page Dropdown */}
-                    <Autocomplete
-                      inputProps={{
-                        classNames: {
-                          input: "!text-white",
-                          label: "!text-gray-500",
-                        },
-                      }}
-                      isDisabled={isPagesLoading}
-                      label="Social Media Page"
-                      placeholder={
-                        isPagesLoading ? "Fetching Pages..." : "Select a Page"
+                    <SelectMetaPage
+                      pageValue={pageIdValue ?? ""}
+                      setPageValue={(pageValue) =>
+                        setValue("pageId", pageValue)
                       }
-                      onSelectionChange={(key: Key) => {
-                        setValue("pageId", key as string);
-                      }}
-                      selectedKey={pageIdValue}
-                      errorMessage={formState.errors.pageId?.message}
-                    >
-                      {facebookPages && facebookPages.length > 0 ? (
-                        facebookPages.map((page) => (
-                          <AutocompleteItem key={page.id} textValue={page.name}>
-                            <div className="flex items-center gap-3">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={page.picture}
-                                className="w-6 h-6"
-                                alt="Page"
-                              />
-                              {page.name}
-                            </div>
-                          </AutocompleteItem>
-                        ))
-                      ) : (
-                        <AutocompleteItem key={"no-page-found"} isReadOnly>
-                          No pages found
-                        </AutocompleteItem>
-                      )}
-                    </Autocomplete>
+                    />
                   </div>
                   <Button
                     className="mt-4 w-full text-white"
                     color="primary"
-                    isLoading={isLoading}
+                    isLoading={isPosting}
                     type="submit"
                   >
-                    {isLoading ? "Posting..." : "Post"}
+                    {isPosting ? "Posting..." : "Post"}
                   </Button>
                 </div>
               </div>
@@ -209,7 +216,10 @@ export default function CreateSocialPostModal(
         base: "max-w-[800px] w-auto",
       }}
     >
-      <CreateSocialPostModalContent selectedVariant={selectedVariant} />
+      <CreateSocialPostModalContent
+        handleClose={handleClose}
+        selectedVariant={selectedVariant}
+      />
     </UiModal>
   );
 }
