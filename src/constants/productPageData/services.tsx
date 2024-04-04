@@ -38,7 +38,7 @@ export const servicesData = {
       title: (
         <ServiceTitleRenderer
           title="Discover Arti Chat"
-          subTitle="Revolutionize Your Social Media Presence and Marketing"
+          subTitle="Revolutionize Your Social Media Presence and Marketing."
         />
       ),
       description:
