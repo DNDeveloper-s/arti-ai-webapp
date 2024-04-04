@@ -1,23 +1,66 @@
+import { useSendMessage } from "@/api/conversation";
 import { colors } from "@/config/theme";
-import { useRef, useState } from "react";
+import { useClientMessages } from "@/context/ClientMessageContext";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import { ChatGPTRole } from "@/interfaces/IArtiBot";
+import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 interface ArtiBotTextAreaProps {
   enableMessageInput: boolean;
-  handleSubmitMessage: () => void;
   handleFocusInput?: () => void;
   handleBlurInput?: () => void;
 }
 export default function ArtiBotTextArea(props: ArtiBotTextAreaProps) {
-  const {
-    enableMessageInput,
-    handleSubmitMessage,
-    handleFocusInput,
-    handleBlurInput,
-  } = props;
+  const { enableMessageInput, handleFocusInput, handleBlurInput } = props;
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const [inputValue, setInputValue] = useState("");
   const [areaHeight, setAreaHeight] = useState(48);
+  const { conversation } = useCurrentConversation();
+
+  const { sendMessage, isPending, messageRecord } = useClientMessages();
+
+  // const {
+  //   data,
+  //   mutate: sendMessage,
+  //   isPending,
+  //   isDone,
+  //   isError,
+  // } = useSendMessage();
+
+  function handleSubmitMessage() {
+    if (!conversation || !conversation.id || !conversation.conversation_type)
+      return;
+    if (inputValue.trim() === "") return;
+    setInputValue("");
+    sendMessage({
+      messages: [{ content: inputValue, role: ChatGPTRole.USER }],
+      conversationId: conversation.id,
+      conversationType: conversation.conversation_type,
+      projectName: conversation.project_name,
+    });
+  }
+
+  useEffect(() => {
+    console.log("messages - ", messageRecord);
+  }, [messageRecord]);
+
+  // useEffect(() => {
+  //   console.log("Testing isDone - ", isDone);
+  // }, [isDone]);
+
+  // useEffect(() => {
+  //   console.log("Testing isPending - ", isPending);
+  // }, [isPending]);
+
+  // useEffect(() => {
+  //   console.log("Testing isError - ", isError);
+  // }, [isError]);
+
+  // useEffect(() => {
+  //   console.log("Testing data - ", data);
+  // }, [data]);
+
   return (
     <div
       className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground"

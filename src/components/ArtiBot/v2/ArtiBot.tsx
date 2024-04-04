@@ -5,6 +5,7 @@ import GetAdButton from "../GetAdButton";
 import { colors } from "@/config/theme";
 import Snackbar from "@/components/Snackbar";
 import ArtiBotMessageArea from "./ArtiBotMessageArea";
+import { ClientMessageContextProvider } from "@/context/ClientMessageContext";
 
 interface ArtiBotProps {
   hideHeader?: boolean;

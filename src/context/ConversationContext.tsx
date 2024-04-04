@@ -21,6 +21,7 @@ import {
   Feedback,
   FeedBackKeyProperty,
   IAdCreative,
+  IAdCreativeNew,
 } from "@/interfaces/IAdCreative";
 import {
   ChatGPTMessageObj,
@@ -29,6 +30,7 @@ import {
 } from "@/interfaces/IArtiBot";
 import { useSession } from "next-auth/react";
 import ObjectId from "bson-objectid";
+import { InfiniteConversation } from "@/api/conversation";
 
 interface IConversationData {}
 
@@ -54,6 +56,7 @@ enum CONVERSATION_ACTION_TYPE {
   GET_ADCREATIVES_FAILURE = "GET_ADCREATIVES_FAILURE",
   GET_CONVERSATIONS = "GET_CONVERSATIONS",
   GET_CONVERSATIONS_SUCCESS = "GET_CONVERSATIONS_SUCCESS",
+  GET_VARIANTS_SUCCESS = "GET_VARIANTS_SUCCESS",
   GET_CONVERSATIONS_FAILURE = "GET_CONVERSATIONS_FAILURE",
   GET_CONVERSATION = "GET_CONVERSATION",
   GET_CONVERSATION_SUCCESS = "GET_CONVERSATION_SUCCESS",
@@ -607,12 +610,12 @@ function conversationReducer(
       };
     case CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS_SUCCESS:
       const initializer1 = {
-        variant: StateRecord.getEmpty<IAdVariant>(),
-        adCreative: StateRecord.getEmpty<IAdCreative>(),
-        campaign: StateRecord.getEmpty<ICampaignMongoDB>(),
-        adset: StateRecord.getEmpty<IAdsetMongoDB>(),
-        ad: StateRecord.getEmpty<IAdMongoDB>(),
-        conversation: StateRecord.getEmpty<IConversation>(),
+        variant: state.variant,
+        adCreative: state.adCreative,
+        campaign: state.campaign,
+        adset: state.adset,
+        ad: state.ad,
+        conversation: state.conversation,
       };
       const maps = payload.conversations.reduce(
         (acc: typeof initializer1, conversation: IConversation) => {
@@ -642,6 +645,21 @@ function conversationReducer(
         campaign: mergeStateRecord(state.campaign, maps.campaign),
         adset: mergeStateRecord(state.adset, maps.adset),
         ad: mergeStateRecord(state.ad, maps.ad),
+      };
+    case CONVERSATION_ACTION_TYPE.GET_VARIANTS_SUCCESS:
+      const variantRecord = payload.variants.reduce(
+        (acc: { variant: StateRecord<IAdVariant> }, cur: IAdVariant) => {
+          acc.variant = addKeyToStateRecord(acc.variant, cur);
+          return acc;
+        },
+        {
+          variant: state.variant,
+        }
+      );
+      return {
+        ...state,
+        loading: updateLoadingState(state, { variant: false }),
+        variant: mergeStateRecord(state.variant, variantRecord.variant),
       };
     case CONVERSATION_ACTION_TYPE.SHOW_ERROR_MESSAGE:
       return {
@@ -799,9 +817,38 @@ const useConversationContext = (initState: IConversationState) => {
     });
   }, []);
 
+  const pushConversationsToState = useCallback(
+    (conversations: InfiniteConversation[]) => {
+      dispatch({
+        type: CONVERSATION_ACTION_TYPE.GET_CONVERSATIONS_SUCCESS,
+        payload: { conversations },
+      });
+    },
+    []
+  );
+
   // const increment = useCallback(() => {
   // 	dispatch({type: REDUCER_ACTION_TYPE.INCREMENT});
   // }, []);
+
+  const pushVariantsToState = useCallback((variants: IAdVariant[]) => {
+    // dispatch({type: REDUCER_ACTION_TYPE.INCREMENT});
+    dispatch({
+      type: CONVERSATION_ACTION_TYPE.GET_VARIANTS_SUCCESS,
+      payload: { variants },
+    });
+  }, []);
+
+  const pustAdCreativesToState = useCallback(
+    (adCreatives: IAdCreativeNew[]) => {
+      // dispatch({type: REDUCER_ACTION_TYPE.INCREMENT});
+      dispatch({
+        type: CONVERSATION_ACTION_TYPE.GET_ADCREATIVES_SUCCESS,
+        payload: { adCreatives },
+      });
+    },
+    []
+  );
 
   return {
     state,
@@ -809,6 +856,9 @@ const useConversationContext = (initState: IConversationState) => {
     updateVariant,
     getVariantsByAdCreativeId,
     handleFeedBackKey,
+    pushConversationsToState,
+    pushVariantsToState,
+    pustAdCreativesToState,
   };
 };
 
@@ -826,6 +876,9 @@ export const ConversationContext = createContext<UseConversationContextType>({
   },
   state: initConversationState,
   dispatch: (action: ConversationAction) => {},
+  pushConversationsToState(conversations: InfiniteConversation[]): void {},
+  pushVariantsToState(variants: IAdVariant[]): void {},
+  pustAdCreativesToState(adCreatives: IAdCreativeNew[]): void {},
 });
 
 const ConversationContextProvider: FC<
@@ -846,7 +899,7 @@ const ConversationContextProvider: FC<
   );
 };
 
-type UseCreateSalesHookType = {
+type UseConversationHookType = {
   state: IConversationState;
   dispatch: (action: ConversationAction) => void;
   updateVariant: (variant: IAdVariant) => void;
@@ -856,9 +909,12 @@ type UseCreateSalesHookType = {
     feedbackKey: FeedBackKeyProperty,
     feedback: Feedback
   ) => void;
+  pushConversationsToState: (conversations: InfiniteConversation[]) => void;
+  pushVariantsToState: (variants: IAdVariant[]) => void;
+  pustAdCreativesToState: (adCreatives: IAdCreativeNew[]) => void;
 };
 
-function useConversation(): UseCreateSalesHookType {
+function useConversation(): UseConversationHookType {
   const context = useContext(ConversationContext);
   if (context === undefined) {
     throw new Error(

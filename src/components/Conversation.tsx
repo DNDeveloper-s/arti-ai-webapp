@@ -16,6 +16,8 @@ import { useGetUserProviders } from "@/api/user";
 import { useUser } from "@/context/UserContext";
 import { red } from "tailwindcss/colors";
 import { CurrentConversationContextProvider } from "@/context/CurrentConversationContext";
+import { ClientMessageContextProvider } from "@/context/ClientMessageContext";
+import { useGetConversation } from "@/api/conversation";
 
 // Fetch the conversation from the database
 // If the conversation doesn't exist, create a new conversation
@@ -46,6 +48,7 @@ export default function Conversation({
   const conversationId = searchParams.get("conversation_id");
   const { data: accounts } = useGetUserProviders();
   const { setAccounts } = useUser();
+  useGetConversation(conversationId);
 
   useEffect(() => {
     if (accounts) {
@@ -54,8 +57,8 @@ export default function Conversation({
   }, [setAccounts, accounts]);
 
   useEffect(() => {
-    if (conversationId && token)
-      getConversation(dispatch, conversationId.toString());
+    // if (conversationId && token)
+    // getConversation(dispatch, conversationId.toString());
   }, [dispatch, token, conversationId]);
 
   useEffect(() => {
@@ -87,8 +90,6 @@ export default function Conversation({
 
   if (!conversationId) return redirect("/artibot");
 
-  console.log("state - ", state);
-
   return (
     <main>
       {/*<Logo />*/}
@@ -96,10 +97,13 @@ export default function Conversation({
         {/*<div className="bg-background">*/}
 
         {/*</div>*/}
+
         <CurrentConversationContextProvider>
-          <ArtiBotPage
-            conversation={state.conversation.map[conversationId.toString()]}
-          />
+          <ClientMessageContextProvider>
+            <ArtiBotPage
+              conversation={state.conversation.map[conversationId.toString()]}
+            />
+          </ClientMessageContextProvider>
         </CurrentConversationContextProvider>
       </div>
     </main>

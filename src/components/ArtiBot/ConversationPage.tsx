@@ -3,7 +3,14 @@
 import ArtiBotV2 from "@/components/ArtiBot/v2/ArtiBot";
 import ArtiBot from "@/components/ArtiBot/ArtiBot";
 import { IConversation } from "@/interfaces/IConversation";
-import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import AdVariants from "@/components/ArtiBot/RIghtPane/AdVariants";
 import { useConversation } from "@/context/ConversationContext";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
@@ -91,17 +98,16 @@ export function ArtiAiDropdown({
   }
 
   useEffect(() => {
+    const handleOutsideClick = (e: any) => {
+      if (newRef.current && !newRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
     document.addEventListener("mousedown", handleOutsideClick);
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
-  }, []);
-
-  const handleOutsideClick = (e) => {
-    if (newRef.current && !newRef.current.contains(e.target)) {
-      handleClose();
-    }
-  };
+  }, [setOpen]);
 
   return (
     <>

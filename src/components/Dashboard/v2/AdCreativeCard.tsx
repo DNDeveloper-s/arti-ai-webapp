@@ -1,7 +1,10 @@
 "use client";
 
 import React from "react";
-import { IAdCreativeNew } from "@/interfaces/IAdCreative";
+import {
+  IAdCreativeNew,
+  IAdCreativeWithVariants,
+} from "@/interfaces/IAdCreative";
 import {
   FacebookAdVariantMini,
   FacebookAdVariantShimmer,
@@ -53,7 +56,7 @@ export const AdCreativeCardShimmer = () => {
 };
 
 interface AdCreativeCardProps extends VariantsByConversation {
-  onClick: (val: IAdCreativeNew) => void;
+  onClick: (val: IAdCreativeWithVariants) => void;
   adCreative: IAdCreativeNew;
   variants: IAdVariant[];
 }
@@ -88,7 +91,10 @@ const AdCreativeCard: React.FC<AdCreativeCardProps> = ({
   return (
     <div
       data-conversationId={props.id}
-      onClick={() => onClick(adCreative)}
+      onClick={() => {
+        console.log("Clicket on - ", { ...adCreative, variants });
+        onClick({ ...adCreative, variants });
+      }}
       className={
         "w-[25rem] flex-shrink-0 pb-4  relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground"
       }
@@ -96,7 +102,7 @@ const AdCreativeCard: React.FC<AdCreativeCardProps> = ({
       <div className="pointer-events-none w-full h-full absolute top-0 z-10 left-0 bg-[linear-gradient(90deg,_rgba(0,0,0,0.00)_55.23%,_rgba(0,0,0,0.61)_77%,_rgba(0,0,0,0.82)_100%)]" />
       <div className="py-3 px-3 relative flex items-center justify-between z-20">
         <h2 className="whitespace-nowrap w-full overflow-hidden overflow-ellipsis mr-5 text-base font-medium text-primary">
-          {adCreative.adObjective}
+          {props.project_name} | {adCreative.adObjective}
         </h2>
         <span className="whitespace-nowrap">
           <span className="text-white text-opacity-30 text-[1.1em]">

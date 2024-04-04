@@ -64,10 +64,10 @@ const EmptySection: FC<EmptySectionProps> = (props) => {
     content = (
       <>
         <h3 className="text-lg text-primary text-opacity-70 font-bold">
-          Looks like you don't have any Conversations
+          Looks like you don&apos;t have any Conversations
         </h3>
         <p className={"text-xs text-white text-opacity-40"}>
-          Fortunately, it's easy to create new one.
+          Fortunately, it&apos;s easy to create new one.
         </p>
         <Link href="/artibot" className="text-primary underline">
           Start Chat
@@ -81,7 +81,7 @@ const EmptySection: FC<EmptySectionProps> = (props) => {
     content = (
       <>
         <h3 className="text-lg text-primary text-opacity-70 font-bold">
-          Looks like you don't have any Ad Creatives
+          Looks like you don&apos;t have any Ad Creatives
         </h3>
         <p className={"text-xs text-white text-opacity-40"}>
           Get started by creating your first ad creative through a chat with our
@@ -170,11 +170,11 @@ export default function CardSection() {
   }, [dispatch, setSnackBarData, state.error]);
 
   useEffect(() => {
-    token && dispatch && getConversations(dispatch);
+    // token && dispatch && getConversations(dispatch);
   }, [dispatch, token]);
 
   useEffect(() => {
-    token && dispatch && getAdCreatives(dispatch);
+    // token && dispatch && getAdCreatives(dispatch);
   }, [dispatch, token]);
 
   function handleLogOutButton() {

@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getConversationURL } from "@/helpers";
 import { ConversationType } from "@/interfaces/IConversation";
@@ -8,6 +8,9 @@ import useAdCreatives from "@/hooks/useAdCreatives";
 import Image1, { StaticImageData } from "next/image";
 import { useConversation } from "@/context/ConversationContext";
 import { IoMdImages } from "react-icons/io";
+import { InfiniteConversation, useGetConversation } from "@/api/conversation";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import { sortBy } from "lodash";
 
 export function NoImage({
   className,
@@ -50,37 +53,31 @@ export type ImageType = StaticImageData | string;
 interface CardStackImagesProps {
   images: ImageType[];
 }
-export const CardStackImages: FC<CardStackImagesProps> = ({
-  images: _images,
-}) => {
-  const [images, setImages] = useState<(ImageType | null)[]>([null, null]);
-  const [s, setS] = useState("");
+export const CardStackImages: FC<CardStackImagesProps> = ({ images }) => {
+  // function loadImage(image: ImageType, index: number) {
+  //   const img = new Image();
+  //   img.src = image as string;
+  //   console.log("img - ", image);
 
-  function loadImage(image: ImageType, index: number) {
-    const img = new Image();
-    img.src = image as string;
+  //   img.onerror = () => {
+  //     setImages((c) => {
+  //       c[index] = null;
+  //       return c;
+  //     });
+  //   };
 
-    img.onerror = () => {
-      setS("e " + img.src);
-      setImages((c) => {
-        c[index] = null;
-        return c;
-      });
-    };
+  //   img.onload = () => {
+  //     setImages((c) => {
+  //       c[index] = image;
+  //       return c;
+  //     });
+  //   };
+  // }
 
-    img.onload = () => {
-      setS("s");
-      setImages((c) => {
-        c[index] = image;
-        return c;
-      });
-    };
-  }
-
-  useEffect(() => {
-    loadImage(_images[0], 0);
-    loadImage(_images[1], 1);
-  }, [_images]);
+  // useEffect(() => {
+  //   loadImage(_images[0], 0);
+  //   loadImage(_images[1], 1);
+  // }, [_images]);
 
   return !images[1] && !images[2] ? (
     <div className={"w-8 h-8 rounded relative flex-shrink-0"}>
@@ -148,62 +145,59 @@ export const CardStackImages: FC<CardStackImagesProps> = ({
 };
 
 interface ConversationListItemProps {
-  conversationId: string;
+  conversation: InfiniteConversation;
 }
 const ConversationListItem: FC<ConversationListItemProps> = ({
-  conversationId,
-  ...props
+  conversation: propConversation,
 }) => {
-  const { getConversationById } = useConversations();
   const [images, setImages] = useState<ImageType[]>([]);
-  const {
-    adVariantsByConversationId,
-    getLastAdCreativeByConversationId,
-    sortedConversationIds,
-  } = useAdCreatives();
-  const searchParams = useSearchParams();
-  const isActive = searchParams.get("conversation_id") === conversationId;
-  const { state } = useConversation();
+  const { conversation: currentConversation } = useCurrentConversation();
+  const isActive = currentConversation?.id === propConversation.id;
+  const { data: freshConversation } = useGetConversation(
+    propConversation.id,
+    isActive
+  );
+
+  const conversation = useMemo(() => {
+    if (!freshConversation) return propConversation;
+    return freshConversation;
+  }, [propConversation, freshConversation]);
 
   useEffect(() => {
-    const list = getLastAdCreativeByConversationId(conversationId);
-    if (!list) {
-      return setImages([]);
-    }
-    const variantImages = list.variants
-      .sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      )
-      .map((v) => v.imageUrl);
+    if (!conversation.adCreatives || conversation.adCreatives.length === 0)
+      return;
+
+    const latestAdCreative = sortBy(
+      conversation.adCreatives,
+      "updatedAt"
+    ).pop();
+    if (!latestAdCreative) return;
+
+    const sortedVariant = sortBy(
+      latestAdCreative.variants,
+      "updatedAt"
+    ).reverse();
+
+    const variantImages = sortedVariant.map((v) => v.imageUrl);
     setImages(variantImages);
-  }, [
-    getLastAdCreativeByConversationId,
-    conversationId,
-    state.adCreative.list,
-  ]);
-
-  useEffect(() => {
-    // console.log('testing variantImages - ', images, conversationId);
-  }, [images]);
+  }, [conversation.adCreatives]);
 
   return (
     <Link
-      href={getConversationURL(conversationId, ConversationType.AD_CREATIVE)}
-      key={conversationId}
+      href={getConversationURL(conversation.id, ConversationType.AD_CREATIVE)}
+      key={conversation.id}
       className={
         "flex gap-4 mx-2 items-start px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-900 rounded overflow-hidden transition-all text-sm leading-6 " +
         (isActive ? "bg-gray-900" : "bg-gray-950")
       }
     >
-      <CardStackImages images={images} />
+      <CardStackImages key={conversation.id} images={images} />
       <div className={"flex-shrink-0 flex flex-col justify-center gap-1"}>
         <p className={isActive ? "text-white" : " truncate"}>
-          {getConversationById(conversationId)?.project_name}
+          {conversation.project_name}
         </p>
         <p className={"text-xs text-gray-500"}>
-          {getConversationById(conversationId)?.conversation_type ===
-          ConversationType.SOCIAL_MEDIA_POST
+          {conversation.conversation_type === ConversationType.SOCIAL_MEDIA_POST
             ? "Social Media Post"
             : "Ad Creative"}
         </p>

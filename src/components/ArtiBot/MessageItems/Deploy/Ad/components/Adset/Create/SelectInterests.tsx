@@ -71,7 +71,7 @@ export default function SelectInterests(props: SelectProps) {
         htmlFor=""
         className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
       >
-        Demographics, Interests or Behaviours
+        Demographics, Interests or Behaviours (Hit &quot;Enter&quot; to add)
       </label>
       <Select
         mode="multiple"

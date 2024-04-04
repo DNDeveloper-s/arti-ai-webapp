@@ -58,7 +58,6 @@ axios.interceptors.response.use(
 axios.interceptors.request.use(
   async (config) => {
     const session = await getSession();
-    console.log("session - ", session);
     // try {
     //   const response = await fetch("/api/auth/session");
     //   const session = await response.json();
@@ -1253,8 +1252,6 @@ export const useGetZipCodes = (
 
     return response.data.data;
   };
-
-  console.log("zipCode - ", zipCode, accessToken);
 
   return useQuery<ZipCodeResponseObject[]>({
     queryKey: API_QUERIES.GET_ZIP_CODES(zipCode, accessToken),

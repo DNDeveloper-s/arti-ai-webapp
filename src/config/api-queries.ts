@@ -98,6 +98,7 @@ const API_QUERIES = {
     accountId,
     accessToken,
   ],
+  SEND_MESSAGE: ["send-message"],
   UPDATE_ME: ["update-me"],
   GET_INFINITE_CONVERSATIONS: ["get-infinite-conversations"],
 };

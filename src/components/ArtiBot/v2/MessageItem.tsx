@@ -1,4 +1,4 @@
-import { InfiniteMessage } from "@/api/conversation";
+import { ClientMessageItem, InfiniteMessage } from "@/api/conversation";
 import { framerItem } from "@/config/framer-motion";
 import { botData, dummyUser } from "@/constants/images";
 import { ChatGPTRole } from "@/interfaces/IArtiBot";
@@ -10,16 +10,28 @@ import { useState } from "react";
 import { IoIosCopy } from "react-icons/io";
 import Lottie from "lottie-react";
 import tickAnimation from "@/assets/lottie/tick_animation.json";
-import AdItem from "./AdItem";
+import AdItem from "./AdItem/AdItem";
+import { useGetMe } from "@/api/user";
+import { Avatar } from "@nextui-org/react";
+
+type MessageItemWithAdCreatives = InfiniteMessage;
+
+type MessageItemWithoutAdCreatives = ClientMessageItem;
+
+export type MessageItem =
+  | MessageItemWithAdCreatives
+  | MessageItemWithoutAdCreatives;
 
 interface MessageItemProps {
-  messageItem: InfiniteMessage;
+  messageItem: MessageItem;
   size?: number;
   disableCopy?: boolean;
+  isClient?: boolean;
 }
 export default function MessageItem(props: MessageItemProps) {
-  const { messageItem, size, disableCopy } = props;
+  const { messageItem, size, disableCopy, isClient } = props;
   const [showCopyAnimation, setShowCopyAnimation] = useState(false);
+  const { data: user } = useGetMe();
 
   async function copyTextToClipboard(text: string) {
     if ("clipboard" in navigator) {
@@ -67,13 +79,13 @@ export default function MessageItem(props: MessageItemProps) {
 
   if (messageItem.adCreatives && messageItem.adCreatives.length > 0) {
     // addAdCreatives(dispatch, adCreatives);
-    item = <AdItem messageItem={messageItem} />;
+    item = <AdItem isClient={!!isClient} messageItem={messageItem} />;
   }
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        variants={framerItem()}
+        variants={isClient ? framerItem(1, 0, 0) : framerItem()}
         // initial={{height: 0, opacity: 0}}
         // animate={{height: 'auto', opacity: 1}}
         // transition={{type: 'spring', damping: 15, duration: .15}}
@@ -89,16 +101,13 @@ export default function MessageItem(props: MessageItemProps) {
           }
         >
           <div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
-            <Image
-              className="rounded-lg mr-[0.3em]"
-              width={size ?? 50}
-              height={size ?? 50}
+            <Avatar
+              radius="sm"
               src={
                 messageItem.role === ChatGPTRole.ASSISTANT
-                  ? botData.image
-                  : dummyUser.image
+                  ? botData.image.src
+                  : user?.image ?? dummyUser.image.src
               }
-              alt=""
             />
             <div className={`ml-[0.8em] flex-1 overflow-hidden`}>{item}</div>
           </div>

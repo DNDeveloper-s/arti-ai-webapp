@@ -4,18 +4,21 @@ import { useEffect, useRef, useState } from "react";
 import AdCreativeCard, { AdCreativeCardShimmer } from "./AdCreativeCard";
 import { Spinner } from "@nextui-org/react";
 import Drawer, { Position } from "@/components/Drawer";
-import RightPane from "@/components/ArtiBot/RIghtPane/RightPane_Legacy";
-import { IAdCreativeNew } from "@/interfaces/IAdCreative";
+import RightPane from "@/components/ArtiBot/RIghtPane/v2/RightPane";
+import {
+  IAdCreativeNew,
+  IAdCreativeWithVariants,
+} from "@/interfaces/IAdCreative";
 
 export default function AdCreativeSection() {
   const { data, isLoading, hasNextPage, ...props } =
     useGetVariantsByConversation();
   const adCreatives = data?.pages.map((page) => page).flat() || [];
-  const lastRef = useRef(null);
-  const isInView = useInView(lastRef);
+  // const lastRef = useRef(null);
+  const { ref: lastRef, isInView } = useInView();
 
   const [currentAdCreative, setCurrentAdCreative] =
-    useState<IAdCreativeNew | null>(null);
+    useState<IAdCreativeWithVariants | null>(null);
 
   useEffect(() => {
     if (isInView && !props.isFetchingNextPage && hasNextPage) {
@@ -23,8 +26,8 @@ export default function AdCreativeSection() {
     }
   }, [isInView, props, hasNextPage]);
 
-  const handleAdCreativeClick = (val: IAdCreativeNew | null) => {
-    // setCurrentAdCreative(val);
+  const handleAdCreativeClick = (val: IAdCreativeWithVariants) => {
+    setCurrentAdCreative(val);
   };
 
   return (
@@ -55,13 +58,13 @@ export default function AdCreativeSection() {
           </div>
         )}
       </div>
-      {/* <Drawer
+      <Drawer
         open={!!currentAdCreative}
         position={Position.RIGHT}
         handelClose={() => setCurrentAdCreative(null)}
-      > */}
-      {/* {currentAdCreative && <RightPane adCreative={currentAdCreative} />} */}
-      {/* </Drawer> */}
+      >
+        {currentAdCreative && <RightPane adCreative={currentAdCreative} />}
+      </Drawer>
     </section>
   );
 }

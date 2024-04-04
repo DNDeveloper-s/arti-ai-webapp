@@ -26,16 +26,11 @@ import {
   getConversations,
   useConversation,
 } from "@/context/ConversationContext";
-import { ConversationType, IConversation } from "@/interfaces/IConversation";
-import { TabItem } from "@/components/shared/tabs/Tabs";
 import AdCreativeIcon from "@/components/shared/icons/AdCreativeIcon";
 import StrategyIcon from "@/components/shared/icons/StrategyIcon";
 import useSessionToken from "@/hooks/useSessionToken";
 import Snackbar from "@/components/Snackbar";
 import { SnackbarContext } from "@/context/SnackbarContext";
-import { ChatGPTRole } from "@/interfaces/IArtiBot";
-import useAdCreatives from "@/hooks/useAdCreatives";
-import useConversations from "@/hooks/useConversations";
 import { useGetConversationInfinite } from "@/api/conversation";
 import ConversationSection from "./ConversationSection";
 import AdCreativeSection from "./AdCreativeSection";
@@ -66,10 +61,10 @@ const EmptySection: FC<EmptySectionProps> = (props) => {
     content = (
       <>
         <h3 className="text-lg text-primary text-opacity-70 font-bold">
-          Looks like you don't have any Conversations
+          Looks like you don&apos;t have any Conversations
         </h3>
         <p className={"text-xs text-white text-opacity-40"}>
-          Fortunately, it's easy to create new one.
+          Fortunately, it&apos;s easy to create new one.
         </p>
         <Link href="/artibot" className="text-primary underline">
           Start Chat
@@ -83,7 +78,7 @@ const EmptySection: FC<EmptySectionProps> = (props) => {
     content = (
       <>
         <h3 className="text-lg text-primary text-opacity-70 font-bold">
-          Looks like you don't have any Ad Creatives
+          Looks like you don&apos;t have any Ad Creatives
         </h3>
         <p className={"text-xs text-white text-opacity-40"}>
           Get started by creating your first ad creative through a chat with our
@@ -149,19 +144,11 @@ const tabItems = [
 ];
 
 export default function CardSection() {
-  const router = useRouter();
-  const [openModal, setOpenModal] = useState(false);
   const [modalData, setModalData] =
     useState<ModalDispatchAction<AttachmentDetails>>(null);
-  const [currentAdCreative, setCurrentAdCreative] =
-    useState<IAdCreative | null>(null);
   const { state, dispatch } = useConversation();
   const token = useSessionToken();
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
-  const [activeTabItem, setActiveTabItem] = useState<TabItem>(tabItems[0]);
-  const { adVariantsByConversationId, sortedConversationIds } =
-    useAdCreatives();
-  const { conversations, isConversationLoading } = useConversations();
   const { data, ...props } = useGetConversationInfinite();
 
   useEffect(() => {
@@ -171,20 +158,6 @@ export default function CardSection() {
     }
   }, [dispatch, setSnackBarData, state.error]);
 
-  useEffect(() => {
-    token && dispatch && getConversations(dispatch);
-  }, [dispatch, token]);
-
-  useEffect(() => {
-    token && dispatch && getAdCreatives(dispatch);
-  }, [dispatch, token]);
-
-  function handleAdCreativeClick(adCreativeItem: IAdCreative) {
-    // setOpen(true);
-    setCurrentAdCreative(adCreativeItem);
-  }
-
-  // TODO: Refactor them in corresponding component
   return (
     <>
       <ConversationSection />
