@@ -8,10 +8,7 @@ export default function ArtiBotMessageArea(props: ArtiBotMessageAreaProps) {
   return (
     <>
       <MessageContainer />
-      <ArtiBotTextArea
-        enableMessageInput={enableMessageInput}
-        handleSubmitMessage={handleSubmitMessage}
-      />
+      <ArtiBotTextArea enableMessageInput={enableMessageInput} />
     </>
   );
 }

@@ -174,6 +174,7 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({
   const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
   const [activeTab, setActiveTab] = useState<number>(0);
   const isCreatedImageMapRef = useRef<boolean>(false);
+  const editImageAreaRef = useRef<HTMLDivElement>(null);
 
   const [sampleState, setSampleState] = useState<string | null>(null);
 
@@ -289,6 +290,16 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({
       setIsEdittingImage(true);
     }
   }
+
+  useEffect(() => {
+    if (isEdittingImage && editImageAreaRef.current) {
+      editImageAreaRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+    }
+  }, [isEdittingImage]);
 
   function getBlurClassName(key: REGENERATE_SECTION) {
     return !regenerateMap?.selected
@@ -509,7 +520,10 @@ export const EditFacebookAdVariant: FC<EditFacebookAdVariantProps> = ({
                   <RxCaretRight />
                 </div>
               </div>
-              <div className="absolute top-0 left-0 w-full aspect-square">
+              <div
+                ref={editImageAreaRef}
+                className="absolute top-0 left-0 w-full aspect-square"
+              >
                 <SwipeableViews
                   axis="x"
                   index={activeTab}

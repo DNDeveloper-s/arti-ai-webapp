@@ -249,8 +249,8 @@ const validationSchema = object({
   daily_budget: number().required("Daily Budget is required"),
   billing_event: string().required("Billing Event is required"),
   optimization_goal: string().required("Optimization Goal is required"),
-  bid_strategy: string().required("Bid Strategy is required"),
-  bid_amount: number(),
+  // bid_strategy: string().required("Bid Strategy is required"),
+  // bid_amount: number(),
   product_catalog_id: string(),
   status: string().required("Status is required"),
   start_time: string(),
@@ -509,6 +509,12 @@ export default function CreateAdset() {
     return campaigns?.find((c) => c.id === campaignValue)?.objective;
   }, [campaignValue, campaigns]);
 
+  useEffect(() => {
+    if (endTimeValue < startTimeValue) {
+      setValue("end_time", null);
+    }
+  }, [endTimeValue, setValue, startTimeValue]);
+
   return (
     <form
       action=""
@@ -573,49 +579,6 @@ export default function CreateAdset() {
           errorMessage={formState.errors.daily_budget?.message}
           // errorMessage={formState.errors.description?.message}
         />
-        <Autocomplete
-          inputProps={{
-            classNames: {
-              input: "!text-white",
-              label: "!text-gray-500",
-            },
-          }}
-          label="Bid Strategy"
-          placeholder={"Select Bid Strategy"}
-          onSelectionChange={(key: Key) => {
-            setValue("bid_strategy", key as string);
-          }}
-          selectedKey={bidStrategyValue}
-          errorMessage={formState.errors.bid_strategy?.message}
-        >
-          {BID_STRATEGIES.map((bidStrategy) => (
-            <AutocompleteItem
-              key={bidStrategy.uid}
-              textValue={bidStrategy.name}
-            >
-              <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {bidStrategy.name}
-              </div>
-            </AutocompleteItem>
-          ))}
-        </Autocomplete>
-        {["LOWEST_COST_WITH_BID_CAP", "COST_CAP"].includes(
-          bidStrategyValue
-        ) && (
-          <Input
-            classNames={{
-              label: "!text-gray-500",
-            }}
-            label="Bid Cap"
-            variant="flat"
-            type="number"
-            value={bidAmountValue?.toString() ?? ""}
-            {...register("bid_amount")}
-            errorMessage={formState.errors.bid_amount?.message}
-            // errorMessage={formState.errors.description?.message}
-          />
-        )}
         <div className="flex gap-3 items-center">
           <div className="flex-1">
             <label
@@ -652,6 +615,7 @@ export default function CreateAdset() {
               variant="filled"
               value={endTimeValue}
               onChange={handleDateChange("end_time")}
+              minDate={startTimeValue}
             />
             <Element
               type="p"
@@ -858,4 +822,43 @@ export default function CreateAdset() {
     </AutocompleteItem>
   ))}
 </Autocomplete>; */
+}
+
+{
+  /* <Autocomplete
+  inputProps={{
+    classNames: {
+      input: "!text-white",
+      label: "!text-gray-500",
+    },
+  }}
+  label="Bid Strategy"
+  placeholder={"Select Bid Strategy"}
+  onSelectionChange={(key: Key) => {
+    setValue("bid_strategy", key as string);
+  }}
+  selectedKey={bidStrategyValue}
+  errorMessage={formState.errors.bid_strategy?.message}
+>
+  {BID_STRATEGIES.map((bidStrategy) => (
+    <AutocompleteItem key={bidStrategy.uid} textValue={bidStrategy.name}>
+      <div className="flex items-center gap-3">{bidStrategy.name}</div>
+    </AutocompleteItem>
+  ))}
+</Autocomplete>;
+{
+  ["LOWEST_COST_WITH_BID_CAP", "COST_CAP"].includes(bidStrategyValue) && (
+    <Input
+      classNames={{
+        label: "!text-gray-500",
+      }}
+      label="Bid Cap"
+      variant="flat"
+      type="number"
+      value={bidAmountValue?.toString() ?? ""}
+      {...register("bid_amount")}
+      errorMessage={formState.errors.bid_amount?.message}
+    />
+  );
+} */
 }

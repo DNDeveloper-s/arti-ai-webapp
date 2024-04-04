@@ -23,8 +23,8 @@ export class MessageService {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Connection: "keep-alive",
             Authorization: "Bearer " + localStorage.getItem("token"),
+            Accept: "text/event-stream",
           },
           body: JSON.stringify({
             messages,
@@ -58,10 +58,14 @@ export class MessageService {
         .pipeThrough(new TextDecoderStream())
         .getReader();
 
+      const { value, done } = await reader.read();
+      console.log("testing value - ", value, done);
+
       let i = 0;
       while (true) {
         // console.log('reader - ', await reader.read());
         const { value, done } = await reader.read();
+        console.log("testing value - ", value, done);
         handleChunk({ chunk: value, done, index: i });
         i++;
         if (done) break;

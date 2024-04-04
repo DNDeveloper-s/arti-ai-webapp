@@ -1,4 +1,4 @@
-import { InfiniteMessage } from "@/api/conversation";
+import { ClientMessageItem, InfiniteMessage } from "@/api/conversation";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import { IAdCreativeWithVariants } from "@/interfaces/IAdCreative";
 import { ConversationType } from "@/interfaces/IConversation";
@@ -6,19 +6,30 @@ import { useMemo, useRef } from "react";
 import {
   ConversationAdVariant,
   ConversationAdVariantWithPostInsights,
-} from "../MessageItems/AdItem";
+} from "../../MessageItems/AdItem";
+import ClientAdVariant from "../ClientState/ClientAdVariant";
+
+interface AdItemPropsWithClient {
+  messageItem: ClientMessageItem;
+  variantFontSize?: number;
+  isClient: true;
+}
+
+interface AdItemPropsWithoutClient {
+  messageItem: InfiniteMessage;
+  variantFontSize?: number;
+  isClient: false;
+}
+
+type AdItemProps = AdItemPropsWithClient | AdItemPropsWithoutClient;
 
 export default function AdItem({
   messageItem,
   variantFontSize,
-}: {
-  messageItem: InfiniteMessage;
-  variantFontSize?: number;
-}) {
+  isClient,
+}: AdItemProps) {
   // const json = messageItem.json && JSON.parse(messageItem.json) as AdJSONInput;
-  const adCreative =
-    messageItem.adCreatives &&
-    (messageItem.adCreatives[0] as IAdCreativeWithVariants);
+  const adCreative = messageItem.adCreatives && messageItem.adCreatives[0];
   const containerRef = useRef<HTMLDivElement>(null);
   const { conversation } = useCurrentConversation();
 
@@ -84,18 +95,30 @@ export default function AdItem({
         </p>
       </div>
       <div className="flex w-full overflow-auto items-start gap-6 my-[2.5em]">
-        {conversation.conversation_type === ConversationType.AD_CREATIVE &&
-          adCreative.variants.map((variant, index) => (
-            <ConversationAdVariant key={variant.id} variantId={variant.id} />
+        {isClient &&
+          messageItem.adCreatives &&
+          messageItem.adCreatives[0].variants.map((variant) => (
+            <ClientAdVariant key={variant.variantNo} variant={variant} />
           ))}
-        {conversation.conversation_type ===
-          ConversationType.SOCIAL_MEDIA_POST &&
-          adCreative.variants.map((variant, index) => (
-            <ConversationAdVariantWithPostInsights
-              key={variant.id}
-              variantId={variant.id}
-            />
-          ))}
+        {messageItem.adCreatives && !isClient && (
+          <>
+            {conversation.conversation_type === ConversationType.AD_CREATIVE &&
+              messageItem.adCreatives[0].variants.map((variant) => (
+                <ConversationAdVariant
+                  key={variant.id}
+                  variantId={variant.id}
+                />
+              ))}
+            {conversation.conversation_type ===
+              ConversationType.SOCIAL_MEDIA_POST &&
+              messageItem.adCreatives[0].variants.map((variant) => (
+                <ConversationAdVariantWithPostInsights
+                  key={variant.id}
+                  variantId={variant.id}
+                />
+              ))}
+          </>
+        )}
       </div>
       {/* <DeployAdInsightsCard isFetching={isLoading} adset={data} /> */}
     </div>

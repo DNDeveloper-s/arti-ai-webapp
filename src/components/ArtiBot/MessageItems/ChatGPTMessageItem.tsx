@@ -252,7 +252,10 @@ export const ChatGPTMessageWelcomeMessage = ({
   );
 };
 
-export const ChatGPTMessageCreatingAd = ({ size = 45 }) => {
+export const ChatGPTMessageCreatingAd = ({
+  size = 45,
+  hideProfilePic = false,
+}) => {
   const message = useMemo(() => {
     return randomMessageLengthForShimmer[randomIndex()];
   }, []);
@@ -266,7 +269,9 @@ export const ChatGPTMessageCreatingAd = ({ size = 45 }) => {
       >
         <div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
           <Image
-            className="rounded-lg mr-[0.3em]"
+            className={
+              "rounded-lg mr-[0.3em] " + (hideProfilePic ? "opacity-0" : "")
+            }
             width={45}
             height={45}
             src={botData.image}

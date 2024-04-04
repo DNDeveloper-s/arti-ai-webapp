@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import MessageItem from "./MessageItem";
 import { Spinner } from "@nextui-org/react";
 import useInView from "@/hooks/useInView";
+import ClientMessages from "./ClientState/ClientMessages";
 
 export default function MessageContainer() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,8 +23,8 @@ export default function MessageContainer() {
       .flat()
       .reverse() || [];
 
-  const lastRef = useRef(null);
-  const isInView = useInView(lastRef);
+  // const lastRef = useRef(null);
+  const { ref: lastRef, isInView } = useInView();
   useEffect(() => {
     if (isInView && !props.isFetchingNextPage && hasNextPage) {
       props.fetchNextPage();
@@ -53,8 +54,9 @@ export default function MessageContainer() {
           {/* <ChatGPTMessageWelcomeMessage type={conversationType} /> */}
           {/* )} */}
           {messages.map((messageItem) => (
-            <MessageItem key={messageItem.id} messageItem={messageItem} />
+            <MessageItem key={"messageItem.id"} messageItem={messageItem} />
           ))}
+          <ClientMessages />
         </motion.div>
         {hasNextPage && (
           <div

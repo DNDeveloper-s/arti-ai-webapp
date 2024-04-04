@@ -44,6 +44,30 @@ export interface IAdCreative extends AdJSONInput {
   json: string;
 }
 
+export interface IAdVariantClient {
+  adName: string;
+  adOrientation: string;
+  adType: string;
+  adsetName: string;
+  campaignName: string;
+  campaignObjective: string;
+  confidence: string;
+  imageDescription: string;
+  imageUrl: string;
+  oneLiner: string;
+  rationale: string;
+  text: string;
+  variantNo: string;
+}
+
+export interface IAdCreativeClient {
+  adObjective: string;
+  companyName: string;
+  disclaimer: string;
+  summary: string;
+  variants: IAdVariantClient[];
+}
+
 export interface IAdCreativeNew extends MongooseModel {
   id: string;
   conversationId: string;

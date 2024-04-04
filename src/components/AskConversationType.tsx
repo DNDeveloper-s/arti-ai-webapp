@@ -74,7 +74,10 @@ const BasicConversationInfo = ({
         </div>
         <div className="group relative flex items-center cursor-pointer justify-center">
           <AiOutlineInfoCircle />
-          <div className="transition-all shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto absolute rounded top-[130%] min-w-[350px] right-0 bg-black border border-gray-800 p-1">
+          <div
+            className="transition-all shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto absolute rounded top-[130%] min-w-[350px] right-0 bg-black border border-gray-800 p-1"
+            style={{ zIndex: 2 }}
+          >
             <BotsInfo />
           </div>
         </div>
@@ -180,7 +183,17 @@ const AdvancedConversationInfo = ({
   projectType: ConversationType;
   goBack: () => void;
 }) => {
+  const router = useRouter();
   const [pageValue, setPageValue] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (!projectType) return;
+    router.prefetch("/artibot?conversation_type=" + projectType);
+  }, [router, projectType]);
+
+  function goTo() {
+    router.push("/artibot?conversation_type=" + projectType);
+  }
 
   return (
     <div className={"flex-1 p-5 flex flex-col"}>
@@ -194,7 +207,10 @@ const AdvancedConversationInfo = ({
         </div>
         <div className="group relative flex items-center cursor-pointer justify-center">
           <AiOutlineInfoCircle />
-          <div className="transition-all shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto absolute rounded top-[130%] min-w-[350px] right-0 bg-black border border-gray-800 p-1">
+          <div
+            className="transition-all shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto absolute rounded top-[130%] min-w-[350px] right-0 bg-black border border-gray-800 p-1"
+            style={{ zIndex: 2 }}
+          >
             <BotsInfo />
           </div>
         </div>
@@ -220,21 +236,11 @@ const AdvancedConversationInfo = ({
       </div>
       <div className="flex-1" />
       <div className="flex gap-4">
-        <Button color="primary" className="flex-1">
-          <Link
-            href={"/artibot?conversation_type=" + projectType}
-            prefetch={true}
-          >
-            <span>Continue</span>
-          </Link>
+        <Button color="primary" className="flex-1" onClick={goTo}>
+          <span>Continue</span>
         </Button>
-        <Button color="default" className="flex-1">
-          <Link
-            href={"/artibot?conversation_type=" + projectType}
-            prefetch={true}
-          >
-            <span>Skip</span>
-          </Link>
+        <Button color="default" className="flex-1" onClick={goTo}>
+          <span>Skip</span>
         </Button>
       </div>
     </div>

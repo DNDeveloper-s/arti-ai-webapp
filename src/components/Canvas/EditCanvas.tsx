@@ -496,7 +496,7 @@ function isWithinElement(
       const slope = (y2l - y1l) / (x2l - x1l);
       const _b = y1l - slope * x1l;
       const d = Math.abs((slope * x - y + _b) / Math.sqrt(slope * slope + 1));
-      is = pointNearLine(x, y, x1l, y1l, x2l, y2l, 2) || d <= 5;
+      is = pointNearLine(x, y, x1l, y1l, x2l, y2l, 1) || d <= 1;
       break;
     case "circle":
       const { x1: x1c, y1: y1c, x2: x2c, y2: y2c } = element;
@@ -1985,6 +1985,12 @@ export default function EditCanvas({
 
   useEffect(() => {
     function handleMouseUp(e: any) {
+      console.log(
+        "selectedElement, elementRects - ",
+        selectedElement,
+        elementRects
+      );
+
       const clientX = e.pageX - canvasX;
       const clientY = e.pageY - canvasY;
       if (selectedElement) {
@@ -2175,7 +2181,7 @@ export default function EditCanvas({
         "text",
         { ...selectedElement.customOptions, text: e.target.value }
       );
-    setSelectedElement(null);
+    // setSelectedElement(null);
     setAction(Action.NONE);
   }
 
@@ -2420,6 +2426,24 @@ export default function EditCanvas({
     };
   }, [containerRef.current, toolItemRef.current]);
 
+  function handleSelectLayer(itemId: any) {
+    const element = elements.find((c: any) => c.id === itemId);
+    if (element) {
+      setSelectedElement(element);
+      const rect = createElementRect(
+        0,
+        0,
+        element.type,
+        element.x1,
+        element.y1,
+        element.x2,
+        element.y2
+      );
+      // rect && console.log('setting element rects - ');
+      if (rect) setElementRects([rect]);
+    }
+  }
+
   return (
     <>
       <div ref={containerRef} className="w-full aspect-square relative">
@@ -2565,6 +2589,7 @@ export default function EditCanvas({
               setElements: setElements,
               list: elements,
               onListChange: (newElements) => setElements(newElements),
+              handleSelectLayer,
             }}
             handleFormatChange={handleFormatChange}
             handleChange={handleToolChange}

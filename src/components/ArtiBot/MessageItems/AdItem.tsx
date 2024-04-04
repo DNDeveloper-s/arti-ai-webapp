@@ -318,7 +318,7 @@ export function ConversationAdVariantWithPostInsights({
 }: {
   variantId: string;
 }) {
-  const containerRef = useRef(null);
+  // const containerRef = useRef(null);
   const { dispatch, state: editState } = useEditVariant();
   const {
     dispatch: conversationDispatch,
@@ -332,7 +332,8 @@ export function ConversationAdVariantWithPostInsights({
 
   const variant = (state.variant.map[variantId] as IAdVariant) ?? null;
   const editMode = editState.variant && editState.variant.id === variantId;
-  const isInView = useInView(containerRef, { timeInView: 1000 });
+  // const isInView = useInView(containerRef, { timeInView: 1000 });
+  const { ref: containerRef, isInView } = useInView({ timeInView: 1000 });
 
   // TODO: Refactor to CurrentConversationContext
   const { getConversationById } = useConversations();
@@ -605,7 +606,7 @@ export default function AdItem({
   // const json = messageItem.json && JSON.parse(messageItem.json) as AdJSONInput;
   const adCreative =
     messageItem.adCreatives && (messageItem.adCreatives[0] as IAdCreative);
-  const containerRef = useRef<HTMLDivElement>(null);
+  // const containerRef = useRef<HTMLDivElement>(null);
 
   // TODO: Refactor to CurrentConversationContext
   const { state, getConversationById } = useConversations();
@@ -616,7 +617,9 @@ export default function AdItem({
     return getConversationById(conversationId);
   }, [conversationId, getConversationById]);
 
-  const isInView = useInView(containerRef, { timeInView: 1000 });
+  // const isInView = useInView(containerRef, { timeInView: 1000 });
+  // const lastRef = useRef(null);
+  const { ref: containerRef, isInView } = useInView({ timeInView: 1000 });
   const adset = state.adset.findOneBy("adCreativeId", adCreative.id ?? "");
   const { data, isLoading, isSuccess } = useGetAdSet({
     adsetId: adset?.adsetId,

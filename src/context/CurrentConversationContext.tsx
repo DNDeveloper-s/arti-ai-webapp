@@ -3,12 +3,10 @@
 import React, {
   createContext,
   FC,
-  useCallback,
   useContext,
   useEffect,
   useReducer,
 } from "react";
-import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useGetConversation } from "@/api/conversation";
 import { IConversation } from "@/interfaces/IConversation";
@@ -53,6 +51,10 @@ const useCurrentConversationContext = (
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("conversation_id");
   const { data: conversation } = useGetConversation(conversationId);
+
+  useEffect(() => {
+    console.log("Mount Check | Current Conversation mounted - ");
+  }, []);
 
   return {
     state,

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 export interface UseInViewOptions {
   /**
@@ -8,51 +8,77 @@ export interface UseInViewOptions {
   timeInView?: number;
 }
 
-export default function useInView(
-  ref: React.RefObject<HTMLElement>,
-  options?: UseInViewOptions
-) {
+export default function useInView(options?: UseInViewOptions) {
   const [isInView, setIsInView] = React.useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  console.log("Testing in | ref - ", ref);
-
-  useEffect(() => {
-    const refEl = ref.current;
-    if (!refEl) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          if (options?.timeInView) {
-            timerRef.current = setTimeout(() => {
-              setIsInView(true);
-            }, options.timeInView);
-          } else {
-            setIsInView(true);
+  const ref = useCallback(
+    (node: any) => {
+      if (node) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              if (options?.timeInView) {
+                timerRef.current = setTimeout(() => {
+                  setIsInView(true);
+                }, options.timeInView);
+              } else {
+                setIsInView(true);
+              }
+            } else {
+              if (timerRef.current) {
+                clearTimeout(timerRef.current);
+              }
+              setIsInView(false);
+            }
+          },
+          {
+            rootMargin: "0px",
+            threshold: 0.1,
           }
-        } else {
-          if (timerRef.current) {
-            clearTimeout(timerRef.current);
-          }
-          setIsInView(false);
-        }
-      },
-      {
-        rootMargin: "0px",
-        threshold: 0.1,
+        );
+        observer.observe(node);
       }
-    );
+    },
+    [options?.timeInView]
+  );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
+  // useEffect(() => {
+  //   const refEl = ref.current;
+  //   if (!refEl) return;
+  //   const observer = new IntersectionObserver(
+  //     ([entry]) => {
+  //       if (entry.isIntersecting) {
+  //         if (options?.timeInView) {
+  //           timerRef.current = setTimeout(() => {
+  //             setIsInView(true);
+  //           }, options.timeInView);
+  //         } else {
+  //           setIsInView(true);
+  //         }
+  //       } else {
+  //         if (timerRef.current) {
+  //           clearTimeout(timerRef.current);
+  //         }
+  //         setIsInView(false);
+  //       }
+  //     },
+  //     {
+  //       rootMargin: "0px",
+  //       threshold: 0.1,
+  //     }
+  //   );
 
-    return () => {
-      if (refEl) {
-        observer.unobserve(refEl);
-      }
-    };
-  }, [options?.timeInView, ref.current]);
+  //   if (ref.current) {
+  //     observer.observe(ref.current);
+  //   }
 
-  return isInView;
+  //   return () => {
+  //     if (refEl) {
+  //       observer.unobserve(refEl);
+  //     }
+  //   };
+  // }, [options?.timeInView, ref]);
+
+  return { ref, isInView };
 }

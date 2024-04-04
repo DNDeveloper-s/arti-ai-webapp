@@ -8,9 +8,7 @@ export default function ConversationSection() {
   const { data, isLoading, hasNextPage, ...props } =
     useGetConversationInfinite();
   const conversations = data?.pages.map((page) => page).flat() || [];
-  const lastRef = useRef(null);
-  console.log("Testing in | lastRef - ", lastRef);
-  const isInView = useInView(lastRef);
+  const { ref, isInView } = useInView();
 
   useEffect(() => {
     if (isInView && !props.isFetchingNextPage && hasNextPage) {
@@ -38,7 +36,7 @@ export default function ConversationSection() {
         {hasNextPage && (
           <div
             className="w-[60px] p-0 pr-[20px] h-full flex items-center justify-center"
-            ref={lastRef}
+            ref={ref}
           >
             <Spinner />
           </div>

@@ -5,7 +5,12 @@ import TabView from "@/components/ArtiBot/RIghtPane/TabView";
 import FeedBackView from "@/components/ArtiBot/RIghtPane/FeedBackView";
 import { FiDownload } from "react-icons/fi";
 import { motion } from "framer-motion";
-import { IAdCreative, AdCreativeVariant } from "@/interfaces/IAdCreative";
+import {
+  IAdCreative,
+  AdCreativeVariant,
+  IAdCreativeNew,
+  IAdCreativeWithVariants,
+} from "@/interfaces/IAdCreative";
 import FacebookAdVariant from "@/components/ArtiBot/FacebookAdVariant";
 import {
   generateAdCreativeImages,
@@ -17,9 +22,11 @@ import VariantItem, { AD_VARIANT_MODE } from "@/components/ArtiBot/VariantItem";
 import { Mock } from "@/constants/servicesData";
 import { colors } from "@/config/theme";
 import AdCampaignStepOne from "@/components/ArtiBot/RIghtPane/AdCampaignFlow/AdCampaignStepOne";
+import ResizeAble from "@/components/shared/renderers/ResizeAble";
+import { sortBy } from "lodash";
 
 interface RightPaneProps {
-  adCreative: IAdCreative;
+  adCreative: IAdCreativeWithVariants;
   mock?: Mock;
   style?: React.CSSProperties;
   isAdCampaign?: boolean;
@@ -27,7 +34,7 @@ interface RightPaneProps {
 
 const MIN_WIDTH = 450;
 
-const AdVariants: FC<RightPaneProps> = ({
+const RightPane: FC<RightPaneProps> = ({
   isAdCampaign,
   adCreative,
   mock = new Mock(),
@@ -36,6 +43,9 @@ const AdVariants: FC<RightPaneProps> = ({
   const [activeVariant, setActiveVariant] = useState<AdCreativeVariant>(
     adCreative.variants[0]
   );
+
+  console.log("activeVariant - ", activeVariant, adCreative.variants);
+
   const [docUrl, setDocUrl] = useState<string | null>(null);
   const [width, setWidth] = useState(MIN_WIDTH);
   const {
@@ -68,37 +78,38 @@ const AdVariants: FC<RightPaneProps> = ({
 
   const variantList = useMemo(() => {
     if (mock.is) return adCreative.variants;
-    const list = getVariantsByAdCreativeId(adCreative.id) || [];
-    // const list = [];
+    // const list = getVariantsByAdCreativeId(adCreative.id) || [];
+    // // const list = [];
 
-    const newVariantListRef = list
-      .map((variant) => variant.id)
-      .sort((a, b) => {
-        if (a > b) return 1;
-        if (a < b) return -1;
-        return 0;
-      })
-      .join(",");
+    // const newVariantListRef = list
+    //   .map((variant) => variant.id)
+    //   .sort((a, b) => {
+    //     if (a > b) return 1;
+    //     if (a < b) return -1;
+    //     return 0;
+    //   })
+    //   .join(",");
 
-    if (newVariantListRef !== prevVariantListRef.current)
-      ranTheGenerationRef.current = false;
+    // if (newVariantListRef !== prevVariantListRef.current)
+    //   ranTheGenerationRef.current = false;
 
-    if (!ranTheGenerationRef.current) {
-      setActiveVariant(list[0]);
-    }
+    // if (!ranTheGenerationRef.current) {
+    //   setActiveVariant(list[0]);
+    // }
 
-    prevVariantListRef.current = list
-      .map((variant) => variant.id)
-      .sort((a, b) => {
-        if (a > b) return 1;
-        if (a < b) return -1;
-        return 0;
-      })
-      .join(",");
-    return list;
+    // prevVariantListRef.current = list
+    //   .map((variant) => variant.id)
+    //   .sort((a, b) => {
+    //     if (a > b) return 1;
+    //     if (a < b) return -1;
+    //     return 0;
+    //   })
+    //   .join(",");
+    // return list;
+    return sortBy(adCreative.variants, "id").reverse();
     // const variantIds = adCreative.variants.map(variant => variant.id);
     // return variant.list.filter(c => variantIds.includes(c.id));
-  }, [getVariantsByAdCreativeId, adCreative.id, mock.is]);
+  }, [adCreative.variants, mock.is]);
 
   useEffect(() => {
     if (mock.is) return;
@@ -128,7 +139,7 @@ const AdVariants: FC<RightPaneProps> = ({
     }
   }, [dispatch, variantList, inProcess, inError, adCreative.conversationId]);
 
-  return (
+  const content = (
     <div
       className={
         "pb-10 h-full flex flex-col relative items-center bg-black" +
@@ -139,8 +150,8 @@ const AdVariants: FC<RightPaneProps> = ({
         <AdCampaignStepOne />
       ) : (
         <>
-          <div className="px-4 w-full py-1 flex justify-between items-center">
-            {/* <h2 className="text-xl font-medium font-diatype">Ad Creatives</h2> */}
+          <div className="px-4 w-full py-1 mt-3 flex justify-between items-center">
+            <h2 className="text-xl font-medium font-diatype">Ad Creatives</h2>
             {mock.is && (
               <motion.div
                 key={activeVariant.id}
@@ -187,7 +198,10 @@ const AdVariants: FC<RightPaneProps> = ({
             setShowConfirmModal={setShowConfirmModal}
             items={variantList}
             activeAdTab={activeVariant}
-            setActiveAdTab={setActiveVariant}
+            setActiveAdTab={(item: any) => {
+              console.log("item - ", item);
+              setActiveVariant(item);
+            }}
           />
 
           <VariantItem
@@ -202,9 +216,16 @@ const AdVariants: FC<RightPaneProps> = ({
     </div>
   );
 
-  // return <ResizeAble containerClassName={'w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative' + (mock.isMobile ? ' w-full' : '')}>
-  // 	{content}
-  // </ResizeAble>
+  return (
+    <ResizeAble
+      containerClassName={
+        "w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative" +
+        (mock.isMobile ? " w-full" : "")
+      }
+    >
+      {content}
+    </ResizeAble>
+  );
 
   // return (
   // 	<div className={'w-[450px] pl-3 right-0 top-0 h-full z-10 flex-shrink-0 relative' + (mock.isMobile ? ' w-full' : '')} style={{width: mock.isMobile ? '100%' : width, ...(style ?? {})}} ref={resizeContainerRef}>
@@ -215,4 +236,4 @@ const AdVariants: FC<RightPaneProps> = ({
   // )
 };
 
-export default AdVariants;
+export default RightPane;

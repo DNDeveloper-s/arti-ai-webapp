@@ -153,6 +153,10 @@ const useUserContext = (initState: IUserState) => {
   // const {} = useGetFacebookPro;
 
   useEffect(() => {
+    console.log("Mount Check | User Context mounted - ");
+  }, []);
+
+  useEffect(() => {
     if (!isError) return;
     dispatch({
       type: USER_ACTION_TYPE.SET_USER_STATE,
