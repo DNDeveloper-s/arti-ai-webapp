@@ -65,8 +65,9 @@ const OPTIMISATION_GOALS = [
   { name: "Social Impressions", uid: "SOCIAL_IMPRESSIONS" },
 ];
 
-const conditionalData = {
+export const conditionalData = {
   OUTCOME_APP_PROMOTION: {
+    conversionLocations: [],
     billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
     optimisationGoals: [
       { name: "App Installs", uid: "APP_INSTALLS" },
@@ -92,12 +93,17 @@ const conditionalData = {
       { name: "Lead Generation", uid: "LEAD_GENERATION" },
       { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
     ],
+    conversionLocations: [
+      { name: "Instant Form", uid: "INSTANT_FORM" },
+      { name: "Calls", uid: "CALLS" },
+    ],
     promotedObject: {
       application_id: "683754897094286",
       object_store_url: "http://www.facebook.com/gaming/play/683754897094286/",
     },
   },
   OUTCOME_SALES: {
+    conversionLocations: [],
     billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
     optimisationGoals: [
       { name: "Impressions", uid: "IMPRESSIONS" },
@@ -106,6 +112,37 @@ const conditionalData = {
       { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
       { name: "Offsite Conversions", uid: "OFFSITE_CONVERSIONS" },
       { name: "Conversations", uid: "CONVERSATIONS" },
+    ],
+    promotedObject: {
+      product_catalog_id: "",
+    },
+  },
+  OUTCOME_AWARENESS: {
+    conversionLocations: [],
+    billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
+    optimisationGoals: [
+      { name: "Impressions", uid: "IMPRESSIONS" },
+      { name: "Link Clicks", uid: "LINK_CLICKS" },
+      { name: "Reach", uid: "REACH" },
+      { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
+    ],
+    promotedObject: {
+      product_catalog_id: "",
+    },
+  },
+  OUTCOME_TRAFFIC: {
+    billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
+    optimisationGoals: [
+      { name: "Impressions", uid: "IMPRESSIONS" },
+      { name: "Link Clicks", uid: "LINK_CLICKS" },
+      { name: "Reach", uid: "REACH" },
+      { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
+    ],
+    conversionLocations: [
+      { name: "Website", uid: "WEBSITE" },
+      { name: "App", uid: "APP" },
+      { name: "Messaging Apps", uid: "MESSAGING_APPS" },
+      { name: "Calls", uid: "CALLS" },
     ],
     promotedObject: {
       product_catalog_id: "",
@@ -151,6 +188,26 @@ const CUSTOM_AUDIENCES = [
   { name: "Website Audience", uid: "website_audience" },
   { name: "Audience", uid: "audience" },
 ];
+
+const GENDERS = [
+  { name: "All", uid: "all" },
+  { name: "Men", uid: "men" },
+  { name: "Women", uid: "women" },
+];
+
+const MIN_AGES = Array.from({ length: 48 }, (_, i: number) => ({
+  uid: (i + 18).toString(),
+  name: (i + 18).toString(),
+}));
+
+const MAX_AGES = Array.from({ length: 48 }, (_, i: number) => {
+  let ind: number | string = i + 18;
+  if (ind === 65) ind = "65+";
+  return {
+    uid: ind.toString(),
+    name: ind.toString(),
+  };
+});
 
 const ZIP_CODES = [
   { uid: "10001", name: "UA Ukraine 123 Chernyakhiv" },
@@ -239,9 +296,13 @@ type CreateAdsetFormValues = Omit<
   countries: any[];
   zip_codes: any;
   demographics: any;
-  start_time: Dayjs;
-  end_time: Dayjs;
+  start_time: Dayjs | undefined;
+  end_time: Dayjs | undefined;
   product_catalog_id: string;
+
+  min_age: string;
+  max_age: string;
+  gender: string;
 };
 
 const validationSchema = object({
@@ -251,6 +312,9 @@ const validationSchema = object({
   optimization_goal: string().required("Optimization Goal is required"),
   // bid_strategy: string().required("Bid Strategy is required"),
   // bid_amount: number(),
+  min_age: string(),
+  max_age: string(),
+  gender: string(),
   product_catalog_id: string(),
   status: string().required("Status is required"),
   start_time: string(),
@@ -273,7 +337,7 @@ export default function CreateAdset() {
   const createModeRef = useRef<"create" | "continue">("create");
 
   const {
-    data: createdAdsetId,
+    data: createAdSetResponse,
     mutate: postCreateAdset,
     isPending: isCreating,
     isSuccess: isCreationSuccess,
@@ -308,6 +372,9 @@ export default function CreateAdset() {
   const dailyBudgetValue = watch("daily_budget");
   const bidAmountValue = watch("bid_amount");
   const nameValue = watch("name");
+  const minAgeValue = watch("min_age");
+  const maxAgeValue = watch("max_age");
+  const genderValue = watch("gender");
 
   const immutableFields = useMemo(() => {
     if (storeFormState.mode !== "edit") return {};
@@ -408,6 +475,8 @@ export default function CreateAdset() {
       : postCreateAdset({ adset });
   }
 
+  console.log("selected.campaigns - ", selected.campaigns);
+
   useEffect(() => {
     if (storeFormState.mode === "edit" && storeFormState.open === true) {
       const formData = storeFormState.rawData as IAdSet;
@@ -487,13 +556,19 @@ export default function CreateAdset() {
     if (isSuccess) {
       campaignValue &&
         setSelected(CampaignTab.CAMPAIGNS)(new Set([campaignValue]));
-      createdAdsetId &&
-        setSelected(CampaignTab.ADSETS)(new Set([createdAdsetId]));
+      createAdSetResponse &&
+        setSelected(CampaignTab.ADSETS)(new Set([createAdSetResponse.adsetId]));
       createModeRef.current === "create" && setFormState({ open: false });
       createModeRef.current === "continue" &&
         setFormState({ tab: CampaignTab.ADS, open: true, mode: "create" });
     }
-  }, [isSuccess, setFormState, createdAdsetId, setSelected, campaignValue]);
+  }, [
+    isSuccess,
+    setFormState,
+    createAdSetResponse,
+    setSelected,
+    campaignValue,
+  ]);
 
   function handleDateChange(name: "start_time" | "end_time") {
     return (date: Dayjs, dateString: string | string[]) => {
@@ -510,10 +585,15 @@ export default function CreateAdset() {
   }, [campaignValue, campaigns]);
 
   useEffect(() => {
-    if (endTimeValue < startTimeValue) {
-      setValue("end_time", null);
+    if (endTimeValue && startTimeValue && endTimeValue < startTimeValue) {
+      setValue("end_time", undefined);
     }
   }, [endTimeValue, setValue, startTimeValue]);
+
+  const conversionLocationList = useMemo(() => {
+    return conditionalData[campaignObjective as keyof typeof conditionalData]
+      ?.conversionLocations;
+  }, [campaignObjective]);
 
   return (
     <form
@@ -579,7 +659,7 @@ export default function CreateAdset() {
           errorMessage={formState.errors.daily_budget?.message}
           // errorMessage={formState.errors.description?.message}
         />
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-3 items-start">
           <div className="flex-1">
             <label
               htmlFor=""
@@ -622,6 +702,60 @@ export default function CreateAdset() {
               className="text-small text-danger mt-1"
               content={formState.errors.end_time?.message}
             />
+          </div>
+        </div>
+        <div className="flex gap-3 items-start">
+          <div className="flex-1">
+            <Autocomplete
+              inputProps={{
+                classNames: {
+                  input: "!text-white",
+                  label: "!text-gray-500",
+                },
+              }}
+              label="Min Age"
+              placeholder={"Select Min Age"}
+              onSelectionChange={(key: Key) => {
+                setValue("min_age", key as string);
+              }}
+              selectedKey={minAgeValue}
+              errorMessage={formState.errors.min_age?.message}
+            >
+              {MIN_AGES.map((minAge) => (
+                <AutocompleteItem key={minAge.uid} textValue={minAge.name}>
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {minAge.name}
+                  </div>
+                </AutocompleteItem>
+              ))}
+            </Autocomplete>
+          </div>
+          <div className="flex-1">
+            <Autocomplete
+              inputProps={{
+                classNames: {
+                  input: "!text-white",
+                  label: "!text-gray-500",
+                },
+              }}
+              label="Max Age"
+              placeholder={"Select Max Age"}
+              onSelectionChange={(key: Key) => {
+                setValue("max_age", key as string);
+              }}
+              selectedKey={maxAgeValue}
+              errorMessage={formState.errors.max_age?.message}
+            >
+              {MAX_AGES.map((maxAge) => (
+                <AutocompleteItem key={maxAge.uid} textValue={maxAge.name}>
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {maxAge.name}
+                  </div>
+                </AutocompleteItem>
+              ))}
+            </Autocomplete>
           </div>
         </div>
         <Autocomplete
@@ -694,17 +828,19 @@ export default function CreateAdset() {
                 label: "!text-gray-500",
               },
             }}
-            label="Custom Audience"
-            placeholder={"Select Custom Audience"}
+            label="Gender"
+            placeholder={"Select Gender"}
+            onSelectionChange={(key: Key) => {
+              setValue("gender", key as string);
+            }}
+            selectedKey={genderValue}
+            errorMessage={formState.errors.gender?.message}
           >
-            {CUSTOM_AUDIENCES.map((customAudience) => (
-              <AutocompleteItem
-                key={customAudience.uid}
-                textValue={customAudience.name}
-              >
+            {GENDERS.map((gender) => (
+              <AutocompleteItem key={gender.uid} textValue={gender.name}>
                 <div className="flex items-center gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {customAudience.name}
+                  {gender.name}
                 </div>
               </AutocompleteItem>
             ))}

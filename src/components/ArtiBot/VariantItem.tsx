@@ -30,6 +30,7 @@ import {
   fetchImage,
 } from "@/components/ArtiBot/MessageItems/AdItem";
 import { saveAs } from "file-saver";
+import DeployButton from "./MessageItems/DeployButton";
 
 interface VariantTabProps {
   activeVariant: AdCreativeVariant;
@@ -266,10 +267,10 @@ const VariantItem: FC<VariantTabProps> = ({
                 <MdOutlineModeEdit />
                 <span>Edit</span>
               </button>
-              <button className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all">
+              {/* <button className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all">
                 <GrDeploy className="fill-white stroke-white [&>path]:stroke-white" />
                 <span>Deploy</span>
-              </button>
+              </button> */}
               <button
                 onClick={handleDownload}
                 className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all"
@@ -277,6 +278,9 @@ const VariantItem: FC<VariantTabProps> = ({
                 <MdDownload className="fill-white stroke-white [&>path]:stroke-white" />
                 <span>Download</span>
               </button>
+              <div className="flex justify-center items-center gap-5">
+                <DeployButton variant={variant} />
+              </div>
             </div>
           )}
         </>

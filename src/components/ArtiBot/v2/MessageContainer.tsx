@@ -1,6 +1,6 @@
 import { AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import WavingHand from "@/assets/images/waving-hand.webp";
 import { motion } from "framer-motion";
 import { framerContainer } from "@/config/framer-motion";
@@ -10,26 +10,53 @@ import MessageItem from "./MessageItem";
 import { Spinner } from "@nextui-org/react";
 import useInView from "@/hooks/useInView";
 import ClientMessages from "./ClientState/ClientMessages";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import { useClientMessages } from "@/context/ClientMessageContext";
+import { sortBy, uniqBy } from "lodash";
+import {
+  ChatGPTMessageCreatingAd,
+  ChatGPTMessageGeneratingAnimation,
+} from "../MessageItems/ChatGPTMessageItem";
+import useKeepInView from "@/hooks/useKeepInView";
 
 export default function MessageContainer() {
   const containerRef = useRef<HTMLDivElement>(null);
   const showGetAdNowButton = false;
   const queryParams = useSearchParams();
-  const conversationId = queryParams.get("conversation_id");
-  const { data, hasNextPage, ...props } = useGetMessages(conversationId);
-  const messages =
-    data?.pages
-      .map((page) => page)
-      .flat()
-      .reverse() || [];
+  const { conversation } = useCurrentConversation();
+  const conversationId = conversation?.id;
+  const { data, hasNextPage, ...props } = useGetMessages(
+    conversationId ?? null
+  );
+  const serverMessages = useMemo(() => {
+    return (
+      data?.pages
+        .map((page) => page)
+        .flat()
+        .reverse() || []
+    );
+  }, [data]);
 
   // const lastRef = useRef(null);
   const { ref: lastRef, isInView } = useInView();
+  const { ref: keepInViewRef, setKeepInView } = useKeepInView();
+
   useEffect(() => {
     if (isInView && !props.isFetchingNextPage && hasNextPage) {
       props.fetchNextPage();
     }
   }, [isInView, props, hasNextPage]);
+
+  const { messageRecord, isPending, isGeneratingJson } = useClientMessages();
+
+  const messages = useMemo(() => {
+    const clientMessages = messageRecord.getByConversationId(conversation?.id);
+    return sortBy(uniqBy([...serverMessages, ...clientMessages], "id"), "id");
+  }, [messageRecord, conversation?.id, serverMessages]);
+
+  useEffect(() => {
+    setKeepInView(!!isPending);
+  }, [isPending, setKeepInView]);
 
   return (
     <AnimatePresence mode="wait">
@@ -54,9 +81,15 @@ export default function MessageContainer() {
           {/* <ChatGPTMessageWelcomeMessage type={conversationType} /> */}
           {/* )} */}
           {messages.map((messageItem) => (
-            <MessageItem key={"messageItem.id"} messageItem={messageItem} />
+            <MessageItem key={messageItem.id} messageItem={messageItem} />
           ))}
-          <ClientMessages />
+
+          {isPending && <ChatGPTMessageGeneratingAnimation />}
+          {isGeneratingJson && (
+            <ChatGPTMessageCreatingAd hideProfilePic={true} />
+          )}
+          <div ref={keepInViewRef} />
+          {/* <ClientMessages /> */}
         </motion.div>
         {hasNextPage && (
           <div

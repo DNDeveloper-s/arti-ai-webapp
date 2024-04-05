@@ -40,7 +40,6 @@ export default function Conversation({
 }: {
   type: ConversationType;
 }) {
-  let conversation: IConversation | undefined;
   const { state, dispatch } = useConversation();
   const searchParams = useSearchParams();
   const projectName = searchParams.get("project_name");
@@ -48,7 +47,7 @@ export default function Conversation({
   const conversationId = searchParams.get("conversation_id");
   const { data: accounts } = useGetUserProviders();
   const { setAccounts } = useUser();
-  useGetConversation(conversationId);
+  const { data: conversation } = useGetConversation(conversationId);
 
   useEffect(() => {
     if (accounts) {
@@ -98,7 +97,7 @@ export default function Conversation({
 
         {/*</div>*/}
 
-        <CurrentConversationContextProvider>
+        <CurrentConversationContextProvider conversation={conversation}>
           <ClientMessageContextProvider>
             <ArtiBotPage
               conversation={state.conversation.map[conversationId.toString()]}

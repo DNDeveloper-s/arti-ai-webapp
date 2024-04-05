@@ -21,13 +21,15 @@ import { useForm } from "react-hook-form";
 import { object, string } from "yup";
 import { getSubmitText } from "../../../CreateAdManagerModal";
 import { useSearchParams } from "next/navigation";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
 
 // Define constants for different campaign objectives
 const CAMPAIGN_OBJECTIVES = [
-  { name: "Engagement", uid: "OUTCOME_ENGAGEMENT" },
+  // { name: "Engagement", uid: "OUTCOME_ENGAGEMENT" },
+  { name: "Awareness", uid: "OUTCOME_AWARENESS" },
+  { name: "Traffic", uid: "OUTCOME_TRAFFIC" },
   { name: "Leads", uid: "OUTCOME_LEADS" },
-  { name: "App Promotion", uid: "OUTCOME_APP_PROMOTION" },
-  { name: "Sales", uid: "OUTCOME_SALES" },
+  // { name: "App Promotion", uid: "OUTCOME_APP_PROMOTION" },
 ];
 
 // Define validation schema using Yup
@@ -51,7 +53,7 @@ export default function CreateCampaign() {
     mutate: postCreateCampaign,
     isPending: isCreatePending,
     isSuccess: isCreateSuccess,
-    data: createdCampaignId,
+    data: createCampaignResponse,
   } = useCreateCampaign();
 
   const {
@@ -72,8 +74,8 @@ export default function CreateCampaign() {
   const { handleSubmit, register, setValue, watch } =
     useForm<CreateCampaignFormValues>({ resolver });
 
-  const searchParams = useSearchParams();
-  const conversationId = searchParams.get("conversation_id");
+  const { conversation } = useCurrentConversation();
+  const conversationId = conversation?.id;
 
   // State management hooks from a campaign store
   const {
@@ -109,14 +111,16 @@ export default function CreateCampaign() {
   // Side effect to handle changes after campaign creation or update
   useEffect(() => {
     if (isSuccess) {
-      createdCampaignId &&
-        setSelected(CampaignTab.CAMPAIGNS)(new Set([createdCampaignId]));
+      createCampaignResponse &&
+        setSelected(CampaignTab.CAMPAIGNS)(
+          new Set([createCampaignResponse.campaignId])
+        );
       createModeRef.current === "create" &&
         setFormState({ tab: CampaignTab.CAMPAIGNS, open: false });
       createModeRef.current === "continue" &&
         setFormState({ tab: CampaignTab.ADSETS, open: true, mode: "create" });
     }
-  }, [isSuccess, setFormState, createdCampaignId, setSelected]);
+  }, [isSuccess, setFormState, createCampaignResponse, setSelected]);
 
   // Side effect to handle pre-filling form data when editing a campaign
   useEffect(() => {

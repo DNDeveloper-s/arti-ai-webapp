@@ -12,7 +12,7 @@ import { useGetConversation } from "@/api/conversation";
 import { IConversation } from "@/interfaces/IConversation";
 
 type ICurrentConversationState = {
-  conversation?: IConversation;
+  conversation: IConversation | undefined;
 };
 
 export const initCurrentConversationState: ICurrentConversationState = {
@@ -48,18 +48,15 @@ const useCurrentConversationContext = (
   initState: ICurrentConversationState
 ) => {
   const [state, dispatch] = useReducer(CurrentConversationReducer, initState);
-  const searchParams = useSearchParams();
-  const conversationId = searchParams.get("conversation_id");
-  const { data: conversation } = useGetConversation(conversationId);
 
   useEffect(() => {
-    console.log("Mount Check | Current Conversation mounted - ");
-  }, []);
+    console.log("initState - ", initState);
+  }, [initState]);
 
   return {
     state,
     dispatch,
-    conversation,
+    conversation: initState.conversation,
   };
 };
 

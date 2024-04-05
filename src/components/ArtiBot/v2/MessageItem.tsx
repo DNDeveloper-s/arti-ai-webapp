@@ -6,7 +6,7 @@ import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import MarkdownRenderer from "../MarkdownRenderer";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { IoIosCopy } from "react-icons/io";
 import Lottie from "lottie-react";
 import tickAnimation from "@/assets/lottie/tick_animation.json";
@@ -82,6 +82,12 @@ export default function MessageItem(props: MessageItemProps) {
     item = <AdItem isClient={!!isClient} messageItem={messageItem} />;
   }
 
+  const avatarSrc = useMemo(() => {
+    return messageItem.role === ChatGPTRole.ASSISTANT
+      ? botData.image.src
+      : user?.image ?? dummyUser.image.src;
+  }, [messageItem.role, user?.image]);
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -101,14 +107,7 @@ export default function MessageItem(props: MessageItemProps) {
           }
         >
           <div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
-            <Avatar
-              radius="sm"
-              src={
-                messageItem.role === ChatGPTRole.ASSISTANT
-                  ? botData.image.src
-                  : user?.image ?? dummyUser.image.src
-              }
-            />
+            <Avatar radius="sm" src={avatarSrc} />
             <div className={`ml-[0.8em] flex-1 overflow-hidden`}>{item}</div>
           </div>
         </div>

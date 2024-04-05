@@ -23,6 +23,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { current, trueGray } from "tailwindcss/colors";
 import { object, string } from "yup";
 import SelectMetaPage from "../SelectMetaPage";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
 
 interface CreatePostFormValues {
   imageUrl: string;
@@ -60,7 +61,8 @@ function CreateSocialPostModalContent(
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   )?.userAccessToken;
-  const conversationId = searchParams.get("conversation_id");
+  const { conversation } = useCurrentConversation();
+  const conversationId = conversation?.id;
 
   const {
     data: pagesData,
@@ -212,7 +214,7 @@ export default function CreateSocialPostModal(
       isDismissable={true}
       isKeyboardDismissDisabled={true}
       classNames={{
-        wrapper: "bg-black bg-opacity-50",
+        wrapper: "bg-black bg-opacity-50 z-20",
         base: "max-w-[800px] w-auto",
       }}
     >

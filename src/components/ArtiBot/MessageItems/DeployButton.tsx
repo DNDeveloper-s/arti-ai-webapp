@@ -20,6 +20,8 @@ import CreateAdManagerModal from "./Deploy/Ad/CreateAdManagerModal";
 import useConversations from "@/hooks/useConversations";
 import { useSearchParams } from "next/navigation";
 import { ConversationType } from "@/interfaces/IConversation";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import { useGetUserProviders } from "@/api/user";
 
 export enum UserChoice {
   post,
@@ -35,7 +37,8 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
   const { state } = useUser();
   const { getConversationById } = useConversations();
   const searchParams = useSearchParams();
-  const conversationId = searchParams.get("conversation_id");
+  const { conversation: currentConversation } = useCurrentConversation();
+  const { data: providers } = useGetUserProviders();
 
   const handleUserChoice = async (choice: UserChoice) => {
     if (!session || !session.user) {
@@ -59,13 +62,12 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
   };
 
   const hasNoAccount =
-    (state.data?.accounts ?? []).filter((c) => c.provider === "facebook")
-      .length === 0;
+    (providers ?? []).filter((c) => c.provider === "facebook").length === 0;
 
-  const currentConversation = useMemo(() => {
-    if (!conversationId) return null;
-    return getConversationById(conversationId);
-  }, [conversationId, getConversationById]);
+  // const currentConversation = useMemo(() => {
+  //   if (!conversationId) return null;
+  //   return getConversationById(conversationId);
+  // }, [conversationId, getConversationById]);
 
   if (!currentConversation) return null;
 
@@ -85,7 +87,7 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
             className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all"
           >
             <GrDeploy className="fill-white stroke-white [&>path]:stroke-white" />
-            <span>Deploy Post</span>
+            <span className="whitespace-nowrap">Deploy Post</span>
           </button>
           <CreateSocialPostModal
             open={isOpen(UserChoice.post)}
@@ -104,7 +106,7 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
             className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all"
           >
             <GrDeploy className="fill-white stroke-white [&>path]:stroke-white" />
-            <span>Deploy Ad</span>
+            <span className="whitespace-nowrap">Deploy Ad</span>
           </button>
           <AdManagerListModal
             open={isOpen(UserChoice.ad)}

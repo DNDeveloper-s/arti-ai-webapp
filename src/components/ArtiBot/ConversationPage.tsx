@@ -178,7 +178,7 @@ export default function ArtiBotPage({
   const search = useSearchParams();
   const { conversation: _currentConversation } = useCurrentConversation();
 
-  const useV2 = localStorage.getItem("use_v2") === "true";
+  const useOld = localStorage.getItem("use_old") === "true";
 
   const adCreative = useMemo(() => {
     // Merge all the variants into one adCreative object within one conversation
@@ -239,9 +239,7 @@ export default function ArtiBotPage({
       <ArtiAiDropdown
         handleChange={(item: ArtiAiDropdownItem) => {
           console.log("item - ", item);
-          setIsConversationCollapsible(
-            item.label !== ArtiAiDropdownItems.ArtiAiChat
-          );
+          setIsConversationCollapsible(item.label !== ArtiAiDropdownItems.Chat);
         }}
         items={dropdownItems}
       />
@@ -271,7 +269,7 @@ export default function ArtiBotPage({
           }
         >
           <div className={"w-full mx-auto h-full overflow-hidden"}>
-            {!useV2 ? (
+            {useOld ? (
               <ArtiBot
                 hideHeader={true}
                 toggleCollapse={toggleCollapse}

@@ -10,6 +10,7 @@ import { Platform, SupportedPlatform, useUser } from "@/context/UserContext";
 import {
   Query,
   QueryFunctionContext,
+  UseMutationResult,
   UseQueryResult,
   useMutation,
   useQueries,
@@ -506,6 +507,28 @@ export function useGetVariantPosts({
   });
 }
 
+export interface IUserProvider {
+  id: string;
+  provider: string;
+  type: string;
+  name: string;
+  image: string;
+  email: string;
+  emailVerified: boolean;
+  providerAccountId: string;
+  refresh_token: string;
+  access_token: string;
+  expires_at: number;
+  token_type: string;
+  scope: string;
+  id_token: string;
+  session_state: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+type GetUserProvidersResponse = IUserProvider[];
+
 export function useGetUserProviders() {
   const { state } = useUser();
 
@@ -514,7 +537,7 @@ export function useGetUserProviders() {
     return response.data;
   };
 
-  return useQuery({
+  return useQuery<GetUserProvidersResponse>({
     queryKey: API_QUERIES.GET_USER_ACCOUNTS,
     queryFn: getUserProviders,
     retry(failureCount, error) {
@@ -734,7 +757,20 @@ export interface ICreateCampaign {
   status: string;
   conversation_id: string;
 }
-export const useCreateCampaign = () => {
+export interface CreateCampaignResponse {
+  accessToken: string;
+  adAccountId: string;
+  campaignId: string;
+  conversationId: string;
+  /** @description This is the mongoDB Id */
+  id: string;
+  userId: string;
+}
+export const useCreateCampaign = (): UseMutationResult<
+  CreateCampaignResponse,
+  Error,
+  { campaign: ICreateCampaign }
+> => {
   const queryClient = useQueryClient();
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
   const { accessToken, accountId } = useCredentials();
@@ -871,7 +907,23 @@ export interface ICreateAdset {
   };
 }
 
-export const useCreateAdset = () => {
+interface CreateAdsetResponse {
+  id: string;
+  adsetId: string;
+  adAccountId: string;
+  accessToken: string;
+  userId: string;
+  conversationId: string;
+  adCreativeId: string;
+  campaignId: string;
+  campaignRecordId: string;
+}
+
+export const useCreateAdset = (): UseMutationResult<
+  CreateAdsetResponse,
+  Error,
+  { adset: ICreateAdset }
+> => {
   const queryClient = useQueryClient();
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
@@ -1039,13 +1091,13 @@ export const useCreateAd = () => {
   }: {
     ad: ICreateAd;
     adCreativeData: ICreateAdCreative;
-    imageUrl: string | File;
+    imageUrl?: string | File;
   }) => {
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
 
     const formData = new FormData();
-    formData.append("imageUrl", imageUrl);
+    imageUrl && formData.append("imageUrl", imageUrl);
 
     const uploadImageresponse = await axios.post(
       ROUTES.ADS.ADIMAGES,
