@@ -549,6 +549,7 @@ export function useGetUserProviders() {
     retryDelay: (retryCount) => {
       return retryCount * 1000;
     },
+    staleTime: 1000 * 60 * 15,
   });
 }
 
