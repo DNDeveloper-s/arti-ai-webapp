@@ -24,6 +24,8 @@ import { colors } from "@/config/theme";
 import AdCampaignStepOne from "@/components/ArtiBot/RIghtPane/AdCampaignFlow/AdCampaignStepOne";
 import ResizeAble from "@/components/shared/renderers/ResizeAble";
 import { sortBy } from "lodash";
+import { useGetConversation } from "@/api/conversation";
+import { CurrentConversationContextProvider } from "@/context/CurrentConversationContext";
 
 interface RightPaneProps {
   adCreative: IAdCreativeWithVariants;
@@ -44,8 +46,6 @@ const RightPane: FC<RightPaneProps> = ({
     adCreative.variants[0]
   );
 
-  console.log("activeVariant - ", activeVariant, adCreative.variants);
-
   const [docUrl, setDocUrl] = useState<string | null>(null);
   const [width, setWidth] = useState(MIN_WIDTH);
   const {
@@ -58,6 +58,7 @@ const RightPane: FC<RightPaneProps> = ({
   const prevVariantListRef = useRef("");
   const intervalIdRef = useRef<any>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const { data: conversation } = useGetConversation(adCreative.conversationId);
 
   useEffect(() => {
     if (!mock.is) return;
@@ -223,7 +224,9 @@ const RightPane: FC<RightPaneProps> = ({
         (mock.isMobile ? " w-full" : "")
       }
     >
-      {content}
+      <CurrentConversationContextProvider conversation={conversation}>
+        {content}
+      </CurrentConversationContextProvider>
     </ResizeAble>
   );
 

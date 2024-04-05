@@ -3,6 +3,7 @@ import { colors } from "@/config/theme";
 import { useClientMessages } from "@/context/ClientMessageContext";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import { ChatGPTRole } from "@/interfaces/IArtiBot";
+import ObjectID from "bson-objectid";
 import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -34,7 +35,13 @@ export default function ArtiBotTextArea(props: ArtiBotTextAreaProps) {
     if (inputValue.trim() === "") return;
     setInputValue("");
     sendMessage({
-      messages: [{ content: inputValue, role: ChatGPTRole.USER }],
+      messages: [
+        {
+          id: ObjectID().toHexString(),
+          content: inputValue,
+          role: ChatGPTRole.USER,
+        },
+      ],
       conversationId: conversation.id,
       conversationType: conversation.conversation_type,
       projectName: conversation.project_name,

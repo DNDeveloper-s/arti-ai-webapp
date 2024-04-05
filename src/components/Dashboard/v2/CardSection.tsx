@@ -34,6 +34,8 @@ import { SnackbarContext } from "@/context/SnackbarContext";
 import { useGetConversationInfinite } from "@/api/conversation";
 import ConversationSection from "./ConversationSection";
 import AdCreativeSection from "./AdCreativeSection";
+import { useGetUserProviders } from "@/api/user";
+import { useUser } from "@/context/UserContext";
 
 enum EmptySectionType {
   CONVERSATION = "conversation",
@@ -150,6 +152,15 @@ export default function CardSection() {
   const token = useSessionToken();
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
   const { data, ...props } = useGetConversationInfinite();
+
+  const { data: accounts } = useGetUserProviders();
+  const { setAccounts } = useUser();
+
+  useEffect(() => {
+    if (accounts) {
+      setAccounts(accounts);
+    }
+  }, [setAccounts, accounts]);
 
   useEffect(() => {
     if (state.error && state.error.message) {

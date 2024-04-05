@@ -22,6 +22,7 @@ import { useCurrentConversation } from "./CurrentConversationContext";
 import { ChatGPTRole } from "@/interfaces/IArtiBot";
 import { sortBy } from "lodash";
 import { message } from "antd";
+import ObjectID from "bson-objectid";
 
 interface ClientMessage {
   id: string;
@@ -210,7 +211,7 @@ const useClientMessageContext = (initState: IClientMessageState) => {
       type: CLIENT_MESSAGE_ACTION_TYPE.SET_MESSAGE_DATA,
       payload: {
         message: {
-          id: Date.now().toString(),
+          id: variables.messages[0].id,
           content: variables.messages[0].content,
           role: variables.messages[0].role,
           done: true,

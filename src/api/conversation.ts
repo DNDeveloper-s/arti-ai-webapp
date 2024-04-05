@@ -23,6 +23,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import axios from "axios";
+import ObjectID from "bson-objectid";
 import { compact } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 
@@ -157,11 +158,11 @@ export const useGetMessages = (
       }
     );
 
-    const queryState = qc.getQueryState(
-      API_QUERIES.GET_MESSAGES(conversationId)
-    );
+    // const queryState = qc.getQueryState(
+    //   API_QUERIES.GET_MESSAGES(conversationId)
+    // );
 
-    queryState?.isInvalidated && archiveByConversationId(conversationId);
+    // queryState?.isInvalidated && archiveByConversationId(conversationId);
 
     return response.data.data;
   };
@@ -250,7 +251,7 @@ function handleSSEEvent(rawData?: string): FormattedEventResponse {
   };
 }
 
-function handleJSONData(parsedData: FormattedEventResponse) {
+function handleJSONData(id: string, parsedData: FormattedEventResponse) {
   if (!parsedData.data) return {};
   const content = parsedData.data.content;
   if (!content) {
@@ -270,6 +271,7 @@ function handleJSONData(parsedData: FormattedEventResponse) {
 
     const messageItem = {
       ...parsedData.data,
+      id,
       content: textContent,
       adCreatives: [JSON.parse(jsonObjectInString)],
       json: jsonObjectInString,
@@ -278,7 +280,7 @@ function handleJSONData(parsedData: FormattedEventResponse) {
 
     return { data: messageItem };
   } catch (e) {
-    return parsedData;
+    return parsedData; // 660fdf33a909bb0dc7a23af2
   }
 }
 
@@ -306,7 +308,7 @@ export interface SendMessageVariables {
   conversationId: string;
   conversationType: ConversationType;
   projectName: string;
-  messages: { content: string; role: ChatGPTRole }[];
+  messages: { id: string; content: string; role: ChatGPTRole }[];
 }
 
 export const useSendMessage = (options?: UseSendMessageOptions) => {
@@ -333,6 +335,7 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
       messages: [
         variables.messages[0],
         {
+          id: data.data.id,
           content: data.data.content,
           role: ChatGPTRole.ASSISTANT,
         },
@@ -353,6 +356,7 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
       messages: [
         variables.messages[0],
         {
+          id: data.data.id,
           content: data.data.content,
           role: ChatGPTRole.ASSISTANT,
         },
@@ -403,7 +407,7 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
             setData(parsedData);
             postSaveTextMessage(variables, parsedData);
           } else {
-            const dataToSet = handleJSONData(parsedData);
+            const dataToSet = handleJSONData(parsedData.data?.id, parsedData);
             dataToSet && setData(dataToSet);
             dataToSet && postSaveJSONMessage(variables, dataToSet);
           }
@@ -440,7 +444,7 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
 };
 
 interface SaveMessageVariables {
-  messages: { content: string; role: ChatGPTRole }[];
+  messages: { id: string; content: string; role: ChatGPTRole }[];
   conversationId: string;
   conversationType: ConversationType;
   projectName: InfiniteConversation["project_name"];
@@ -501,6 +505,35 @@ export const useSaveAdCreativeMessages = () => {
       });
       queryClient.invalidateQueries({
         queryKey: API_QUERIES.GET_CONVERSATION(variables.conversationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS,
+      });
+    },
+  });
+};
+
+export const useGetAdJson = () => {
+  const queryClient = useQueryClient();
+
+  const getAdJson = async (conversationId: string) => {
+    const response = await axios.get(ROUTES.MESSAGE.GET_AD_JSON, {
+      params: {
+        conversation_id: conversationId,
+      },
+    });
+
+    return response.data;
+  };
+
+  return useMutation({
+    mutationFn: getAdJson,
+    onSettled: (data, error, conversationId) => {
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_MESSAGES(conversationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_CONVERSATION(conversationId),
       });
       queryClient.invalidateQueries({
         queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS,
