@@ -41,7 +41,10 @@ import {
 } from "@/constants/servicesData";
 import { carouselImage3 } from "@/assets/images/carousel-images";
 import { AiOutlineCaretDown } from "react-icons/ai";
-import CanvasJSReact from "@canvasjs/react-charts";
+import dynamic from "next/dynamic";
+const CanvasJSChart = dynamic(() =>
+  import("@canvasjs/react-charts").then((mod) => mod.CanvasJSChart)
+);
 import CTAButton from "@/components/CTAButton";
 import AppLoader from "@/components/AppLoader";
 import Loader from "@/components/Loader";
@@ -54,9 +57,6 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import MarkdownRenderer from "../ArtiBot/MarkdownRenderer";
-
-const CanvasJS = CanvasJSReact.CanvasJS;
-const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 const options = {
   theme: "dark1",
