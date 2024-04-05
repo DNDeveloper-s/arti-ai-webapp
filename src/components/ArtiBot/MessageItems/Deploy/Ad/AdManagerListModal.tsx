@@ -148,7 +148,7 @@ export default function AdManagerListModal(props: AdManagerListModalProps) {
       isDismissable={false}
       isKeyboardDismissDisabled={true}
       classNames={{
-        wrapper: "bg-black bg-opacity-50 z-20",
+        wrapper: "bg-black bg-opacity-50",
         base: selectedAccountId
           ? "!max-w-[900px] !w-[90vw]"
           : "!max-w-[400px] !w-[90vw]",

@@ -402,7 +402,7 @@ export default function CreateAd() {
     const list =
       conditionalData[campaignObjective as keyof typeof conditionalData]
         ?.conversionLocations;
-    if (list.length > 0) {
+    if (list?.length > 0) {
       return list;
     }
     setConversionLocationValue(null);
