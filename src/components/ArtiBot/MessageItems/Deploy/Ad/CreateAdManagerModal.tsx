@@ -27,6 +27,9 @@ export default function CreateAdManagerModal() {
       onClose={handleClose}
       isDismissable={false}
       isOpen={formState.open}
+      portalContainer={
+        document.getElementById("contextmenuportal") as HTMLElement
+      }
       classNames={{
         base:
           formState.tab !== CampaignTab.CAMPAIGNS

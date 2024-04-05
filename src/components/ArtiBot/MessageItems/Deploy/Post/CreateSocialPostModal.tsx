@@ -214,7 +214,7 @@ export default function CreateSocialPostModal(
       isDismissable={true}
       isKeyboardDismissDisabled={true}
       classNames={{
-        wrapper: "bg-black bg-opacity-50 z-20",
+        wrapper: "bg-black bg-opacity-50",
         base: "max-w-[800px] w-auto",
       }}
     >
