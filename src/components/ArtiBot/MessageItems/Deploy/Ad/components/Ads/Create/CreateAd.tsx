@@ -373,9 +373,9 @@ export default function CreateAd() {
     adVariantsByConversationId[conversationId as string].list;
   const adCreatives = sortBy(unSortedAdCreatives, "updatedAt").reverse();
 
-  const [conversionLocationValue, setConversionLocationValue] = useState<
-    string | null
-  >(null);
+  // const [conversionLocationValue, setConversionLocationValue] = useState<
+  //   string | null
+  // >(null);
 
   const selectedVariant = useMemo(() => {
     return unSortedAdCreatives
@@ -394,25 +394,11 @@ export default function CreateAd() {
     if (selectedVariant?.text) setValue("primaryText", selectedVariant?.text);
   }, [selectedVariant, setValue]);
 
-  const campaignObjective = useMemo(() => {
-    return campaigns?.find((c) => c.id === campaignValue)?.objective;
-  }, [campaignValue, campaigns]);
-
-  const conversionLocationList = useMemo(() => {
-    const list =
-      conditionalData[campaignObjective as keyof typeof conditionalData]
-        ?.conversionLocations;
-    if (list?.length > 0) {
-      return list;
-    }
-    setConversionLocationValue(null);
-    return [];
-  }, [campaignObjective]);
-
   // TODO: Fetch the adset conversion location
-  // const adsetConversionLocation = useMemo(() => {
-  // return adsets?.find((adset) => adset.id === adsetValue)?.conversionLocation;
-  // }, [adsetValue, adsets]);
+  const conversionLocationValue = useMemo(() => {
+    return null;
+    // return adsets?.find((adset) => adset.id === adsetValue)?.conversionLocation;
+  }, []);
 
   async function handleCreateAd(data: CreateAdFormValues) {
     if (!selectedVariant?.imageUrl && storeFormState.mode === "create")
@@ -594,6 +580,85 @@ export default function CreateAd() {
               )}
             </Autocomplete>
             <Divider className="my-2" />
+
+            <Autocomplete
+              inputProps={{
+                classNames: {
+                  input: "!text-white",
+                  label: "!text-gray-500",
+                },
+              }}
+              label="Ad Variant"
+              placeholder={"Select Ad Variant"}
+              onSelectionChange={(key: Key) => {
+                setSelectedVariantId(key as string);
+              }}
+              isRequired={false}
+              // disabledKeys={[""]}
+              allowsEmptyCollection
+              formNoValidate={true}
+              selectedKey={selectedVariantId}
+              startContent={
+                selectedVariant ? (
+                  <div className="w-5 h-5 rounded flex-shrink-0 overflow-hidden">
+                    <Image
+                      className="w-full h-full object-cover"
+                      src={selectedVariant.imageUrl}
+                      width={30}
+                      height={30}
+                      alt={"Ad Variant"}
+                    />
+                  </div>
+                ) : null
+              }
+            >
+              {["", ...variants].map((variant) =>
+                typeof variant === "string" ? (
+                  <AutocompleteItem
+                    key={variant}
+                    textValue={variant}
+                    classNames={{
+                      base: "hidden",
+                    }}
+                  ></AutocompleteItem>
+                ) : (
+                  <AutocompleteItem
+                    key={variant.id}
+                    textValue={variant.oneLiner}
+                  >
+                    <>
+                      <div className="w-full flex justify-between gap-2">
+                        <div className="flex gap-2">
+                          <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
+                            <Image
+                              className="w-full h-full object-cover hover:object-contain"
+                              width={200}
+                              height={200}
+                              src={variant.imageUrl}
+                              alt="Profile Image"
+                              onError={() => {
+                                setErroredAdVariants((c) => [...c, variant]);
+                              }}
+                            />
+                          </div>
+                          <span className="text-small max-w-[170px]">
+                            {variant.oneLiner}
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          {/* <span className="text-tiny text-default-500">
+                              Facebook
+                            </span> */}
+                          <Chip color="success" size="sm" variant="flat">
+                            New
+                          </Chip>
+                        </div>
+                      </div>
+                    </>
+                  </AutocompleteItem>
+                )
+              )}
+            </Autocomplete>
             <Input
               classNames={{
                 label: "!text-gray-500",
@@ -650,37 +715,48 @@ export default function CreateAd() {
               </AutocompleteItem>
             ))}
           </Autocomplete>
-          {conversionLocationList && conversionLocationList.length > 0 && (
-            <Autocomplete
-              inputProps={{
-                classNames: {
-                  input: "!text-white",
-                  label: "!text-gray-500",
-                },
-              }}
-              label="Covnersion Location"
-              placeholder={"Select Conversation Location"}
-              onSelectionChange={(key: Key) => {
-                if (key === "MESSAGING_APPS") {
-                  setValue("callToAction", "SEND_MESSAGE");
-                }
-                setConversionLocationValue(key as string);
-              }}
-              selectedKey={conversionLocationValue}
-            >
-              {conversionLocationList.map((conversationLocation) => (
-                <AutocompleteItem
-                  key={conversationLocation.uid}
-                  textValue={conversationLocation.name}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {conversationLocation.name}
-                  </div>
-                </AutocompleteItem>
-              ))}
-            </Autocomplete>
-          )}
+        </div>
+        <div className="w-full flex justify-start gap-2 text-small items-center">
+          <Switch
+            defaultSelected
+            classNames={{
+              // wrapper: "flex w-full justify-between items-center gap-3",
+              label: "!text-gray-300 !text-small",
+            }}
+            color="primary"
+            size="sm"
+            onValueChange={(value) => {
+              setValue("status", value ? "ACTIVE" : "PAUSED");
+            }}
+            isSelected={statusValue === "ACTIVE"}
+          >
+            Active
+          </Switch>
+        </div>
+
+        <Button isLoading={isPending} type="submit" color="primary">
+          <span>{getSubmitText(storeFormState, isPending, "Ad")}</span>
+        </Button>
+      </div>
+
+      <div className="flex flex-col gap-4 flex-1 space-between">
+        <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+          <div className="flex justify-center">
+            {previewData ? (
+              <FacebookAdPreview
+                text={previewData.text}
+                image={previewData.image}
+                brandLabel={selectedPage?.name}
+                brandLogo={selectedPage?.picture}
+              />
+            ) : (
+              <div className="w-[300px] h-[400px] rounded-lg bg-gray-800 flex items-center justify-center text-lg text-gray-600">
+                <p>Select Ad variant to preview</p>
+              </div>
+            )}
+          </div>
+          {/* <AdPreview3 brand={brands["amplified"]} /> */}
+          <Divider className="my-2" />
           {conversionLocationValue === "WEBSITE" && (
             <Input
               classNames={{
@@ -728,12 +804,14 @@ export default function CreateAd() {
               label="Instant Form"
               placeholder={"Select Form"}
               isDisabled={immutableFields["campaign_id"]}
+              disabledKeys={["create_form"]}
               // onSelectionChange={(key: Key) => {
               //   setValue("callToAction", key as string);
               // }}
               // selectedKey={callToActionValue}
               // errorMessage={formState.errors.callToAction?.message}
             >
+              {/* @ts-ignore */}
               {INSTANT_FORM.map((cta) => (
                 <AutocompleteItem key={cta.uid} textValue={cta.name}>
                   <div className="flex items-center gap-3">
@@ -742,125 +820,22 @@ export default function CreateAd() {
                   </div>
                 </AutocompleteItem>
               ))}
+
+              {/* @ts-ignore */}
+              <AutocompleteItem
+                style={{ pointerEvents: "all", cursor: "default !important" }}
+                key={"create_form"}
+                textValue={"create_form"}
+              >
+                <div className="flex cursor-pointer items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <Button color="primary" className="w-full">
+                    Create Form
+                  </Button>
+                </div>
+              </AutocompleteItem>
             </Autocomplete>
           )}
-        </div>
-        <div className="w-full flex justify-start gap-2 text-small items-center">
-          <Switch
-            defaultSelected
-            classNames={{
-              // wrapper: "flex w-full justify-between items-center gap-3",
-              label: "!text-gray-300 !text-small",
-            }}
-            color="primary"
-            size="sm"
-            onValueChange={(value) => {
-              setValue("status", value ? "ACTIVE" : "PAUSED");
-            }}
-            isSelected={statusValue === "ACTIVE"}
-          >
-            Active
-          </Switch>
-        </div>
-
-        <Button isLoading={isPending} type="submit" color="primary">
-          <span>{getSubmitText(storeFormState, isPending, "Ad")}</span>
-        </Button>
-      </div>
-
-      <div className="flex flex-col gap-4 flex-1 space-between">
-        <div className="flex flex-col gap-4 flex-1 overflow-hidden">
-          <div className="flex justify-center">
-            {previewData ? (
-              <FacebookAdPreview
-                text={previewData.text}
-                image={previewData.image}
-                brandLabel={selectedPage?.name}
-                brandLogo={selectedPage?.picture}
-              />
-            ) : (
-              <div className="w-[300px] h-[400px] rounded-lg bg-gray-800 flex items-center justify-center text-lg text-gray-600">
-                <p>Select Ad variant to preview</p>
-              </div>
-            )}
-          </div>
-          {/* <AdPreview3 brand={brands["amplified"]} /> */}
-          <Divider className="my-2" />
-          <Autocomplete
-            inputProps={{
-              classNames: {
-                input: "!text-white",
-                label: "!text-gray-500",
-              },
-            }}
-            label="Ad Variant"
-            placeholder={"Select Ad Variant"}
-            onSelectionChange={(key: Key) => {
-              setSelectedVariantId(key as string);
-            }}
-            isRequired={false}
-            // disabledKeys={[""]}
-            allowsEmptyCollection
-            formNoValidate={true}
-            selectedKey={selectedVariantId}
-            startContent={
-              selectedVariant ? (
-                <div className="w-5 h-5 rounded flex-shrink-0 overflow-hidden">
-                  <Image
-                    className="w-full h-full object-cover"
-                    src={selectedVariant.imageUrl}
-                    width={30}
-                    height={30}
-                    alt={"Ad Variant"}
-                  />
-                </div>
-              ) : null
-            }
-          >
-            {["", ...variants].map((variant) =>
-              typeof variant === "string" ? (
-                <AutocompleteItem
-                  key={variant}
-                  textValue={variant}
-                  classNames={{
-                    base: "hidden",
-                  }}
-                ></AutocompleteItem>
-              ) : (
-                <AutocompleteItem key={variant.id} textValue={variant.oneLiner}>
-                  <>
-                    <div className="w-full flex justify-between gap-2">
-                      <div className="flex gap-2">
-                        <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                          <Image
-                            className="w-full h-full object-cover hover:object-contain"
-                            width={200}
-                            height={200}
-                            src={variant.imageUrl}
-                            alt="Profile Image"
-                            onError={() => {
-                              setErroredAdVariants((c) => [...c, variant]);
-                            }}
-                          />
-                        </div>
-                        <span className="text-small max-w-[170px]">
-                          {variant.oneLiner}
-                        </span>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        {/* <span className="text-tiny text-default-500">
-                              Facebook
-                            </span> */}
-                        <Chip color="success" size="sm" variant="flat">
-                          New
-                        </Chip>
-                      </div>
-                    </div>
-                  </>
-                </AutocompleteItem>
-              )
-            )}
-          </Autocomplete>
           <Autocomplete
             inputProps={{
               classNames: {
@@ -877,25 +852,26 @@ export default function CreateAd() {
             selectedKey={pageIdValue}
             errorMessage={formState.errors.page_id?.message}
           >
-            {facebookPages && facebookPages.length > 0 ? (
-              facebookPages.map((page) => (
-                <AutocompleteItem key={page.id} textValue={page.name}>
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={page.picture} className="w-6 h-6" alt="Page" />
-                    {page.name}
-                  </div>
+            <>
+              {facebookPages && facebookPages.length > 0 ? (
+                facebookPages.map((page) => (
+                  <AutocompleteItem key={page.id} textValue={page.name}>
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={page.picture} className="w-6 h-6" alt="Page" />
+                      {page.name}
+                    </div>
+                  </AutocompleteItem>
+                ))
+              ) : (
+                <AutocompleteItem key={"no-page-found"} isReadOnly>
+                  No pages found
                 </AutocompleteItem>
-              ))
-            ) : (
+              )}
               <AutocompleteItem key={"no-page-found"} isReadOnly>
-                No pages found
+                Create Form
               </AutocompleteItem>
-            )}
-
-            {/* <AutocompleteItem key={"billingEvent.uid"} textValue={"Nice one"}>
-                
-              </AutocompleteItem> */}
+            </>
           </Autocomplete>
         </div>
       </div>

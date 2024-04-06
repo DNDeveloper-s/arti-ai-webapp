@@ -26,6 +26,9 @@ import ResizeAble from "@/components/shared/renderers/ResizeAble";
 import { sortBy } from "lodash";
 import { useGetConversation } from "@/api/conversation";
 import { CurrentConversationContextProvider } from "@/context/CurrentConversationContext";
+import Conversation from "@/components/Conversation";
+import { ConversationType } from "@/interfaces/IConversation";
+import CreateAdManagerModal from "../../MessageItems/Deploy/Ad/CreateAdManagerModal";
 
 interface RightPaneProps {
   adCreative: IAdCreativeWithVariants;
@@ -152,7 +155,11 @@ const RightPane: FC<RightPaneProps> = ({
       ) : (
         <>
           <div className="px-4 w-full py-1 mt-3 flex justify-between items-center">
-            <h2 className="text-xl font-medium font-diatype">Ad Creatives</h2>
+            <h2 className="text-xl font-medium font-diatype">
+              {conversation?.conversation_type === ConversationType.AD_CREATIVE
+                ? "Ad Creatives"
+                : "Social Media Post"}
+            </h2>
             {mock.is && (
               <motion.div
                 key={activeVariant.id}
@@ -225,7 +232,10 @@ const RightPane: FC<RightPaneProps> = ({
       }
     >
       <CurrentConversationContextProvider conversation={conversation}>
-        {content}
+        <>
+          {content}
+          <CreateAdManagerModal />
+        </>
       </CurrentConversationContextProvider>
     </ResizeAble>
   );

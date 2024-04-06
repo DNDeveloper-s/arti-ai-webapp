@@ -303,6 +303,7 @@ type CreateAdsetFormValues = Omit<
   min_age: string;
   max_age: string;
   gender: string;
+  conversion_location: string;
 };
 
 const validationSchema = object({
@@ -312,6 +313,7 @@ const validationSchema = object({
   optimization_goal: string().required("Optimization Goal is required"),
   // bid_strategy: string().required("Bid Strategy is required"),
   // bid_amount: number(),
+  conversion_location: string(),
   min_age: string(),
   max_age: string(),
   gender: string(),
@@ -375,6 +377,7 @@ export default function CreateAdset() {
   const minAgeValue = watch("min_age");
   const maxAgeValue = watch("max_age");
   const genderValue = watch("gender");
+  const conversionLocationValue = watch("conversion_location");
 
   const immutableFields = useMemo(() => {
     if (storeFormState.mode !== "edit") return {};
@@ -474,8 +477,6 @@ export default function CreateAdset() {
       ? postUpdateAdset({ adset, adsetId: storeFormState.rawData.id })
       : postCreateAdset({ adset });
   }
-
-  console.log("selected.campaigns - ", selected.campaigns);
 
   useEffect(() => {
     if (storeFormState.mode === "edit" && storeFormState.open === true) {
@@ -818,6 +819,35 @@ export default function CreateAdset() {
             </AutocompleteItem>
           ))}
         </Autocomplete>
+        {conversionLocationList && conversionLocationList.length > 0 && (
+          <Autocomplete
+            inputProps={{
+              classNames: {
+                input: "!text-white",
+                label: "!text-gray-500",
+              },
+            }}
+            label="Conversion Location"
+            placeholder={"Select Conversion Location"}
+            onSelectionChange={(key: Key) => {
+              setValue("conversion_location", key as string);
+            }}
+            selectedKey={conversionLocationValue}
+            errorMessage={formState.errors.conversion_location?.message}
+          >
+            {conversionLocationList.map((conversationLocation) => (
+              <AutocompleteItem
+                key={conversationLocation.uid}
+                textValue={conversationLocation.name}
+              >
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {conversationLocation.name}
+                </div>
+              </AutocompleteItem>
+            ))}
+          </Autocomplete>
+        )}
       </div>
       <div className="flex flex-col gap-4 flex-1 space-between">
         <div className="flex flex-col gap-4 flex-1">

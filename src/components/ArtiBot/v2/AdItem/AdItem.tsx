@@ -8,6 +8,10 @@ import {
   ConversationAdVariantWithPostInsights,
 } from "../../MessageItems/AdItem";
 import ClientAdVariant from "../ClientState/ClientAdVariant";
+import { DeployAdInsightsCard } from "../../MessageItems/DeployAdInsightsCard";
+import useInView from "@/hooks/useInView";
+import { useConversation } from "@/context/ConversationContext";
+import { useGetAdSet } from "@/api/user";
 
 interface AdItemPropsWithClient {
   messageItem: ClientMessageItem;
@@ -28,26 +32,16 @@ export default function AdItem({
   variantFontSize,
   isClient,
 }: AdItemProps) {
+  const { state } = useConversation();
   // const json = messageItem.json && JSON.parse(messageItem.json) as AdJSONInput;
   const adCreative = messageItem.adCreatives && messageItem.adCreatives[0];
-  const containerRef = useRef<HTMLDivElement>(null);
   const { conversation } = useCurrentConversation();
-
-  // TODO: Refactor to CurrentConversationContext
-  //   const { state, getConversationById } = useConversations();
-  //   const searchParams = useSearchParams();
-  //   const conversationId = searchParams.get("conversation_id");
-  //   const currentConversation = useMemo(() => {
-  //     if (!conversationId) return null;
-  //     return getConversationById(conversationId);
-  //   }, [conversationId, getConversationById]);
-
-  //   const isInView = useInView(containerRef, { timeInView: 1000 });
-  //   const adset = state.adset.findOneBy("adCreativeId", adCreative.id ?? "");
-  //   const { data, isLoading, isSuccess } = useGetAdSet({
-  //     adsetId: adset?.adsetId,
-  //     enabled: isInView,
-  //   });
+  const { ref: containerRef, isInView } = useInView({ timeInView: 1000 });
+  const adset = state.adset.findOneBy("adCreativeId", adCreative?.id ?? "");
+  const { data, isLoading, isSuccess } = useGetAdSet({
+    adsetId: adset?.adsetId,
+    enabled: isInView,
+  });
 
   //   if (!adCreative || !currentConversation) return null;
   if (!adCreative || !conversation) return null;
@@ -120,7 +114,7 @@ export default function AdItem({
           </>
         )}
       </div>
-      {/* <DeployAdInsightsCard isFetching={isLoading} adset={data} /> */}
+      <DeployAdInsightsCard isFetching={isLoading} adset={data} />
     </div>
   );
 }

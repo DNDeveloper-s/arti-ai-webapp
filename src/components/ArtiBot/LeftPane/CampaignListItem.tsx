@@ -1,50 +1,136 @@
-import { IAdCreative } from '@/interfaces/IAdCreative';
-import React, {FC, useEffect, useState} from 'react';
-import Link from 'next/link';
-import {getConversationURL} from '@/helpers';
-import {ConversationType} from '@/interfaces/IConversation';
-import {useParams} from 'next/navigation';
-import useAdCreatives from '@/hooks/useAdCreatives';
-import {CardStackImages, ImageType} from '@/components/ArtiBot/LeftPane/ConversationListItem';
+import { IAdCreative } from "@/interfaces/IAdCreative";
+import React, { FC, useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  CardStackImages,
+  ImageType,
+} from "@/components/ArtiBot/LeftPane/ConversationListItem";
+import { UserCampaign, useGetCampaignInsights } from "@/api/conversation";
+import useInView from "@/hooks/useInView";
+import { IFacebookAdInsight } from "@/interfaces/ISocial";
+
+export const CampaignInsightShimmer = () => {
+  return (
+    <div className="grid grid-cols-[2fr_3fr_3fr] gap-3">
+      <div className="flex gap-1 flex-shrink-0 flex-col">
+        <span className="font-bold app-shimmer rounded text-base">64</span>
+        <p className="text-[10px] app-shimmer rounded leading-[15px] max-w-[60px] text-gray-400 whitespace-pre-wrap">
+          Leads
+        </p>
+      </div>
+      <div className="flex gap-1 flex-shrink-0 flex-col">
+        <span className="font-bold app-shimmer rounded text-base">$10.83</span>
+        <p className="text-[10px] app-shimmer rounded leading-[15px] max-w-[60px] text-gray-400 whitespace-pre-wrap">
+          Lead Cost
+        </p>
+      </div>
+      <div className="flex gap-1 flex-shrink-0 flex-col">
+        <span className="font-bold app-shimmer rounded text-base">$693.06</span>
+        <p className="text-[10px] app-shimmer rounded leading-[15px] max-w-[60px] text-gray-400 whitespace-pre-wrap">
+          Spent
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export const CampaignListItemShimmer = () => {
+  return (
+    <div
+      className={
+        "flex flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
+      }
+    >
+      <div className="flex gap-4 items-start ">
+        <CardStackImages images={[]} />
+        <span className={"app-shimmer rounded truncate"}>My one Campaign</span>
+      </div>
+      <CampaignInsightShimmer />
+    </div>
+  );
+};
+
+function extractFromInsights(insight: IFacebookAdInsight) {
+  if (!insight) return null;
+  return {
+    impressions: insight.impressions,
+    leads: insight.actions.find((a) => a.action_type === "lead")?.value || 0,
+    reach: insight.reach,
+    spent: insight.spend,
+  };
+}
 
 interface CampaignListItemProps {
-    conversationId: string;
+  campaign: UserCampaign;
 }
 
-const CampaignListItem: FC<CampaignListItemProps> = ({conversationId}) => {
-    const params = useParams();
-    const {getLastAdCreativeByConversationId} = useAdCreatives();
-    const [images, setImages] = useState<ImageType[]>([]);
-    const isActive = params.conversation_id === conversationId;
+const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
+  const [images, setImages] = useState<ImageType[]>([]);
+  const { ref, isInView } = useInView();
+  const { data: campaignWithInsights, isLoading } = useGetCampaignInsights(
+    campaign.campaignId,
+    isInView
+  );
 
-    useEffect(() => {
-        const list = getLastAdCreativeByConversationId(conversationId);
-        const variantImages = list.variants.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map(v => v.imageUrl);
-        setImages(variantImages);
-    }, [getLastAdCreativeByConversationId, conversationId]);
+  const insights = campaignWithInsights?.insights?.data || [];
+  const latestInsight = insights[0];
+  const extractedInsight = extractFromInsights(latestInsight);
 
-    return (
-      <Link href={getConversationURL(conversationId, ConversationType.AD_CREATIVE) + '?ad_creative=expand'} key={conversationId} className={'flex flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6'}>
-          <div className="flex gap-4 items-start ">
-            <CardStackImages images={images} />
-            <span className={'truncate'}>{getLastAdCreativeByConversationId(conversationId)?.adObjective}</span>
+  const waitingForInsights = isLoading;
+  const noInsights = !waitingForInsights && !extractedInsight;
+  const hasInsights = !waitingForInsights && !!extractedInsight;
+
+  return (
+    <Link
+      ref={ref}
+      href={"#"}
+      key={campaign.id}
+      className={
+        "flex flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
+      }
+    >
+      <div className="flex gap-4 items-start ">
+        <CardStackImages images={images} />
+        <div>
+          <span className={"truncate"}>{campaign.name}</span>
+          {noInsights && (
+            <div className="flex gap-1 flex-shrink-0 flex-col">
+              <span className="font-bold text-base">No Insights</span>
+            </div>
+          )}
+        </div>
+      </div>
+      {waitingForInsights && <CampaignInsightShimmer />}
+      {hasInsights && (
+        <div className="grid grid-cols-[2fr_3fr_3fr] gap-3">
+          <div className="flex gap-1 flex-shrink-0 flex-col">
+            <span className="font-bold text-base">
+              {extractedInsight.impressions}
+            </span>
+            <p className="text-[10px] leading-[15px] max-w-[60px] text-gray-400 whitespace-pre-wrap">
+              Impressions
+            </p>
           </div>
-          <div className='grid grid-cols-[2fr_3fr_3fr] gap-3'>
-            <div className='flex gap-1 flex-shrink-0 flex-col'>
-                <span className='font-bold text-base'>64</span>
-                <p className='text-[10px] leading-[15px] max-w-[60px] text-gray-400 whitespace-pre-wrap'>Website Contacts</p>
-            </div>
-            <div className='flex gap-1 flex-shrink-0 flex-col'>
-                <span className='font-bold text-base'>$10.83</span>
-                <p className='text-[10px] leading-[15px] max-w-[60px] text-gray-400 whitespace-pre-wrap'>Cost per Website Contact</p>
-            </div>
-            <div className='flex gap-1 flex-shrink-0 flex-col'>
-                <span className='font-bold text-base'>$693.06</span>
-                <p className='text-[10px] leading-[15px] max-w-[60px] text-gray-400 whitespace-pre-wrap'>Spent</p>
-            </div>
+          <div className="flex gap-1 flex-shrink-0 flex-col">
+            <span className="font-bold text-base">
+              {extractedInsight.leads}
+            </span>
+            <p className="text-[10px] leading-[15px] max-w-[60px] text-gray-400 whitespace-pre-wrap">
+              Leads
+            </p>
           </div>
-      </Link>
-    )
-}
+          <div className="flex gap-1 flex-shrink-0 flex-col">
+            <span className="font-bold text-base">
+              ${extractedInsight.spent}
+            </span>
+            <p className="text-[10px] leading-[15px] max-w-[60px] text-gray-400 whitespace-pre-wrap">
+              Spent
+            </p>
+          </div>
+        </div>
+      )}
+    </Link>
+  );
+};
 
 export default CampaignListItem;

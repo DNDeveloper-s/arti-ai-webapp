@@ -5,8 +5,8 @@ export const apiConfig = {
   // process.env.NODE_ENV === "production"
   // ? "https://api.artiai.org"
   // : "http://localhost:8081",
-  baseUrl: "https://api.artiai.org",
-  // baseUrl: "http://localhost:8081",
+  // baseUrl: "https://api.artiai.org",
+  baseUrl: "http://localhost:8081",
   version: "/v1",
 };
 
@@ -100,6 +100,8 @@ export const ROUTES = {
     CAMPAIGNS: apiUrl("/marketing/campaigns"),
     CAMPAIGN: (campaignId: string) =>
       apiUrl(`/marketing/campaigns/${campaignId}`),
+    GET_CAMPAIGN: (campaignId: string) =>
+      apiUrl(`/marketing/campaigns/${campaignId}`),
     ADSETS: apiUrl("/marketing/adsets"),
     ADSET: (adsetId: string) => apiUrl(`/marketing/adsets/${adsetId}`),
     ADCREATIVES: apiUrl("/marketing/adcreatives"),
@@ -122,6 +124,7 @@ export const ROUTES = {
     ME: apiUrl("/users/me"),
     UPDATE_ME: apiUrl(`/users/me/settings`),
     ACCOUNTS: apiUrl(`/users/me/accounts`),
+    CAMPAIGNS: apiUrl(`/users/me/campaigns`),
     LINK_ACCOUNT: apiUrl(`/users/link-account`),
     VALIDATE_FACEBOOK_ACCESS_TOKEN: apiUrl(
       `/tokens/validate/facebook-access-token`

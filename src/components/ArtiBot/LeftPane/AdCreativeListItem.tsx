@@ -1,4 +1,4 @@
-import { IAdCreative } from "@/interfaces/IAdCreative";
+import { IAdCreative, IAdCreativeNew } from "@/interfaces/IAdCreative";
 import React, { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import { getConversationURL } from "@/helpers";
@@ -9,29 +9,28 @@ import {
   CardStackImages,
   ImageType,
 } from "@/components/ArtiBot/LeftPane/ConversationListItem";
+import { IAdVariant } from "@/interfaces/IArtiBot";
+import { sortBy } from "lodash";
 
 interface AdCreativeListItemProps {
   conversationId: string;
+  variants: IAdVariant[];
+  adCreative: IAdCreativeNew;
 }
 
 const AdCreativeListItem: FC<AdCreativeListItemProps> = ({
   conversationId,
+  variants,
+  adCreative,
 }) => {
   const params = useParams();
-  const { getLastAdCreativeByConversationId } = useAdCreatives();
   const [images, setImages] = useState<ImageType[]>([]);
   const isActive = params.conversation_id === conversationId;
 
   useEffect(() => {
-    const list = getLastAdCreativeByConversationId(conversationId);
-    const variantImages = list.variants
-      .sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      )
-      .map((v) => v.imageUrl);
+    const variantImages = sortBy(variants, "updatedAt").map((v) => v.imageUrl);
     setImages(variantImages);
-  }, [getLastAdCreativeByConversationId, conversationId]);
+  }, [variants]);
 
   return (
     <Link
@@ -47,7 +46,7 @@ const AdCreativeListItem: FC<AdCreativeListItemProps> = ({
     >
       <CardStackImages images={images} />
       <span className={isActive ? "text-white" : " truncate"}>
-        {getLastAdCreativeByConversationId(conversationId)?.adObjective}
+        {adCreative.adObjective}
       </span>
     </Link>
   );

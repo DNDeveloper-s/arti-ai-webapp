@@ -381,8 +381,6 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({
 
       const endAt = new Date().getTime();
 
-      console.log("Time taken for Metric: ", endAt - startedAt, "ms");
-
       return await demo();
     }
 
@@ -416,7 +414,6 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({
 
       const endAt = new Date().getTime();
 
-      console.log("Time take for Chat: ", endAt - startedAt, "ms");
       return await demo();
     }
 
@@ -446,8 +443,6 @@ const Legacy_ArtiChatDemo: FC<ArtiChatDemoProps> = ({
     timeoutIds.current.forEach(clearTimeout);
 
     const endAt = new Date().getTime();
-
-    console.log("Time taken for AdCreative: ", endAt - startedAt, "ms");
 
     return await demo();
   }, [_messages, isAdCreative, wait, sendUserMessage, printAiMessage]);

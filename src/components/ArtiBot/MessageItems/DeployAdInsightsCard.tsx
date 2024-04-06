@@ -238,12 +238,18 @@ function AdSetTitle({ adset }: { adset: IAdSet }) {
           <BiCaretDown />
         </button> */}
       </div>
-      {adset.insights?.data[0] && (
+      {adset.insights && adset.insights.data[0] ? (
         <InsightCard
           insights={adset.insights.data[0]}
           show={true}
           className="mt-2"
         />
+      ) : (
+        <div className="flex items-center justify-center">
+          <p className="text-xs opacity-40">
+            No insights available for this adset.
+          </p>
+        </div>
       )}
     </div>
   );
@@ -301,8 +307,14 @@ const DeployAdChildCard = ({ isActive, adsetId }: DeployAdChildCardProps) => {
           label: <AdTitle ad={ad} />,
           children: (
             <div className="flex flex-col gap-4">
-              {ad.insights?.data[0] && (
+              {ad.insights && ad.insights?.data[0] ? (
                 <InsightCard show={true} insights={ad.insights?.data[0]} />
+              ) : (
+                <div className="flex items-center justify-center">
+                  <p className="text-xs opacity-40">
+                    No insights available for this ad.
+                  </p>
+                </div>
               )}
             </div>
           ),

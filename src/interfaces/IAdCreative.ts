@@ -61,6 +61,7 @@ export interface IAdVariantClient {
 }
 
 export interface IAdCreativeClient {
+  id?: string;
   adObjective: string;
   companyName: string;
   disclaimer: string;

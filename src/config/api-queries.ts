@@ -10,6 +10,11 @@ const API_QUERIES = {
     "get-ad-account-id",
     access_token,
   ],
+  GET_CAMPAIGN: (access_token?: string | null, campaign_id?: string | null) => [
+    "get-campaign",
+    access_token,
+    campaign_id,
+  ],
   GET_AD_ACCOUNTS: (access_token?: string | null) => [
     "get-ad-accounts",
     access_token,
@@ -22,6 +27,7 @@ const API_QUERIES = {
     access_token,
     post_id,
   ],
+  GET_USER_CAMPAIGNS: ["get-user-campaigns"],
   VARIANTS_BY_CONVERSATION: ["variants-by-conversation"],
   GET_USER_ACCOUNTS: ["get-user-accounts"],
   LINK_ACCOUNT: ["link-account"],

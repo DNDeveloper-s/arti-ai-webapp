@@ -26,6 +26,8 @@ import axios from "axios";
 import ObjectID from "bson-objectid";
 import { compact } from "lodash";
 import { useCallback, useEffect, useState } from "react";
+import { useCredentials } from "./user";
+import { IFacebookAdInsight } from "@/interfaces/ISocial";
 
 export interface InfiniteConversation {
   id: string;
@@ -69,7 +71,7 @@ export const useGetConversationInfinite = (cursorId?: string) => {
     queryFn: ({ pageParam }: any) => fetchConversations(pageParam),
     initialPageParam: cursorId,
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length === 0) return undefined;
+      if (lastPage.length === 0 && lastPage.length < LIMIT) return undefined;
       return lastPage[lastPage.length - 1]?.id;
     },
     getPreviousPageParam: (firstPage, allPages) => {
@@ -117,7 +119,7 @@ export const useGetVariantsByConversation = (skip: number = 0) => {
     queryFn: ({ pageParam }: any) => fetchVariants(pageParam),
     initialPageParam: skip,
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length === 0) return undefined;
+      if (lastPage.length === 0 || lastPage.length < LIMIT) return undefined;
       return allPages.length * LIMIT;
     },
   });
@@ -539,5 +541,179 @@ export const useGetAdJson = () => {
         queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS,
       });
     },
+  });
+};
+
+export interface UserCampaign {
+  name: string;
+  status: string;
+  objective: string;
+  effective_status: string;
+  /** This is mongodb id for the campaign */
+  id: string;
+  /** This is the campaign id from meta */
+  campaignId: string;
+}
+type GetUserCampaignsInfiniteResponse = UserCampaign[];
+export const useGetUserCampaigns = (cursorId?: string) => {
+  const LIMIT = 4;
+
+  const fetchUserCampaigns = async (pageParam: undefined | string) => {
+    const response = await axios.get(ROUTES.USERS.CAMPAIGNS, {
+      params: {
+        cursor_id: pageParam,
+        limit: LIMIT,
+      },
+    });
+
+    return response.data.data;
+  };
+
+  return useInfiniteQuery<GetUserCampaignsInfiniteResponse>({
+    queryKey: API_QUERIES.GET_USER_CAMPAIGNS,
+    queryFn: ({ pageParam }: any) => fetchUserCampaigns(pageParam),
+    initialPageParam: cursorId,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length === 0) return undefined;
+      return lastPage[lastPage.length - 1]?.id;
+    },
+    getPreviousPageParam: (firstPage, allPages) => {
+      if (firstPage.length === 0) return undefined;
+      return firstPage[0].id;
+    },
+  });
+};
+
+const insights = {
+  name: "ARTI AI - Direct Leads Campaign",
+  status: "ACTIVE",
+  objective: "OUTCOME_LEADS",
+  effective_status: "ACTIVE",
+  insights: {
+    data: [
+      {
+        impressions: "41653",
+        reach: "21267",
+        spend: "1750.27",
+        unique_clicks: "524",
+        ctr: "1.867813",
+        actions: [
+          {
+            action_type: "onsite_conversion.messaging_first_reply",
+            value: "2",
+          },
+          {
+            action_type: "landing_page_view",
+            value: "49",
+          },
+          {
+            action_type: "onsite_conversion.post_save",
+            value: "30",
+          },
+          {
+            action_type: "comment",
+            value: "1",
+          },
+          {
+            action_type: "page_engagement",
+            value: "600",
+          },
+          {
+            action_type: "post_engagement",
+            value: "601",
+          },
+          {
+            action_type: "post",
+            value: "11",
+          },
+          {
+            action_type: "lead",
+            value: "126",
+          },
+          {
+            action_type: "leadgen_grouped",
+            value: "126",
+          },
+          {
+            action_type: "onsite_conversion.messaging_conversation_started_7d",
+            value: "2",
+          },
+          {
+            action_type: "onsite_conversion.lead_grouped",
+            value: "126",
+          },
+          {
+            action_type: "post_reaction",
+            value: "102",
+          },
+          {
+            action_type: "link_click",
+            value: "456",
+          },
+        ],
+        cpm: "42.020263",
+        date_start: "2024-03-07",
+        date_stop: "2024-04-05",
+      },
+    ],
+    paging: {
+      cursors: {
+        before: "MAZDZD",
+        after: "MAZDZD",
+      },
+    },
+  },
+  id: "120207183720580340",
+};
+
+interface CampaignWithInsights {
+  name: string;
+  status: string;
+  objective: string;
+  effective_status: string;
+  insights?: {
+    data: IFacebookAdInsight[];
+    paging: {
+      cursors: {
+        before: string;
+        after: string;
+      };
+    };
+  };
+  /** This is the campaign Id from meta */
+  id: string;
+}
+
+export const useGetCampaignInsights = (
+  campaignId?: string,
+  enabled: boolean = true
+) => {
+  const { accessToken } = useCredentials();
+
+  const getCampaignInsights = async ({ queryKey }: QueryFunctionContext) => {
+    const [, accessToken, campaignId] = queryKey;
+
+    if (!accessToken) {
+      throw new Error("Access token is required");
+    }
+
+    if (!campaignId || typeof campaignId !== "string") {
+      throw new Error("Campaign ID is required");
+    }
+
+    const response = await axios.get(ROUTES.ADS.GET_CAMPAIGN(campaignId), {
+      params: {
+        access_token: accessToken,
+        get_insights: true,
+      },
+    });
+
+    return response.data.data;
+  };
+
+  return useQuery<CampaignWithInsights>({
+    queryKey: API_QUERIES.GET_CAMPAIGN(accessToken, campaignId),
+    queryFn: getCampaignInsights,
+    enabled: enabled && !!campaignId && !!accessToken,
   });
 };

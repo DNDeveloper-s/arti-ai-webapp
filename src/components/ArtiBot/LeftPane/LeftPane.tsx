@@ -13,7 +13,7 @@ import useSessionToken from "@/hooks/useSessionToken";
 import { ConversationType } from "@/interfaces/IConversation";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import React, { FC, ReactNode, useEffect, useState } from "react";
+import React, { FC, ReactNode, useCallback, useEffect, useState } from "react";
 import { BiSolidEdit } from "react-icons/bi";
 import { MdArrowBackIos } from "react-icons/md";
 import ConversationListItem from "@/components/ArtiBot/LeftPane/ConversationListItem";
@@ -22,26 +22,26 @@ import CampaignListItem from "./CampaignListItem";
 import { AiOutlineReload } from "react-icons/ai";
 import Loader from "@/components/Loader";
 import { useGetConversationInfinite } from "@/api/conversation";
+import AdCreativeSection from "./AdCreativeSection";
+import ConversationSection from "./ConversationSection";
+import CampaignSection from "./CampaignSection";
 
 interface LoadMoreButtonProps {
   doInfiniteScroll?: boolean;
   handleLoadMore?: () => void;
+  loading?: boolean;
 }
 function LoadMoreButton({
   doInfiniteScroll,
   handleLoadMore,
+  loading,
 }: LoadMoreButtonProps) {
-  const [loading, setLoading] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  function handleLoad() {
+  const handleLoad = useCallback(() => {
     if (loading) return;
-    setLoading(true);
-    setTimeout(() => {
-      handleLoadMore && handleLoadMore();
-      setLoading(false);
-    }, 2000);
-  }
+    handleLoadMore && handleLoadMore();
+  }, [handleLoadMore, loading]);
 
   useEffect(() => {
     if (doInfiniteScroll) {
@@ -60,7 +60,7 @@ function LoadMoreButton({
         containerEl && observer.unobserve(containerEl);
       };
     }
-  }, [doInfiniteScroll]);
+  }, [doInfiniteScroll, handleLoad]);
 
   return (
     <div
@@ -82,7 +82,7 @@ interface PaginatedListProps extends LoadMoreButtonProps {
   children: ReactNode;
   noMore?: boolean;
 }
-const PaginatedList: FC<PaginatedListProps> = ({
+export const PaginatedList: FC<PaginatedListProps> = ({
   children,
   noMore,
   ...props
@@ -106,54 +106,6 @@ interface LeftPaneProps {}
 
 const LeftPane: FC<LeftPaneProps> = (props) => {
   const router = useRouter();
-  const { data } = useGetConversationInfinite();
-  const conversations = data?.pages.map((page) => page).flat() || [];
-  const {
-    adVariantsByConversationId,
-    getLastAdCreativeByConversationId,
-    sortedConversationIds,
-  } = useAdCreatives();
-  const { state, dispatch } = useConversation();
-  const token = useSessionToken();
-  const params = useParams();
-  const search = useSearchParams();
-
-  const [cursor, setCursor] = useState<number>(5);
-  const [noMore, setNoMore] = useState<boolean>(false);
-
-  const [cursorA, setCursorA] = useState<number>(5);
-  const [noMoreA, setNoMoreA] = useState<boolean>(false);
-
-  const [cursorC, setCursorC] = useState<number>(5);
-  const [noMoreC, setNoMoreC] = useState<boolean>(false);
-
-  useEffect(() => {
-    // token && dispatch && getConversations(dispatch);
-    // token && dispatch && getAdCreatives(dispatch);
-  }, [dispatch, token]);
-
-  function handleLoadMoreConversations() {
-    const newCursor = cursor + 5;
-    setCursor(newCursor);
-    if (!conversations || newCursor >= conversations?.length) setNoMore(true);
-    else setNoMore(false);
-  }
-
-  function handleLoadMoreAdCreatives() {
-    const newCursor = cursorA + 5;
-    setCursorA(newCursor);
-    if (!sortedConversationIds || newCursor >= sortedConversationIds?.length)
-      setNoMoreA(true);
-    else setNoMoreA(false);
-  }
-
-  function handleLoadMoreCampaigns() {
-    const newCursor = cursorC + 5;
-    setCursorC(newCursor);
-    if (!sortedConversationIds || newCursor >= sortedConversationIds?.length)
-      setNoMoreC(true);
-    else setNoMoreC(false);
-  }
 
   return (
     <div className="flex flex-col w-[250px] h-full overflow-hidden">
@@ -175,65 +127,11 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
       </Link>
       <hr className="border-gray-700" />
       <div className={"relative overflow-auto w-full"}>
-        <div className="w-full my-4">
-          <div className="px-4 text-sm font-bold text-gray-400">
-            <h3>Conversations</h3>
-          </div>
-          <div className="mt-2 flex flex-col gap-2">
-            {conversations && conversations.length > 0 && (
-              <PaginatedList
-                noMore={noMore}
-                handleLoadMore={handleLoadMoreConversations}
-              >
-                {conversations.slice(0, cursor).map((conversation) => (
-                  <ConversationListItem
-                    key={conversation.id}
-                    conversation={conversation}
-                  />
-                ))}
-              </PaginatedList>
-            )}
-          </div>
-        </div>
+        <ConversationSection />
         <hr className="border-gray-700" />
-        <div className="w-full my-4">
-          <div className="px-4 text-sm font-bold text-gray-400">
-            <h3>Ad Creatives</h3>
-          </div>
-          <div className="mt-2 flex flex-col gap-2">
-            <PaginatedList
-              noMore={noMoreA}
-              handleLoadMore={handleLoadMoreAdCreatives}
-            >
-              {sortedConversationIds
-                .slice(0, cursorA)
-                .map((conversationId: string) => (
-                  <AdCreativeListItem
-                    key={conversationId}
-                    conversationId={conversationId}
-                  />
-                ))}
-            </PaginatedList>
-          </div>
-        </div>
+        <AdCreativeSection />
         <hr className="border-gray-700" />
-        <div className="w-full my-4">
-          <div className="px-4 text-sm font-bold text-gray-400">
-            <h3>Campaigns</h3>
-          </div>
-          <div className="mt-2 flex flex-col gap-2">
-            <PaginatedList doInfiniteScroll={true}>
-              {sortedConversationIds
-                .slice(0, cursorC)
-                .map((conversationId: string) => (
-                  <CampaignListItem
-                    key={conversationId}
-                    conversationId={conversationId}
-                  />
-                ))}
-            </PaginatedList>
-          </div>
-        </div>
+        <CampaignSection />
       </div>
     </div>
   );
