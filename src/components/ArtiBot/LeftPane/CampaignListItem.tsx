@@ -95,7 +95,7 @@ const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
           <span className={"truncate"}>{campaign.name}</span>
           {noInsights && (
             <div className="flex gap-1 flex-shrink-0 flex-col">
-              <span className="font-bold text-base">No Insights</span>
+              <span className="text-xs opacity-40">No Insights</span>
             </div>
           )}
         </div>
