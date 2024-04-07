@@ -47,7 +47,14 @@ export default function Conversation({
   const conversationId = searchParams.get("conversation_id");
   const { data: accounts } = useGetUserProviders();
   const { setAccounts } = useUser();
-  const { data: conversation } = useGetConversation(conversationId);
+  const { data: serverConversation, isLoading } =
+    useGetConversation(conversationId);
+
+  const clientConversation = state.conversation.get(conversationId || "");
+
+  const conversation = serverConversation || clientConversation;
+
+  console.log("state - ", state, conversationId);
 
   useEffect(() => {
     if (accounts) {
@@ -61,9 +68,9 @@ export default function Conversation({
   }, [dispatch, token, conversationId]);
 
   useEffect(() => {
-    if (state.loading.conversation || !dispatch || !conversationId) return;
+    if (isLoading || !dispatch || !conversationId) return;
 
-    if (!state.conversation.map || !state.conversation.map[conversationId]) {
+    if (!clientConversation) {
       if (!projectName) return redirect("/artibot");
       const newConversation: IConversation = {
         id: Array.isArray(conversationId) ? conversationId[0] : conversationId,
@@ -79,10 +86,9 @@ export default function Conversation({
     }
   }, [
     dispatch,
-    state.loading.conversation,
-    state.conversation.map,
+    isLoading,
+    clientConversation,
     conversationId,
-    state.conversation,
     type,
     projectName,
   ]);

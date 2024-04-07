@@ -11,7 +11,7 @@ export default function ConversationSection() {
   const { ref, isInView } = useInView();
 
   useEffect(() => {
-    if (isInView && !props.isFetchingNextPage && hasNextPage) {
+    if (isInView && !props.isFetching && hasNextPage) {
       props.fetchNextPage();
     }
   }, [isInView, props, hasNextPage]);

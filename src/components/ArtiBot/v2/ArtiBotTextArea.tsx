@@ -30,8 +30,10 @@ export default function ArtiBotTextArea(props: ArtiBotTextAreaProps) {
   // } = useSendMessage();
 
   function handleSubmitMessage() {
-    if (!conversation || !conversation.id || !conversation.conversation_type)
+    if (!conversation || !conversation.id || !conversation.conversation_type) {
+      console.error("Invalid conversation", conversation);
       return;
+    }
     if (inputValue.trim() === "") return;
     setInputValue("");
     sendMessage({

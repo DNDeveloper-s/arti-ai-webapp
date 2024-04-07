@@ -41,10 +41,10 @@ import {
 } from "@/constants/servicesData";
 import { carouselImage3 } from "@/assets/images/carousel-images";
 import { AiOutlineCaretDown } from "react-icons/ai";
-import dynamic from "next/dynamic";
-const CanvasJSChart = dynamic(() =>
-  import("@canvasjs/react-charts").then((mod) => mod.CanvasJSChart)
-);
+
+import CanvasJs from "@canvasjs/react-charts";
+const CanvasJSChart = CanvasJs.CanvasJSChart;
+
 import CTAButton from "@/components/CTAButton";
 import AppLoader from "@/components/AppLoader";
 import Loader from "@/components/Loader";

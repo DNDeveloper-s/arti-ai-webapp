@@ -2,7 +2,6 @@
 
 import Navbar from "@/components/ProductPage/Navbar";
 import Hero from "@/components/LandingPage/Hero";
-import Services from "@/components/ProductPage/Services";
 import WhyUs from "@/components/ProductPage/WhyUs";
 import ArtiBot from "@/components/ArtiBot/ArtiBot";
 import Contact from "@/components/ProductPage/Contact";
@@ -15,7 +14,16 @@ import BgAttachment from "@/components/ProductPage/BgAttachment";
 import TryForFreeButton from "@/components/ProductPage/TryForFreeButton";
 import Testimonials from "@/components/ProductPage/Testimonials";
 import { useMediaQuery } from "react-responsive";
-import Services_Sm from "@/components/ProductPage/Services_Sm";
+import dynamic from "next/dynamic";
+const Services_Sm = dynamic(
+  () => import("@/components/ProductPage/Services_Sm"),
+  { ssr: false }
+);
+const Services = dynamic(() => import("@/components/ProductPage/Services"), {
+  ssr: false,
+});
+// import Services from "@/components/ProductPage/Services";
+// import Services_Sm from "@/components/ProductPage/Services_Sm";
 import useMounted from "@/hooks/useMounted";
 import Numbers from "@/components/LandingPage/Numbers";
 import CaseStudies from "@/components/LandingPage/CaseStudies";

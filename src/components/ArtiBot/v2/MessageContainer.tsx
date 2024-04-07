@@ -42,7 +42,7 @@ export default function MessageContainer() {
   const { ref: keepInViewRef, setKeepInView } = useKeepInView();
 
   useEffect(() => {
-    if (isInView && !props.isFetchingNextPage && hasNextPage) {
+    if (isInView && !props.isFetching && hasNextPage) {
       props.fetchNextPage();
     }
   }, [isInView, props, hasNextPage]);
