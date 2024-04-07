@@ -54,8 +54,6 @@ export default function Conversation({
 
   const conversation = serverConversation || clientConversation;
 
-  console.log("state - ", state, conversationId);
-
   useEffect(() => {
     if (accounts) {
       setAccounts(accounts);

@@ -48,7 +48,7 @@ export default function MessageItem(props: MessageItemProps) {
 
   let item = (
     <div className="flex items-start">
-      {messageItem.content && (
+      {typeof messageItem.content === "string" && (
         <p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
           <MarkdownRenderer markdownContent={messageItem.content} />
         </p>
@@ -98,7 +98,6 @@ export default function MessageItem(props: MessageItemProps) {
         className={"w-full overflow-hidden"}
       >
         <div
-          key={messageItem.content}
           className={
             "group w-full " +
             (messageItem.role === ChatGPTRole.ASSISTANT
@@ -108,7 +107,12 @@ export default function MessageItem(props: MessageItemProps) {
         >
           <div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
             <Avatar radius="sm" src={avatarSrc} />
-            <div className={`ml-[0.8em] flex-1 overflow-hidden`}>{item}</div>
+            <div
+              className={`ml-[0.8em] flex-1 overflow-hidden`}
+              key={messageItem.content}
+            >
+              {item}
+            </div>
           </div>
         </div>
       </motion.div>

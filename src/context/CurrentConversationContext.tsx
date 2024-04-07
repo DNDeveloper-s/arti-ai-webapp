@@ -49,10 +49,6 @@ const useCurrentConversationContext = (
 ) => {
   const [state, dispatch] = useReducer(CurrentConversationReducer, initState);
 
-  useEffect(() => {
-    console.log("initState - ", initState);
-  }, [initState]);
-
   return {
     state,
     dispatch,

@@ -47,6 +47,7 @@ export default function ArtiBotTextArea(props: ArtiBotTextAreaProps) {
       conversationId: conversation.id,
       conversationType: conversation.conversation_type,
       projectName: conversation.project_name,
+      serverGeneratedMessageId: ObjectID().toHexString(),
     });
   }
 

@@ -201,7 +201,7 @@ export const ChatGPTMessageItemShimmer = ({ size = 45 }) => {
   );
 };
 
-const welcomeMessage = {
+export const welcomeMessage = {
   [ConversationType.AD_CREATIVE]:
     "Hello! I am Arti, an AI with a background in advertising. I can assist you in crafting captivating advertisements for various platforms. May I please know your name and your role in this project? Additionally, could you let me know the type of ad you wish to create and where you intend to display these ads?",
   [ConversationType.STRATEGY]:

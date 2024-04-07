@@ -61,6 +61,23 @@ class ClientMessageRecord {
     return clonedRecord;
   }
 
+  setIn(message: ClientMessage) {
+    const index = this.list.findIndex((m) => m.id === message.id);
+    if (index === -1) {
+      this.add(message);
+    } else {
+      this.list[index] = message;
+    }
+  }
+
+  merge(messages: ClientMessage[]): ClientMessageRecord {
+    const clonedRecord = this.clone();
+    messages.forEach((message) => {
+      clonedRecord.setIn(message);
+    });
+    return clonedRecord;
+  }
+
   clone(): ClientMessageRecord {
     return new ClientMessageRecord([...this.list]);
   }
@@ -155,7 +172,8 @@ function ClientMessageReducer(
         ...payload,
       };
     case CLIENT_MESSAGE_ACTION_TYPE.SET_MESSAGE_DATA:
-      const record = state.messageRecord.set(payload.message);
+      const record = state.messageRecord.merge(payload.messages);
+      console.log("Testing | record - ", record, payload.messages);
       return {
         ...state,
         messageRecord: record,
@@ -182,7 +200,7 @@ const useClientMessageContext = (initState: IClientMessageState) => {
       dispatch({
         type: CLIENT_MESSAGE_ACTION_TYPE.SET_MESSAGE_DATA,
         payload: {
-          message: data.data,
+          messages: [data.data],
         },
       });
     }
@@ -210,14 +228,24 @@ const useClientMessageContext = (initState: IClientMessageState) => {
     dispatch({
       type: CLIENT_MESSAGE_ACTION_TYPE.SET_MESSAGE_DATA,
       payload: {
-        message: {
-          id: variables.messages[0].id,
-          content: variables.messages[0].content,
-          role: variables.messages[0].role,
-          done: true,
-          conversationId: conversation?.id,
-          createdAt: Date.now(),
-        },
+        messages: [
+          {
+            id: variables.messages[0].id,
+            content: variables.messages[0].content,
+            role: variables.messages[0].role,
+            done: true,
+            conversationId: conversation?.id,
+            createdAt: Date.now(),
+          },
+          {
+            id: variables.serverGeneratedMessageId,
+            content: "",
+            role: ChatGPTRole.ASSISTANT,
+            done: false,
+            conversationId: conversation?.id,
+            createdAt: Date.now(),
+          },
+        ],
       },
     });
     postSendMessage(variables);

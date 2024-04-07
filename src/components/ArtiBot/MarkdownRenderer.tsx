@@ -13,6 +13,7 @@ const MarkdownRenderer = ({
       <Markdown
         options={{
           html: true,
+          
         }}
         source={markdownContent}
       />

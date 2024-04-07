@@ -311,6 +311,7 @@ export interface SendMessageVariables {
   conversationType: ConversationType;
   projectName: string;
   messages: { id: string; content: string; role: ChatGPTRole }[];
+  serverGeneratedMessageId: string;
 }
 
 export const useSendMessage = (options?: UseSendMessageOptions) => {
