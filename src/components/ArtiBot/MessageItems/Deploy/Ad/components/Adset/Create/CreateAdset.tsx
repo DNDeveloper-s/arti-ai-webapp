@@ -13,12 +13,11 @@ import {
   Switch,
 } from "@nextui-org/react";
 import { DatePicker } from "antd";
-import { Key, useEffect, useMemo, useRef, useState } from "react";
+import { Key, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { object, string, mixed, number } from "yup";
 import SelectCountries from "./SelectCountries";
 import SelectZipCodes from "./SelectZipCodes";
-import { Platform, useUser } from "@/context/UserContext";
 import dayjs, { Dayjs } from "dayjs";
 import Element from "@/components/shared/renderers/Element";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
@@ -26,6 +25,7 @@ import SelectInterests from "./SelectInterests";
 import { compact, omit } from "lodash";
 import { FlexibleSpec, IAdSet } from "@/interfaces/ISocial";
 import { getSubmitText } from "../../../CreateAdManagerModal";
+import SelectLocations from "./SelectLocations";
 
 {
   /* <option value="">None</option>
@@ -295,6 +295,7 @@ type CreateAdsetFormValues = Omit<
 > & {
   countries: any[];
   zip_codes: any;
+  locations: any;
   demographics: any;
   start_time: Dayjs | undefined;
   end_time: Dayjs | undefined;
@@ -322,6 +323,7 @@ const validationSchema = object({
   start_time: string(),
   end_time: string(),
   countries: mixed(),
+  locations: mixed(),
   campaign_id: string().required("Campaign ID is required"),
   zip_codes: mixed(),
   demographics: mixed(),
@@ -366,6 +368,7 @@ export default function CreateAdset() {
   const billingEventValue = watch("billing_event");
   const countryValue = watch("countries");
   const zipCodeValue = watch("zip_codes");
+  const locationValue = watch("locations");
   const demographicsValue = watch("demographics");
   const statusValue = watch("status");
   const startTimeValue = watch("start_time");
@@ -420,9 +423,11 @@ export default function CreateAdset() {
 
   function handleCreate(data: CreateAdsetFormValues) {
     console.log("data - ", data);
+    return;
     const formData = omit(data, [
       "countries",
       "zip_codes",
+      "locations",
       "demographics",
       "bid_amount",
     ]);
@@ -885,6 +890,12 @@ export default function CreateAdset() {
             value={zipCodeValue}
             onChange={(value: string, option: any) => {
               setValue("zip_codes", option);
+            }}
+          />
+          <SelectLocations
+            value={locationValue}
+            onChange={(value: string, option: any) => {
+              setValue("locations", option);
             }}
           />
           <SelectInterests

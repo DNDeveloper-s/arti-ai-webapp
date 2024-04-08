@@ -396,9 +396,8 @@ export default function CreateAd() {
 
   // TODO: Fetch the adset conversion location
   const conversionLocationValue = useMemo(() => {
-    return null;
-    // return adsets?.find((adset) => adset.id === adsetValue)?.conversionLocation;
-  }, []);
+    return adsets?.find((adset) => adset.id === adsetValue)?.destination_type;
+  }, [adsets, adsetValue]);
 
   async function handleCreateAd(data: CreateAdFormValues) {
     if (!selectedVariant?.imageUrl && storeFormState.mode === "create")
@@ -811,7 +810,6 @@ export default function CreateAd() {
               // selectedKey={callToActionValue}
               // errorMessage={formState.errors.callToAction?.message}
             >
-              {/* @ts-ignore */}
               {INSTANT_FORM.map((cta) => (
                 <AutocompleteItem key={cta.uid} textValue={cta.name}>
                   <div className="flex items-center gap-3">
@@ -820,8 +818,6 @@ export default function CreateAd() {
                   </div>
                 </AutocompleteItem>
               ))}
-
-              {/* @ts-ignore */}
               <AutocompleteItem
                 style={{ pointerEvents: "all", cursor: "default !important" }}
                 key={"create_form"}
@@ -852,26 +848,21 @@ export default function CreateAd() {
             selectedKey={pageIdValue}
             errorMessage={formState.errors.page_id?.message}
           >
-            <>
-              {facebookPages && facebookPages.length > 0 ? (
-                facebookPages.map((page) => (
-                  <AutocompleteItem key={page.id} textValue={page.name}>
-                    <div className="flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={page.picture} className="w-6 h-6" alt="Page" />
-                      {page.name}
-                    </div>
-                  </AutocompleteItem>
-                ))
-              ) : (
-                <AutocompleteItem key={"no-page-found"} isReadOnly>
-                  No pages found
+            {facebookPages && facebookPages.length > 0 ? (
+              facebookPages.map((page) => (
+                <AutocompleteItem key={page.id} textValue={page.name}>
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={page.picture} className="w-6 h-6" alt="Page" />
+                    {page.name}
+                  </div>
                 </AutocompleteItem>
-              )}
+              ))
+            ) : (
               <AutocompleteItem key={"no-page-found"} isReadOnly>
-                Create Form
+                No pages found
               </AutocompleteItem>
-            </>
+            )}
           </Autocomplete>
         </div>
       </div>

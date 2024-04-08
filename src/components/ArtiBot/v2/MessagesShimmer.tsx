@@ -11,7 +11,7 @@ interface MessageItemShimmerProps {
 function MessageItemShimmer({ content, role }: MessageItemShimmerProps) {
   let item = (
     <div className="flex items-start">
-      <p className="whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
+      <p className="flex flex-col gap-1 whitespace-pre-wrap text-[1em] text-primaryText opacity-60 flex-1">
         <p className="app-shimmer rounded">{content}</p>
         {role === ChatGPTRole.ASSISTANT && (
           <p className="app-shimmer rounded mt-1">{content.slice(0, 150)}</p>

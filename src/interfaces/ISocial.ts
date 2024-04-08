@@ -99,11 +99,14 @@ type AdSetNested = Pick<
   "name" | "bid_strategy" | "optimization_goal" | "id" | "promoted_object"
 >;
 
+type DestinationType = "APP" | "WEBSITE" | "MESSENGER" | "PHONE_CALL" | "ON_AD";
+
 export interface IAdSet {
   id: string;
   name: string;
   optimization_goal: OptimisationGoal;
   bid_strategy: string;
+  destination_type?: DestinationType;
   status: string;
   effective_status: string;
   campaign: CampaignNested;

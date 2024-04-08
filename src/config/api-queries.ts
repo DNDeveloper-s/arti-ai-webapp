@@ -27,6 +27,11 @@ const API_QUERIES = {
     access_token,
     post_id,
   ],
+  GET_LOCATIONS: (access_token?: string | null, query?: string) => [
+    "get-locations",
+    access_token,
+    query,
+  ],
   GET_USER_CAMPAIGNS: ["get-user-campaigns"],
   VARIANTS_BY_CONVERSATION: ["variants-by-conversation"],
   GET_USER_ACCOUNTS: ["get-user-accounts"],

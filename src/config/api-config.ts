@@ -119,6 +119,7 @@ export const ROUTES = {
   LOCATION: {
     ZIPCODE: apiUrl("/location/zipcode"),
     GET_ALL_COUNTRIES: apiUrl("/location/countries"),
+    GENERIC: apiUrl("/location/generic"),
   },
   USERS: {
     ME: apiUrl("/users/me"),

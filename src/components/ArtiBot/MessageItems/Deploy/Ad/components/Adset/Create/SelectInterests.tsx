@@ -27,7 +27,6 @@ export default function SelectInterests(props: SelectProps) {
   const { value: initialData } = props;
   const [query, setQuery] = useState("");
   const { data, isFetching } = useGetInterests(query, initialData);
-  const timerRef = useRef<NodeJS.Timeout>();
 
   const debounceFetcher = useMemo(() => {
     const loadOptions = (value: string, option: any) => {
