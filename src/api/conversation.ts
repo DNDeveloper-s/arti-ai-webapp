@@ -668,6 +668,7 @@ const insights = {
 };
 
 interface CampaignWithInsights {
+  ad_account_id: string;
   name: string;
   status: string;
   objective: string;

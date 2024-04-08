@@ -295,17 +295,17 @@ function AdTitle({ ad }: { ad: IAd }) {
 interface DeployAdChildCardProps {
   isActive: boolean;
   adsetId: string;
+  accountId: string;
 }
 export const DeployAdChildCard = ({
   isActive,
   adsetId,
+  accountId,
 }: DeployAdChildCardProps) => {
-  const { state } = useConversation();
-  const adsData = state.ad.findAllBy("adsetId", adsetId ?? "");
   const { data: ads, isLoading } = useGetAds({
-    adIds: adsData.map((ad) => ad.adId),
-    enabled: adsData.length > 0 && isActive,
-    accountId: adsData[0]?.adAccountId ?? undefined,
+    adsetIds: [adsetId],
+    enabled: isActive,
+    accountId: accountId,
   });
 
   const adItemsNest: CollapseProps["items"] = useMemo(() => {

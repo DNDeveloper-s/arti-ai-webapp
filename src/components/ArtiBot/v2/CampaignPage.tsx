@@ -1,5 +1,5 @@
 import { useGetCampaignInsights } from "@/api/conversation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   DeployAdChildCard,
   InsightTitle,
@@ -11,8 +11,12 @@ import { useGetAdSets } from "@/api/user";
 
 interface DeployAdChildCardProps {
   campaignId: string;
+  accountId: string;
 }
-const CampaignChildCard = ({ campaignId }: DeployAdChildCardProps) => {
+const CampaignChildCard = ({
+  accountId,
+  campaignId,
+}: DeployAdChildCardProps) => {
   //   const { state } = useConversation();
   // //   const adsData = state.ad.findAllBy("adsetId", adsetId ?? "");
   //   const { data: ads, isLoading } = useGetAds({
@@ -21,19 +25,26 @@ const CampaignChildCard = ({ campaignId }: DeployAdChildCardProps) => {
   //     accountId: adsData[0]?.adAccountId ?? undefined,
   //   });
 
-  const [activeKeys, setActiveKeys] = useState<string[]>([]);
-  const onChange = (key: string | string[]) => {
-    console.log(key);
-    setActiveKeys(typeof key === "string" ? [key] : key);
-  };
-
   const {
     data: adsets,
     isLoading,
     isFetching,
   } = useGetAdSets({
     campaignIds: [campaignId],
+    providedAccountId: accountId,
   });
+
+  const [activeKeys, setActiveKeys] = useState<string[]>([]);
+  const onChange = (key: string | string[]) => {
+    console.log(key);
+    setActiveKeys(typeof key === "string" ? [key] : key);
+  };
+
+  useEffect(() => {
+    if (adsets) {
+      setActiveKeys([adsets[0]?.id]);
+    }
+  }, [adsets]);
 
   const adItemsNest: CollapseProps["items"] = useMemo(() => {
     return (
@@ -50,13 +61,14 @@ const CampaignChildCard = ({ campaignId }: DeployAdChildCardProps) => {
           children: (
             <DeployAdChildCard
               adsetId={adset.id}
+              accountId={accountId}
               isActive={activeKeys.includes(adset.id)}
             />
           ),
         };
       }) ?? []
     );
-  }, [activeKeys, adsets, isFetching]);
+  }, [accountId, activeKeys, adsets, isFetching]);
 
   return (
     <>
@@ -65,24 +77,25 @@ const CampaignChildCard = ({ campaignId }: DeployAdChildCardProps) => {
           <Spinner label="Loading Ad Sets" />
         </div>
       )}
-      {adsets ? (
-        <div className="flex flex-col gap-4">
-          <Collapse
-            onChange={onChange}
-            defaultActiveKey={adsets && adsets[0]?.id}
-            items={adItemsNest}
-            expandIcon={({ isActive }) => (
-              <BiCaretRight style={{ rotate: `${isActive ? 90 : 0}deg` }} />
-            )}
-          />
-        </div>
-      ) : (
-        <div className="flex items-center justify-center">
-          <p className="text-xs opacity-40">
-            No adsets available for this campaign.
-          </p>
-        </div>
-      )}
+      {!isLoading &&
+        (adsets ? (
+          <div className="flex flex-col gap-4">
+            <Collapse
+              onChange={onChange}
+              defaultActiveKey={adsets && adsets[0]?.id}
+              items={adItemsNest}
+              expandIcon={({ isActive }) => (
+                <BiCaretRight style={{ rotate: `${isActive ? 90 : 0}deg` }} />
+              )}
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center">
+            <p className="text-xs opacity-40">
+              No adsets available for this campaign.
+            </p>
+          </div>
+        ))}
     </>
   );
 };
@@ -116,7 +129,12 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
             insights={data.insights?.data[0]}
           />
         ),
-        children: <CampaignChildCard campaignId={data.id} />,
+        children: (
+          <CampaignChildCard
+            accountId={data.ad_account_id}
+            campaignId={data.id}
+          />
+        ),
       },
     ];
   }, [data, isFetching]);

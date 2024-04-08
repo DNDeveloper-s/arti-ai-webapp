@@ -319,7 +319,7 @@ export default function ArtiBotPage({
           >
             <div
               className={
-                "w-full max-w-[1920px] mx-auto h-full overflow-hidden p-10"
+                "w-full max-w-[1920px] mx-auto h-full overflow-auto p-10"
               }
             >
               <CampaignPage campaignId={campaignId} />

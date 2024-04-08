@@ -627,11 +627,20 @@ export function useGetCampaigns(): UseQueryResult<IAdCampaign[], Error> {
 export function useGetAdSets({
   campaignIds,
   enabled = true,
+  providedAccountId,
 }: {
   campaignIds?: string[] | null;
+  providedAccountId?: string | null;
   enabled?: boolean;
 }): UseQueryResult<IAdSet[], Error> {
-  const { accessToken, accountId, isFetching } = useCredentials();
+  const {
+    accessToken,
+    accountId: defaultAccountId,
+    isFetching,
+  } = useCredentials();
+
+  const accountId = providedAccountId ?? defaultAccountId;
+
   console.log(
     " enabled && !!accessToken && !!accountId && !!campaignIds - ",
     enabled,

@@ -20,6 +20,8 @@ import Loader from "@/components/Loader";
 import CTAButton from "../CTAButton";
 import { resetImageUrl, useEditVariant } from "@/context/EditVariantContext";
 import { NoImage } from "./LeftPane/ConversationListItem";
+import { useUser } from "@/context/UserContext";
+import ImageTemp from "../shared/renderers/ImageTemp";
 
 export const FacebookAdVariantShimmer = ({ style = {}, className = "" }) => {
   return (
@@ -104,6 +106,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({
   const { state: editState, dispatch: editDispatch } = useEditVariant();
   const isLoaded = useRef<Record<string, boolean>>({});
   const adVariantImageUrlRef = useRef<string | null>(null);
+  const { state } = useUser();
 
   const adVariant = forceAdVariant
     ? _adVariant
@@ -197,7 +200,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({
         <span className="text-lg mt-2">Image not found</span>
       </NoImage>
     ) : imageUrl ? (
-      <img
+      <ImageTemp
         width={600}
         height={100}
         className="mb-[0.5em] w-full"

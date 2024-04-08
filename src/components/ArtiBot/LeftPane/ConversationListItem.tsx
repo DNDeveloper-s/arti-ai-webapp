@@ -11,6 +11,7 @@ import { IoMdImages } from "react-icons/io";
 import { InfiniteConversation, useGetConversation } from "@/api/conversation";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import { sortBy } from "lodash";
+import ImageTemp from "@/components/shared/renderers/ImageTemp";
 
 export function NoImage({
   className,
@@ -98,7 +99,7 @@ export const CardStackImages: FC<CardStackImagesProps> = ({ images }) => {
               "absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-600"
             }
           >
-            <Image1
+            <ImageTemp
               width={100}
               height={100}
               className={"w-full h-full object-cover rounded"}
@@ -121,7 +122,7 @@ export const CardStackImages: FC<CardStackImagesProps> = ({ images }) => {
               "absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-100"
             }
           >
-            <Image1
+            <ImageTemp
               width={100}
               height={100}
               className={"w-full h-full object-cover rounded"}
