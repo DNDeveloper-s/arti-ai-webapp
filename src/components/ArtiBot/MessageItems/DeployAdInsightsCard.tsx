@@ -16,6 +16,7 @@ import { useGetAds } from "@/api/user";
 import { useConversation } from "@/context/ConversationContext";
 import { NoImage } from "../LeftPane/ConversationListItem";
 import { botData } from "@/constants/images";
+import { popGraphicsState } from "pdf-lib";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -221,12 +222,20 @@ function InsightCard(
     </AnimatePresence>
   );
 }
-function AdSetTitle({ adset }: { adset: IAdSet }) {
+export function InsightTitle({
+  name,
+  insights,
+  isFetching,
+}: {
+  name: string;
+  insights?: IFacebookAdInsight;
+  isFetching?: boolean;
+}) {
   const [show, setShow] = useState(false);
   return (
     <div className="overflow-hidden">
       <div className="flex items-center justify-between">
-        <p>{adset.name}</p>
+        <p>{name}</p>
         {/* <button
           onClick={(e) => {
             e.stopPropagation();
@@ -237,13 +246,10 @@ function AdSetTitle({ adset }: { adset: IAdSet }) {
           <span>View Insight Details</span>
           <BiCaretDown />
         </button> */}
+        {isFetching && <Spinner size="sm" />}
       </div>
-      {adset.insights && adset.insights.data[0] ? (
-        <InsightCard
-          insights={adset.insights.data[0]}
-          show={true}
-          className="mt-2"
-        />
+      {insights ? (
+        <InsightCard insights={insights} show={true} className="mt-2" />
       ) : (
         <div className="flex items-center justify-center">
           <p className="text-xs opacity-40">
@@ -290,7 +296,10 @@ interface DeployAdChildCardProps {
   isActive: boolean;
   adsetId: string;
 }
-const DeployAdChildCard = ({ isActive, adsetId }: DeployAdChildCardProps) => {
+export const DeployAdChildCard = ({
+  isActive,
+  adsetId,
+}: DeployAdChildCardProps) => {
   const { state } = useConversation();
   const adsData = state.ad.findAllBy("adsetId", adsetId ?? "");
   const { data: ads, isLoading } = useGetAds({
@@ -367,7 +376,12 @@ export const DeployAdInsightsCard = (props: DeployAdInsightsCardProps) => {
     return [
       {
         key: "1",
-        label: <AdSetTitle adset={props.adset} />,
+        label: (
+          <InsightTitle
+            name={props.adset.name}
+            insights={props.adset.insights?.data[0]}
+          />
+        ),
         children: props.adset?.id && (
           <DeployAdChildCard
             isActive={activeKeys.includes("1")}

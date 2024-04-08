@@ -626,10 +626,19 @@ export function useGetCampaigns(): UseQueryResult<IAdCampaign[], Error> {
 
 export function useGetAdSets({
   campaignIds,
+  enabled = true,
 }: {
   campaignIds?: string[] | null;
+  enabled?: boolean;
 }): UseQueryResult<IAdSet[], Error> {
   const { accessToken, accountId, isFetching } = useCredentials();
+  console.log(
+    " enabled && !!accessToken && !!accountId && !!campaignIds - ",
+    enabled,
+    !!accessToken,
+    !!accountId,
+    !!campaignIds
+  );
   const getAdSets = async ({ queryKey }: QueryFunctionContext) => {
     const [, accessToken, accountId, campaignIds] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
@@ -649,7 +658,7 @@ export function useGetAdSets({
   const query = useQuery({
     queryKey: API_QUERIES.GET_ADSETS(accessToken, accountId, campaignIds),
     queryFn: getAdSets,
-    enabled: !!accessToken && !!accountId && !!campaignIds,
+    enabled: enabled && !!accessToken && !!accountId && !!campaignIds,
     retry(failureCount, error) {
       if (error instanceof Error && error instanceof AxiosError) {
         return false;
@@ -1893,7 +1902,7 @@ const locations = [
   },
 ];
 
-interface GenericLocationObject {
+export interface GenericLocationObject {
   key: string;
   name: string;
   type: string;

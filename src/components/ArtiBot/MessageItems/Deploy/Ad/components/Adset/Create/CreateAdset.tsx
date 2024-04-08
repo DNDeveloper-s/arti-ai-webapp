@@ -1,4 +1,5 @@
 import {
+  GenericLocationObject,
   ICreateAdset,
   useCreateAdset,
   useGetCampaigns,
@@ -65,7 +66,21 @@ const OPTIMISATION_GOALS = [
   { name: "Social Impressions", uid: "SOCIAL_IMPRESSIONS" },
 ];
 
-export const conditionalData = {
+interface ConversationLocationListItem {
+  name: string;
+  uid: IAdSet["destination_type"];
+}
+
+interface ConditionalData {
+  [key: string]: {
+    conversionLocations: ConversationLocationListItem[];
+    billingEvent: { name: string; uid: IAdSet["billing_event"] }[];
+    optimisationGoals: { name: string; uid: IAdSet["optimization_goal"] }[];
+    promotedObject?: IAdSet["promoted_object"];
+  };
+}
+
+export const conditionalData: ConditionalData = {
   OUTCOME_APP_PROMOTION: {
     conversionLocations: [],
     billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
@@ -94,8 +109,8 @@ export const conditionalData = {
       { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
     ],
     conversionLocations: [
-      { name: "Instant Form", uid: "INSTANT_FORM" },
-      { name: "Calls", uid: "CALLS" },
+      { name: "Instant Form", uid: "ON_AD" },
+      { name: "Calls", uid: "PHONE_CALL" },
     ],
     promotedObject: {
       application_id: "683754897094286",
@@ -113,9 +128,9 @@ export const conditionalData = {
       { name: "Offsite Conversions", uid: "OFFSITE_CONVERSIONS" },
       { name: "Conversations", uid: "CONVERSATIONS" },
     ],
-    promotedObject: {
-      product_catalog_id: "",
-    },
+    // promotedObject: {
+    //   product_catalog_id: "",
+    // },
   },
   OUTCOME_AWARENESS: {
     conversionLocations: [],
@@ -126,9 +141,9 @@ export const conditionalData = {
       { name: "Reach", uid: "REACH" },
       { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
     ],
-    promotedObject: {
-      product_catalog_id: "",
-    },
+    // promotedObject: {
+    //   product_catalog_id: "",
+    // },
   },
   OUTCOME_TRAFFIC: {
     billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
@@ -141,12 +156,12 @@ export const conditionalData = {
     conversionLocations: [
       { name: "Website", uid: "WEBSITE" },
       { name: "App", uid: "APP" },
-      { name: "Messaging Apps", uid: "MESSAGING_APPS" },
-      { name: "Calls", uid: "CALLS" },
+      { name: "Messaging Apps", uid: "MESSENGER" },
+      { name: "Calls", uid: "PHONE_CALL" },
     ],
-    promotedObject: {
-      product_catalog_id: "",
-    },
+    // promotedObject: {
+    //   product_catalog_id: "",
+    // },
   },
 };
 
@@ -190,9 +205,9 @@ const CUSTOM_AUDIENCES = [
 ];
 
 const GENDERS = [
-  { name: "All", uid: "all" },
-  { name: "Men", uid: "men" },
-  { name: "Women", uid: "women" },
+  { name: "All", uid: undefined },
+  { name: "Men", uid: "1" },
+  { name: "Women", uid: "2" },
 ];
 
 const MIN_AGES = Array.from({ length: 48 }, (_, i: number) => ({
@@ -289,12 +304,61 @@ const BID_STRATEGIES = [
   { name: "Cost Cap", uid: "COST_CAP" },
 ];
 
+type GeoLocationData = IAdSet["targeting"]["geo_locations"];
+interface PrepareGeoLocationObject extends GenericLocationObject {}
+function prepareGeoLocationData(
+  props: PrepareGeoLocationObject[]
+): GeoLocationData {
+  const desiredData = {};
+  return props.reduce((acc: GeoLocationData, curr) => {
+    if (curr.type === "country") {
+      acc.countries
+        ? acc.countries.push(curr.key)
+        : (acc.countries = [curr.key]);
+    } else if (
+      (curr.type === "region" ||
+        curr.type === "city" ||
+        curr.type === "subcity" ||
+        curr.type === "neighborhood") &&
+      curr.region_id
+    ) {
+      const region = {
+        key: curr.region_id,
+        name: curr.name,
+        country: curr.country_code,
+      };
+      acc.regions ? acc.regions.push(region) : (acc.regions = [region]);
+    } else if (curr.type === "zip") {
+      const zip = {
+        key: curr.key,
+        name: curr.name,
+        primary_city_id: curr.primary_city_id,
+        region_id: curr.region_id,
+        country: curr.country_code,
+      };
+      acc.zips ? acc.zips.push(zip) : (acc.zips = [zip]);
+    }
+    return { ...acc, location_types: ["home", "recent"] };
+  }, desiredData);
+}
+
+function flatGeoLocationData(data: GeoLocationData) {
+  const arr: any[] = [];
+  arr.push(
+    ...(data.countries?.map((c) => ({ country_code: c, type: "country" })) ??
+      []),
+    ...(data.regions?.map((c) => ({ ...c, type: "region" })) ?? []),
+    ...(data.zips?.map((c) => ({ ...c, type: "zip" })) ?? [])
+  );
+  return arr;
+}
+
 type CreateAdsetFormValues = Omit<
   ICreateAdset,
   "targeting" | "promoted_object" | "start_time" | "end_time"
 > & {
-  countries: any[];
-  zip_codes: any;
+  // countries: any[];
+  // zip_codes: any;
   locations: any;
   demographics: any;
   start_time: Dayjs | undefined;
@@ -304,7 +368,7 @@ type CreateAdsetFormValues = Omit<
   min_age: string;
   max_age: string;
   gender: string;
-  conversion_location: string;
+  destination_type: IAdSet["destination_type"];
 };
 
 const validationSchema = object({
@@ -314,7 +378,7 @@ const validationSchema = object({
   optimization_goal: string().required("Optimization Goal is required"),
   // bid_strategy: string().required("Bid Strategy is required"),
   // bid_amount: number(),
-  conversion_location: string(),
+  destination_type: string(),
   min_age: string(),
   max_age: string(),
   gender: string(),
@@ -322,10 +386,10 @@ const validationSchema = object({
   status: string().required("Status is required"),
   start_time: string(),
   end_time: string(),
-  countries: mixed(),
+  // countries: mixed(),
   locations: mixed(),
   campaign_id: string().required("Campaign ID is required"),
-  zip_codes: mixed(),
+  // zip_codes: mixed(),
   demographics: mixed(),
 });
 
@@ -366,21 +430,19 @@ export default function CreateAdset() {
   const campaignValue = watch("campaign_id");
   const optimisationValue = watch("optimization_goal");
   const billingEventValue = watch("billing_event");
-  const countryValue = watch("countries");
-  const zipCodeValue = watch("zip_codes");
+  // const countryValue = watch("countries");
+  // const zipCodeValue = watch("zip_codes");
   const locationValue = watch("locations");
   const demographicsValue = watch("demographics");
   const statusValue = watch("status");
   const startTimeValue = watch("start_time");
   const endTimeValue = watch("end_time");
-  const bidStrategyValue = watch("bid_strategy");
   const dailyBudgetValue = watch("daily_budget");
-  const bidAmountValue = watch("bid_amount");
   const nameValue = watch("name");
   const minAgeValue = watch("min_age");
   const maxAgeValue = watch("max_age");
   const genderValue = watch("gender");
-  const conversionLocationValue = watch("conversion_location");
+  const conversionLocationValue = watch("destination_type");
 
   const immutableFields = useMemo(() => {
     if (storeFormState.mode !== "edit") return {};
@@ -422,14 +484,11 @@ export default function CreateAdset() {
   }
 
   function handleCreate(data: CreateAdsetFormValues) {
-    console.log("data - ", data);
-    return;
     const formData = omit(data, [
       "countries",
       "zip_codes",
       "locations",
       "demographics",
-      "bid_amount",
     ]);
 
     let promotedObject = {};
@@ -452,6 +511,8 @@ export default function CreateAdset() {
       existingGeoLocationData = { ...formData.targeting.geo_locations };
     }
 
+    const formGeoLocationData = prepareGeoLocationData(data.locations);
+
     const adset: any = {
       ...formData,
       targeting: {
@@ -460,22 +521,26 @@ export default function CreateAdset() {
         publisher_platforms: ["facebook", "audience_network", "instagram"],
         geo_locations: {
           ...existingGeoLocationData,
-          countries: data.countries?.map((c) => c.uid) ?? [],
-          location_types: ["home", "recent"],
-          regions: data.zip_codes?.map((c: any) => ({ key: c.uid })) ?? [],
+          // countries: data.countries?.map((c) => c.uid) ?? [],
+          // location_types: ["home", "recent"],
+          // regions: data.zip_codes?.map((c: any) => ({ key: c.uid })) ?? [],
+          ...formGeoLocationData,
         },
         flexible_spec: formDemographics(),
         user_os: ["android", "ios"],
       },
+      destination_type: conversionLocationValue,
       promoted_object: promotedObject,
-      start_time: dayjs(data.start_time).format("YYYY-MM-DDTHH:mm:ssZ"),
-      end_time: dayjs(data.end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
-      bid_strategy: data.bid_strategy,
+      bid_strategy: "LOWEST_COST_WITHOUT_CAP",
       daily_budget: +data.daily_budget,
     };
 
-    if (data.bid_strategy !== "LOWEST_COST_WITHOUT_CAP") {
-      adset.bid_amount = +data.bid_amount;
+    if (data.start_time) {
+      adset.start_time = dayjs(data.start_time).format("YYYY-MM-DDTHH:mm:ssZ");
+    }
+
+    if (data.end_time) {
+      adset.end_time = dayjs(data.end_time).format("YYYY-MM-DDTHH:mm:ssZ");
     }
 
     storeFormState.mode === "edit" && storeFormState.open === true
@@ -493,28 +558,33 @@ export default function CreateAdset() {
       setValue("billing_event", formData.billing_event);
       setValue("optimization_goal", formData.optimization_goal);
       setValue("bid_strategy", formData.bid_strategy);
-      setValue(
-        "countries",
-        formData.targeting.geo_locations.countries?.map((c) => ({
-          key: c,
-          uid: c,
-          country: c,
-        })) ?? []
-      );
-      setValue(
-        "zip_codes",
-        formData.targeting.geo_locations.regions?.map((c) => {
-          const arr = compact([c.key, c.name, c.country]);
-          return {
-            ...c,
-            key: arr.join(", "),
-            label: arr.join(", "),
-            value: arr.join(", "),
-            uid: c.key,
-            initial: true,
-          };
-        }) ?? []
-      );
+      // setValue(
+      //   "countries",
+      //   formData.targeting.geo_locations.countries?.map((c) => ({
+      //     key: c,
+      //     uid: c,
+      //     country: c,
+      //   })) ?? []
+      // );
+      // setValue(
+      //   "zip_codes",
+      //   formData.targeting.geo_locations.regions?.map((c) => {
+      //     const arr = compact([c.key, c.name, c.country]);
+      //     return {
+      //       ...c,
+      //       key: arr.join(", "),
+      //       label: arr.join(", "),
+      //       value: arr.join(", "),
+      //       uid: c.key,
+      //       initial: true,
+      //     };
+      //   }) ?? []
+      // );
+      formData.targeting.geo_locations &&
+        setValue(
+          "locations",
+          flatGeoLocationData(formData.targeting.geo_locations)
+        );
       formData.targeting.flexible_spec &&
         setValue(
           "demographics",
@@ -835,10 +905,10 @@ export default function CreateAdset() {
             label="Conversion Location"
             placeholder={"Select Conversion Location"}
             onSelectionChange={(key: Key) => {
-              setValue("conversion_location", key as string);
+              setValue("destination_type", key as IAdSet["destination_type"]);
             }}
             selectedKey={conversionLocationValue}
-            errorMessage={formState.errors.conversion_location?.message}
+            errorMessage={formState.errors.destination_type?.message}
           >
             {conversionLocationList.map((conversationLocation) => (
               <AutocompleteItem
@@ -880,7 +950,7 @@ export default function CreateAdset() {
               </AutocompleteItem>
             ))}
           </Autocomplete>
-          <SelectCountries
+          {/* <SelectCountries
             value={countryValue}
             onChange={(value: string, option: any) => {
               setValue("countries", option);
@@ -891,7 +961,7 @@ export default function CreateAdset() {
             onChange={(value: string, option: any) => {
               setValue("zip_codes", option);
             }}
-          />
+          /> */}
           <SelectLocations
             value={locationValue}
             onChange={(value: string, option: any) => {

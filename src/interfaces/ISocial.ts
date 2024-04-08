@@ -84,8 +84,16 @@ interface IAdSetInterest {
 
 interface IAdSetRegion {
   country: string;
-  key: string;
+  key: string | number;
   name: string;
+}
+
+interface IAdSetZip {
+  key: string;
+  name?: string;
+  primary_city_id?: number;
+  region_id?: number;
+  country?: string;
 }
 
 export type FlexibleSpec = Record<
@@ -99,7 +107,13 @@ type AdSetNested = Pick<
   "name" | "bid_strategy" | "optimization_goal" | "id" | "promoted_object"
 >;
 
-type DestinationType = "APP" | "WEBSITE" | "MESSENGER" | "PHONE_CALL" | "ON_AD";
+type DestinationType =
+  | "APP"
+  | "WEBSITE"
+  | "MESSENGER"
+  | "PHONE_CALL"
+  | "ON_AD"
+  | "UNDEFINED";
 
 export interface IAdSet {
   id: string;
@@ -119,6 +133,8 @@ export interface IAdSet {
     geo_locations: {
       countries?: string[];
       regions?: IAdSetRegion[];
+      zips?: IAdSetZip[];
+      location_types?: string[];
     };
   };
   insights?: {
@@ -202,4 +218,6 @@ export type OptimisationGoal =
   | "LANDING_PAGE_VIEWS"
   | "VALUE"
   | "THRUPLAY"
+  | "APP_INSTALLS_AND_OFFSITE_CONVERSIONS"
+  | "CONVERSATIONS"
   | "SOCIAL_IMPRESSIONS";

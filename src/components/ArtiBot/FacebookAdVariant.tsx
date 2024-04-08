@@ -197,7 +197,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({
         <span className="text-lg mt-2">Image not found</span>
       </NoImage>
     ) : imageUrl ? (
-      <Image1
+      <img
         width={600}
         height={100}
         className="mb-[0.5em] w-full"

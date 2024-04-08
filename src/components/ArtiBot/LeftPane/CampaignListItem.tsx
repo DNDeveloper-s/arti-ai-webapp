@@ -8,6 +8,9 @@ import {
 import { UserCampaign, useGetCampaignInsights } from "@/api/conversation";
 import useInView from "@/hooks/useInView";
 import { IFacebookAdInsight } from "@/interfaces/ISocial";
+import { getConversationURL } from "@/helpers";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import { ConversationType } from "@/interfaces/IConversation";
 
 export const CampaignInsightShimmer = () => {
   return (
@@ -71,6 +74,7 @@ const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
     campaign.campaignId,
     isInView
   );
+  const { conversation } = useCurrentConversation();
 
   const insights = campaignWithInsights?.insights?.data || [];
   const latestInsight = insights[0];
@@ -82,8 +86,15 @@ const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
 
   return (
     <Link
+      href={
+        getConversationURL(
+          conversation?.id ?? "dummy_66122b08fde465fce15fc39d",
+          conversation?.conversation_type ?? ConversationType.AD_CREATIVE
+        ) +
+        "&campaign_id=" +
+        campaign.campaignId
+      }
       ref={ref}
-      href={"#"}
       key={campaign.id}
       className={
         "flex flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"

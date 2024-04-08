@@ -718,3 +718,45 @@ export const useGetCampaignInsights = (
     enabled: enabled && !!campaignId && !!accessToken,
   });
 };
+
+interface LeadFormObject {
+  id: string;
+  name: string;
+  leads: any;
+  questions: any;
+  status: "ACTIVE" | "ARCHIVED" | "PAUSED";
+}
+type GetLeadGenFormsResponse = LeadFormObject[];
+export const useGetLeadGenForms = ({
+  pageAccessToken,
+  pageId,
+  enabled = true,
+}: {
+  pageAccessToken?: string | null;
+  pageId?: string;
+  enabled?: boolean;
+}) => {
+  const getLeadGenForms = async ({ queryKey }: QueryFunctionContext) => {
+    const [, pageId, pageAccessToken] = queryKey;
+    if (!pageId) {
+      throw new Error("Page ID is required");
+    }
+    if (!pageAccessToken) {
+      throw new Error("Page Access Token is required");
+    }
+    const response = await axios.get(ROUTES.ADS.GET_LEADGEN_FORMS, {
+      params: {
+        page_id: pageId,
+        page_access_token: pageAccessToken,
+      },
+    });
+
+    return response.data.data;
+  };
+
+  return useQuery<GetLeadGenFormsResponse>({
+    queryKey: API_QUERIES.GET_LEADGEN_FORMS(pageId, pageAccessToken),
+    queryFn: getLeadGenForms,
+    enabled: !!enabled && !!pageId && !!pageAccessToken,
+  });
+};

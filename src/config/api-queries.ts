@@ -32,6 +32,11 @@ const API_QUERIES = {
     access_token,
     query,
   ],
+  GET_LEADGEN_FORMS: (pageId?: string, pageAccessToken?: string | null) => [
+    "get-leadgen-forms",
+    pageId,
+    pageAccessToken,
+  ],
   GET_USER_CAMPAIGNS: ["get-user-campaigns"],
   VARIANTS_BY_CONVERSATION: ["variants-by-conversation"],
   GET_USER_ACCOUNTS: ["get-user-accounts"],

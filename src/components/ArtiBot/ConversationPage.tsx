@@ -33,6 +33,7 @@ import AdManagerListModal from "./MessageItems/Deploy/Ad/AdManagerListModal";
 import CreateSocialPostModal from "./MessageItems/Deploy/Post/CreateSocialPostModal";
 import AdCreativeIcon from "../shared/icons/AdCreativeIcon";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import CampaignPage from "./v2/CampaignPage";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -178,6 +179,9 @@ export default function ArtiBotPage({
   const search = useSearchParams();
   const { conversation: _currentConversation } = useCurrentConversation();
 
+  const campaignId = search.get("campaign_id");
+  const shouldShowCampaign = !!campaignId;
+
   const useOld = localStorage.getItem("use_old") === "true";
 
   const adCreative = useMemo(() => {
@@ -231,14 +235,15 @@ export default function ArtiBotPage({
   );
 
   useEffect(() => {
-    setIsConversationCollapsible(search.get("ad_creative") === "expand");
+    setIsConversationCollapsible(
+      search.get("ad_creative") === "expand" || !!search.get("campaign_id")
+    );
   }, [search]);
 
   const headerContent = (
     <div className="z-30 flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
       <ArtiAiDropdown
         handleChange={(item: ArtiAiDropdownItem) => {
-          console.log("item - ", item);
           setIsConversationCollapsible(item.label !== ArtiAiDropdownItems.Chat);
         }}
         items={dropdownItems}
@@ -283,7 +288,7 @@ export default function ArtiBotPage({
             )}
           </div>
         </div>
-        {adCreative && (
+        {!shouldShowCampaign && adCreative && (
           <>
             {/* <div onClick={toggleCollapse} className={'h-4 cursor-pointer text-primary max-w-[900px] mx-auto text-xs gap-1 flex-grow-0 w-full bg-gray-800 flex justify-center items-center'}>
 						{isConversationCollapsible ? <AiOutlineCaretDown /> : <AiOutlineCaretUp />}
@@ -304,6 +309,22 @@ export default function ArtiBotPage({
               </div>
             </div>
           </>
+        )}
+        {shouldShowCampaign && (
+          <div
+            className={
+              "transition-all w-full overflow-hidden " +
+              (isConversationCollapsible ? "h-full flex-1 " : "h-[0]")
+            }
+          >
+            <div
+              className={
+                "w-full max-w-[1920px] mx-auto h-full overflow-hidden p-10"
+              }
+            >
+              <CampaignPage campaignId={campaignId} />
+            </div>
+          </div>
         )}
         <Tooltip id="edit-ad-variant-tooltip" />
       </div>

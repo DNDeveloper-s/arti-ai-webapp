@@ -5,8 +5,8 @@ export const apiConfig = {
   // process.env.NODE_ENV === "production"
   // ? "https://api.artiai.org"
   // : "http://localhost:8081",
-  baseUrl: "https://api.artiai.org",
-  // baseUrl: "http://localhost:8081",
+  // baseUrl: "https://api.artiai.org",
+  baseUrl: "http://localhost:8081",
   version: "/v1",
 };
 
@@ -115,6 +115,7 @@ export const ROUTES = {
     MAILCHIMP_CAMPAIGNS: apiUrl("/marketing/mailchimp_campaigns"),
     SEND_CAMPAIGN: apiUrl("/marketing/send_campaign"),
     CUSTOM_AUDIENCE: apiUrl("/marketing/custom_audience"),
+    GET_LEADGEN_FORMS: apiUrl("/marketing/leads"),
   },
   LOCATION: {
     ZIPCODE: apiUrl("/location/zipcode"),

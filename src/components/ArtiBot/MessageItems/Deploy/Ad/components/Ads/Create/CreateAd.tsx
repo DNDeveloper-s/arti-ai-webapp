@@ -45,6 +45,7 @@ import { IAd } from "@/interfaces/ISocial";
 import { getSubmitText } from "../../../CreateAdManagerModal";
 import { conditionalData } from "../../Adset/Create/CreateAdset";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import { useGetLeadGenForms } from "@/api/conversation";
 
 const BILLING_EVENT = [{ name: "Impressions", uid: "impressions" }];
 
@@ -336,6 +337,7 @@ export default function CreateAd() {
   const { data: adsets, isLoading: isAdsetFetching } = useGetAdSets({
     campaignIds: [campaignValue],
   });
+
   const { state } = useUser();
 
   const {
@@ -389,8 +391,10 @@ export default function CreateAd() {
   }, [meta.selectedVariant?.id]);
 
   useEffect(() => {
-    if (selectedVariant?.oneLiner)
+    if (selectedVariant?.oneLiner) {
       setValue("adName", selectedVariant?.oneLiner);
+      setValue("head_line", selectedVariant?.oneLiner);
+    }
     if (selectedVariant?.text) setValue("primaryText", selectedVariant?.text);
   }, [selectedVariant, setValue]);
 
@@ -498,6 +502,12 @@ export default function CreateAd() {
     }
   }, [pageIdValue, facebookPages]);
 
+  const { data: leadForms, isFetching: isFetchingLeadForms } =
+    useGetLeadGenForms({
+      pageId: selectedPage?.id,
+      pageAccessToken: selectedPage?.page_access_token,
+    });
+
   // Check for the image url
   //
 
@@ -552,10 +562,10 @@ export default function CreateAd() {
                   label: "!text-gray-500",
                 },
               }}
+              label="Ad Set"
               isDisabled={
                 isAdsetFetching || !campaignValue || immutableFields["adset_id"]
               }
-              label="Ad Set"
               placeholder={isAdsetFetching ? "Fetching Adsets" : "Select Adset"}
               onSelectionChange={(key: Key) => {
                 setValue("adset_id", key as string);
@@ -780,7 +790,7 @@ export default function CreateAd() {
               // errorMessage={formState.errors.primaryText?.message}
             />
           )}
-          {conversionLocationValue === "CALLS" && (
+          {conversionLocationValue === "PHONE_CALL" && (
             <Input
               classNames={{
                 label: "!text-gray-500",
@@ -791,46 +801,6 @@ export default function CreateAd() {
               // onValueChange={(value: string) => setValue("primaryText", value)}
               // errorMessage={formState.errors.primaryText?.message}
             />
-          )}
-          {conversionLocationValue === "INSTANT_FORM" && (
-            <Autocomplete
-              inputProps={{
-                classNames: {
-                  input: "!text-white",
-                  label: "!text-gray-500",
-                },
-              }}
-              label="Instant Form"
-              placeholder={"Select Form"}
-              isDisabled={immutableFields["campaign_id"]}
-              disabledKeys={["create_form"]}
-              // onSelectionChange={(key: Key) => {
-              //   setValue("callToAction", key as string);
-              // }}
-              // selectedKey={callToActionValue}
-              // errorMessage={formState.errors.callToAction?.message}
-            >
-              {INSTANT_FORM.map((cta) => (
-                <AutocompleteItem key={cta.uid} textValue={cta.name}>
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {cta.name}
-                  </div>
-                </AutocompleteItem>
-              ))}
-              <AutocompleteItem
-                style={{ pointerEvents: "all", cursor: "default !important" }}
-                key={"create_form"}
-                textValue={"create_form"}
-              >
-                <div className="flex cursor-pointer items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <Button color="primary" className="w-full">
-                    Create Form
-                  </Button>
-                </div>
-              </AutocompleteItem>
-            </Autocomplete>
           )}
           <Autocomplete
             inputProps={{
@@ -864,6 +834,48 @@ export default function CreateAd() {
               </AutocompleteItem>
             )}
           </Autocomplete>
+          {conversionLocationValue === "ON_AD" && (
+            <Autocomplete
+              inputProps={{
+                classNames: {
+                  input: "!text-white",
+                  label: "!text-gray-500",
+                },
+              }}
+              label="Lead Form"
+              disabledKeys={["create_form"]}
+              isDisabled={isFetchingLeadForms || !pageIdValue}
+              placeholder={
+                isFetchingLeadForms ? "Fetching Forms" : "Select Lead Form"
+              }
+              // onSelectionChange={(key: Key) => {
+              //   setValue("callToAction", key as string);
+              // }}
+              // selectedKey={callToActionValue}
+              // errorMessage={formState.errors.callToAction?.message}
+            >
+              {leadForms &&
+                leadForms.map((leadForm) => (
+                  <AutocompleteItem key={leadForm.id} textValue={leadForm.name}>
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {leadForm.name}
+                    </div>
+                  </AutocompleteItem>
+                ))}
+              <AutocompleteItem
+                style={{ pointerEvents: "all", cursor: "default !important" }}
+                key={"create_form"}
+              >
+                <div className="flex cursor-pointer items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <Button color="primary" className="w-full">
+                    Create Form
+                  </Button>
+                </div>
+              </AutocompleteItem>
+            </Autocomplete>
+          )}
         </div>
       </div>
     </form>

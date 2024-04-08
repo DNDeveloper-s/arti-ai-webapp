@@ -1,6 +1,10 @@
 import { useGetUserCampaigns } from "@/api/conversation";
 import CampaignListItem, { CampaignListItemShimmer } from "./CampaignListItem";
 import { PaginatedList } from "./LeftPane";
+import Link from "next/link";
+import { getConversationURL } from "@/helpers";
+import { useSearchParams } from "next/navigation";
+import { ConversationType } from "@/interfaces/IConversation";
 
 export default function CampaignSection() {
   const {
@@ -12,6 +16,8 @@ export default function CampaignSection() {
     ...props
   } = useGetUserCampaigns();
   const campaigns = data?.pages.map((page) => page).flat() || [];
+
+  const searchParams = useSearchParams();
 
   return (
     <div className="w-full my-4">
