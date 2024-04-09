@@ -1,4 +1,11 @@
-import React, { FC, Key, useEffect, useMemo, useState } from "react";
+import React, {
+  FC,
+  Key,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -22,6 +29,7 @@ import { difference, sortBy } from "lodash";
 import { IAdVariant } from "@/interfaces/IArtiBot";
 import everyOneImage from "@/assets/images/case-study/everyone.png";
 import {
+  CTA_AD,
   useAdImageUpload,
   useCreateAd,
   useCreateFacebookAdCreative,
@@ -41,11 +49,13 @@ import { SlOptionsVertical } from "react-icons/sl";
 import { AiOutlineLike } from "react-icons/ai";
 import { GoComment } from "react-icons/go";
 import { TbShare3 } from "react-icons/tb";
-import { IAd } from "@/interfaces/ISocial";
+import { IAd, IAdSet } from "@/interfaces/ISocial";
 import { getSubmitText } from "../../../CreateAdManagerModal";
 import { conditionalData } from "../../Adset/Create/CreateAdset";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import { useGetLeadGenForms } from "@/api/conversation";
+import { SnackbarContext } from "@/context/SnackbarContext";
+import CreateLeadFormModal from "./CreateLeadForm";
 
 const BILLING_EVENT = [{ name: "Impressions", uid: "impressions" }];
 
@@ -59,103 +69,110 @@ const INSTANT_FORM = [
   { name: "Create Form", uid: "create_form" },
 ];
 
-const CTA = [
-  { name: "Book Travel", value: "BOOK_TRAVEL" },
-  { name: "Contact Us", value: "CONTACT_US" },
-  { name: "Donate", value: "DONATE" },
-  { name: "Donate Now", value: "DONATE_NOW" },
-  { name: "Download", value: "DOWNLOAD" },
-  { name: "Get Directions", value: "GET_DIRECTIONS" },
-  { name: "Go Live", value: "GO_LIVE" },
-  { name: "Interested", value: "INTERESTED" },
-  { name: "Learn More", value: "LEARN_MORE" },
-  { name: "Like Page", value: "LIKE_PAGE" },
-  { name: "Message Page", value: "MESSAGE_PAGE" },
-  { name: "Send Message", value: "SEND_MESSAGE" },
-  { name: "Raise Money", value: "RAISE_MONEY" },
-  { name: "Save", value: "SAVE" },
-  { name: "Send Tip", value: "SEND_TIP" },
-  { name: "Shop Now", value: "SHOP_NOW" },
-  { name: "Sign Up", value: "SIGN_UP" },
-  { name: "View Instagram Profile", value: "VIEW_INSTAGRAM_PROFILE" },
-  { name: "Instagram Message", value: "INSTAGRAM_MESSAGE" },
-  { name: "Loyalty Learn More", value: "LOYALTY_LEARN_MORE" },
-  { name: "Purchase Gift Cards", value: "PURCHASE_GIFT_CARDS" },
-  { name: "Pay to Access", value: "PAY_TO_ACCESS" },
-  { name: "See More", value: "SEE_MORE" },
-  { name: "Try in Camera", value: "TRY_IN_CAMERA" },
-  { name: "WhatsApp Link", value: "WHATSAPP_LINK" },
-  { name: "Book Now", value: "BOOK_NOW" },
-  { name: "Check Availability", value: "CHECK_AVAILABILITY" },
-  { name: "Order Now", value: "ORDER_NOW" },
-  { name: "WhatsApp Message", value: "WHATSAPP_MESSAGE" },
-  { name: "Get Mobile App", value: "GET_MOBILE_APP" },
-  { name: "Install Mobile App", value: "INSTALL_MOBILE_APP" },
-  { name: "Use Mobile App", value: "USE_MOBILE_APP" },
-  { name: "Install App", value: "INSTALL_APP" },
-  { name: "Use App", value: "USE_APP" },
-  { name: "Play Game", value: "PLAY_GAME" },
-  { name: "Watch Video", value: "WATCH_VIDEO" },
-  { name: "Watch More", value: "WATCH_MORE" },
-  { name: "Open Link", value: "OPEN_LINK" },
-  { name: "No Button", value: "NO_BUTTON" },
-  { name: "Listen Music", value: "LISTEN_MUSIC" },
-  { name: "Mobile Download", value: "MOBILE_DOWNLOAD" },
-  { name: "Get Offer", value: "GET_OFFER" },
-  { name: "Get Offer View", value: "GET_OFFER_VIEW" },
-  { name: "Buy Now", value: "BUY_NOW" },
-  { name: "Buy Tickets", value: "BUY_TICKETS" },
-  { name: "Update App", value: "UPDATE_APP" },
-  { name: "Bet Now", value: "BET_NOW" },
-  { name: "Add to Cart", value: "ADD_TO_CART" },
-  { name: "Sell Now", value: "SELL_NOW" },
-  { name: "Get Showtimes", value: "GET_SHOWTIMES" },
-  { name: "Listen Now", value: "LISTEN_NOW" },
-  { name: "Get Event Tickets", value: "GET_EVENT_TICKETS" },
-  { name: "Remind Me", value: "REMIND_ME" },
-  { name: "Search More", value: "SEARCH_MORE" },
-  { name: "Pre Register", value: "PRE_REGISTER" },
-  { name: "Swipe Up Product", value: "SWIPE_UP_PRODUCT" },
-  { name: "Swipe Up Shop", value: "SWIPE_UP_SHOP" },
-  { name: "Play Game on Facebook", value: "PLAY_GAME_ON_FACEBOOK" },
-  { name: "Visit World", value: "VISIT_WORLD" },
-  { name: "Open Instant App", value: "OPEN_INSTANT_APP" },
-  { name: "Join Group", value: "JOIN_GROUP" },
-  { name: "Get Promotions", value: "GET_PROMOTIONS" },
-  { name: "Send Updates", value: "SEND_UPDATES" },
-  { name: "Inquire Now", value: "INQUIRE_NOW" },
-  { name: "Visit Profile", value: "VISIT_PROFILE" },
-  { name: "Chat on WhatsApp", value: "CHAT_ON_WHATSAPP" },
-  { name: "Explore More", value: "EXPLORE_MORE" },
-  { name: "Confirm", value: "CONFIRM" },
-  { name: "Join Channel", value: "JOIN_CHANNEL" },
-  { name: "Call", value: "CALL" },
-  { name: "Missed Call", value: "MISSED_CALL" },
+const CTAs = [
   { name: "Call Now", value: "CALL_NOW" },
-  { name: "Call Me", value: "CALL_ME" },
-  { name: "Apply Now", value: "APPLY_NOW" },
-  { name: "Buy", value: "BUY" },
-  { name: "Get Quote", value: "GET_QUOTE" },
-  { name: "Subscribe", value: "SUBSCRIBE" },
-  { name: "Record Now", value: "RECORD_NOW" },
-  { name: "Vote Now", value: "VOTE_NOW" },
-  { name: "Give Free Rides", value: "GIVE_FREE_RIDES" },
-  { name: "Register Now", value: "REGISTER_NOW" },
-  { name: "Open Messenger Ext", value: "OPEN_MESSENGER_EXT" },
-  { name: "Event RSVP", value: "EVENT_RSVP" },
-  { name: "Civic Action", value: "CIVIC_ACTION" },
-  { name: "Send Invites", value: "SEND_INVITES" },
-  { name: "Refer Friends", value: "REFER_FRIENDS" },
-  { name: "Request Time", value: "REQUEST_TIME" },
-  { name: "See Menu", value: "SEE_MENU" },
-  { name: "Search", value: "SEARCH" },
-  { name: "Try It", value: "TRY_IT" },
-  { name: "Try On", value: "TRY_ON" },
-  { name: "Link Card", value: "LINK_CARD" },
-  { name: "Dial Code", value: "DIAL_CODE" },
-  { name: "Find Your Groups", value: "FIND_YOUR_GROUPS" },
-  { name: "Start Order", value: "START_ORDER" },
+  { name: "Message Page", value: "MESSAGE_PAGE" },
+  { name: "Sign Up", value: "SIGN_UP" },
+  { name: "Watch More", value: "WATCH_MORE" },
 ];
+
+// const CTA = [
+//   { name: "Book Travel", value: "BOOK_TRAVEL" },
+//   { name: "Contact Us", value: "CONTACT_US" },
+//   { name: "Donate", value: "DONATE" },
+//   { name: "Donate Now", value: "DONATE_NOW" },
+//   { name: "Download", value: "DOWNLOAD" },
+//   { name: "Get Directions", value: "GET_DIRECTIONS" },
+//   { name: "Go Live", value: "GO_LIVE" },
+//   { name: "Interested", value: "INTERESTED" },
+//   { name: "Learn More", value: "LEARN_MORE" },
+//   { name: "Like Page", value: "LIKE_PAGE" },
+//   { name: "Message Page", value: "MESSAGE_PAGE" },
+//   { name: "Send Message", value: "SEND_MESSAGE" },
+//   { name: "Raise Money", value: "RAISE_MONEY" },
+//   { name: "Save", value: "SAVE" },
+//   { name: "Send Tip", value: "SEND_TIP" },
+//   { name: "Shop Now", value: "SHOP_NOW" },
+//   { name: "Sign Up", value: "SIGN_UP" },
+//   { name: "View Instagram Profile", value: "VIEW_INSTAGRAM_PROFILE" },
+//   { name: "Instagram Message", value: "INSTAGRAM_MESSAGE" },
+//   { name: "Loyalty Learn More", value: "LOYALTY_LEARN_MORE" },
+//   { name: "Purchase Gift Cards", value: "PURCHASE_GIFT_CARDS" },
+//   { name: "Pay to Access", value: "PAY_TO_ACCESS" },
+//   { name: "See More", value: "SEE_MORE" },
+//   { name: "Try in Camera", value: "TRY_IN_CAMERA" },
+//   { name: "WhatsApp Link", value: "WHATSAPP_LINK" },
+//   { name: "Book Now", value: "BOOK_NOW" },
+//   { name: "Check Availability", value: "CHECK_AVAILABILITY" },
+//   { name: "Order Now", value: "ORDER_NOW" },
+//   { name: "WhatsApp Message", value: "WHATSAPP_MESSAGE" },
+//   { name: "Get Mobile App", value: "GET_MOBILE_APP" },
+//   { name: "Install Mobile App", value: "INSTALL_MOBILE_APP" },
+//   { name: "Use Mobile App", value: "USE_MOBILE_APP" },
+//   { name: "Install App", value: "INSTALL_APP" },
+//   { name: "Use App", value: "USE_APP" },
+//   { name: "Play Game", value: "PLAY_GAME" },
+//   { name: "Watch Video", value: "WATCH_VIDEO" },
+//   { name: "Watch More", value: "WATCH_MORE" },
+//   { name: "Open Link", value: "OPEN_LINK" },
+//   { name: "No Button", value: "NO_BUTTON" },
+//   { name: "Listen Music", value: "LISTEN_MUSIC" },
+//   { name: "Mobile Download", value: "MOBILE_DOWNLOAD" },
+//   { name: "Get Offer", value: "GET_OFFER" },
+//   { name: "Get Offer View", value: "GET_OFFER_VIEW" },
+//   { name: "Buy Now", value: "BUY_NOW" },
+//   { name: "Buy Tickets", value: "BUY_TICKETS" },
+//   { name: "Update App", value: "UPDATE_APP" },
+//   { name: "Bet Now", value: "BET_NOW" },
+//   { name: "Add to Cart", value: "ADD_TO_CART" },
+//   { name: "Sell Now", value: "SELL_NOW" },
+//   { name: "Get Showtimes", value: "GET_SHOWTIMES" },
+//   { name: "Listen Now", value: "LISTEN_NOW" },
+//   { name: "Get Event Tickets", value: "GET_EVENT_TICKETS" },
+//   { name: "Remind Me", value: "REMIND_ME" },
+//   { name: "Search More", value: "SEARCH_MORE" },
+//   { name: "Pre Register", value: "PRE_REGISTER" },
+//   { name: "Swipe Up Product", value: "SWIPE_UP_PRODUCT" },
+//   { name: "Swipe Up Shop", value: "SWIPE_UP_SHOP" },
+//   { name: "Play Game on Facebook", value: "PLAY_GAME_ON_FACEBOOK" },
+//   { name: "Visit World", value: "VISIT_WORLD" },
+//   { name: "Open Instant App", value: "OPEN_INSTANT_APP" },
+//   { name: "Join Group", value: "JOIN_GROUP" },
+//   { name: "Get Promotions", value: "GET_PROMOTIONS" },
+//   { name: "Send Updates", value: "SEND_UPDATES" },
+//   { name: "Inquire Now", value: "INQUIRE_NOW" },
+//   { name: "Visit Profile", value: "VISIT_PROFILE" },
+//   { name: "Chat on WhatsApp", value: "CHAT_ON_WHATSAPP" },
+//   { name: "Explore More", value: "EXPLORE_MORE" },
+//   { name: "Confirm", value: "CONFIRM" },
+//   { name: "Join Channel", value: "JOIN_CHANNEL" },
+//   { name: "Call", value: "CALL" },
+//   { name: "Missed Call", value: "MISSED_CALL" },
+//   { name: "Call Now", value: "CALL_NOW" },
+//   { name: "Call Me", value: "CALL_ME" },
+//   { name: "Apply Now", value: "APPLY_NOW" },
+//   { name: "Buy", value: "BUY" },
+//   { name: "Get Quote", value: "GET_QUOTE" },
+//   { name: "Subscribe", value: "SUBSCRIBE" },
+//   { name: "Record Now", value: "RECORD_NOW" },
+//   { name: "Vote Now", value: "VOTE_NOW" },
+//   { name: "Give Free Rides", value: "GIVE_FREE_RIDES" },
+//   { name: "Register Now", value: "REGISTER_NOW" },
+//   { name: "Open Messenger Ext", value: "OPEN_MESSENGER_EXT" },
+//   { name: "Event RSVP", value: "EVENT_RSVP" },
+//   { name: "Civic Action", value: "CIVIC_ACTION" },
+//   { name: "Send Invites", value: "SEND_INVITES" },
+//   { name: "Refer Friends", value: "REFER_FRIENDS" },
+//   { name: "Request Time", value: "REQUEST_TIME" },
+//   { name: "See Menu", value: "SEE_MENU" },
+//   { name: "Search", value: "SEARCH" },
+//   { name: "Try It", value: "TRY_IT" },
+//   { name: "Try On", value: "TRY_ON" },
+//   { name: "Link Card", value: "LINK_CARD" },
+//   { name: "Dial Code", value: "DIAL_CODE" },
+//   { name: "Find Your Groups", value: "FIND_YOUR_GROUPS" },
+//   { name: "Start Order", value: "START_ORDER" },
+// ];
 
 const SOCIAL_PAGES = [
   { name: "Michael Scott", uid: "michael_scott" },
@@ -274,6 +291,147 @@ const FacebookAdPreview = ({
   );
 };
 
+interface LinkDataBase {
+  link: string;
+  message: string;
+  name: string;
+  image_hash: string;
+  description?: string;
+}
+
+interface LinkDataForCallAd extends LinkDataBase {
+  call_to_action: {
+    type: "CALL_NOW";
+    value: {
+      link: string;
+    };
+  };
+}
+
+interface LinkDataForMessengerAd extends LinkDataBase {
+  call_to_action: {
+    type: "MESSAGE_PAGE";
+    value: {
+      app_destination: string;
+    };
+  };
+}
+
+interface LinkDataForLeadAd extends LinkDataBase {
+  attachment_style: string;
+  call_to_action: {
+    type: "SIGN_UP";
+    value: {
+      lead_gen_form_id: string;
+    };
+  };
+}
+
+interface LinkDataForWebsiteAd extends LinkDataBase {
+  caption: string;
+  attachment_style: string;
+  call_to_action: {
+    type: "WATCH_MORE";
+  };
+}
+
+export type LinkData =
+  | LinkDataForCallAd
+  | LinkDataForMessengerAd
+  | LinkDataForLeadAd
+  | LinkDataForWebsiteAd;
+
+/**
+ *
+ * @throws {Error}
+ * @param destinationType
+ * @param data
+ * @returns {LinkData}
+ */
+function prepareLinkData(
+  destinationType: IAdSet["destination_type"],
+  data: CreateAdFormValues
+): LinkData {
+  if (!data) {
+    throw new Error("Data is required");
+  }
+  if (!data.page_id) {
+    throw new Error("Meta Page is required for the ad.");
+  }
+  switch (destinationType) {
+    case "PHONE_CALL":
+      if (!data.phone_number) {
+        throw new Error("Phone number is required for call ad");
+      }
+      return {
+        link: "https://facebook.com/" + data.page_id,
+        message: data.primaryText,
+        name: data.adName,
+        image_hash: "image_hash",
+        description: data.description,
+        call_to_action: {
+          type: "CALL_NOW",
+          value: {
+            link: data.phone_number,
+          },
+        },
+      };
+    case "MESSENGER":
+      return {
+        link: "https://fb.com/messenger_doc/",
+        message: data.primaryText,
+        name: data.adName,
+        image_hash: "image_hash",
+        description: data.description,
+        call_to_action: {
+          type: "MESSAGE_PAGE",
+          value: {
+            app_destination: "MESSENGER",
+          },
+        },
+      };
+    case "ON_AD":
+      if (!data.lead_gen_form) {
+        throw new Error("Lead gen form is required for lead ad");
+      }
+      return {
+        link: "http://fb.me/",
+        message: data.primaryText,
+        name: data.adName,
+        image_hash: "image_hash",
+        attachment_style: "link",
+        description: data.description,
+        call_to_action: {
+          type: "SIGN_UP",
+          value: {
+            lead_gen_form_id: data.lead_gen_form,
+          },
+        },
+      };
+    case "WEBSITE":
+      if (!data.website_url) {
+        throw new Error("Website Url is requiried for website ad");
+      }
+      return {
+        link: data.website_url,
+        message: data.primaryText,
+        name: data.adName,
+        image_hash: "image_hash",
+        caption: data.website_url,
+        attachment_style: "link",
+        description: data.description,
+        call_to_action: {
+          type: "WATCH_MORE",
+        },
+      };
+    default:
+      throw new Error("Invalid Conversion Location");
+    // return null;
+  }
+}
+
+type CTAType = LinkData["call_to_action"]["type"];
+
 interface CreateAdFormValues {
   campaign_id: string;
   adset_id: string;
@@ -281,8 +439,12 @@ interface CreateAdFormValues {
   adName: string;
   head_line: string;
   primaryText: string;
-  callToAction: string;
   status: "ACTIVE" | "PAUSED";
+  lead_gen_form?: string;
+  description?: string;
+  website_url?: string;
+  app_url?: string;
+  phone_number?: string;
 }
 
 const validationSchema = yup.object().shape({
@@ -292,10 +454,15 @@ const validationSchema = yup.object().shape({
   head_line: yup.string().required("Head Line is required"),
   adName: yup.string().required("Ad Name is required"),
   primaryText: yup.string().required("Primary Text is required"),
-  callToAction: yup.string().required("Call to Action is required"),
+  lead_gen_form: yup.string(),
+  description: yup.string(),
+  website_url: yup.string(),
+  app_url: yup.string(),
+  phone_number: yup.string(),
 });
 
 export default function CreateAd() {
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
   const resolver = useYupValidationResolver(validationSchema);
   const { handleSubmit, formState, register, setValue, watch } =
     useForm<CreateAdFormValues>({
@@ -328,9 +495,10 @@ export default function CreateAd() {
   const adsetValue = watch("adset_id");
   const adNameValue = watch("adName");
   const primaryTextValue = watch("primaryText");
-  const callToActionValue = watch("callToAction");
+  // const callToActionValue = watch("callToAction");
   const statusValue = watch("status");
   const headlineValue = watch("head_line");
+  const leadGenFormValue = watch("lead_gen_form");
 
   const [selectedVariantId, setSelectedVariantId] = React.useState<string>("");
   const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns();
@@ -367,6 +535,7 @@ export default function CreateAd() {
   const { adVariantsByConversationId } = useAdCreatives();
   const searchParams = useSearchParams();
   const [erroredAdVariants, setErroredAdVariants] = useState<IAdVariant[]>([]);
+  const [showCreateLeadFormModal, setShowCreateLeadFormModal] = useState(false);
 
   const { conversation } = useCurrentConversation();
   const conversationId = conversation?.id;
@@ -398,42 +567,63 @@ export default function CreateAd() {
     if (selectedVariant?.text) setValue("primaryText", selectedVariant?.text);
   }, [selectedVariant, setValue]);
 
-  // TODO: Fetch the adset conversion location
   const conversionLocationValue = useMemo(() => {
-    return adsets?.find((adset) => adset.id === adsetValue)?.destination_type;
-  }, [adsets, adsetValue]);
+    const value = adsets?.find(
+      (adset) => adset.id === adsetValue
+    )?.destination_type;
+    if (value === "MESSENGER") setValue("callToAction", "MESSAGE_PAGE");
+    return value;
+  }, [adsets, adsetValue, setValue]);
 
   async function handleCreateAd(data: CreateAdFormValues) {
-    if (!selectedVariant?.imageUrl && storeFormState.mode === "create")
-      return null;
+    try {
+      if (!selectedVariant?.imageUrl && storeFormState.mode === "create")
+        return null;
 
-    storeFormState.mode === "edit" && storeFormState.open === true
-      ? postUpdateAd({
-          ad: {
-            name: data.adName,
-            status: data.status,
-            adsetId: data.adset_id,
-            creativeId: storeFormState.rawData.creative.id,
-          },
-          adId: storeFormState.rawData.id,
-        })
-      : postCreateAd({
-          imageUrl: selectedVariant?.imageUrl,
-          ad: {
-            adsetId: data.adset_id,
-            status: data.status,
-            campaignId: data.campaign_id,
-            name: data.adName,
-          },
-          adCreativeData: {
-            ad_creative: {
-              call_to_action_type: data.callToAction,
-              message: data.primaryText,
+      const linkData = prepareLinkData(conversionLocationValue, data);
+
+      storeFormState.mode === "edit" && storeFormState.open === true
+        ? postUpdateAd({
+            ad: {
               name: data.adName,
+              status: data.status,
+              adset_id: data.adset_id,
+              creative_id: storeFormState.rawData.creative.id,
             },
-            pageId: data.page_id,
-          },
-        });
+            adId: storeFormState.rawData.id,
+          })
+        : postCreateAd({
+            imageUrl: selectedVariant?.imageUrl,
+            ad: {
+              adset_id: data.adset_id,
+              status: data.status,
+              campaign_id: data.campaign_id,
+              name: data.adName,
+              variant_id: selectedVariantId,
+            },
+            adCreativeData: {
+              name: data.adName,
+              status: data.status,
+              object_story_spec: {
+                page_id: data.page_id,
+                link_data: linkData,
+              },
+            },
+          });
+    } catch (e: any) {
+      setSnackBarData({
+        message: e.message ?? "Unable to Create Ad.",
+        status: "error",
+      });
+    }
+  }
+
+  function handleCreateFormButtonClick() {
+    setShowCreateLeadFormModal(true);
+  }
+
+  function handleCloseLeadFormModal() {
+    setShowCreateLeadFormModal(false);
   }
 
   const previewData = useMemo(() => {
@@ -467,8 +657,7 @@ export default function CreateAd() {
       );
       setValue(
         "callToAction",
-        formData.creative.object_story_spec?.link_data?.call_to_action?.type ??
-          ""
+        formData.creative.object_story_spec?.link_data?.call_to_action?.type
       );
       setValue("status", formData.status);
     } else {
@@ -535,6 +724,7 @@ export default function CreateAd() {
                 isCampaignsFetching ? "Fetching Campaigns" : "Select Campaign"
               }
               onSelectionChange={(key: Key) => {
+                setValue("adset_id", "");
                 setValue("campaign_id", key as string);
               }}
               selectedKey={campaignValue}
@@ -699,7 +889,7 @@ export default function CreateAd() {
             onValueChange={(value: string) => setValue("primaryText", value)}
             errorMessage={formState.errors.primaryText?.message}
           />
-          <Autocomplete
+          {/* <Autocomplete
             inputProps={{
               classNames: {
                 input: "!text-white",
@@ -710,20 +900,110 @@ export default function CreateAd() {
             placeholder={"Select CTA"}
             isDisabled={immutableFields["campaign_id"]}
             onSelectionChange={(key: Key) => {
-              setValue("callToAction", key as string);
+              setValue("callToAction", key as CTAType);
             }}
             selectedKey={callToActionValue}
             errorMessage={formState.errors.callToAction?.message}
           >
-            {CTA.map((cta) => (
+            {CTAs.map((cta) => (
               <AutocompleteItem key={cta.value} textValue={cta.name}>
-                <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {cta.name}
-                </div>
+                <div className="flex items-center gap-3">{cta.name}</div>
               </AutocompleteItem>
             ))}
-          </Autocomplete>
+          </Autocomplete> */}
+          {conversionLocationValue === "WEBSITE" && (
+            <Input
+              classNames={{
+                label: "!text-gray-500",
+              }}
+              label="Website Url"
+              variant="flat"
+              {...register("website_url")}
+              // value={primaryTextValue}
+              // onValueChange={(value: string) => setValue("primaryText", value)}
+              // errorMessage={formState.errors.primaryText?.message}
+            />
+          )}
+          {conversionLocationValue === "APP" && (
+            <Input
+              classNames={{
+                label: "!text-gray-500",
+              }}
+              label="App Url"
+              variant="flat"
+              {...register("app_url")}
+              // value={primaryTextValue}
+              // onValueChange={(value: string) => setValue("primaryText", value)}
+              // errorMessage={formState.errors.primaryText?.message}
+            />
+          )}
+          {conversionLocationValue === "PHONE_CALL" && (
+            <Input
+              classNames={{
+                label: "!text-gray-500",
+              }}
+              label="Phone Number"
+              variant="flat"
+              {...register("phone_number")}
+              // value={primaryTextValue}
+              // onValueChange={(value: string) => setValue("primaryText", value)}
+              // errorMessage={formState.errors.primaryText?.message}
+            />
+          )}
+          {conversionLocationValue === "ON_AD" && (
+            <Autocomplete
+              inputProps={{
+                classNames: {
+                  input: "!text-white",
+                  label: "!text-gray-500",
+                },
+              }}
+              label="Lead Form"
+              // disabledKeys={[]}
+              isDisabled={isFetchingLeadForms || !pageIdValue}
+              placeholder={
+                isFetchingLeadForms ? "Fetching Forms" : "Select Lead Form"
+              }
+              onSelectionChange={(key: Key) => {
+                setValue("lead_gen_form", key as string);
+              }}
+              selectedKey={leadGenFormValue}
+              errorMessage={formState.errors.lead_gen_form?.message}
+            >
+              {leadForms &&
+                leadForms.map((leadForm) => (
+                  <AutocompleteItem key={leadForm.id} textValue={leadForm.name}>
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {leadForm.name}
+                    </div>
+                  </AutocompleteItem>
+                ))}
+              <AutocompleteItem
+                style={{ pointerEvents: "all", cursor: "default !important" }}
+                key={"create_form"}
+                textValue={""}
+              >
+                <div className="flex cursor-pointer items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <Button
+                    color="primary"
+                    className="w-full"
+                    onClick={handleCreateFormButtonClick}
+                  >
+                    Create Form
+                  </Button>
+                </div>
+              </AutocompleteItem>
+            </Autocomplete>
+          )}
+          {conversionLocationValue === "ON_AD" && (
+            <CreateLeadFormModal
+              open={showCreateLeadFormModal}
+              handleClose={handleCloseLeadFormModal}
+              page={selectedPage}
+            />
+          )}
         </div>
         <div className="w-full flex justify-start gap-2 text-small items-center">
           <Switch
@@ -748,7 +1028,7 @@ export default function CreateAd() {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-4 flex-1 space-between">
+      <div className="flex flex-col gap-4 h-full flex-1 space-between">
         <div className="flex flex-col gap-4 flex-1 overflow-hidden">
           <div className="flex justify-center">
             {previewData ? (
@@ -766,42 +1046,6 @@ export default function CreateAd() {
           </div>
           {/* <AdPreview3 brand={brands["amplified"]} /> */}
           <Divider className="my-2" />
-          {conversionLocationValue === "WEBSITE" && (
-            <Input
-              classNames={{
-                label: "!text-gray-500",
-              }}
-              label="Website Url"
-              variant="flat"
-              // value={primaryTextValue}
-              // onValueChange={(value: string) => setValue("primaryText", value)}
-              // errorMessage={formState.errors.primaryText?.message}
-            />
-          )}
-          {conversionLocationValue === "APP" && (
-            <Input
-              classNames={{
-                label: "!text-gray-500",
-              }}
-              label="App Url"
-              variant="flat"
-              // value={primaryTextValue}
-              // onValueChange={(value: string) => setValue("primaryText", value)}
-              // errorMessage={formState.errors.primaryText?.message}
-            />
-          )}
-          {conversionLocationValue === "PHONE_CALL" && (
-            <Input
-              classNames={{
-                label: "!text-gray-500",
-              }}
-              label="Phone Number"
-              variant="flat"
-              // value={primaryTextValue}
-              // onValueChange={(value: string) => setValue("primaryText", value)}
-              // errorMessage={formState.errors.primaryText?.message}
-            />
-          )}
           <Autocomplete
             inputProps={{
               classNames: {
@@ -834,48 +1078,6 @@ export default function CreateAd() {
               </AutocompleteItem>
             )}
           </Autocomplete>
-          {conversionLocationValue === "ON_AD" && (
-            <Autocomplete
-              inputProps={{
-                classNames: {
-                  input: "!text-white",
-                  label: "!text-gray-500",
-                },
-              }}
-              label="Lead Form"
-              disabledKeys={["create_form"]}
-              isDisabled={isFetchingLeadForms || !pageIdValue}
-              placeholder={
-                isFetchingLeadForms ? "Fetching Forms" : "Select Lead Form"
-              }
-              // onSelectionChange={(key: Key) => {
-              //   setValue("callToAction", key as string);
-              // }}
-              // selectedKey={callToActionValue}
-              // errorMessage={formState.errors.callToAction?.message}
-            >
-              {leadForms &&
-                leadForms.map((leadForm) => (
-                  <AutocompleteItem key={leadForm.id} textValue={leadForm.name}>
-                    <div className="flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {leadForm.name}
-                    </div>
-                  </AutocompleteItem>
-                ))}
-              <AutocompleteItem
-                style={{ pointerEvents: "all", cursor: "default !important" }}
-                key={"create_form"}
-              >
-                <div className="flex cursor-pointer items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <Button color="primary" className="w-full">
-                    Create Form
-                  </Button>
-                </div>
-              </AutocompleteItem>
-            </Autocomplete>
-          )}
         </div>
       </div>
     </form>

@@ -30,6 +30,7 @@ import useCampaignStore from "@/store/campaign";
 import { omit } from "lodash";
 import { getServerSession } from "next-auth";
 import { RedirectType, redirect } from "next/navigation";
+import { LinkData } from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/Ads/Create/CreateAd";
 
 function getAxiosResponseError(error: any) {
   if (error instanceof Error && error instanceof AxiosError) {
@@ -633,21 +634,10 @@ export function useGetAdSets({
   providedAccountId?: string | null;
   enabled?: boolean;
 }): UseQueryResult<IAdSet[], Error> {
-  const {
-    accessToken,
-    accountId: defaultAccountId,
-    isFetching,
-  } = useCredentials();
+  const { accessToken, accountId: defaultAccountId } = useCredentials();
 
   const accountId = providedAccountId ?? defaultAccountId;
 
-  console.log(
-    " enabled && !!accessToken && !!accountId && !!campaignIds - ",
-    enabled,
-    !!accessToken,
-    !!accountId,
-    !!campaignIds
-  );
   const getAdSets = async ({ queryKey }: QueryFunctionContext) => {
     const [, accessToken, accountId, campaignIds] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
@@ -678,7 +668,7 @@ export function useGetAdSets({
 
   return {
     ...query,
-    isFetching: isFetching || query.isFetching,
+    isFetching: query.isFetching,
   };
 }
 
@@ -1083,19 +1073,54 @@ export const useUpdateAdset = () => {
 interface ICreateAd {
   name: string;
   status: string;
-  adsetId: string;
-  campaignId: string;
-  creativeId?: string;
+  adset_id: string;
+  campaign_id: string;
+  creative_id?: string;
+  variant_id?: string;
+}
+
+// interface ICreateAdCreative {
+//   ad_creative: {
+//     name: string;
+//     call_to_action_type: string;
+//     message: string;
+//   };
+//   imageHash?: string;
+//   pageId: string;
+// }
+
+export interface CTA_AD {
+  CALL_NOW: {
+    type: "CALL_NOW";
+    value: {
+      link: string;
+    };
+  };
+  MESSAGE_PAGE: {
+    type: "MESSAGE_PAGE";
+    value: {
+      app_destination: string;
+    };
+  };
+  LEAD_AD: {
+    type: "SIGN_UP";
+    value: {
+      lead_gen_form_id: string;
+    };
+  };
+  WATCH_MORE: {
+    type: "WATCH_MORE";
+  };
 }
 
 interface ICreateAdCreative {
-  ad_creative: {
-    name: string;
-    call_to_action_type: string;
-    message: string;
+  name: string;
+  status: "ACTIVE" | "PAUSED";
+  object_story_spec: {
+    page_id: string;
+    instagram_actor_id?: string;
+    link_data: LinkData;
   };
-  imageHash?: string;
-  pageId: string;
 }
 
 export const useCreateAd = () => {
@@ -1137,9 +1162,14 @@ export const useCreateAd = () => {
     const adCreativeResponse = await axios.post(
       ROUTES.ADS.ADCREATIVES,
       {
-        ad_creative: adCreativeData.ad_creative,
-        image_hash: imageHash,
-        page_id: adCreativeData.pageId,
+        ...adCreativeData,
+        object_story_spec: {
+          ...adCreativeData.object_story_spec,
+          link_data: {
+            ...adCreativeData.object_story_spec.link_data,
+            image_hash: imageHash,
+          },
+        },
       },
       {
         params: {
@@ -1155,7 +1185,7 @@ export const useCreateAd = () => {
       ROUTES.ADS.AD_ENTITIES,
       {
         ...ad,
-        creativeId: adCreativeId,
+        creative_id: adCreativeId,
       },
       {
         params: {
@@ -1210,7 +1240,7 @@ export const useUpdateAd = () => {
     ad,
   }: {
     adId: string;
-    ad: { adsetId: string } & Partial<ICreateAd>;
+    ad: Pick<ICreateAd, "adset_id"> & Partial<ICreateAd>;
     successMessage?: string;
     errorMessage?: string;
   } & MutateParams) => {

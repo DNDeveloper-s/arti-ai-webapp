@@ -53,11 +53,11 @@ export const CampaignListItemShimmer = () => {
   );
 };
 
-function extractFromInsights(insight: IFacebookAdInsight) {
+function extractFromInsights(insight?: IFacebookAdInsight) {
   if (!insight) return null;
   return {
     impressions: insight.impressions,
-    leads: insight.actions.find((a) => a.action_type === "lead")?.value || 0,
+    leads: insight.actions?.find((a) => a.action_type === "lead")?.value || 0,
     reach: insight.reach,
     spent: insight.spend,
   };

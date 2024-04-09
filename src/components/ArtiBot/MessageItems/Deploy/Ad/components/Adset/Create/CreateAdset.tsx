@@ -14,7 +14,7 @@ import {
   Switch,
 } from "@nextui-org/react";
 import { DatePicker } from "antd";
-import { Key, useEffect, useMemo, useRef } from "react";
+import { Key, useContext, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { object, string, mixed, number } from "yup";
 import SelectCountries from "./SelectCountries";
@@ -27,6 +27,8 @@ import { compact, omit } from "lodash";
 import { FlexibleSpec, IAdSet } from "@/interfaces/ISocial";
 import { getSubmitText } from "../../../CreateAdManagerModal";
 import SelectLocations from "./SelectLocations";
+import SelectMetaPage from "../../../../SelectMetaPage";
+import { SnackbarContext } from "@/context/SnackbarContext";
 
 {
   /* <option value="">None</option>
@@ -342,6 +344,47 @@ function prepareGeoLocationData(
   }, desiredData);
 }
 
+interface PromotedObjectWithApp {
+  application_id: string;
+  object_store_url: string;
+  page_id?: never;
+}
+type PromotedObject = PromotedObjectWithApp | Record<"page_id", string>;
+/**
+ *
+ * @throws {Error}
+ * @param destinationType
+ * @param values
+ * @returns {PromotedObject}
+ */
+function preparePromotedObject(
+  destinationType: IAdSet["destination_type"],
+  values: CreateAdsetFormValues
+): PromotedObject | null {
+  if (destinationType === "APP") {
+    if (!values.application_id) {
+      throw new Error("Application ID is required for App Promotion");
+    }
+    if (!values.object_store_url) {
+      throw new Error("Object Store URL is required for App Promotion");
+    }
+    return {
+      application_id: values.application_id,
+      object_store_url: values.object_store_url,
+    };
+  }
+  if (destinationType === "MESSENGER" || destinationType === "ON_AD") {
+    if (!values.page_id) {
+      throw new Error("Page ID is required for Messenger or Instant Form");
+    }
+    return {
+      page_id: values.page_id,
+    };
+  }
+
+  return null;
+}
+
 function flatGeoLocationData(data: GeoLocationData) {
   const arr: any[] = [];
   arr.push(
@@ -363,7 +406,9 @@ type CreateAdsetFormValues = Omit<
   demographics: any;
   start_time: Dayjs | undefined;
   end_time: Dayjs | undefined;
-  product_catalog_id: string;
+  application_id: string;
+  object_store_url: string;
+  page_id: string;
 
   min_age: string;
   max_age: string;
@@ -382,7 +427,9 @@ const validationSchema = object({
   min_age: string(),
   max_age: string(),
   gender: string(),
-  product_catalog_id: string(),
+  application_id: string(),
+  object_store_url: string(),
+  page_id: string(),
   status: string().required("Status is required"),
   start_time: string(),
   end_time: string(),
@@ -395,30 +442,48 @@ const validationSchema = object({
 
 export default function CreateAdset() {
   const resolver = useYupValidationResolver(validationSchema);
-  const { handleSubmit, formState, register, setValue, watch } =
-    useForm<CreateAdsetFormValues>({
-      resolver,
-    });
+  const {
+    handleSubmit,
+    formState,
+    register: originalRegister,
+    setValue,
+    watch,
+  } = useForm<CreateAdsetFormValues>({
+    resolver,
+  });
   const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns();
+
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 
   // Ref for tracking whether it's a new campaign or continuing from editing
   const createModeRef = useRef<"create" | "continue">("create");
+
+  const register = (name: string) => {
+    return {
+      ...originalRegister(name as any),
+      disabled: immutableFields[name as keyof CreateAdsetFormValues],
+      isDisabled: immutableFields[name as keyof CreateAdsetFormValues],
+    };
+  };
 
   const {
     data: createAdSetResponse,
     mutate: postCreateAdset,
     isPending: isCreating,
     isSuccess: isCreationSuccess,
+    error: creationError,
   } = useCreateAdset();
 
   const {
     mutate: postUpdateAdset,
     isPending: isUpdating,
     isSuccess: isUpdationSuccess,
+    error: updationError,
   } = useUpdateAdset();
 
   const isSuccess = isCreationSuccess || isUpdationSuccess;
   const isPending = isCreating || isUpdating;
+  const error = creationError || updationError;
 
   const {
     selected,
@@ -444,12 +509,23 @@ export default function CreateAdset() {
   const genderValue = watch("gender");
   const conversionLocationValue = watch("destination_type");
 
-  const immutableFields = useMemo(() => {
+  const immutableFields = useMemo((): Partial<
+    Record<keyof CreateAdsetFormValues, boolean>
+  > => {
     if (storeFormState.mode !== "edit") return {};
     return {
       campaign_id: true,
+      destination_type: true,
+      page_id: true,
+      application_id: true,
+      object_store_url: true,
+      optimization_goal: true,
     };
   }, [storeFormState.mode]);
+
+  useEffect(() => {
+    console.log("error - ", error);
+  }, [error]);
 
   useEffect(() => {
     setValue("status", "ACTIVE");
@@ -491,18 +567,28 @@ export default function CreateAdset() {
       "demographics",
     ]);
 
-    let promotedObject = {};
-    if (campaignObjective === "OUTCOME_SALES") {
-      promotedObject = {
-        product_catalog_id: data.product_catalog_id,
-      };
-    } else if (campaignObjective === "OUTCOME_APP_PROMOTION") {
-      promotedObject = {
-        application_id: "683754897094286",
-        object_store_url:
-          "http://www.facebook.com/gaming/play/683754897094286/",
-      };
+    let promotedObject: PromotedObject | null = null;
+    try {
+      promotedObject = preparePromotedObject(conversionLocationValue, data);
+    } catch (e: any) {
+      setSnackbarData({
+        message: e.message,
+        status: "error",
+      });
+      console.error(e);
+      return;
     }
+    // if (campaignObjective === "OUTCOME_SALES") {
+    //   promotedObject = {
+    //     product_catalog_id: data.product_catalog_id,
+    //   };
+    // } else if (campaignObjective === "OUTCOME_APP_PROMOTION") {
+    //   promotedObject = {
+    //     application_id: "683754897094286",
+    //     object_store_url:
+    //       "http://www.facebook.com/gaming/play/683754897094286/",
+    //   };
+    // }
 
     let existingGeoLocationData = {};
 
@@ -977,7 +1063,7 @@ export default function CreateAdset() {
               setValue("demographics", option);
             }}
           />
-          {campaignObjective === "OUTCOME_SALES" && (
+          {/* {campaignObjective === "OUTCOME_SALES" && (
             <Input
               classNames={{
                 label: "!text-gray-500",
@@ -986,6 +1072,35 @@ export default function CreateAdset() {
               variant="flat"
               {...register("product_catalog_id")}
               errorMessage={formState.errors.product_catalog_id?.message}
+            />
+          )} */}
+          {conversionLocationValue === "APP" && (
+            <>
+              <Input
+                classNames={{
+                  label: "!text-gray-500",
+                }}
+                label="Application Id"
+                variant="flat"
+                {...register("application_id")}
+                errorMessage={formState.errors.application_id?.message}
+              />
+              <Input
+                classNames={{
+                  label: "!text-gray-500",
+                }}
+                label="Object Store URL"
+                variant="flat"
+                {...register("object_store_url")}
+                errorMessage={formState.errors.object_store_url?.message}
+              />
+            </>
+          )}
+          {["MESSENGER", "ON_AD"].includes(conversionLocationValue ?? "") && (
+            <SelectMetaPage
+              setPageValue={(value) => {
+                setValue("page_id", value);
+              }}
             />
           )}
         </div>
@@ -1043,69 +1158,4 @@ export default function CreateAdset() {
       </div>
     </form>
   );
-}
-
-{
-  /* <Autocomplete
-  inputProps={{
-    classNames: {
-      input: "!text-white",
-      label: "!text-gray-500",
-    },
-  }}
-  label="Zip Codes"
-  placeholder={"Select Zip Code"}
-  onSelectionChange={(key: Key) => {
-    setValue("zip_codes", key as string);
-  }}
-  selectedKey={zipCodeValue}
->
-  {ZIP_CODES.map((zipCode) => (
-    <AutocompleteItem key={zipCode.uid} textValue={zipCode.name}>
-      <div className="flex items-center gap-3">
-
-        {zipCode.name}
-      </div>
-    </AutocompleteItem>
-  ))}
-</Autocomplete>; */
-}
-
-{
-  /* <Autocomplete
-  inputProps={{
-    classNames: {
-      input: "!text-white",
-      label: "!text-gray-500",
-    },
-  }}
-  label="Bid Strategy"
-  placeholder={"Select Bid Strategy"}
-  onSelectionChange={(key: Key) => {
-    setValue("bid_strategy", key as string);
-  }}
-  selectedKey={bidStrategyValue}
-  errorMessage={formState.errors.bid_strategy?.message}
->
-  {BID_STRATEGIES.map((bidStrategy) => (
-    <AutocompleteItem key={bidStrategy.uid} textValue={bidStrategy.name}>
-      <div className="flex items-center gap-3">{bidStrategy.name}</div>
-    </AutocompleteItem>
-  ))}
-</Autocomplete>;
-{
-  ["LOWEST_COST_WITH_BID_CAP", "COST_CAP"].includes(bidStrategyValue) && (
-    <Input
-      classNames={{
-        label: "!text-gray-500",
-      }}
-      label="Bid Cap"
-      variant="flat"
-      type="number"
-      value={bidAmountValue?.toString() ?? ""}
-      {...register("bid_amount")}
-      errorMessage={formState.errors.bid_amount?.message}
-    />
-  );
-} */
 }

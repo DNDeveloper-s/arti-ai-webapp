@@ -13,10 +13,9 @@ import { motion } from "framer-motion";
 import { omit } from "lodash";
 import { IAd, IAdSet, IFacebookAdInsight } from "@/interfaces/ISocial";
 import { useGetAds } from "@/api/user";
-import { useConversation } from "@/context/ConversationContext";
-import { NoImage } from "../LeftPane/ConversationListItem";
 import { botData } from "@/constants/images";
-import { popGraphicsState } from "pdf-lib";
+import { MdDownload } from "react-icons/md";
+import writeXlsxFile from "write-excel-file";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -146,6 +145,7 @@ function InsightCard(
     "date_start",
     "date_stop",
     "actions",
+    "conversions",
   ]);
 
   return (
@@ -222,6 +222,61 @@ function InsightCard(
     </AnimatePresence>
   );
 }
+
+async function handleDownload(name: string, insights?: IFacebookAdInsight) {
+  if (!insights) return;
+
+  const HEADER_ROW = [
+    {
+      value: "Insight Key",
+      fontWeight: "bold",
+    },
+    {
+      value: "Insight Value",
+      fontWeight: "bold",
+    },
+  ];
+
+  const globalKeyObject: Omit<
+    IFacebookAdInsight,
+    "date_start" | "date_stop" | "actions" | "conversions"
+  > = omit(insights, ["date_start", "date_stop", "actions", "conversions"]);
+
+  const globals = Object.keys(globalKeyObject).map((key) => [
+    {
+      type: String,
+      value: formatInsightName(key),
+    },
+    {
+      type: String,
+      value: formatInsightValue(
+        globalKeyObject[key as keyof typeof globalKeyObject]
+      ),
+    },
+  ]);
+
+  const actions =
+    insights?.actions.map((action) => [
+      {
+        type: String,
+        value: formatInsightName(action.action_type),
+      },
+      {
+        type: String,
+        value: formatInsightValue(action.value),
+      },
+    ]) ?? [];
+
+  const data = [HEADER_ROW, ...globals, ...actions];
+
+  await writeXlsxFile(data, {
+    columns: [{ width: 40 }, { width: 30 }],
+    fileName: name + ".xlsx",
+    fontSize: 14,
+    sheet: name.slice(0, 20),
+  });
+}
+
 export function InsightTitle({
   name,
   insights,
@@ -232,6 +287,7 @@ export function InsightTitle({
   isFetching?: boolean;
 }) {
   const [show, setShow] = useState(false);
+
   return (
     <div className="overflow-hidden">
       <div className="flex items-center justify-between">
@@ -246,7 +302,16 @@ export function InsightTitle({
           <span>View Insight Details</span>
           <BiCaretDown />
         </button> */}
-        {isFetching && <Spinner size="sm" />}
+        <div className="flex items-center gap-4">
+          {isFetching && <Spinner size="sm" />}
+          <MdDownload
+            className="text-xl"
+            onClick={(e: any) => {
+              e.stopPropagation();
+              handleDownload(name, insights);
+            }}
+          />
+        </div>
       </div>
       {insights ? (
         <InsightCard insights={insights} show={true} className="mt-2" />
@@ -263,29 +328,38 @@ export function InsightTitle({
 
 function AdTitle({ ad }: { ad: IAd }) {
   return (
-    <div className="flex gap-4 items-center ">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      {/* <img
+    <div className="flex justify-between items-start fioverflow-hidden">
+      <div className="flex gap-4 items-center ">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {/* <img
         alt="Image"
         src="https://images.pexels.com/photos/1591447/pexels-photo-1591447.jpeg?cs=srgb&dl=pexels-guillaume-meurice-1591447.jpg&fm=jpg"
       /> */}
-      <Avatar
-        isBordered
-        color="default"
-        radius="sm"
-        classNames={{
-          base: "flex-shrink-0",
-        }}
-        src={ad.creative.image_url ?? botData.image.src}
-      />
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{ad.name}</span>
-        <span className="text-xs opacity-60 line-clamp-2">
-          {ad.creative.object_story_spec?.link_data?.message ?? (
-            <span className="opacity-40">No text provided for this ad.</span>
-          )}
-        </span>
+        <Avatar
+          isBordered
+          color="default"
+          radius="sm"
+          classNames={{
+            base: "flex-shrink-0",
+          }}
+          src={ad.creative.image_url ?? botData.image.src}
+        />
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-medium">{ad.name}</span>
+          <span className="text-xs opacity-60 line-clamp-2">
+            {ad.creative.object_story_spec?.link_data?.message ?? (
+              <span className="opacity-40">No text provided for this ad.</span>
+            )}
+          </span>
+        </div>
       </div>
+      <MdDownload
+        className="text-xl"
+        onClick={(e: any) => {
+          e.stopPropagation();
+          handleDownload(ad.name, ad.insights?.data[0]);
+        }}
+      />
     </div>
   );
 }

@@ -116,6 +116,7 @@ export const ROUTES = {
     SEND_CAMPAIGN: apiUrl("/marketing/send_campaign"),
     CUSTOM_AUDIENCE: apiUrl("/marketing/custom_audience"),
     GET_LEADGEN_FORMS: apiUrl("/marketing/leads"),
+    CREATE_LEADGEN_FORMS: apiUrl("/marketing/leads"),
   },
   LOCATION: {
     ZIPCODE: apiUrl("/location/zipcode"),

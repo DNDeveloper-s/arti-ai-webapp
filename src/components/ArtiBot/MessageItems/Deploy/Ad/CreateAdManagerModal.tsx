@@ -26,6 +26,7 @@ export default function CreateAdManagerModal() {
     <Modal
       onClose={handleClose}
       isDismissable={false}
+      isKeyboardDismissDisabled={true}
       isOpen={formState.open}
       portalContainer={
         document.getElementById("contextmenuportal") as HTMLElement

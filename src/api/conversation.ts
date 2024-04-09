@@ -24,10 +24,11 @@ import {
 } from "@tanstack/react-query";
 import axios from "axios";
 import ObjectID from "bson-objectid";
-import { compact } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { compact, omit } from "lodash";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useCredentials } from "./user";
 import { IFacebookAdInsight } from "@/interfaces/ISocial";
+import { SnackbarContext } from "@/context/SnackbarContext";
 
 export interface InfiniteConversation {
   id: string;
@@ -759,5 +760,66 @@ export const useGetLeadGenForms = ({
     queryKey: API_QUERIES.GET_LEADGEN_FORMS(pageId, pageAccessToken),
     queryFn: getLeadGenForms,
     enabled: !!enabled && !!pageId && !!pageAccessToken,
+  });
+};
+
+interface CreateLeadFormVariables {
+  pageId: string;
+  pageAccessToken?: string | null;
+  name: string;
+  questions: {
+    type: string;
+    key: string;
+  }[];
+  privacy_policy: {
+    url: string;
+  };
+  follow_up_action_url: string;
+}
+
+export const useCreateLeadForm = () => {
+  const queryClient = useQueryClient();
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+
+  const createLeadForm = async (variables: CreateLeadFormVariables) => {
+    if (!variables.pageId || !variables.pageAccessToken) {
+      throw new Error("Page ID and Page Access Token are required");
+    }
+    const dataToPost = omit(variables, ["pageId", "pageAccessToken"]);
+    const response = await axios.post(
+      ROUTES.ADS.CREATE_LEADGEN_FORMS,
+      dataToPost,
+      {
+        params: {
+          page_id: variables.pageId,
+          page_access_token: variables.pageAccessToken,
+        },
+      }
+    );
+    return response.data;
+  };
+
+  return useMutation({
+    mutationFn: createLeadForm,
+    onSettled: (data, error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_LEADGEN_FORMS(
+          variables.pageId,
+          variables.pageAccessToken
+        ),
+      });
+    },
+    onSuccess: (data, variables) => {
+      setSnackbarData({
+        message: "Lead Form created successfully",
+        status: "success",
+      });
+    },
+    onError: (error, variables) => {
+      setSnackbarData({
+        message: "Error in creating the Lead Form",
+        status: "error",
+      });
+    },
   });
 };

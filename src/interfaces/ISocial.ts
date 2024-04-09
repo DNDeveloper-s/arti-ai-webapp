@@ -1,3 +1,4 @@
+import { CTA_AD } from "@/api/user";
 import { String } from "aws-sdk/clients/ec2";
 
 export type ADMANAGER_STATUS_TYPE = "ACTIVE" | "PAUSED";
@@ -180,13 +181,7 @@ export interface IAd {
     object_story_spec?: {
       page_id?: string;
       link_data?: {
-        call_to_action?: {
-          type: string;
-          value: {
-            link: string;
-            app_link?: string;
-          };
-        };
+        call_to_action?: CTA_AD[keyof CTA_AD];
         link?: string;
         message: string;
         image_hash: string;
