@@ -29,6 +29,7 @@ import { getSubmitText } from "../../../CreateAdManagerModal";
 import SelectLocations from "./SelectLocations";
 import SelectMetaPage from "../../../../SelectMetaPage";
 import { SnackbarContext } from "@/context/SnackbarContext";
+import { AutoCompleteObject } from "@/api/conversation";
 
 {
   /* <option value="">None</option>
@@ -440,7 +441,11 @@ const validationSchema = object({
   demographics: mixed(),
 });
 
-export default function CreateAdset() {
+export default function CreateAdset({
+  autoCompleteFields,
+}: {
+  autoCompleteFields?: AutoCompleteObject["ad_set"];
+}) {
   const resolver = useYupValidationResolver(validationSchema);
   const {
     handleSubmit,
@@ -731,6 +736,14 @@ export default function CreateAdset() {
     setSelected,
     campaignValue,
   ]);
+
+  // Handle the AutoComplete fields
+  useEffect(() => {
+    if (!autoCompleteFields) return;
+    for (const key in autoCompleteFields) {
+      setValue(key, autoCompleteFields[key]);
+    }
+  }, [autoCompleteFields]);
 
   function handleDateChange(name: "start_time" | "end_time") {
     return (date: Dayjs, dateString: string | string[]) => {

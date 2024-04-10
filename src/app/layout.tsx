@@ -15,6 +15,7 @@ import { UserContextProvider } from "@/context/UserContext";
 import Providers from "./providers";
 import { NextUIProvider } from "@nextui-org/react";
 import { ConfigProvider, ThemeConfig, theme } from "antd";
+import Snackbar from "@/components/Snackbar";
 
 const metadata: Metadata = {
   title: "Arti AI",
@@ -64,6 +65,7 @@ export default function RootLayout({
                             id="contextmenuportal"
                             className="z-[1002] fixed top-0 left-0"
                           />
+                          <Snackbar />
                         </>
                       </EditVariantContextProvider>
                     </ConversationContextProvider>

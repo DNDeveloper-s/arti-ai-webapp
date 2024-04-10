@@ -16,6 +16,8 @@ import { useGetAds } from "@/api/user";
 import { botData } from "@/constants/images";
 import { MdDownload } from "react-icons/md";
 import writeXlsxFile from "write-excel-file";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import ErrorComponent from "@/components/shared/error/ErrorComponent";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -281,10 +283,12 @@ export function InsightTitle({
   name,
   insights,
   isFetching,
+  label = "adset",
 }: {
   name: string;
   insights?: IFacebookAdInsight;
   isFetching?: boolean;
+  label?: "adset" | "campaign" | "ad";
 }) {
   const [show, setShow] = useState(false);
 
@@ -318,7 +322,7 @@ export function InsightTitle({
       ) : (
         <div className="flex items-center justify-center">
           <p className="text-xs opacity-40">
-            No insights available for this adset.
+            No insights available for this {label}.
           </p>
         </div>
       )}
@@ -389,17 +393,19 @@ export const DeployAdChildCard = ({
           key: ad.id,
           label: <AdTitle ad={ad} />,
           children: (
-            <div className="flex flex-col gap-4">
-              {ad.insights && ad.insights?.data[0] ? (
-                <InsightCard show={true} insights={ad.insights?.data[0]} />
-              ) : (
-                <div className="flex items-center justify-center">
-                  <p className="text-xs opacity-40">
-                    No insights available for this ad.
-                  </p>
-                </div>
-              )}
-            </div>
+            <ErrorBoundary errorComponent={ErrorComponent}>
+              <div className="flex flex-col gap-4">
+                {ad.insights && ad.insights?.data[0] ? (
+                  <InsightCard show={true} insights={ad.insights?.data[0]} />
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <p className="text-xs opacity-40">
+                      No insights available for this ad.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </ErrorBoundary>
           ),
         };
       }) ?? []
@@ -451,16 +457,21 @@ export const DeployAdInsightsCard = (props: DeployAdInsightsCardProps) => {
       {
         key: "1",
         label: (
-          <InsightTitle
-            name={props.adset.name}
-            insights={props.adset.insights?.data[0]}
-          />
+          <ErrorBoundary errorComponent={ErrorComponent}>
+            <InsightTitle
+              name={props.adset.name}
+              insights={props.adset.insights?.data[0]}
+              label="campaign"
+            />
+          </ErrorBoundary>
         ),
         children: props.adset?.id && (
-          <DeployAdChildCard
-            isActive={activeKeys.includes("1")}
-            adsetId={props.adset?.id}
-          />
+          <ErrorBoundary errorComponent={ErrorComponent}>
+            <DeployAdChildCard
+              isActive={activeKeys.includes("1")}
+              adsetId={props.adset?.id}
+            />
+          </ErrorBoundary>
         ),
       },
     ];

@@ -22,6 +22,10 @@ import { object, string } from "yup";
 import { getSubmitText } from "../../../CreateAdManagerModal";
 import { useSearchParams } from "next/navigation";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import {
+  AutoCompleteObject,
+  validateAutoCompleteValue,
+} from "@/api/conversation";
 
 // Define constants for different campaign objectives
 const CAMPAIGN_OBJECTIVES = [
@@ -47,7 +51,11 @@ interface CreateCampaignFormValues {
 }
 
 // Define the CreateCampaign component
-export default function CreateCampaign() {
+export default function CreateCampaign({
+  autoCompleteFields,
+}: {
+  autoCompleteFields?: AutoCompleteObject["campaign"];
+}) {
   // Custom hooks for creating and updating campaigns
   const {
     mutate: postCreateCampaign,
@@ -82,6 +90,7 @@ export default function CreateCampaign() {
     setFormState,
     formState: storeFormState,
     setSelected,
+    meta,
   } = useCampaignStore();
 
   // Watch form values
@@ -133,6 +142,27 @@ export default function CreateCampaign() {
       setValue("status", formData.status);
     }
   }, [storeFormState, setValue]);
+
+  // Handle the AutoComplete
+  useEffect(() => {
+    console.log(
+      "autoCompleteFields - ",
+      autoCompleteFields,
+      validateAutoCompleteValue(autoCompleteFields?.name)
+    );
+    if (autoCompleteFields) {
+      validateAutoCompleteValue(autoCompleteFields?.name) &&
+        setValue("name", autoCompleteFields.name as string);
+      validateAutoCompleteValue(autoCompleteFields?.objective, {
+        oneOfArr: CAMPAIGN_OBJECTIVES.map((c) => c.name),
+        transformer: (value) => value.toUpperCase(),
+      }) &&
+        setValue(
+          "objective",
+          autoCompleteFields.objective?.toUpperCase() as string
+        );
+    }
+  }, [autoCompleteFields, setValue]);
 
   // Return JSX for the component
   return (

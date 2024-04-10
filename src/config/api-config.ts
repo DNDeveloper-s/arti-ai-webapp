@@ -41,6 +41,9 @@ export const ROUTES = {
     TEXT_TO_IMAGE: apiUrl("/utils/text-to-image"),
     UPLOAD_IMAGE: apiUrl("/utils/image/upload"),
   },
+  BUSINESS: {
+    ME: apiUrl("/users/me/business"),
+  },
   CONVERSATION: {
     CREATE: (id: string) => apiUrl(`/conversations/${id}`),
     GET: (id: string) => apiUrl(`/conversations/${id}`),
@@ -62,6 +65,7 @@ export const ROUTES = {
         "/ad_creatives",
         new URLSearchParams(pickValidKeys({ limit, page, sortBy }))
       ),
+    AUTO_COMPLETE: apiUrl("/ad_creatives/autocomplete"),
   },
   MESSAGE: {
     SEND_FREE_TIER: apiUrl("/messages/send/free-tier"),
@@ -132,5 +136,6 @@ export const ROUTES = {
     VALIDATE_FACEBOOK_ACCESS_TOKEN: apiUrl(
       `/tokens/validate/facebook-access-token`
     ),
+    CREDIT_BALANCE: apiUrl(`/users/me/balance`),
   },
 };

@@ -1,31 +1,35 @@
-'use client'
+"use client";
 
-import Logo from '@/components/Logo';
-import CTAButton from '@/components/CTAButton';
-import { RxExit } from 'react-icons/rx';
-import { IoMdSettings } from 'react-icons/io';
-import Link from 'next/link';
-import LogoutButton from '@/components/Dashboard/LogoutButton';
-import ObjectId from 'bson-objectid';
-import { dummy } from '@/constants/dummy';
-import { useEffect } from 'react';
+import Logo from "@/components/Logo";
+import CTAButton from "@/components/CTAButton";
+import { IoMdSettings } from "react-icons/io";
+import Link from "next/link";
+import React from "react";
+import CreditCounter from "../CreditCounter";
 
 export default function Navbar() {
-
-	return (
-		<div className="flex h-20 w-full px-5 justify-between items-center">
-			<Logo />
-			<div className="flex items-center">
-				<Link href={'/artibot'} prefetch={true}>
-					<CTAButton className="py-3 mr-2 rounded-lg text-sm">
-						<span>Start Chat</span>
-					</CTAButton>
-				</Link>
-				<Link href='/settings'><IoMdSettings className="cursor-pointer text-primary" style={{ fontSize: '24px' }} /></Link>
-				{/* <div className='flex'>
-						<RxExit className="cursor-pointer text-primary" style={{ fontSize: '24px' }} />
-					</div> */}
-			</div>
-		</div>
-	)
+  return (
+    <div className="flex h-20 w-full px-5 justify-between items-center">
+      <Logo />
+      <div className="flex gap-2 items-center">
+        <Link href={"/business/register"} prefetch={true}>
+          <CTAButton className="py-1.5 mr-2 rounded-lg text-sm">
+            <span>Register Business</span>
+          </CTAButton>
+        </Link>
+        <Link href={"/artibot"} prefetch={true}>
+          <CTAButton className="py-1.5 mr-2 rounded-lg text-sm">
+            <span>Start Chat</span>
+          </CTAButton>
+        </Link>
+        <Link href="/settings">
+          <IoMdSettings
+            className="cursor-pointer text-primary"
+            style={{ fontSize: "24px" }}
+          />
+        </Link>
+        <CreditCounter />
+      </div>
+    </div>
+  );
 }

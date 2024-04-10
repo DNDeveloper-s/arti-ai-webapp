@@ -27,7 +27,6 @@ export default function ArtiBot(props: ArtiBotProps) {
           <ArtiBotMessageArea />
         </>
       </div>
-      <Snackbar />
     </div>
   );
 }

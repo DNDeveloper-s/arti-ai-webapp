@@ -8,6 +8,8 @@ import { Spinner } from "@nextui-org/react";
 import { BiCaretRight } from "react-icons/bi";
 import { Collapse, CollapseProps } from "antd";
 import { useGetAdSets } from "@/api/user";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import ErrorComponent from "@/components/shared/error/ErrorComponent";
 
 interface DeployAdChildCardProps {
   campaignId: string;
@@ -52,18 +54,22 @@ const CampaignChildCard = ({
         return {
           key: adset.id,
           label: (
-            <InsightTitle
-              isFetching={isFetching}
-              name={adset.name}
-              insights={adset.insights?.data[0]}
-            />
+            <ErrorBoundary errorComponent={ErrorComponent}>
+              <InsightTitle
+                isFetching={isFetching}
+                name={adset.name}
+                insights={adset.insights?.data[0]}
+              />
+            </ErrorBoundary>
           ),
           children: (
-            <DeployAdChildCard
-              adsetId={adset.id}
-              accountId={accountId}
-              isActive={activeKeys.includes(adset.id)}
-            />
+            <ErrorBoundary errorComponent={ErrorComponent}>
+              <DeployAdChildCard
+                adsetId={adset.id}
+                accountId={accountId}
+                isActive={activeKeys.includes(adset.id)}
+              />
+            </ErrorBoundary>
           ),
         };
       }) ?? []
@@ -123,17 +129,21 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
       {
         key: "1",
         label: (
-          <InsightTitle
-            isFetching={isFetching}
-            name={data.name}
-            insights={data.insights?.data[0]}
-          />
+          <ErrorBoundary errorComponent={ErrorComponent}>
+            <InsightTitle
+              isFetching={isFetching}
+              name={data.name}
+              insights={data.insights?.data[0]}
+            />
+          </ErrorBoundary>
         ),
         children: (
-          <CampaignChildCard
-            accountId={data.ad_account_id}
-            campaignId={data.id}
-          />
+          <ErrorBoundary errorComponent={ErrorComponent}>
+            <CampaignChildCard
+              accountId={data.ad_account_id}
+              campaignId={data.id}
+            />
+          </ErrorBoundary>
         ),
       },
     ];

@@ -10,7 +10,11 @@ import React, { useContext } from "react";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
 import { AiFillFacebook } from "react-icons/ai";
 
-interface ConnectProviderModalProps {}
+interface ConnectProviderModalProps {
+  classNames?: {
+    base?: string;
+  };
+}
 export default function ConnectProviderModal(props: ConnectProviderModalProps) {
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
   const { state } = useUser();
@@ -47,7 +51,7 @@ export default function ConnectProviderModal(props: ConnectProviderModalProps) {
   };
 
   return (
-    <div>
+    <div className={props.classNames?.base ?? ""}>
       <FacebookLogin
         appId={"683754897094286"}
         fields="name,email,picture"
@@ -57,7 +61,7 @@ export default function ConnectProviderModal(props: ConnectProviderModalProps) {
         scope={facebookScopes}
         render={(renderProps: any) => (
           <Button
-            className="text-white border-2 border-blue-500 bg-blue-600"
+            className="w-full text-white border-2 border-blue-500 bg-blue-600"
             isLoading={isPending}
             onClick={renderProps.onClick}
           >

@@ -715,7 +715,6 @@ const ArtiBot: FC<ArtiBotProps> = ({
           </motion.div>
         )}
       </div>
-      <Snackbar />
     </div>
   );
 };

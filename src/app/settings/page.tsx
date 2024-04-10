@@ -163,7 +163,6 @@ export default function Settings() {
           </Button>
         </div>
       </form>
-      <Snackbar />
     </main>
   );
 }

@@ -1,4 +1,5 @@
 const API_QUERIES = {
+  GET_CREDIT_BALANCE: ["get-credit-balance"],
   USER_PAGES: (access_token?: string | null) => ["user-pages", access_token],
   USER_FACEBOOK_POSTS: (page_id: string, page_access_token: string) => [
     "user-facebook-posts",
@@ -18,6 +19,10 @@ const API_QUERIES = {
   GET_AD_ACCOUNTS: (access_token?: string | null) => [
     "get-ad-accounts",
     access_token,
+  ],
+  GET_CREATIVE_AUTO_COMPLETE: (adCreativeId?: string) => [
+    "get-creative-auto-complete",
+    adCreativeId,
   ],
   GET_ME: ["get-me"],
   GET_FACEBOOK_USER_ACCESS_TOKEN: ["get-facebook-user-access-token"],

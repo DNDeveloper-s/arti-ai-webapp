@@ -34,6 +34,7 @@ import CreateSocialPostModal from "./MessageItems/Deploy/Post/CreateSocialPostMo
 import AdCreativeIcon from "../shared/icons/AdCreativeIcon";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import CampaignPage from "./v2/CampaignPage";
+import CreditCounter from "../CreditCounter";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -248,11 +249,17 @@ export default function ArtiBotPage({
         }}
         items={dropdownItems}
       />
+      <div className="opacity-0 pointer-events-none">
+        <CreditCounter />
+      </div>
       <Link href="/" className="flex justify-center items-center">
         <Logo width={35} className="mr-2" height={35} />
         <h3 className="text-lg">Arti AI</h3>
       </Link>
       <ArtiAiDropdown items={dropdownItems} hidden={true} />
+      <div>
+        <CreditCounter />
+      </div>
     </div>
   );
 

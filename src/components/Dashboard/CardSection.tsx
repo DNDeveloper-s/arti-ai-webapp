@@ -308,7 +308,6 @@ export default function CardSection() {
       >
         {currentAdCreative && <RightPane adCreative={currentAdCreative} />}
       </Drawer>
-      <Snackbar />
     </>
   );
 }

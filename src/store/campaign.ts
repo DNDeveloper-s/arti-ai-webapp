@@ -152,7 +152,10 @@ const useCampaignStore = create<CampaignState & CampaignActions>((set) => ({
   ) => {
     set((state) => ({
       ...state,
-      [key]: value,
+      meta: {
+        ...state.meta,
+        [key]: value,
+      },
     }));
   },
   reset: () => {

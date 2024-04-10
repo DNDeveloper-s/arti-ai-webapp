@@ -23,6 +23,17 @@ export default function SelectMetaPage({
   const { data: pagesData, isLoading: isPagesLoading } =
     useUserPages(accessToken);
 
+  console.log(
+    "state - ",
+    state,
+    "accessToken - ",
+    accessToken,
+    "pagesData - ",
+    pagesData,
+    "isPagesLoading - ",
+    isPagesLoading
+  );
+
   return (
     <Autocomplete
       inputProps={{

@@ -3,15 +3,13 @@ import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import { IAdCreativeWithVariants } from "@/interfaces/IAdCreative";
 import { ConversationType } from "@/interfaces/IConversation";
 import { useMemo, useRef } from "react";
-import {
-  ConversationAdVariant,
-  ConversationAdVariantWithPostInsights,
-} from "../../MessageItems/AdItem";
+import { ConversationAdVariant } from "./ConversationAdVariant";
 import ClientAdVariant from "../ClientState/ClientAdVariant";
 import { DeployAdInsightsCard } from "../../MessageItems/DeployAdInsightsCard";
 import useInView from "@/hooks/useInView";
 import { useConversation } from "@/context/ConversationContext";
 import { useGetAdSet } from "@/api/user";
+import { ConversationAdVariantWithPostInsights } from "../../MessageItems/AdItem";
 
 interface AdItemPropsWithClient {
   messageItem: ClientMessageItem;

@@ -178,7 +178,6 @@ export default function CardSection() {
         open={!!modalData}
         setOpen={setModalData}
       />
-      <Snackbar />
     </>
   );
 }

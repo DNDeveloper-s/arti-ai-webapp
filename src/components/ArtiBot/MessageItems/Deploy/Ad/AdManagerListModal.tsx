@@ -43,10 +43,17 @@ import AdsetView from "./components/Adset/AdsetView";
 import AdsView from "./components/Ads/AdsView";
 import { useGetAdAccounts } from "@/api/user";
 import SelectAdAccount from "./components/SelectAdAccount";
+import { useGetAdCreativeAutoComplete } from "@/api/conversation";
 
 interface DeployAdModalContentProps {}
 function DeployAdModalContent(props: DeployAdModalContentProps) {
-  const { selected, showProgress } = useCampaignStore();
+  const { selected, showProgress, meta } = useCampaignStore();
+  const { data } = useGetAdCreativeAutoComplete({
+    adCreativeId: meta.selectedVariant?.adCreativeId,
+  });
+
+  console.log("data - ", data, meta.selectedVariant);
+
   return (
     <ModalContent>
       {(onClose) => (
@@ -130,15 +137,10 @@ function SelectAdAccountModalContent(props: SelectAdAccountModalContentProps) {
 interface AdManagerListModalProps {
   open: boolean;
   handleClose: () => void;
-  selectedVariant: IAdVariant;
 }
 export default function AdManagerListModal(props: AdManagerListModalProps) {
-  const { open, handleClose, selectedVariant } = props;
-  const { setMeta, selectedAccountId } = useCampaignStore();
-
-  useEffect(() => {
-    setMeta("selectedVariant", selectedVariant);
-  }, [selectedVariant, setMeta]);
+  const { open, handleClose } = props;
+  const { selectedAccountId } = useCampaignStore();
 
   return (
     <UiModal

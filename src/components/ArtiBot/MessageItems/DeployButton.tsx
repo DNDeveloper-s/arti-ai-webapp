@@ -22,6 +22,7 @@ import { useSearchParams } from "next/navigation";
 import { ConversationType } from "@/interfaces/IConversation";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import { useGetUserProviders } from "@/api/user";
+import useCampaignStore from "@/store/campaign";
 
 export enum UserChoice {
   post,
@@ -39,6 +40,7 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
   const searchParams = useSearchParams();
   const { conversation: currentConversation } = useCurrentConversation();
   const { data: providers } = useGetUserProviders();
+  const { setMeta } = useCampaignStore();
 
   const handleUserChoice = async (choice: UserChoice) => {
     if (!session || !session.user) {
@@ -102,6 +104,7 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
           <button
             onClick={() => {
               handleUserChoice(UserChoice.ad);
+              setMeta("selectedVariant", variant);
             }}
             className="cursor-pointer text-white hover:scale-105 fill-white text-sm flex justify-center gap-2 items-center bg-gray-800 border border-gray-500 rounded py-1.5 px-4 hover:bg-gray-700 transition-all"
           >
@@ -111,11 +114,9 @@ export default function DeployButton({ variant }: { variant: IAdVariant }) {
           <AdManagerListModal
             open={isOpen(UserChoice.ad)}
             handleClose={handleClose}
-            selectedVariant={variant}
           />
         </>
       )}
-      <Snackbar />
     </>
   );
 }

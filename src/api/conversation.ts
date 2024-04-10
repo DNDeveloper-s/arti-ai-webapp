@@ -17,6 +17,7 @@ import {
   QueryClient,
   QueryFunctionContext,
   QueryKey,
+  UseMutationOptions,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -821,5 +822,211 @@ export const useCreateLeadForm = () => {
         status: "error",
       });
     },
+  });
+};
+
+export interface CreditObject {
+  id: string;
+  balance: number;
+  userId: string;
+}
+type UseGetCreditResponse = CreditObject;
+export const useGetCredits = () => {
+  const getCredits = async () => {
+    const response = await axios.get(ROUTES.USERS.CREDIT_BALANCE);
+    return response.data.data;
+  };
+
+  return useQuery<UseGetCreditResponse>({
+    queryKey: API_QUERIES.GET_CREDIT_BALANCE,
+    queryFn: getCredits,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
+};
+
+type AutoCompleteValue = string | null | undefined | "N/A";
+
+interface CampaignAutoComplete {
+  name: AutoCompleteValue;
+  objective: AutoCompleteValue;
+}
+
+interface AdSetAutoComplete {
+  default_fields: {
+    performance_goal?: AutoCompleteValue;
+    facebook_page?: AutoCompleteValue;
+    daily_budget?: AutoCompleteValue;
+    start_time?: AutoCompleteValue;
+    end_time?: AutoCompleteValue;
+    location?: AutoCompleteValue;
+    age?: AutoCompleteValue;
+    gender?: AutoCompleteValue;
+    detailed_targeting?: {
+      demographics?: AutoCompleteValue;
+      interests?: AutoCompleteValue;
+      behaviors?: AutoCompleteValue;
+    };
+  };
+  campaign_objective_specific_fields: {
+    awareness?: {};
+    traffic?: {
+      conversion_location: AutoCompleteValue;
+    };
+    leads?: {
+      conversion_location: AutoCompleteValue;
+    };
+  };
+}
+
+interface AdAutoComplete {
+  default_fields?: {
+    name?: AutoCompleteValue;
+    primary_text?: AutoCompleteValue;
+    headline?: AutoCompleteValue;
+    image?: AutoCompleteValue;
+    call_to_action_button?: AutoCompleteValue;
+  };
+  custom_values_based_on_conversion_location: {
+    website?: {
+      website_url: AutoCompleteValue;
+    };
+    app?: {
+      deep_link_url: AutoCompleteValue;
+    };
+    messaging_apps?: {
+      call_to_action_button: AutoCompleteValue;
+    };
+    calls?: {
+      phone_number: AutoCompleteValue;
+    };
+    instant_form?: {
+      form_details: AutoCompleteValue;
+    };
+  };
+}
+
+export interface AutoCompleteObject {
+  campaign?: CampaignAutoComplete;
+  ad_set?: AdSetAutoComplete;
+  ad?: AdAutoComplete;
+}
+
+export const validateAutoCompleteValue = (
+  value: AutoCompleteValue,
+  options?: {
+    oneOfArr?: string[];
+    transformer?: (value: string) => string;
+  }
+) => {
+  const isValidated = value !== null && value !== undefined && value !== "N/A";
+  if (!isValidated) return false;
+  if (options?.oneOfArr && options?.oneOfArr.length > 0) {
+    return options.oneOfArr.includes(
+      options.transformer ? options.transformer(value) : (value as string)
+    );
+  }
+  return true;
+};
+
+export const useGetAdCreativeAutoComplete = ({
+  adCreativeId,
+  enabled = true,
+}: {
+  adCreativeId?: string;
+  enabled?: boolean;
+}) => {
+  const getAdCreativeAutoComplete = async ({
+    queryKey,
+  }: QueryFunctionContext) => {
+    const [, adCreativeId] = queryKey;
+    if (!adCreativeId) {
+      throw new Error("Ad Creative ID is required");
+    }
+    const response = await axios.get(ROUTES.ADCREATIVE.AUTO_COMPLETE, {
+      params: {
+        ad_creative_id: adCreativeId,
+        creative_id: adCreativeId,
+        create_if_missing: true,
+      },
+    });
+    return response.data.data;
+  };
+
+  return useQuery<AutoCompleteObject>({
+    queryKey: API_QUERIES.GET_CREATIVE_AUTO_COMPLETE(adCreativeId),
+    queryFn: getAdCreativeAutoComplete,
+    enabled: !!enabled && !!adCreativeId,
+    staleTime: Infinity,
+  });
+};
+
+const registerBusinessVariableExample = {
+  name: "Fitness World",
+  category: "health",
+  position: "Manager",
+  website: "https://www.google.com",
+  location: [
+    {
+      zipcode: "123",
+      city: "123",
+      locality: "23",
+    },
+    {
+      zipcode: "123",
+      city: "123",
+      locality: "23",
+    },
+  ],
+  details: "123",
+};
+
+export interface RegisterBusinessVariables {
+  name: string;
+  category: string;
+  position: string;
+  website: string;
+  location: {
+    zipcode: string;
+    city: string;
+    locality: string;
+  }[];
+  details: string;
+}
+
+export const useRegisterBusiness = (
+  props: UseMutationOptions<any, Error, RegisterBusinessVariables, any> = {}
+) => {
+  const { onError, onSuccess, onSettled, ...options } = props;
+  const queryClient = useQueryClient();
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+
+  const registerBusiness = async (data: RegisterBusinessVariables) => {
+    const response = await axios.post(ROUTES.BUSINESS.ME, data);
+    return response.data;
+  };
+
+  return useMutation({
+    mutationFn: registerBusiness,
+    onSettled: (data, error, variables, ...rest) => {
+      // queryClient.invalidateQueries({
+      // queryKey: API_QUERIES.GET_USER_BUSINESS,
+      // });
+      onSettled && onSettled(data, error, variables, ...rest);
+    },
+    onSuccess: (data, variables, ...rest) => {
+      setSnackbarData({
+        message: "Business registered successfully",
+        status: "success",
+      });
+      onSuccess && onSuccess(data, variables, ...rest);
+    },
+    onError: (error, variables, ...rest) => {
+      setSnackbarData({
+        message: "Error in registering the business",
+        status: "error",
+      });
+      onError && onError(error, variables, ...rest);
+    },
+    ...options,
   });
 };
