@@ -1,17 +1,29 @@
 "use client";
 
-import { FieldPath, useForm } from "react-hook-form";
+import { FieldPath, FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import { useCallback, useEffect, useState } from "react";
 import { Button, Divider, Input } from "@nextui-org/react";
 import { MdArrowBackIos } from "react-icons/md";
 import { useRouter } from "next/navigation";
-import { useRegisterBusiness } from "@/api/conversation";
-import Snackbar from "../Snackbar";
-import { useGetUserProviders } from "@/api/user";
+import {
+  SocialPageObject,
+  SocialPageType,
+  useRegisterBusiness,
+} from "@/api/conversation";
+import {
+  useGetAdAccounts,
+  useGetUserProviders,
+  useUserPages,
+} from "@/api/user";
 import ConnectProviderModal from "../ArtiBot/MessageItems/Deploy/ConnectProviderModal";
-import SelectMetaPage from "../ArtiBot/MessageItems/Deploy/SelectMetaPage";
+import { SelectMetPageFormControl } from "../ArtiBot/MessageItems/Deploy/SelectMetaPage";
+import SelectWithAutoComplete, {
+  SelectWithAutoCompleteProps,
+} from "../shared/renderers/SelectWithAutoComplete";
+import { SelectAdAccountFormControl } from "../ArtiBot/MessageItems/Deploy/Ad/components/SelectAdAccount";
+import { Platform, useUser } from "@/context/UserContext";
 
 interface RegisterBusinessFormValues {
   name: string;
@@ -25,7 +37,6 @@ interface RegisterBusinessFormValues {
   }[];
   details: string;
 }
-
 const validationSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
   category: yup.string().required("Category is required"),
@@ -41,27 +52,43 @@ const validationSchema = yup.object().shape({
   details: yup.string().optional(),
 });
 
+const CATEGORY_ITEMS: SelectWithAutoCompleteProps["items"] = [
+  { uid: "education", name: "Education" },
+  { uid: "fitness", name: "Fitness" },
+  { uid: "sports", name: "Sports" },
+  { uid: "fashion", name: "Fashion" },
+];
+
 export default function RegisterBusiness() {
   const router = useRouter();
   const resolver = useYupValidationResolver(validationSchema);
-  const { handleSubmit, watch, formState, setValue, register } =
-    useForm<RegisterBusinessFormValues>({
-      resolver,
-      defaultValues: {
-        name: "",
-        category: "",
-        position: "",
-        website: "",
-        location: [],
-        details: "",
-      },
-    });
+  const methods = useForm<RegisterBusinessFormValues>({
+    resolver,
+    defaultValues: {
+      name: "",
+      category: "",
+      position: "",
+      website: "",
+      location: [],
+      details: "",
+    },
+  });
+  const { state } = useUser();
+  const accessToken = Platform.getPlatform(
+    state.data?.facebook
+  )?.userAccessToken;
+  const { data: pagesData, isLoading: isPagesLoading } =
+    useUserPages(accessToken);
+
+  const { handleSubmit, watch, formState, setValue, register } = methods;
 
   const [selectedPageId, setSelectedPageId] = useState<string>("");
 
   const { data: providers } = useGetUserProviders();
   const hasNoAccount =
     (providers ?? []).filter((c) => c.provider === "facebook").length === 0;
+
+  const { data: accounts } = useGetAdAccounts();
 
   const { mutate: postRegisterBusiness, isPending } = useRegisterBusiness({
     onSuccess: () => {
@@ -84,7 +111,27 @@ export default function RegisterBusiness() {
 
   const registerBusiness = (data: RegisterBusinessFormValues) => {
     if (isPending) return;
-    postRegisterBusiness(data);
+
+    const providers =
+      pagesData?.map((page) => ({
+        name: page.name,
+        image: page.picture,
+        providerId: page.id,
+        providerAccessToken: page.page_access_token,
+        type: SocialPageType.FACEBOOK_PAGE,
+      })) ?? ([] as SocialPageObject[]);
+
+    const accountProviders =
+      accounts?.map((account) => ({
+        name: account.name,
+        providerId: account.id,
+        type: SocialPageType.FACEBOOK_AD_ACCOUNT,
+      })) ?? ([] as SocialPageObject[]);
+
+    postRegisterBusiness({
+      ...data,
+      socialPages: [...providers, ...accountProviders],
+    });
   };
 
   useEffect(() => {
@@ -93,8 +140,8 @@ export default function RegisterBusiness() {
 
   return (
     <div className="w-screen h-screen bg-secondaryBackground flex items-center justify-center">
-      <div className="w-screen bg-black max-w-[500px]">
-        <div className="flex items-center justify-between">
+      <div className="w-[90vw] bg-black max-w-[500px] pt-2 pb-8 p-7 h-auto max-h-[90vh] overflow-auto">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-1">
             <MdArrowBackIos
               onClick={() => router.push("/")}
@@ -106,71 +153,73 @@ export default function RegisterBusiness() {
             <MdArrowBackIos style={{ fontSize: "21px" }} />
           </div>
         </div>
-        <form
-          action=""
-          onSubmit={handleSubmit(registerBusiness)}
-          className="flex flex-col gap-4"
-        >
-          <Input
-            classNames={{
-              label: "!text-gray-500",
-            }}
-            label="Business Name"
-            variant="flat"
-            {...myRegister("name")}
-          />
-          <Input
-            classNames={{
-              label: "!text-gray-500",
-            }}
-            label="Category"
-            variant="flat"
-            {...myRegister("category")}
-          />
-          <Input
-            classNames={{
-              label: "!text-gray-500",
-            }}
-            label="Position"
-            variant="flat"
-            {...myRegister("position")}
-          />
-          <Input
-            classNames={{
-              label: "!text-gray-500",
-            }}
-            label="Website"
-            variant="flat"
-            {...myRegister("website")}
-          />
-          <Input
-            classNames={{
-              label: "!text-gray-500",
-            }}
-            label="Details"
-            variant="flat"
-            {...myRegister("details")}
-          />
-          <Divider className="my-3" />
-          {hasNoAccount ? (
-            <ConnectProviderModal classNames={{ base: "w-full" }} />
-          ) : (
-            <>
-              <SelectMetaPage setPageValue={setSelectedPageId} />
-            </>
-          )}
-          <div className="w-full flex items-center gap-5">
-            <Button
-              className="flex-1"
-              isLoading={isPending}
-              type="submit"
-              color="primary"
-              isDisabled={isPending}
-            >
-              <span>Register</span>
-            </Button>
-          </div>
-        </form>
+        <FormProvider {...methods}>
+          <form
+            action=""
+            onSubmit={handleSubmit(registerBusiness)}
+            className="flex flex-col gap-4"
+          >
+            <Input
+              classNames={{
+                label: "!text-gray-500",
+              }}
+              label="Business Name"
+              variant="flat"
+              {...myRegister("name")}
+            />
+            <SelectWithAutoComplete
+              plural="Categories"
+              label="Category"
+              items={CATEGORY_ITEMS}
+              name="category"
+            />
+            <Input
+              classNames={{
+                label: "!text-gray-500",
+              }}
+              label="Position"
+              variant="flat"
+              {...myRegister("position")}
+            />
+            <Input
+              classNames={{
+                label: "!text-gray-500",
+              }}
+              label="Website"
+              variant="flat"
+              {...myRegister("website")}
+            />
+            <Input
+              classNames={{
+                label: "!text-gray-500",
+              }}
+              label="Details"
+              variant="flat"
+              {...myRegister("details")}
+            />
+            <Divider className="my-3" />
+            {hasNoAccount ? (
+              <ConnectProviderModal classNames={{ base: "w-full" }} />
+            ) : (
+              <>
+                <SelectMetPageFormControl />
+                <SelectAdAccountFormControl />
+              </>
+            )}
+            <Divider className="my-3" />
+            <div className="w-full flex items-center gap-5">
+              <Button
+                className="flex-1"
+                isLoading={isPending}
+                type="submit"
+                color="primary"
+                isDisabled={isPending}
+              >
+                <span>Register</span>
+              </Button>
+            </div>
+          </form>
+        </FormProvider>
       </div>
     </div>
   );

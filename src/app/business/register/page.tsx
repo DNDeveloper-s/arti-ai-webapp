@@ -1,19 +1,14 @@
-"use client";
-
-import AppLoader from "@/components/AppLoader";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import RegisterBusiness from "@/components/Business/RegisterBusiness";
-import { useSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { FC } from "react";
 
 interface PageProps {}
+const Page: FC<PageProps> = async (props) => {
+  const session = await getServerSession(authOptions);
 
-const Page: FC<PageProps> = (props) => {
-  const { status } = useSession();
-
-  if (status === "loading") return <AppLoader />;
-
-  if (status === "unauthenticated") return redirect("/");
+  if (!session) return redirect("/");
 
   return <RegisterBusiness />;
 };

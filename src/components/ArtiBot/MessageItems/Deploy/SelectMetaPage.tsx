@@ -1,4 +1,5 @@
 import { useUserPages } from "@/api/user";
+import SelectWithAutoComplete from "@/components/shared/renderers/SelectWithAutoComplete";
 import { Platform, useUser } from "@/context/UserContext";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { AutoCompleteProps } from "antd";
@@ -22,17 +23,6 @@ export default function SelectMetaPage({
   )?.userAccessToken;
   const { data: pagesData, isLoading: isPagesLoading } =
     useUserPages(accessToken);
-
-  console.log(
-    "state - ",
-    state,
-    "accessToken - ",
-    accessToken,
-    "pagesData - ",
-    pagesData,
-    "isPagesLoading - ",
-    isPagesLoading
-  );
 
   return (
     <Autocomplete
@@ -80,3 +70,29 @@ export default function SelectMetaPage({
     </Autocomplete>
   );
 }
+
+export const SelectMetPageFormControl = ({
+  name = "page_id",
+}: {
+  name?: string;
+}) => {
+  const { state } = useUser();
+  const accessToken = Platform.getPlatform(
+    state.data?.facebook
+  )?.userAccessToken;
+  const { data: pagesData, isLoading: isPagesLoading } =
+    useUserPages(accessToken);
+
+  return (
+    <SelectWithAutoComplete
+      label="Social Media Page"
+      name={name}
+      isDisabled={!pagesData || isPagesLoading}
+      isFetching={isPagesLoading}
+      items={pagesData?.map((page) => ({
+        uid: page.id,
+        name: page.name,
+      }))}
+    />
+  );
+};

@@ -12,6 +12,7 @@ import {
   Button,
   Input,
   Switch,
+  Tooltip,
 } from "@nextui-org/react";
 import { DatePicker } from "antd";
 import { Key, useContext, useEffect, useMemo, useRef } from "react";
@@ -29,7 +30,11 @@ import { getSubmitText } from "../../../CreateAdManagerModal";
 import SelectLocations from "./SelectLocations";
 import SelectMetaPage from "../../../../SelectMetaPage";
 import { SnackbarContext } from "@/context/SnackbarContext";
-import { AutoCompleteObject } from "@/api/conversation";
+import {
+  AutoCompleteObject,
+  validateAutoCompleteValue,
+} from "@/api/conversation";
+import { tooltips } from "@/constants/adCampaignData/tooltips";
 
 {
   /* <option value="">None</option>
@@ -69,16 +74,17 @@ const OPTIMISATION_GOALS = [
   { name: "Social Impressions", uid: "SOCIAL_IMPRESSIONS" },
 ];
 
-interface ConversationLocationListItem {
+interface ConditionalDataListItem<T> {
   name: string;
-  uid: IAdSet["destination_type"];
+  uid: T;
+  default?: boolean;
 }
 
 interface ConditionalData {
   [key: string]: {
-    conversionLocations: ConversationLocationListItem[];
+    conversionLocations: ConditionalDataListItem<IAdSet["destination_type"]>[];
     billingEvent: { name: string; uid: IAdSet["billing_event"] }[];
-    optimisationGoals: { name: string; uid: IAdSet["optimization_goal"] }[];
+    optimisationGoals: ConditionalDataListItem<IAdSet["optimization_goal"]>[];
     promotedObject?: IAdSet["promoted_object"];
   };
 }
@@ -108,11 +114,11 @@ export const conditionalData: ConditionalData = {
       { name: "Impressions", uid: "IMPRESSIONS" },
       { name: "Link Clicks", uid: "LINK_CLICKS" },
       { name: "Reach", uid: "REACH" },
-      { name: "Lead Generation", uid: "LEAD_GENERATION" },
+      { name: "Lead Generation", uid: "LEAD_GENERATION", default: true },
       { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
     ],
     conversionLocations: [
-      { name: "Instant Form", uid: "ON_AD" },
+      { name: "Instant Form", uid: "ON_AD", default: true },
       { name: "Calls", uid: "PHONE_CALL" },
     ],
     promotedObject: {
@@ -141,7 +147,7 @@ export const conditionalData: ConditionalData = {
     optimisationGoals: [
       { name: "Impressions", uid: "IMPRESSIONS" },
       { name: "Link Clicks", uid: "LINK_CLICKS" },
-      { name: "Reach", uid: "REACH" },
+      { name: "Reach", uid: "REACH", default: true },
       { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
     ],
     // promotedObject: {
@@ -152,12 +158,12 @@ export const conditionalData: ConditionalData = {
     billingEvent: [{ name: "Impressions", uid: "IMPRESSIONS" }],
     optimisationGoals: [
       { name: "Impressions", uid: "IMPRESSIONS" },
-      { name: "Link Clicks", uid: "LINK_CLICKS" },
+      { name: "Link Clicks", uid: "LINK_CLICKS", default: true },
       { name: "Reach", uid: "REACH" },
       { name: "Landing Page Views", uid: "LANDING_PAGE_VIEWS" },
     ],
     conversionLocations: [
-      { name: "Website", uid: "WEBSITE" },
+      { name: "Website", uid: "WEBSITE", default: true },
       { name: "App", uid: "APP" },
       { name: "Messaging Apps", uid: "MESSENGER" },
       { name: "Calls", uid: "PHONE_CALL" },
@@ -208,9 +214,9 @@ const CUSTOM_AUDIENCES = [
 ];
 
 const GENDERS = [
-  { name: "All", uid: undefined },
-  { name: "Men", uid: "1" },
-  { name: "Women", uid: "2" },
+  { name: "All", uid: undefined, numericUid: "0" },
+  { name: "Men", uid: "1", numericUid: "1" },
+  { name: "Women", uid: "2", numericUid: "2" },
 ];
 
 const MIN_AGES = Array.from({ length: 48 }, (_, i: number) => ({
@@ -310,10 +316,10 @@ const BID_STRATEGIES = [
 type GeoLocationData = IAdSet["targeting"]["geo_locations"];
 interface PrepareGeoLocationObject extends GenericLocationObject {}
 function prepareGeoLocationData(
-  props: PrepareGeoLocationObject[]
-): GeoLocationData {
+  props?: PrepareGeoLocationObject[]
+): GeoLocationData | undefined {
   const desiredData = {};
-  return props.reduce((acc: GeoLocationData, curr) => {
+  return props?.reduce((acc: GeoLocationData, curr) => {
     if (curr.type === "country") {
       acc.countries
         ? acc.countries.push(curr.key)
@@ -599,7 +605,7 @@ export default function CreateAdset({
 
     if (storeFormState.mode === "edit" && storeFormState.open === true) {
       const formData = storeFormState.rawData as IAdSet;
-      existingGeoLocationData = { ...formData.targeting.geo_locations };
+      existingGeoLocationData = { ...(formData.targeting.geo_locations ?? {}) };
     }
 
     const formGeoLocationData = prepareGeoLocationData(data.locations);
@@ -615,7 +621,7 @@ export default function CreateAdset({
           // countries: data.countries?.map((c) => c.uid) ?? [],
           // location_types: ["home", "recent"],
           // regions: data.zip_codes?.map((c: any) => ({ key: c.uid })) ?? [],
-          ...formGeoLocationData,
+          ...(formGeoLocationData ?? {}),
         },
         flexible_spec: formDemographics(),
         user_os: ["android", "ios"],
@@ -737,13 +743,74 @@ export default function CreateAdset({
     campaignValue,
   ]);
 
+  /**
+   *
+   * @requires {autoCompleteFields}
+   */
   // Handle the AutoComplete fields
   useEffect(() => {
     if (!autoCompleteFields) return;
-    for (const key in autoCompleteFields) {
-      setValue(key, autoCompleteFields[key]);
+    validateAutoCompleteValue(autoCompleteFields?.default_fields?.name) &&
+      setValue("name", autoCompleteFields.default_fields?.name as string);
+    if (autoCompleteFields?.default_fields?.daily_budget) {
+      validateAutoCompleteValue(
+        autoCompleteFields?.default_fields?.daily_budget
+      ) &&
+        !isNaN(+autoCompleteFields.default_fields?.daily_budget) &&
+        setValue(
+          "daily_budget",
+          +autoCompleteFields.default_fields?.daily_budget
+        );
     }
-  }, [autoCompleteFields]);
+    const startTime = autoCompleteFields.default_fields?.start_time;
+    if (startTime) {
+      const startTimeInDayjs = dayjs(startTime);
+      startTimeInDayjs.isValid() && setValue("start_time", startTimeInDayjs);
+    }
+    const endTime = autoCompleteFields.default_fields?.end_time;
+    if (endTime) {
+      const endTimeInDayjs = dayjs(endTime);
+      endTimeInDayjs.isValid() && setValue("end_time", endTimeInDayjs);
+    }
+    const genderField = autoCompleteFields.default_fields?.gender;
+    if (genderField) {
+      validateAutoCompleteValue(genderField, {
+        oneOfArr: GENDERS.map((c) => c.numericUid),
+        transformer: (value) => value.toString(),
+      }) &&
+        GENDERS.find((c) => c.numericUid === genderField)?.uid &&
+        setValue(
+          "gender",
+          GENDERS.find((c) => c.numericUid === genderField)?.uid ?? ""
+        );
+    }
+    const interests = autoCompleteFields.default_fields.fb_detailed_targeting;
+    if (interests) {
+      const demographicValue = interests.map((interest) => ({
+        // name: interest.name,
+        // id: interest.id,
+        // type: "interests",
+        // path: ["Interests", interest.name],
+        // initial: true,
+        key: interest.name,
+        label: (
+          <div className="flex items-center justify-between gap-3 px-1">
+            <span>{interest.name}</span>
+            <div className="bg-default-200 px-1 text-white rounded text-[10px]">
+              <span>{interest.type}</span>
+            </div>
+          </div>
+        ),
+        value: interest.id,
+        uid: interest.id,
+        id: interest.id,
+        name: interest.name,
+        type: interest.type,
+        initial: true,
+      }));
+      setValue("demographics", demographicValue);
+    }
+  }, [autoCompleteFields, setValue]);
 
   function handleDateChange(name: "start_time" | "end_time") {
     return (date: Dayjs, dateString: string | string[]) => {
@@ -756,8 +823,24 @@ export default function CreateAdset({
   }
 
   const campaignObjective = useMemo(() => {
-    return campaigns?.find((c) => c.id === campaignValue)?.objective;
-  }, [campaignValue, campaigns]);
+    const objective = campaigns?.find((c) => c.id === campaignValue)?.objective;
+
+    // Set the default optimisation goal based on the objective
+    const defaultOptimisationGoal = conditionalData[
+      objective as keyof typeof conditionalData
+    ]?.optimisationGoals.find((c) => c.default);
+    defaultOptimisationGoal &&
+      setValue("optimization_goal", defaultOptimisationGoal.uid);
+
+    // Handle the autocomplete generated file for conversion location based on the objective
+    const defaultConversionLocation = conditionalData[
+      objective as keyof typeof conditionalData
+    ]?.conversionLocations.find((c) => c.default);
+    defaultConversionLocation &&
+      setValue("destination_type", defaultConversionLocation.uid);
+
+    return objective;
+  }, [campaignValue, campaigns, setValue]);
 
   useEffect(() => {
     if (endTimeValue && startTimeValue && endTimeValue < startTimeValue) {
@@ -778,222 +861,12 @@ export default function CreateAdset({
       className="flex gap-4 pb-6"
     >
       <div className="flex flex-col gap-4 flex-1">
-        <Autocomplete
-          inputProps={{
-            classNames: {
-              input: "!text-white",
-              label: "!text-gray-500",
-            },
-          }}
-          isDisabled={isCampaignsFetching || immutableFields["campaign_id"]}
-          label="Campaign"
-          placeholder={
-            isCampaignsFetching ? "Fetching Campaigns" : "Select Campaign"
-          }
-          onSelectionChange={(key: Key) => {
-            setValue("campaign_id", key as string);
-          }}
-          selectedKey={campaignValue}
-          errorMessage={formState.errors.campaign_id?.message}
+        <Tooltip
+          placement="top-end"
+          showArrow={true}
+          offset={20}
+          content={tooltips.adset.campaign}
         >
-          {campaigns && campaigns.length > 0 ? (
-            campaigns.map((campaign) => (
-              <AutocompleteItem key={campaign.id} textValue={campaign.name}>
-                <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {campaign.name}
-                </div>
-              </AutocompleteItem>
-            ))
-          ) : (
-            <AutocompleteItem key={"no-country-found"} isReadOnly>
-              No campaigns found
-            </AutocompleteItem>
-          )}
-        </Autocomplete>
-        <Input
-          classNames={{
-            label: "!text-gray-500",
-          }}
-          label="Adset Name"
-          variant="flat"
-          value={nameValue}
-          {...register("name")}
-          errorMessage={formState.errors.name?.message}
-          // errorMessage={formState.errors.description?.message}
-        />
-        <Input
-          classNames={{
-            label: "!text-gray-500",
-          }}
-          label="Daily Budget"
-          variant="flat"
-          type="number"
-          value={dailyBudgetValue?.toString() ?? ""}
-          {...register("daily_budget")}
-          errorMessage={formState.errors.daily_budget?.message}
-          // errorMessage={formState.errors.description?.message}
-        />
-        <div className="flex gap-3 items-start">
-          <div className="flex-1">
-            <label
-              htmlFor=""
-              className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
-            >
-              Start Time
-            </label>
-            <DatePicker
-              format={"DD/MM/YYYY hh:mm a"}
-              className="!h-[40px] !w-full"
-              showTime
-              variant="filled"
-              value={startTimeValue}
-              onChange={handleDateChange("start_time")}
-            />
-            <Element
-              type="p"
-              className="text-small text-danger mt-1"
-              content={formState.errors.start_time?.message}
-            />
-          </div>
-          <div className="flex-1">
-            <label
-              htmlFor=""
-              className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
-            >
-              End Time
-            </label>
-            <DatePicker
-              format={"DD/MM/YYYY hh:mm a"}
-              className="!h-[40px] !w-full"
-              showTime
-              variant="filled"
-              value={endTimeValue}
-              onChange={handleDateChange("end_time")}
-              minDate={startTimeValue}
-            />
-            <Element
-              type="p"
-              className="text-small text-danger mt-1"
-              content={formState.errors.end_time?.message}
-            />
-          </div>
-        </div>
-        <div className="flex gap-3 items-start">
-          <div className="flex-1">
-            <Autocomplete
-              inputProps={{
-                classNames: {
-                  input: "!text-white",
-                  label: "!text-gray-500",
-                },
-              }}
-              label="Min Age"
-              placeholder={"Select Min Age"}
-              onSelectionChange={(key: Key) => {
-                setValue("min_age", key as string);
-              }}
-              selectedKey={minAgeValue}
-              errorMessage={formState.errors.min_age?.message}
-            >
-              {MIN_AGES.map((minAge) => (
-                <AutocompleteItem key={minAge.uid} textValue={minAge.name}>
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {minAge.name}
-                  </div>
-                </AutocompleteItem>
-              ))}
-            </Autocomplete>
-          </div>
-          <div className="flex-1">
-            <Autocomplete
-              inputProps={{
-                classNames: {
-                  input: "!text-white",
-                  label: "!text-gray-500",
-                },
-              }}
-              label="Max Age"
-              placeholder={"Select Max Age"}
-              onSelectionChange={(key: Key) => {
-                setValue("max_age", key as string);
-              }}
-              selectedKey={maxAgeValue}
-              errorMessage={formState.errors.max_age?.message}
-            >
-              {MAX_AGES.map((maxAge) => (
-                <AutocompleteItem key={maxAge.uid} textValue={maxAge.name}>
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {maxAge.name}
-                  </div>
-                </AutocompleteItem>
-              ))}
-            </Autocomplete>
-          </div>
-        </div>
-        <Autocomplete
-          inputProps={{
-            classNames: {
-              input: "!text-white",
-              label: "!text-gray-500",
-            },
-          }}
-          label="Optimisation Goal"
-          placeholder={"Select Optimisation Goal"}
-          onSelectionChange={(key: Key) => {
-            setValue("optimization_goal", key as string);
-          }}
-          selectedKey={optimisationValue}
-          errorMessage={formState.errors.optimization_goal?.message}
-        >
-          {(
-            conditionalData[campaignObjective as keyof typeof conditionalData]
-              ?.optimisationGoals ?? OPTIMISATION_GOALS
-          ).map((optimisationGoal) => (
-            <AutocompleteItem
-              key={optimisationGoal.uid}
-              textValue={optimisationGoal.name}
-            >
-              <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {optimisationGoal.name}
-              </div>
-            </AutocompleteItem>
-          ))}
-        </Autocomplete>
-        <Autocomplete
-          inputProps={{
-            classNames: {
-              input: "!text-white",
-              label: "!text-gray-500",
-            },
-          }}
-          label="Billing Event"
-          placeholder={"Select Billing Event"}
-          onSelectionChange={(key: Key) => {
-            setValue("billing_event", key as string);
-          }}
-          selectedKey={billingEventValue}
-          errorMessage={formState.errors.billing_event?.message}
-        >
-          {(
-            conditionalData[campaignObjective as keyof typeof conditionalData]
-              ?.billingEvent ?? getBillingEventList(optimisationValue)
-          ).map((billingEvent) => (
-            <AutocompleteItem
-              key={billingEvent.uid}
-              textValue={billingEvent.name}
-            >
-              <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {billingEvent.name}
-              </div>
-            </AutocompleteItem>
-          ))}
-        </Autocomplete>
-        {conversionLocationList && conversionLocationList.length > 0 && (
           <Autocomplete
             inputProps={{
               classNames: {
@@ -1001,54 +874,341 @@ export default function CreateAdset({
                 label: "!text-gray-500",
               },
             }}
-            label="Conversion Location"
-            placeholder={"Select Conversion Location"}
+            isDisabled={isCampaignsFetching || immutableFields["campaign_id"]}
+            label="Campaign"
+            placeholder={
+              isCampaignsFetching ? "Fetching Campaigns" : "Select Campaign"
+            }
             onSelectionChange={(key: Key) => {
-              setValue("destination_type", key as IAdSet["destination_type"]);
+              setValue("campaign_id", key as string);
             }}
-            selectedKey={conversionLocationValue}
-            errorMessage={formState.errors.destination_type?.message}
+            selectedKey={campaignValue}
+            errorMessage={formState.errors.campaign_id?.message}
           >
-            {conversionLocationList.map((conversationLocation) => (
+            {campaigns && campaigns.length > 0 ? (
+              campaigns.map((campaign) => (
+                <AutocompleteItem key={campaign.id} textValue={campaign.name}>
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {campaign.name}
+                  </div>
+                </AutocompleteItem>
+              ))
+            ) : (
+              <AutocompleteItem key={"no-country-found"} isReadOnly>
+                No campaigns found
+              </AutocompleteItem>
+            )}
+          </Autocomplete>
+        </Tooltip>
+        <Tooltip
+          placement="top-end"
+          showArrow={true}
+          offset={20}
+          content={tooltips.adset.name}
+        >
+          <Input
+            classNames={{
+              label: "!text-gray-500",
+            }}
+            label="Adset Name"
+            variant="flat"
+            value={nameValue}
+            {...register("name")}
+            errorMessage={formState.errors.name?.message}
+            // errorMessage={formState.errors.description?.message}
+          />
+        </Tooltip>
+        <Tooltip
+          placement="top-end"
+          showArrow={true}
+          offset={20}
+          content={tooltips.adset.daily_budget}
+        >
+          <Input
+            classNames={{
+              label: "!text-gray-500",
+            }}
+            label="Daily Budget"
+            variant="flat"
+            type="number"
+            value={dailyBudgetValue?.toString() ?? ""}
+            {...register("daily_budget")}
+            errorMessage={formState.errors.daily_budget?.message}
+            // errorMessage={formState.errors.description?.message}
+          />
+        </Tooltip>
+        <div className="flex gap-3 items-start">
+          <Tooltip
+            placement="top-end"
+            showArrow={true}
+            offset={5}
+            content={tooltips.adset.start_time}
+          >
+            <div className="flex-1">
+              <label
+                htmlFor=""
+                className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
+              >
+                Start Time
+              </label>
+              <DatePicker
+                format={"DD/MM/YYYY hh:mm a"}
+                className="!h-[40px] !w-full"
+                showTime
+                variant="filled"
+                value={startTimeValue}
+                onChange={handleDateChange("start_time")}
+              />
+              <Element
+                type="p"
+                className="text-small text-danger mt-1"
+                content={formState.errors.start_time?.message}
+              />
+            </div>
+          </Tooltip>
+          <Tooltip
+            placement="top-end"
+            showArrow={true}
+            offset={5}
+            content={tooltips.adset.end_time}
+          >
+            <div className="flex-1">
+              <label
+                htmlFor=""
+                className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
+              >
+                End Time
+              </label>
+              <DatePicker
+                format={"DD/MM/YYYY hh:mm a"}
+                className="!h-[40px] !w-full"
+                showTime
+                variant="filled"
+                value={endTimeValue}
+                onChange={handleDateChange("end_time")}
+                minDate={startTimeValue}
+              />
+              <Element
+                type="p"
+                className="text-small text-danger mt-1"
+                content={formState.errors.end_time?.message}
+              />
+            </div>
+          </Tooltip>
+        </div>
+        <div className="flex gap-3 items-start">
+          <div className="flex-1">
+            <Tooltip
+              placement="top-end"
+              showArrow={true}
+              offset={20}
+              content={tooltips.adset.min_age}
+            >
+              <Autocomplete
+                inputProps={{
+                  classNames: {
+                    input: "!text-white",
+                    label: "!text-gray-500",
+                  },
+                }}
+                label="Min Age"
+                placeholder={"Select Min Age"}
+                onSelectionChange={(key: Key) => {
+                  setValue("min_age", key as string);
+                }}
+                selectedKey={minAgeValue}
+                errorMessage={formState.errors.min_age?.message}
+              >
+                {MIN_AGES.map((minAge) => (
+                  <AutocompleteItem key={minAge.uid} textValue={minAge.name}>
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {minAge.name}
+                    </div>
+                  </AutocompleteItem>
+                ))}
+              </Autocomplete>
+            </Tooltip>
+          </div>
+          <div className="flex-1">
+            <Tooltip
+              placement="top-end"
+              showArrow={true}
+              offset={20}
+              content={tooltips.adset.max_age}
+            >
+              <Autocomplete
+                inputProps={{
+                  classNames: {
+                    input: "!text-white",
+                    label: "!text-gray-500",
+                  },
+                }}
+                label="Max Age"
+                placeholder={"Select Max Age"}
+                onSelectionChange={(key: Key) => {
+                  setValue("max_age", key as string);
+                }}
+                selectedKey={maxAgeValue}
+                errorMessage={formState.errors.max_age?.message}
+              >
+                {MAX_AGES.map((maxAge) => (
+                  <AutocompleteItem key={maxAge.uid} textValue={maxAge.name}>
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {maxAge.name}
+                    </div>
+                  </AutocompleteItem>
+                ))}
+              </Autocomplete>
+            </Tooltip>
+          </div>
+        </div>
+        <Tooltip
+          placement="top-end"
+          showArrow={true}
+          offset={20}
+          content={tooltips.adset.optimization_goal}
+        >
+          <Autocomplete
+            inputProps={{
+              classNames: {
+                input: "!text-white",
+                label: "!text-gray-500",
+              },
+            }}
+            label="Optimisation Goal"
+            placeholder={"Select Optimisation Goal"}
+            onSelectionChange={(key: Key) => {
+              setValue("optimization_goal", key as string);
+            }}
+            selectedKey={optimisationValue}
+            errorMessage={formState.errors.optimization_goal?.message}
+          >
+            {(
+              conditionalData[campaignObjective as keyof typeof conditionalData]
+                ?.optimisationGoals ?? OPTIMISATION_GOALS
+            ).map((optimisationGoal) => (
               <AutocompleteItem
-                key={conversationLocation.uid}
-                textValue={conversationLocation.name}
+                key={optimisationGoal.uid}
+                textValue={optimisationGoal.name}
               >
                 <div className="flex items-center gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {conversationLocation.name}
+                  {optimisationGoal.name}
                 </div>
               </AutocompleteItem>
             ))}
           </Autocomplete>
+        </Tooltip>
+        <Tooltip
+          placement="top-end"
+          showArrow={true}
+          offset={20}
+          content={tooltips.adset.billing_event}
+        >
+          <Autocomplete
+            inputProps={{
+              classNames: {
+                input: "!text-white",
+                label: "!text-gray-500",
+              },
+            }}
+            label="Billing Event"
+            placeholder={"Select Billing Event"}
+            onSelectionChange={(key: Key) => {
+              setValue("billing_event", key as string);
+            }}
+            selectedKey={billingEventValue}
+            errorMessage={formState.errors.billing_event?.message}
+          >
+            {(
+              conditionalData[campaignObjective as keyof typeof conditionalData]
+                ?.billingEvent ?? getBillingEventList(optimisationValue)
+            ).map((billingEvent) => (
+              <AutocompleteItem
+                key={billingEvent.uid}
+                textValue={billingEvent.name}
+              >
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {billingEvent.name}
+                </div>
+              </AutocompleteItem>
+            ))}
+          </Autocomplete>
+        </Tooltip>
+        {conversionLocationList && conversionLocationList.length > 0 && (
+          <Tooltip
+            placement="top-end"
+            showArrow={true}
+            offset={20}
+            content={tooltips.adset.conversion_location}
+          >
+            <Autocomplete
+              inputProps={{
+                classNames: {
+                  input: "!text-white",
+                  label: "!text-gray-500",
+                },
+              }}
+              label="Conversion Location"
+              placeholder={"Select Conversion Location"}
+              onSelectionChange={(key: Key) => {
+                setValue("destination_type", key as IAdSet["destination_type"]);
+              }}
+              selectedKey={conversionLocationValue}
+              errorMessage={formState.errors.destination_type?.message}
+            >
+              {conversionLocationList.map((conversationLocation) => (
+                <AutocompleteItem
+                  key={conversationLocation.uid}
+                  textValue={conversationLocation.name}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {conversationLocation.name}
+                  </div>
+                </AutocompleteItem>
+              ))}
+            </Autocomplete>
+          </Tooltip>
         )}
       </div>
       <div className="flex flex-col gap-4 flex-1 space-between">
         <div className="flex flex-col gap-4 flex-1">
-          <Autocomplete
-            inputProps={{
-              classNames: {
-                input: "!text-white",
-                label: "!text-gray-500",
-              },
-            }}
-            label="Gender"
-            placeholder={"Select Gender"}
-            onSelectionChange={(key: Key) => {
-              setValue("gender", key as string);
-            }}
-            selectedKey={genderValue}
-            errorMessage={formState.errors.gender?.message}
+          <Tooltip
+            placement="top-end"
+            showArrow={true}
+            offset={20}
+            content={tooltips.adset.gender}
           >
-            {GENDERS.map((gender) => (
-              <AutocompleteItem key={gender.uid} textValue={gender.name}>
-                <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {gender.name}
-                </div>
-              </AutocompleteItem>
-            ))}
-          </Autocomplete>
+            <Autocomplete
+              inputProps={{
+                classNames: {
+                  input: "!text-white",
+                  label: "!text-gray-500",
+                },
+              }}
+              label="Gender"
+              placeholder={"Select Gender"}
+              onSelectionChange={(key: Key) => {
+                setValue("gender", key as string);
+              }}
+              selectedKey={genderValue}
+              errorMessage={formState.errors.gender?.message}
+            >
+              {GENDERS.map((gender) => (
+                <AutocompleteItem key={gender.uid} textValue={gender.name}>
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {gender.name}
+                  </div>
+                </AutocompleteItem>
+              ))}
+            </Autocomplete>
+          </Tooltip>
           {/* <SelectCountries
             value={countryValue}
             onChange={(value: string, option: any) => {
@@ -1067,15 +1227,22 @@ export default function CreateAdset({
               setValue("locations", option);
             }}
           />
-          <SelectInterests
-            value={demographicsValue}
-            onChange={(value: string, option: any) => {
-              console.log("demographicsValue - ", demographicsValue);
-              console.log("value - ", value);
-              console.log("option - ", option);
-              setValue("demographics", option);
-            }}
-          />
+          <Tooltip
+            placement="top-end"
+            showArrow={true}
+            offset={20}
+            content={tooltips.adset.interests}
+          >
+            <SelectInterests
+              value={demographicsValue}
+              onChange={(value: string, option: any) => {
+                console.log("demographicsValue - ", demographicsValue);
+                console.log("value - ", value);
+                console.log("option - ", option);
+                setValue("demographics", option);
+              }}
+            />
+          </Tooltip>
           {/* {campaignObjective === "OUTCOME_SALES" && (
             <Input
               classNames={{
@@ -1089,24 +1256,38 @@ export default function CreateAdset({
           )} */}
           {conversionLocationValue === "APP" && (
             <>
-              <Input
-                classNames={{
-                  label: "!text-gray-500",
-                }}
-                label="Application Id"
-                variant="flat"
-                {...register("application_id")}
-                errorMessage={formState.errors.application_id?.message}
-              />
-              <Input
-                classNames={{
-                  label: "!text-gray-500",
-                }}
-                label="Object Store URL"
-                variant="flat"
-                {...register("object_store_url")}
-                errorMessage={formState.errors.object_store_url?.message}
-              />
+              <Tooltip
+                placement="top-end"
+                showArrow={true}
+                offset={20}
+                content={tooltips.adset.application_id}
+              >
+                <Input
+                  classNames={{
+                    label: "!text-gray-500",
+                  }}
+                  label="Application Id"
+                  variant="flat"
+                  {...register("application_id")}
+                  errorMessage={formState.errors.application_id?.message}
+                />
+              </Tooltip>
+              <Tooltip
+                placement="top-end"
+                showArrow={true}
+                offset={20}
+                content={tooltips.adset.object_store_url}
+              >
+                <Input
+                  classNames={{
+                    label: "!text-gray-500",
+                  }}
+                  label="Object Store URL"
+                  variant="flat"
+                  {...register("object_store_url")}
+                  errorMessage={formState.errors.object_store_url?.message}
+                />
+              </Tooltip>
             </>
           )}
           {["MESSENGER", "ON_AD"].includes(conversionLocationValue ?? "") && (

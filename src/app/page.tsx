@@ -1,22 +1,21 @@
-import React from 'react';
+import React from "react";
 // import {useSession} from 'next-auth/react';
-import AppLoader from '@/components/AppLoader';
-import Dashboard from '@/components/Dashboard/Dashboard';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import LandingPage from '@/components/LandingPage/LandingPage';
-import ProductLandingPage from '@/components/ProductPage/ProductLandingPage';
+import AppLoader from "@/components/AppLoader";
+import Dashboard from "@/components/Dashboard/Dashboard";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import ProductLandingPage from "@/components/ProductPage/ProductLandingPage";
 
 export default async function Home() {
   // const {data, status} = useSession();
   // let status = 'authenticated';
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
-  let jsx = <AppLoader />
+  let jsx = <AppLoader />;
 
-  if (!session) jsx = <ProductLandingPage />
+  if (!session) jsx = <ProductLandingPage />;
 
-  if (session) jsx = <Dashboard />
+  if (session) jsx = <Dashboard />;
 
-  return jsx
+  return jsx;
 }

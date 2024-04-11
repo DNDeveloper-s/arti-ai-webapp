@@ -844,27 +844,32 @@ export const useGetCredits = () => {
   });
 };
 
-type AutoCompleteValue = string | null | undefined | "N/A";
+type AutoCompleteValue = string | number | null | undefined | "N/A";
 
 interface CampaignAutoComplete {
   name: AutoCompleteValue;
   objective: AutoCompleteValue;
 }
 
+interface AutoCompleteFBTargeting {
+  id: string;
+  name: string;
+  type: string;
+}
+
 interface AdSetAutoComplete {
   default_fields: {
+    name?: AutoCompleteValue;
     performance_goal?: AutoCompleteValue;
-    facebook_page?: AutoCompleteValue;
     daily_budget?: AutoCompleteValue;
     start_time?: AutoCompleteValue;
     end_time?: AutoCompleteValue;
     location?: AutoCompleteValue;
     age?: AutoCompleteValue;
     gender?: AutoCompleteValue;
+    fb_detailed_targeting?: AutoCompleteFBTargeting[];
     detailed_targeting?: {
-      demographics?: AutoCompleteValue;
-      interests?: AutoCompleteValue;
-      behaviors?: AutoCompleteValue;
+      interests?: string[];
     };
   };
   campaign_objective_specific_fields: {
@@ -883,7 +888,6 @@ interface AdAutoComplete {
     name?: AutoCompleteValue;
     primary_text?: AutoCompleteValue;
     headline?: AutoCompleteValue;
-    image?: AutoCompleteValue;
     call_to_action_button?: AutoCompleteValue;
   };
   custom_values_based_on_conversion_location: {
@@ -980,6 +984,20 @@ const registerBusinessVariableExample = {
   details: "123",
 };
 
+export enum SocialPageType {
+  FACEBOOK_PAGE = "facebook-page",
+  FACEBOOK_AD_ACCOUNT = "facebook-ad-account",
+  INSTAGRAM_PAGE = "instagram-page",
+}
+
+export interface SocialPageObject {
+  name: string;
+  image?: string;
+  providerId: string;
+  providerAccessToken?: string;
+  type: SocialPageType;
+}
+
 export interface RegisterBusinessVariables {
   name: string;
   category: string;
@@ -991,6 +1009,7 @@ export interface RegisterBusinessVariables {
     locality: string;
   }[];
   details: string;
+  socialPages: SocialPageObject[];
 }
 
 export const useRegisterBusiness = (
@@ -1028,5 +1047,36 @@ export const useRegisterBusiness = (
       onError && onError(error, variables, ...rest);
     },
     ...options,
+  });
+};
+
+interface IBusiness {
+  id: string;
+  userId: string;
+  name: string;
+  category: string;
+  position: string;
+  website: string;
+  location?: {
+    zipcode: string;
+    city: string;
+    locality: string;
+  }[];
+  details?: string;
+  socialPages: string[];
+}
+type GetQueryBusinessResponse = IBusiness[];
+export const useQueryUserBusiness = () => {
+  const queryClient = useQueryClient();
+
+  const getUserBusiness = async () => {
+    const response = await axios.get(ROUTES.BUSINESS.ME);
+    return response.data.data;
+  };
+
+  return useQuery<GetQueryBusinessResponse>({
+    queryKey: API_QUERIES.GET_USER_BUSINESS,
+    queryFn: getUserBusiness,
+    staleTime: 1000 * 60 * 5,
   });
 };

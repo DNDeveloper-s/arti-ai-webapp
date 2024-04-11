@@ -1,7 +1,10 @@
 import { useGetAdAccounts } from "@/api/user";
+import SelectWithAutoComplete, {
+  SelectWithAutoCompleteProps,
+} from "@/components/shared/renderers/SelectWithAutoComplete";
 import useCampaignStore from "@/store/campaign";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
-import { Key } from "react";
+import { Key, useMemo } from "react";
 
 export const SelectAdAccountPicker = ({
   selectedKey,
@@ -49,6 +52,33 @@ export const SelectAdAccountPicker = ({
         </AutocompleteItem>
       )}
     </Autocomplete>
+  );
+};
+
+export const SelectAdAccountFormControl = ({
+  name = "ad_account_id",
+}: {
+  name?: string;
+}) => {
+  const { data: adAccounts, isFetching } = useGetAdAccounts();
+
+  const items = useMemo<
+    SelectWithAutoCompleteProps["items"] | undefined
+  >(() => {
+    return adAccounts?.map((adAccount) => ({
+      uid: adAccount.id,
+      name: adAccount.name,
+    }));
+  }, [adAccounts]);
+
+  return (
+    <SelectWithAutoComplete
+      label="Ad Account"
+      items={items}
+      isDisabled={isFetching}
+      placeholder={isFetching ? "Fetching Ad Accounts" : "Select Ad Account"}
+      name={name}
+    />
   );
 };
 

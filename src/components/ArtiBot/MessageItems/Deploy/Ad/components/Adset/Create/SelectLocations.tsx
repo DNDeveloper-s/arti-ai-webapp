@@ -1,8 +1,11 @@
 import { useGetGenericLocations } from "@/api/user";
+import { tooltips } from "@/constants/adCampaignData/tooltips";
 import { debounce } from "@/helpers";
-import { Select, SelectProps, Spin, Tag } from "antd";
+import { Tooltip } from "@nextui-org/react";
+import { Select, SelectProps, Spin } from "antd";
 import { compact, pullAllBy } from "lodash";
 import { useMemo, useRef, useState } from "react";
+import { AiOutlineQuestionCircle } from "react-icons/ai";
 
 export default function SelectLocations(props: SelectProps) {
   const { value: initialData } = props;
@@ -50,9 +53,12 @@ export default function SelectLocations(props: SelectProps) {
     <div className="w-full flex flex-col">
       <label
         htmlFor=""
-        className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
+        className=" ml-1 !text-gray-500 text-small flex items-center justify-between transform scale-85 origin-top-left"
       >
-        City, Region or Country
+        <span>City, Region or Country</span>
+        <Tooltip placement="top-end" content={tooltips.adset.location}>
+          <AiOutlineQuestionCircle />
+        </Tooltip>
       </label>
       <Select
         mode="multiple"

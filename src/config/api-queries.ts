@@ -74,6 +74,7 @@ const API_QUERIES = {
     access_token,
     adset_id,
   ],
+  GET_USER_BUSINESS: ["get-user-business"],
   GET_ADS: (
     access_token?: string | null,
     account_id?: string | null,

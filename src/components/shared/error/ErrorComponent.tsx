@@ -15,7 +15,7 @@ export default function ErrorComponent(props: ErrorComponentProps) {
   return (
     <div className="flex justify-center items-center my-1">
       <p className="text-danger text-sm font-bold">
-        {isProduction
+        {!isProduction
           ? formatErrorMessage(props.error.message)
           : `ClientError: - Something went wrong! Please contact support.`}
       </p>

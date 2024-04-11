@@ -15,6 +15,7 @@ import {
   Button,
   Input,
   Switch,
+  Tooltip,
 } from "@nextui-org/react";
 import { Key, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
@@ -26,13 +27,14 @@ import {
   AutoCompleteObject,
   validateAutoCompleteValue,
 } from "@/api/conversation";
+import { tooltips } from "@/constants/adCampaignData/tooltips";
 
 // Define constants for different campaign objectives
 const CAMPAIGN_OBJECTIVES = [
   // { name: "Engagement", uid: "OUTCOME_ENGAGEMENT" },
-  { name: "Awareness", uid: "OUTCOME_AWARENESS" },
-  { name: "Traffic", uid: "OUTCOME_TRAFFIC" },
-  { name: "Leads", uid: "OUTCOME_LEADS" },
+  { numericUid: "0", name: "Awareness", uid: "OUTCOME_AWARENESS" },
+  { numericUid: "1", name: "Traffic", uid: "OUTCOME_TRAFFIC" },
+  { numericUid: "2", name: "Leads", uid: "OUTCOME_LEADS" },
   // { name: "App Promotion", uid: "OUTCOME_APP_PROMOTION" },
 ];
 
@@ -145,21 +147,21 @@ export default function CreateCampaign({
 
   // Handle the AutoComplete
   useEffect(() => {
-    console.log(
-      "autoCompleteFields - ",
-      autoCompleteFields,
-      validateAutoCompleteValue(autoCompleteFields?.name)
-    );
     if (autoCompleteFields) {
       validateAutoCompleteValue(autoCompleteFields?.name) &&
         setValue("name", autoCompleteFields.name as string);
       validateAutoCompleteValue(autoCompleteFields?.objective, {
-        oneOfArr: CAMPAIGN_OBJECTIVES.map((c) => c.name),
-        transformer: (value) => value.toUpperCase(),
+        oneOfArr: CAMPAIGN_OBJECTIVES.map((c) => c.numericUid),
+        transformer: (value) => value.toString(),
       }) &&
+        CAMPAIGN_OBJECTIVES.find(
+          (c) => c.numericUid === autoCompleteFields.objective
+        )?.uid &&
         setValue(
           "objective",
-          autoCompleteFields.objective?.toUpperCase() as string
+          CAMPAIGN_OBJECTIVES.find(
+            (c) => c.numericUid === autoCompleteFields.objective
+          )?.uid ?? ""
         );
     }
   }, [autoCompleteFields, setValue]);
@@ -172,41 +174,55 @@ export default function CreateCampaign({
       className="flex flex-col gap-4"
     >
       {/* Input field for campaign name */}
-      <Input
-        classNames={{
-          label: "!text-gray-500",
-        }}
-        label="Campaign Name"
-        variant="flat"
-        value={nameValue}
-        {...register("name")}
-        // errorMessage={formState.errors.description?.message}
-      />
-      {/* Autocomplete for selecting campaign objective */}
-      <Autocomplete
-        inputProps={{
-          classNames: {
-            input: "!text-white",
-            label: "!text-gray-500",
-          },
-        }}
-        label="Social Media Page"
-        placeholder={"Select Objective"}
-        onSelectionChange={(key: Key) => {
-          setValue("objective", key as string);
-        }}
-        selectedKey={objectiveValue}
+      <Tooltip
+        placement="top-end"
+        showArrow={true}
+        offset={20}
+        content={tooltips.campaign.name}
       >
-        {/* Autocomplete items for different campaign objectives */}
-        {CAMPAIGN_OBJECTIVES.map((objective) => (
-          <AutocompleteItem key={objective.uid} textValue={objective.name}>
-            <div className="flex items-center gap-3">
-              {/* Display objective name */}
-              {objective.name}
-            </div>
-          </AutocompleteItem>
-        ))}
-      </Autocomplete>
+        <Input
+          classNames={{
+            label: "!text-gray-500",
+          }}
+          label="Campaign Name"
+          variant="flat"
+          value={nameValue}
+          {...register("name")}
+          // errorMessage={formState.errors.description?.message}
+        />
+      </Tooltip>
+      {/* Autocomplete for selecting campaign objective */}
+      <Tooltip
+        placement="top-end"
+        offset={20}
+        showArrow={true}
+        content={tooltips.campaign.objective}
+      >
+        <Autocomplete
+          inputProps={{
+            classNames: {
+              input: "!text-white",
+              label: "!text-gray-500",
+            },
+          }}
+          label="Social Media Page"
+          placeholder={"Select Objective"}
+          onSelectionChange={(key: Key) => {
+            setValue("objective", key as string);
+          }}
+          selectedKey={objectiveValue}
+        >
+          {/* Autocomplete items for different campaign objectives */}
+          {CAMPAIGN_OBJECTIVES.map((objective) => (
+            <AutocompleteItem key={objective.uid} textValue={objective.name}>
+              <div className="flex items-center gap-3">
+                {/* Display objective name */}
+                {objective.name}
+              </div>
+            </AutocompleteItem>
+          ))}
+        </Autocomplete>
+      </Tooltip>
       {/* Switch for selecting campaign status */}
       <div className="w-full flex justify-end gap-2 text-small items-center">
         <Switch

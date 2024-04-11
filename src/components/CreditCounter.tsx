@@ -12,14 +12,14 @@ export default function CreditCounter() {
     >
       {!isFetching && (
         <>
-          <GiTwoCoins className="text-[18px] text-primary" />
+          {/* <GiTwoCoins className="text-[18px] text-primary" /> */}
+          <span className="text-[14px] text-white text-opacity-50">
+            Credits:{" "}
+          </span>
           <span className="leading-[14px]">
-            <span className="text-primary block font-gilroyBold text-[20px] -mb-1">
+            <span className="text-primary block font-gilroyBold text-[15px] -mb-1">
               {data?.balance ?? 0}
             </span>{" "}
-            {/* <span className="text-primary text-opacity-40 text-[15px]">
-            credits
-          </span> */}
           </span>
         </>
       )}

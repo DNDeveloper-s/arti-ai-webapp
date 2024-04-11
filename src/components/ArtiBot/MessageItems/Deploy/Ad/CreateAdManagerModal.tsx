@@ -16,6 +16,8 @@ import useCampaignStore, {
 import CreateCampaign from "./components/Campaign/Create/CreateCampaign";
 import CreateAd from "./components/Ads/Create/CreateAd";
 import { useGetAdCreativeAutoComplete } from "@/api/conversation";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import ErrorComponent from "@/components/shared/error/ErrorComponent";
 
 export default function CreateAdManagerModal() {
   const { formState, meta, setFormState } = useCampaignStore();
@@ -66,17 +68,19 @@ export default function CreateAdManagerModal() {
             </div>
           </ModalHeader>
           <ModalBody className="overflow-auto">
-            {formState.tab === CampaignTab.CAMPAIGNS && (
-              <CreateCampaign
-                autoCompleteFields={autoCompleteFields?.campaign}
-              />
-            )}
-            {formState.tab === CampaignTab.ADSETS && (
-              <CreateAdset autoCompleteFields={autoCompleteFields?.ad_set} />
-            )}
-            {formState.tab === CampaignTab.ADS && (
-              <CreateAd autoCompleteFields={autoCompleteFields?.ad} />
-            )}
+            <ErrorBoundary errorComponent={ErrorComponent}>
+              {formState.tab === CampaignTab.CAMPAIGNS && (
+                <CreateCampaign
+                  autoCompleteFields={autoCompleteFields?.campaign}
+                />
+              )}
+              {formState.tab === CampaignTab.ADSETS && (
+                <CreateAdset autoCompleteFields={autoCompleteFields?.ad_set} />
+              )}
+              {formState.tab === CampaignTab.ADS && (
+                <CreateAd autoCompleteFields={autoCompleteFields?.ad} />
+              )}
+            </ErrorBoundary>
           </ModalBody>
         </ModalContent>
       )}
