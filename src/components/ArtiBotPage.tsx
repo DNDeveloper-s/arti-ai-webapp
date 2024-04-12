@@ -14,6 +14,7 @@ import {
   ConversationType,
   ValidConversationTypes,
 } from "@/interfaces/IConversation";
+import { useBusiness } from "@/context/BusinessContext";
 
 interface ArtiBotPageProps {
   projectName: string;
@@ -22,11 +23,14 @@ interface ArtiBotPageProps {
 const ArtiBotPage: FC<ArtiBotPageProps> = ({ projectName }) => {
   const { state } = useConversation();
   const searchParams = useSearchParams();
+  const { business } = useBusiness();
   const conversationType = searchParams.get("conversation_type");
 
   const isValidType = ValidConversationTypes.includes(
     conversationType as ConversationType
   );
+
+  if (!business) return redirect("/", RedirectType.replace);
 
   if (!isValidType) return redirect("/artibot", RedirectType.replace);
 
@@ -35,7 +39,7 @@ const ArtiBotPage: FC<ArtiBotPageProps> = ({ projectName }) => {
 
   // if (isStrategy) {
   return redirect(
-    `/artibot/${conversationType}?conversation_id=${id}&project_name=${projectName}`,
+    `/artibot/${conversationType}?conversation_id=${id}&project_name=${projectName}&business_id=${business.id}`,
     RedirectType.replace
   );
   // } else {

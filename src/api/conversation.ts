@@ -30,6 +30,8 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useCredentials } from "./user";
 import { IFacebookAdInsight } from "@/interfaces/ISocial";
 import { SnackbarContext } from "@/context/SnackbarContext";
+import { useBusiness } from "@/context/BusinessContext";
+import { useSearchParams } from "next/navigation";
 
 export interface InfiniteConversation {
   id: string;
@@ -48,18 +50,30 @@ export interface InfiniteConversation {
   userId: string;
   createdAt: string;
   updatedAt: string;
+  businessId: string;
 }
 export type GetConversationInifiniteResponse = InfiniteConversation[];
 
 export const useGetConversationInfinite = (cursorId?: string) => {
   const LIMIT = 4;
   const { pushConversationsToState } = useConversation();
+  const { business } = useBusiness();
 
-  const fetchConversations = async (pageParam: undefined | string) => {
+  console.log("Testing | business - ", business);
+
+  const fetchConversations = async (
+    pageParam: undefined | string,
+    queryKey: QueryKey
+  ) => {
+    const [, businessId] = queryKey;
+    if (!businessId) {
+      throw new Error("Business ID is required");
+    }
     const response = await axios.get(ROUTES.CONVERSATION.QUERY_INFINITE, {
       params: {
         cursor_id: pageParam,
         limit: LIMIT,
+        business_id: businessId,
       },
     });
 
@@ -69,8 +83,9 @@ export const useGetConversationInfinite = (cursorId?: string) => {
   };
 
   return useInfiniteQuery<GetConversationInifiniteResponse>({
-    queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS,
-    queryFn: ({ pageParam }: any) => fetchConversations(pageParam),
+    queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id),
+    queryFn: ({ pageParam, queryKey }: any) =>
+      fetchConversations(pageParam, queryKey),
     initialPageParam: cursorId,
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.length === 0 && lastPage.length < LIMIT) return undefined;
@@ -96,12 +111,15 @@ export type GetVariantsByConversationResponse = VariantsByConversation[];
 
 export const useGetVariantsByConversation = (skip: number = 0) => {
   const { pushVariantsToState } = useConversation();
+  const { business } = useBusiness();
   const LIMIT = 4;
-  const fetchVariants = async (skip: number) => {
+  const fetchVariants = async (skip: number, queryKey: QueryKey) => {
+    const [, businessId] = queryKey;
     const response = await axios.get(ROUTES.CONVERSATION.QUERY_VARIANTS, {
       params: {
         skip,
         limit: LIMIT,
+        business_id: businessId,
       },
     });
 
@@ -117,13 +135,15 @@ export const useGetVariantsByConversation = (skip: number = 0) => {
   };
 
   return useInfiniteQuery<GetVariantsByConversationResponse>({
-    queryKey: API_QUERIES.VARIANTS_BY_CONVERSATION,
-    queryFn: ({ pageParam }: any) => fetchVariants(pageParam),
+    queryKey: API_QUERIES.VARIANTS_BY_CONVERSATION(business?.id),
+    queryFn: ({ pageParam, queryKey }: any) =>
+      fetchVariants(pageParam, queryKey),
     initialPageParam: skip,
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.length === 0 || lastPage.length < LIMIT) return undefined;
       return allPages.length * LIMIT;
     },
+    enabled: !!business,
   });
 };
 
@@ -191,11 +211,21 @@ export const useGetMessages = (
   });
 };
 
+interface DefaultBaseResponse<T> {
+  ok: boolean;
+  data: T;
+  message?: string;
+}
 export const useGetConversation = (
   conversationId: string | null,
   enabled: boolean = true
 ) => {
   const { pushConversationsToState } = useConversation();
+  const { setBusiness } = useBusiness();
+  const { data: businesses, isSuccess } = useQueryUserBusiness();
+  const searchParams = useSearchParams();
+  const businessId = searchParams.get("business_id");
+
   const fetchConversation = async ({ queryKey }: QueryFunctionContext) => {
     const [, conversation_id] = queryKey;
 
@@ -203,19 +233,32 @@ export const useGetConversation = (
       throw new Error("Conversation ID is required");
     }
 
-    const response = await axios.get(ROUTES.CONVERSATION.GET(conversation_id));
+    const response = await axios.get<DefaultBaseResponse<InfiniteConversation>>(
+      ROUTES.CONVERSATION.GET(conversation_id)
+    );
 
     pushConversationsToState(response.data.data ? [response.data.data] : []);
 
     return response.data.data;
   };
-  return useQuery<IConversation>({
+
+  const query = useQuery<InfiniteConversation>({
     queryKey: API_QUERIES.GET_CONVERSATION(conversationId),
     queryFn: fetchConversation,
     staleTime: 1000 * 60 * 5,
     retry: 3,
     enabled,
   });
+
+  useEffect(() => {
+    if (isSuccess && businesses) {
+      const conversationBusinessId = query.data?.businessId ?? businessId;
+      const business = businesses.find((b) => b.id === conversationBusinessId);
+      business && setBusiness(business);
+    }
+  }, [businesses, isSuccess, query.data, setBusiness, businessId]);
+
+  return query;
 };
 
 function handleSSEEvent(rawData?: string): FormattedEventResponse {
@@ -327,6 +370,8 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
   const token = useSessionToken();
   const { mutate: postSaveMessages } = useSaveMessages();
   const { mutate: postSaveJSONMessages } = useSaveAdCreativeMessages();
+  const { business } = useBusiness();
+  const searchParams = useSearchParams();
 
   const postSaveTextMessage = (
     variables: SendMessageVariables,
@@ -385,7 +430,7 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
           Authorization: `Bearer ${token}`,
         },
         method: "POST",
-        body: JSON.stringify(variables),
+        body: JSON.stringify({ ...variables, businessId: business?.id }),
       });
 
       if (!response.body) {
@@ -457,9 +502,14 @@ interface SaveMessageVariables {
 
 export const useSaveMessages = () => {
   const queryClient = useQueryClient();
+  const { business } = useBusiness();
 
   const saveMessage = async (variables: SaveMessageVariables) => {
-    const response = await axios.post(ROUTES.MESSAGE.SAVE, variables);
+    if (!business) throw new Error("Business is required");
+    const response = await axios.post(ROUTES.MESSAGE.SAVE, {
+      ...variables,
+      businessId: business.id,
+    });
     return response.data;
   };
 
@@ -474,7 +524,7 @@ export const useSaveMessages = () => {
         queryKey: API_QUERIES.GET_MESSAGES(variables.conversationId),
       });
       queryClient.invalidateQueries({
-        queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS,
+        queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id),
       });
     },
   });
@@ -491,14 +541,16 @@ interface SaveAdCreativeMessageVariables {
 
 export const useSaveAdCreativeMessages = () => {
   const queryClient = useQueryClient();
+  const { business } = useBusiness();
 
   const saveAdCreativeMessage = async (
     variables: SaveAdCreativeMessageVariables
   ) => {
-    const response = await axios.post(
-      ROUTES.MESSAGE.SAVE_AD_CREATIVE,
-      variables
-    );
+    if (!business) throw new Error("Business is required");
+    const response = await axios.post(ROUTES.MESSAGE.SAVE_AD_CREATIVE, {
+      ...variables,
+      businessId: business.id,
+    });
     return response.data;
   };
 
@@ -512,7 +564,7 @@ export const useSaveAdCreativeMessages = () => {
         queryKey: API_QUERIES.GET_CONVERSATION(variables.conversationId),
       });
       queryClient.invalidateQueries({
-        queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS,
+        queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id),
       });
     },
   });
@@ -520,6 +572,7 @@ export const useSaveAdCreativeMessages = () => {
 
 export const useGetAdJson = () => {
   const queryClient = useQueryClient();
+  const {} = useBusiness();
 
   const getAdJson = async (conversationId: string) => {
     const response = await axios.get(ROUTES.MESSAGE.GET_AD_JSON, {
@@ -840,7 +893,7 @@ export const useGetCredits = () => {
   return useQuery<UseGetCreditResponse>({
     queryKey: API_QUERIES.GET_CREDIT_BALANCE,
     queryFn: getCredits,
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 60 * 10, // 10 minutes
   });
 };
 
@@ -1027,9 +1080,9 @@ export const useRegisterBusiness = (
   return useMutation({
     mutationFn: registerBusiness,
     onSettled: (data, error, variables, ...rest) => {
-      // queryClient.invalidateQueries({
-      // queryKey: API_QUERIES.GET_USER_BUSINESS,
-      // });
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_USER_BUSINESS,
+      });
       onSettled && onSettled(data, error, variables, ...rest);
     },
     onSuccess: (data, variables, ...rest) => {
@@ -1050,7 +1103,17 @@ export const useRegisterBusiness = (
   });
 };
 
-interface IBusiness {
+interface IBusinessSocialPageResponse {
+  name: string;
+  image: string;
+  providerId: string;
+  providerAccessToken: string;
+  type: SocialPageType;
+  id: string;
+  businessId: string;
+}
+
+export interface IBusinessResponse {
   id: string;
   userId: string;
   name: string;
@@ -1063,7 +1126,8 @@ interface IBusiness {
     locality: string;
   }[];
   details?: string;
-  socialPages: string[];
+  summary?: string;
+  socialPages?: IBusinessSocialPageResponse[];
 }
 type GetQueryBusinessResponse = IBusiness[];
 export const useQueryUserBusiness = () => {

@@ -178,7 +178,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({
     </div>
   );
 
-  if (inError && inError[adVariant.id]) {
+  if (inError && (inError[adVariant.id] || inError[adVariant.adCreativeId])) {
     lottieAnimationJSX = (
       <div className="w-full aspect-square flex flex-col justify-center items-center">
         <Lottie
@@ -186,9 +186,10 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({
           animationData={errorImage}
           loop={true}
         />
-        <h6 className="text-white text-opacity-60 text-center px-5 leading-normal">
-          Oops! It looks like there was an issue creating your ad variant image.
-          Try creating another one.
+        <h6 className="text-white text-opacity-60 text-center px-5 leading-normal text-sm">
+          {inError[adVariant.id]?.message ??
+            inError[adVariant.adCreativeId]?.message ??
+            "Oops! It looks like there was an issue creating your ad variant image. Try creating another one."}
         </h6>
       </div>
     );

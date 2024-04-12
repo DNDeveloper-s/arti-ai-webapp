@@ -16,6 +16,7 @@ import Providers from "./providers";
 import { NextUIProvider } from "@nextui-org/react";
 import { ConfigProvider, ThemeConfig, theme } from "antd";
 import Snackbar from "@/components/Snackbar";
+import { BusinessContextProvider } from "@/context/BusinessContext";
 
 const metadata: Metadata = {
   title: "Arti AI",
@@ -49,26 +50,28 @@ export default function RootLayout({
               <Providers>
                 <UserContextProvider status="loading">
                   <SnackbarContextProvider>
-                    <ConversationContextProvider {...initConversationState}>
-                      <EditVariantContextProvider>
-                        <>
-                          {children}
-                          <div
-                            id="myportal"
-                            className="z-[1000] fixed top-0 left-0"
-                          />
-                          <div
-                            id="canvastoolsportal"
-                            className="z-[1001] fixed top-0 left-0"
-                          />
-                          <div
-                            id="contextmenuportal"
-                            className="z-[1002] fixed top-0 left-0"
-                          />
-                          <Snackbar />
-                        </>
-                      </EditVariantContextProvider>
-                    </ConversationContextProvider>
+                    <BusinessContextProvider>
+                      <ConversationContextProvider {...initConversationState}>
+                        <EditVariantContextProvider>
+                          <>
+                            {children}
+                            <div
+                              id="myportal"
+                              className="z-[1000] fixed top-0 left-0"
+                            />
+                            <div
+                              id="canvastoolsportal"
+                              className="z-[1001] fixed top-0 left-0"
+                            />
+                            <div
+                              id="contextmenuportal"
+                              className="z-[1002] fixed top-0 left-0"
+                            />
+                            <Snackbar />
+                          </>
+                        </EditVariantContextProvider>
+                      </ConversationContextProvider>
+                    </BusinessContextProvider>
                   </SnackbarContextProvider>
                 </UserContextProvider>
               </Providers>

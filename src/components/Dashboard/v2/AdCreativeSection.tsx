@@ -9,6 +9,7 @@ import {
   IAdCreativeNew,
   IAdCreativeWithVariants,
 } from "@/interfaces/IAdCreative";
+import { EmptySection, EmptySectionType } from "./CardSection";
 
 export default function AdCreativeSection() {
   const { data, isLoading, hasNextPage, ...props } =
@@ -30,25 +31,32 @@ export default function AdCreativeSection() {
     setCurrentAdCreative(val);
   };
 
+  const waiting = isLoading && adCreatives.length === 0;
+  const empty = !waiting && adCreatives.length === 0;
+  const notEmpty = !waiting && adCreatives.length > 0;
+
+  if (empty) return null;
+
   return (
     <section className="mb-10 w-full">
       <h2 className="mb-3">Past Ad Creatives</h2>
       <div className="flex items-center gap-4 w-full overflow-x-auto">
-        {isLoading && (
+        {waiting && (
           <div className="w-full flex gap-4 overflow-hidden">
             <AdCreativeCardShimmer />
             <AdCreativeCardShimmer />
             <AdCreativeCardShimmer />
           </div>
         )}
-        {adCreatives.map((obj) => (
-          <AdCreativeCard
-            key={obj.id}
-            adCreative={obj.ad_creative}
-            onClick={handleAdCreativeClick}
-            {...obj}
-          />
-        ))}
+        {notEmpty &&
+          adCreatives.map((obj) => (
+            <AdCreativeCard
+              key={obj.id}
+              adCreative={obj.ad_creative}
+              onClick={handleAdCreativeClick}
+              {...obj}
+            />
+          ))}
         {hasNextPage && (
           <div
             className="w-[60px] p-0 pr-[20px] h-full flex items-center justify-center"

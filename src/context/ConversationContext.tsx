@@ -31,6 +31,8 @@ import {
 import { useSession } from "next-auth/react";
 import ObjectId from "bson-objectid";
 import { InfiniteConversation } from "@/api/conversation";
+import { QueryClient } from "@tanstack/react-query";
+import API_QUERIES from "@/config/api-queries";
 
 interface IConversationData {}
 
@@ -489,6 +491,15 @@ function conversationReducer(
         inError: {
           ...(state.inError ?? {}),
           [payload.variantId]: true,
+        },
+      };
+    case CONVERSATION_ACTION_TYPE.ERROR_IN_GENERATING_CREATIVE_IMAGES:
+      return {
+        ...state,
+        inError: {
+          [payload.adCreativeId]: {
+            message: payload.message,
+          },
         },
       };
     case CONVERSATION_ACTION_TYPE.GET_ADCREATIVES:
@@ -969,18 +980,20 @@ async function updateVariantImage(
 
 async function generateAdCreativeImages(
   dispatch: (a: ConversationAction) => void,
-  conversationId: string
+  adCreativeId: string,
+  onError?: (err: Error) => void
 ) {
+  const queryClient = new QueryClient();
   dispatch({
     type: CONVERSATION_ACTION_TYPE.GEN_AD_CREATIVE_IMAGES,
     payload: {
-      conversationId,
+      adCreativeId,
     },
   });
 
   try {
     const response = await axios.patch<GenerateAdCreativeImageApiResponse>(
-      ROUTES.CONVERSATION.GENERATE_IMAGES(conversationId),
+      ROUTES.CONVERSATION.GENERATE_IMAGES(adCreativeId),
       {},
       {
         headers: {
@@ -989,21 +1002,26 @@ async function generateAdCreativeImages(
       }
     );
 
+    queryClient.invalidateQueries({
+      queryKey: API_QUERIES.GET_CREDIT_BALANCE,
+    });
+
     if (response.data.ok) {
       dispatch({
         type: CONVERSATION_ACTION_TYPE.GEN_AD_CREATIVE_IMAGES_SUCCESS,
-        payload: { conversationId, response: response.data.data.response },
+        payload: { adCreativeId, response: response.data.data.response },
       });
     } else {
       dispatch({
         type: CONVERSATION_ACTION_TYPE.ERROR_IN_GENERATING_CREATIVE_IMAGES,
-        payload: { conversationId },
+        payload: { adCreativeId, message: response.data.message },
       });
     }
   } catch (error: any) {
+    onError && onError(error);
     dispatch({
       type: CONVERSATION_ACTION_TYPE.ERROR_IN_GENERATING_CREATIVE_IMAGES,
-      payload: { conversationId },
+      payload: { adCreativeId, message: error.message },
     });
   }
 }

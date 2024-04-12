@@ -37,7 +37,7 @@ import AdCreativeSection from "./AdCreativeSection";
 import { useGetUserProviders } from "@/api/user";
 import { useUser } from "@/context/UserContext";
 
-enum EmptySectionType {
+export enum EmptySectionType {
   CONVERSATION = "conversation",
   AD_CREATIVE = "ad_creative",
   UPLOAD = "upload",
@@ -47,7 +47,7 @@ interface EmptySectionProps {
   type: EmptySectionType;
   style?: Record<string, string>;
 }
-const EmptySection: FC<EmptySectionProps> = (props) => {
+export const EmptySection: FC<EmptySectionProps> = (props) => {
   let items = null;
   let content = null;
 

@@ -15,6 +15,8 @@ export interface IConversation extends MongooseModel {
   conversation_type: ConversationType;
   lastAdCreativeCreatedAt?: ISODateString | Date;
   project_name: string;
+  businessId: string;
+  userId: string;
 }
 
 export enum ConversationType {

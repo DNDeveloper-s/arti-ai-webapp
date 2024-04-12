@@ -1,41 +1,16 @@
 import UiModal from "@/components/shared/renderers/UiModal";
-import { IAdVariant } from "@/interfaces/IArtiBot";
-import DeployAdLayout from "./DeployAdLayout";
-import { Platform, useUser } from "@/context/UserContext";
+import Link from "next/link";
 import {
-  Autocomplete,
-  AutocompleteItem,
-  Button,
   Card,
   CardBody,
-  Chip,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Link,
   ModalBody,
   ModalContent,
   ModalHeader,
   Progress,
   Spinner,
-  Switch,
-  Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  Tabs,
 } from "@nextui-org/react";
-import { RiAdvertisementFill } from "react-icons/ri";
-import { BsUiRadiosGrid } from "react-icons/bs";
-import { HiMiniFolder } from "react-icons/hi2";
-import UiTable from "@/components/shared/renderers/UiTable";
-import { FaEllipsisVertical } from "react-icons/fa6";
-import React, { Key, useEffect, useState } from "react";
-import { IoClose } from "react-icons/io5";
+
+import React from "react";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
 import CampaignView from "./components/Campaign/CampaignView";
 import TabView from "./components/TabView";
@@ -89,6 +64,11 @@ interface SelectAdAccountModalContentProps {}
 function SelectAdAccountModalContent(props: SelectAdAccountModalContentProps) {
   const { setSelectAdAccount } = useCampaignStore();
   const { data: adAccounts, isFetching } = useGetAdAccounts();
+
+  const waiting = isFetching && !adAccounts;
+  const noAdAccounts = !waiting && adAccounts && adAccounts.length === 0;
+  const hasAdAccounts = !waiting && adAccounts && adAccounts.length > 0;
+
   return (
     <ModalContent>
       {(onClose) => (
@@ -107,8 +87,23 @@ function SelectAdAccountModalContent(props: SelectAdAccountModalContentProps) {
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-3 mb-4">
-              {isFetching && <Spinner label="Loading..." color="warning" />}
-              {adAccounts &&
+              {waiting && <Spinner label="Loading..." color="warning" />}
+              {noAdAccounts && (
+                <div className="flex flex-col gap-2 items-center px-3 my-4">
+                  <p className="text-white text-center text-opacity-50 text-sm">
+                    No Ad Accounts found
+                  </p>
+                  <p className="text-primary text-base">
+                    <Link
+                      target="_blank"
+                      href="https://www.facebook.com/business/help/407323696966570?id=649869995454285"
+                    >
+                      Create an ad account.
+                    </Link>
+                  </p>
+                </div>
+              )}
+              {hasAdAccounts &&
                 adAccounts.map((adAccount) => (
                   <Card
                     key={adAccount.id}

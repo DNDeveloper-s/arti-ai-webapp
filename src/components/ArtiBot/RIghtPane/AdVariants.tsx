@@ -1,6 +1,13 @@
 "use client";
 
-import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import TabView from "@/components/ArtiBot/RIghtPane/TabView";
 import FeedBackView from "@/components/ArtiBot/RIghtPane/FeedBackView";
 import { FiDownload } from "react-icons/fi";
@@ -17,6 +24,7 @@ import VariantItem, { AD_VARIANT_MODE } from "@/components/ArtiBot/VariantItem";
 import { Mock } from "@/constants/servicesData";
 import { colors } from "@/config/theme";
 import AdCampaignStepOne from "@/components/ArtiBot/RIghtPane/AdCampaignFlow/AdCampaignStepOne";
+import { SnackbarContext } from "@/context/SnackbarContext";
 
 interface RightPaneProps {
   adCreative: IAdCreative;
@@ -48,6 +56,7 @@ const AdVariants: FC<RightPaneProps> = ({
   const prevVariantListRef = useRef("");
   const intervalIdRef = useRef<any>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
   useEffect(() => {
     if (!mock.is) return;
@@ -114,19 +123,26 @@ const AdVariants: FC<RightPaneProps> = ({
           !variant.imageUrl &&
           variant.imageDescription &&
           (!inProcess || !inProcess[variant.id]) &&
-          (!inError || !inError[variant.id])
+          (!inError || !inError[variant.id] || !inError[adCreative.id])
       );
       if (
         !ranTheGenerationRef.current &&
-        !inProcess[adCreative.conversationId] &&
+        !inProcess[adCreative.id] &&
         hasAtLeastOneVariantToFetch
       ) {
         ranTheGenerationRef.current = true;
-        generateAdCreativeImages(dispatch, adCreative.conversationId);
+        generateAdCreativeImages(dispatch, adCreative.id, (err: Error) => {
+          console.log("Error in creating - ", err);
+          setSnackBarData({
+            message:
+              err.message ?? "Error in generating images for ad creative.",
+            status: "error",
+          });
+        });
       }
       ranTheGenerationRef.current = true;
     }
-  }, [dispatch, variantList, inProcess, inError, adCreative.conversationId]);
+  }, [dispatch, variantList, inProcess, inError, adCreative.id]);
 
   return (
     <div

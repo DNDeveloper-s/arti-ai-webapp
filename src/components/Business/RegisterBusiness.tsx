@@ -128,9 +128,12 @@ export default function RegisterBusiness() {
         type: SocialPageType.FACEBOOK_AD_ACCOUNT,
       })) ?? ([] as SocialPageObject[]);
 
+    console.log("providers - ", providers);
+    console.log("accountProviders - ", accountProviders);
+
     postRegisterBusiness({
       ...data,
-      socialPages: [...providers, ...accountProviders],
+      socialPages: [providers, accountProviders].flat(),
     });
   };
 

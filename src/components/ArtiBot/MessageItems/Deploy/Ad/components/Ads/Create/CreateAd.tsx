@@ -62,6 +62,7 @@ import {
 import { SnackbarContext } from "@/context/SnackbarContext";
 import CreateLeadFormModal from "./CreateLeadForm";
 import { tooltips } from "@/constants/adCampaignData/tooltips";
+import Element from "@/components/shared/renderers/Element";
 
 const BILLING_EVENT = [{ name: "Impressions", uid: "impressions" }];
 
@@ -190,6 +191,7 @@ const SOCIAL_PAGES = [
 interface FacebookAdPreviewProps {
   text: string;
   image: string;
+  title?: string;
   brandLogo?: string;
   brandLabel?: string;
 }
@@ -198,6 +200,7 @@ const FacebookAdPreview = ({
   image,
   brandLogo,
   brandLabel,
+  title,
 }: FacebookAdPreviewProps) => {
   return (
     <div
@@ -257,6 +260,24 @@ const FacebookAdPreview = ({
           alt={"Amplified Ad Creative"}
         />
       </div>
+      <Element content={title}>
+        <div className="w-full flex bg-gray-800 items-center gap-3 px-4 py-4">
+          <div className="flex-shrink-0 flex-1 text-white">
+            <p className="text-[12px] uppercase mb-0.5">FORM ON FACEBOOK</p>
+            <p className="text-[12px] font-bold">{title}</p>
+          </div>
+          <div className="flex-shrink-0">
+            <button
+              className={
+                "py-1.5 px-3 bg-gray-600 rounded text-white text-[13px] cursor-pointer"
+              }
+            >
+              Sign up
+            </button>
+          </div>
+        </div>
+        <Divider className="mt-1 mb-2" />
+      </Element>
       {/* <div
         className={"bg-gray-700 py-4 px-3 flex items-center justify-between"}
       >
@@ -288,10 +309,10 @@ const FacebookAdPreview = ({
           <GoComment />
           <span>Comment</span>
         </div>
-        <div className={"flex items-center gap-2 text-[12px]"}>
+        {/* <div className={"flex items-center gap-2 text-[12px]"}>
           <TbShare3 />
           <span>Share</span>
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -642,7 +663,7 @@ export default function CreateAd({
   const previewData = useMemo(() => {
     if (selectedVariant) {
       return {
-        text: selectedVariant.text,
+        text: primaryTextValue ?? "",
         image: selectedVariant.imageUrl,
       };
     }
@@ -650,11 +671,11 @@ export default function CreateAd({
     if (storeFormState.mode === "edit" && storeFormState.open === true) {
       const formData = storeFormState.rawData as IAd;
       return {
-        text: formData.creative.object_story_spec?.link_data?.message ?? "",
+        text: primaryTextValue ?? "",
         image: formData.creative.image_url ?? "",
       };
     }
-  }, [selectedVariant, storeFormState]);
+  }, [selectedVariant, storeFormState, primaryTextValue]);
 
   useEffect(() => {
     if (storeFormState.mode === "edit" && storeFormState.open === true) {
@@ -898,7 +919,7 @@ export default function CreateAd({
                       >
                         <>
                           <div className="w-full flex justify-between gap-2">
-                            <div className="flex gap-2">
+                            <div className="flex flex-1 overflow-hidden gap-2">
                               <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
                                 <Image
                                   className="w-full h-full object-cover hover:object-contain"
@@ -914,11 +935,11 @@ export default function CreateAd({
                                   }}
                                 />
                               </div>
-                              <span className="text-small max-w-[170px]">
+                              <span className="text-small flex-1 whitespace-pre-wrap">
                                 {variant.oneLiner}
                               </span>
                             </div>
-                            <div className="flex flex-col items-end gap-1">
+                            <div className="flex flex-col flex-1 items-end gap-1">
                               {/* <span className="text-tiny text-default-500">
                               Facebook
                             </span> */}
@@ -1163,6 +1184,7 @@ export default function CreateAd({
                 <FacebookAdPreview
                   text={previewData.text}
                   image={previewData.image}
+                  title={headlineValue}
                   brandLabel={selectedPage?.name}
                   brandLogo={selectedPage?.picture}
                 />

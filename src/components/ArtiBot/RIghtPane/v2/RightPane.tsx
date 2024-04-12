@@ -133,15 +133,15 @@ const RightPane: FC<RightPaneProps> = ({
       );
       if (
         !ranTheGenerationRef.current &&
-        !inProcess[adCreative.conversationId] &&
+        !inProcess[adCreative.id] &&
         hasAtLeastOneVariantToFetch
       ) {
         ranTheGenerationRef.current = true;
-        generateAdCreativeImages(dispatch, adCreative.conversationId);
+        generateAdCreativeImages(dispatch, adCreative.id);
       }
       ranTheGenerationRef.current = true;
     }
-  }, [dispatch, variantList, inProcess, inError, adCreative.conversationId]);
+  }, [dispatch, variantList, inProcess, inError, adCreative.id]);
 
   const content = (
     <div

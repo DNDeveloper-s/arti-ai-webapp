@@ -57,14 +57,16 @@ const BotsInfo = () => {
 const BasicConversationInfo = ({
   projectName,
   setProjectName,
-  setProjectType,
 }: {
   projectName: string;
   setProjectName: (val: string) => void;
-  setProjectType: (
-    val: ConversationType | null
-  ) => void | React.Dispatch<React.SetStateAction<ConversationType | null>>;
 }) => {
+  const router = useRouter();
+  useEffect(() => {
+    router.prefetch("/artibot?conversation_type=ad_creative");
+    router.prefetch("/artibot?conversation_type=social_media_post");
+  }, [router]);
+
   return (
     <div className={"flex-1 p-5 flex flex-col"}>
       <div className="w-full flex justify-between items-center pb-3 py-1">
@@ -125,44 +127,48 @@ const BasicConversationInfo = ({
               </div>
               <div className="flex gap-5 mx-1 justify-between items-center">
                 <div className="flex-1">
-                  <CTAButton
-                    onClick={() => {
-                      setProjectType(ConversationType.AD_CREATIVE);
-                    }}
-                    className="py-3 rounded-lg w-full justify-center flex gap-3 items-center text-sm bg-transparent border-2 border-primary"
-                  >
-                    <>
-                      <div className="w-6">
-                        <AdCreativeIcon fill={colors.primary} />
-                      </div>
-                      <span className="text-primary">
-                        Ad Creative Assistant
-                      </span>
-                    </>
-                  </CTAButton>
+                  <Link href={"/artibot?conversation_type=ad_creative"}>
+                    <CTAButton
+                      // onClick={() => {
+                      //   setProjectType(ConversationType.AD_CREATIVE);
+                      // }}
+                      className="py-3 rounded-lg w-full justify-center flex gap-3 items-center text-sm bg-transparent border-2 border-primary"
+                    >
+                      <>
+                        <div className="w-6">
+                          <AdCreativeIcon fill={colors.primary} />
+                        </div>
+                        <span className="text-primary">
+                          Ad Creative Assistant
+                        </span>
+                      </>
+                    </CTAButton>
+                  </Link>
                   <span className="text-xs text-gray-500">
                     For creating eye-catching ads
                   </span>
                 </div>
                 <div className="flex-1">
-                  <CTAButton
-                    onClick={() => {
-                      setProjectType(ConversationType.SOCIAL_MEDIA_POST);
-                    }}
-                    className="py-3 rounded-lg w-full justify-center flex gap-3 items-center text-sm bg-transparent border-2 border-primary"
-                  >
-                    <>
-                      <div className="w-6">
-                        <SocialMediaPostIcon
-                          className="w-full h-auto"
-                          fill={colors.primary}
-                        />
-                      </div>
-                      <span className="text-primary">
-                        Post Creative Assistant
-                      </span>
-                    </>
-                  </CTAButton>
+                  <Link href={"/artibot?conversation_type=ad_creative"}>
+                    <CTAButton
+                      // onClick={() => {
+                      //   setProjectType(ConversationType.SOCIAL_MEDIA_POST);
+                      // }}
+                      className="py-3 rounded-lg w-full justify-center flex gap-3 items-center text-sm bg-transparent border-2 border-primary"
+                    >
+                      <>
+                        <div className="w-6">
+                          <SocialMediaPostIcon
+                            className="w-full h-auto"
+                            fill={colors.primary}
+                          />
+                        </div>
+                        <span className="text-primary">
+                          Post Creative Assistant
+                        </span>
+                      </>
+                    </CTAButton>
+                  </Link>
                   <span className="text-xs text-gray-500">
                     Craft & schedule posts for impact
                   </span>
@@ -307,12 +313,15 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
           setOpen={() => {}}
           open={true}
         >
-          <>
+          <BasicConversationInfo
+            projectName={projectName}
+            setProjectName={setProjectName}
+          />
+          {/* <>
             {!projectType ? (
               <BasicConversationInfo
                 projectName={projectName}
                 setProjectName={setProjectName}
-                setProjectType={setProjectType}
               />
             ) : (
               <AdvancedConversationInfo
@@ -320,7 +329,7 @@ const AskConversationType: FC<AskConversationTypeProps> = (props) => {
                 goBack={handleGoBack}
               />
             )}
-          </>
+          </> */}
         </Modal>
         <div className={"flex-1 flex flex-col-reverse overflow-auto"}>
           <div />

@@ -23,25 +23,25 @@ interface SelectWithAutoCompleteComponent {
 type SelectWithAutoCompletePropWithControl = {
   noControl?: false;
   name: string;
-};
+} & Omit<
+  AutocompleteProps,
+  "label" | "children" | "selectedKey" | "onSelectionChange"
+>;
 
 type SelectWithAutoCompletePropWithoutControl = {
   noControl: true;
-};
+} & Omit<AutocompleteProps, "label" | "children">;
 
-export type SelectWithAutoCompleteProps = Omit<
-  AutocompleteProps,
-  "label" | "children" | "selectedKey" | "onSelectionChange"
-> & {
+export type SelectWithAutoCompleteProps = {
   isFetching?: boolean;
   plural?: string;
   label: string;
   items: SelectWithAutoCompleteItem[] | undefined;
   components?: SelectWithAutoCompleteComponent[];
 } & (
-    | SelectWithAutoCompletePropWithControl
-    | SelectWithAutoCompletePropWithoutControl
-  );
+  | SelectWithAutoCompletePropWithControl
+  | SelectWithAutoCompletePropWithoutControl
+);
 
 /**
  * @param param0
@@ -84,9 +84,7 @@ function SelectWithAutoCompleteComponent({
       // disabledKeys={[]}
       isDisabled={isFetching || props.isDisabled}
       placeholder={
-        isFetching
-          ? `Fetching ${plural ?? props.label}`
-          : `Select ${props.label}`
+        isFetching ? `Fetching ${plural ?? "Item"}` : `${props.label}`
       }
       {...localProps}
       {...props}

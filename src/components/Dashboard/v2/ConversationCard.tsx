@@ -11,7 +11,10 @@ import ChatGPTMessageItem, {
 import StrategyIcon from "@/components/shared/icons/StrategyIcon";
 import { colors } from "@/config/theme";
 import AdCreativeIcon from "@/components/shared/icons/AdCreativeIcon";
-import { GetConversationInifiniteResponse } from "@/api/conversation";
+import {
+  GetConversationInifiniteResponse,
+  InfiniteConversation,
+} from "@/api/conversation";
 import { Spinner } from "@nextui-org/react";
 
 export const ConversationCardShimmer = () => {
@@ -50,7 +53,7 @@ export const ConversationCardShimmer = () => {
 };
 
 interface ConversationCardProps {
-  conversation: GetConversationInifiniteResponse;
+  conversation: InfiniteConversation;
 }
 
 const ConversationCard: React.FC<ConversationCardProps> = (props) => {

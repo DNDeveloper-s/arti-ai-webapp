@@ -43,7 +43,10 @@ const API_QUERIES = {
     pageAccessToken,
   ],
   GET_USER_CAMPAIGNS: ["get-user-campaigns"],
-  VARIANTS_BY_CONVERSATION: ["variants-by-conversation"],
+  VARIANTS_BY_CONVERSATION: (businessId?: string | null) => [
+    "variants-by-conversation",
+    businessId,
+  ],
   GET_USER_ACCOUNTS: ["get-user-accounts"],
   LINK_ACCOUNT: ["link-account"],
   GET_FACEBOOK_PAGE: (access_token?: string | null, page_id?: string) => [
@@ -122,7 +125,10 @@ const API_QUERIES = {
   ],
   SEND_MESSAGE: ["send-message"],
   UPDATE_ME: ["update-me"],
-  GET_INFINITE_CONVERSATIONS: ["get-infinite-conversations"],
+  GET_INFINITE_CONVERSATIONS: (businessId?: string | null) => [
+    "get-infinite-conversations",
+    businessId,
+  ],
 };
 
 export default API_QUERIES;

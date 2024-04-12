@@ -13,6 +13,8 @@ import { IoMdClose } from "react-icons/io";
 import { REGENERATE_SECTION } from "./EditAdVariant";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { VariantImageMap } from "@/services/VariantImageMap";
+import { useQueryClient } from "@tanstack/react-query";
+import API_QUERIES from "@/config/api-queries";
 
 interface EditControlBaseProps {
   controlKey: REGENERATE_SECTION;
@@ -73,6 +75,7 @@ const EditControl: FC<EditControlProps> = (props) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState(null);
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+  const queryClient = useQueryClient();
 
   const onChange = (value: string) => {
     setFormValue(value);
@@ -101,10 +104,16 @@ const EditControl: FC<EditControlProps> = (props) => {
       extraInput
     );
 
+    queryClient.invalidateQueries({
+      queryKey: API_QUERIES.GET_CREDIT_BALANCE,
+    });
+
     if (typeof _suggestions !== "string" && _suggestions?.error) {
       setLoading(false);
       setSnackBarData({
-        message: "Failed to regenerate image. Please try again!",
+        message:
+          _suggestions?.error?.message ??
+          "Failed to regenerate image. Please try again!",
         status: "error",
       });
       return;
