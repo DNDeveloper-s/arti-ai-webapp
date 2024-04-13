@@ -10,6 +10,12 @@ import { Collapse, CollapseProps } from "antd";
 import { useGetAdSets } from "@/api/user";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import ErrorComponent from "@/components/shared/error/ErrorComponent";
+import DateRangePicker, {
+  DateRangePickerControl,
+} from "@/components/shared/renderers/DateRangePicker";
+import { RangeValueType } from "rc-picker/lib/PickerInput/RangePicker";
+import { Dayjs } from "dayjs";
+import useCampaignStore, { CampaignTab } from "@/store/campaign";
 
 interface DeployAdChildCardProps {
   campaignId: string;
@@ -59,6 +65,9 @@ const CampaignChildCard = ({
                 isFetching={isFetching}
                 name={adset.name}
                 insights={adset.insights?.data[0]}
+                data={adset}
+                tab={CampaignTab.ADSETS}
+                ad_account_id={accountId}
               />
             </ErrorBoundary>
           ),
@@ -107,21 +116,22 @@ const CampaignChildCard = ({
 };
 
 export default function CampaignPage({ campaignId }: { campaignId: string }) {
-  const { data, isFetching, ...props } = useGetCampaignInsights(campaignId);
+  const [rangeValue, setRangeValue] = useState<
+    RangeValueType<Dayjs> | undefined
+  >(undefined);
+
+  const { data, isFetching, ...props } = useGetCampaignInsights({
+    campaignId,
+    timeRange: rangeValue,
+  });
+
+  const { setFormState } = useCampaignStore();
 
   const [activeKeys, setActiveKeys] = useState<string[]>(["1"]);
   const onChange = (key: string | string[]) => {
     console.log(key);
     setActiveKeys(typeof key === "string" ? [key] : key);
   };
-
-  // [
-  //   {
-  //     key: "1",
-  //     label: <AdTitle />,
-  //     children: <InsightCard show={true} className="mt-2" />,
-  //   },
-  // ];
 
   const adsetItems = useMemo(() => {
     if (!data) return [];
@@ -133,7 +143,10 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
             <InsightTitle
               isFetching={isFetching}
               name={data.name}
+              data={data}
               insights={data.insights?.data[0]}
+              tab={CampaignTab.CAMPAIGNS}
+              ad_account_id={data.ad_account_id}
             />
           </ErrorBoundary>
         ),
@@ -151,6 +164,14 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
 
   return (
     <>
+      <div className="w-full flex items-center justify-between mb-5">
+        <div>
+          <h1 className="text-lg font-bold text-white">Campaign Insights</h1>
+        </div>
+        <div className="max-w-[300px]">
+          <DateRangePicker value={rangeValue} onChange={setRangeValue} />
+        </div>
+      </div>
       {props.isLoading && (
         <div className="w-full flex gap-2 items-center justify-center text-xs">
           <Spinner label="Fetching Campaign Insights" />

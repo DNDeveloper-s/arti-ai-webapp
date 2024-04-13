@@ -15,12 +15,12 @@ import { useClientMessages } from "@/context/ClientMessageContext";
 import { sortBy, uniqBy } from "lodash";
 import {
   ChatGPTMessageCreatingAd,
-  ChatGPTMessageGeneratingAnimation,
   ChatGPTMessageWelcomeMessage,
 } from "../MessageItems/ChatGPTMessageItem";
 import useKeepInView from "@/hooks/useKeepInView";
 import MessagesShimmer from "./MessagesShimmer";
 import { ConversationType } from "@/interfaces/IConversation";
+import classNames from "classnames";
 
 export default function MessageContainer() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,15 +61,15 @@ export default function MessageContainer() {
     setKeepInView(!!isPending);
   }, [isPending, setKeepInView]);
 
+  const className = classNames("flex-1 flex flex-col-reverse", {
+    "pb-9 md:pb-14": showGetAdNowButton,
+    "overflow-hidden": isLoading,
+    "overflow-auto": !isLoading,
+  });
+
   return (
     <AnimatePresence mode="wait">
-      <div
-        className={
-          "flex-1 flex flex-col-reverse overflow-auto " +
-          (showGetAdNowButton ? " pb-9 md:pb-14" : "")
-        }
-        ref={containerRef}
-      >
+      <div className={className} ref={containerRef}>
         {isLoading ? (
           <div>
             <MessagesShimmer

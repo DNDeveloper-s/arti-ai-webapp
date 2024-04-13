@@ -12,12 +12,13 @@ import { BiCaretDown, BiCaretRight, BiCaretUp } from "react-icons/bi";
 import { motion } from "framer-motion";
 import { omit } from "lodash";
 import { IAd, IAdSet, IFacebookAdInsight } from "@/interfaces/ISocial";
-import { useGetAds } from "@/api/user";
+import { useGetAds, useGetCampaigns } from "@/api/user";
 import { botData } from "@/constants/images";
-import { MdDownload } from "react-icons/md";
+import { MdDownload, MdEdit } from "react-icons/md";
 import writeXlsxFile from "write-excel-file";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import ErrorComponent from "@/components/shared/error/ErrorComponent";
+import useCampaignStore, { CampaignTab } from "@/store/campaign";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -279,18 +280,25 @@ async function handleDownload(name: string, insights?: IFacebookAdInsight) {
   });
 }
 
-export function InsightTitle({
+export function InsightTitle<T extends { id: string }>({
   name,
+  data,
   insights,
   isFetching,
   label = "adset",
+  tab,
+  ad_account_id,
 }: {
   name: string;
+  data?: T;
   insights?: IFacebookAdInsight;
   isFetching?: boolean;
   label?: "adset" | "campaign" | "ad";
+  tab?: CampaignTab;
+  ad_account_id?: string;
 }) {
   const [show, setShow] = useState(false);
+  const { setSelectAdAccount, setFormState } = useCampaignStore();
 
   return (
     <div className="overflow-hidden">
@@ -308,13 +316,30 @@ export function InsightTitle({
         </button> */}
         <div className="flex items-center gap-4">
           {isFetching && <Spinner size="sm" />}
-          <MdDownload
-            className="text-xl"
-            onClick={(e: any) => {
-              e.stopPropagation();
-              handleDownload(name, insights);
-            }}
-          />
+          <div className="flex items-center gap-2">
+            {ad_account_id && data && tab && (
+              <MdEdit
+                className="text-xl"
+                onClick={(e: any) => {
+                  e.stopPropagation();
+                  setSelectAdAccount(ad_account_id);
+                  setFormState({
+                    open: true,
+                    mode: "edit",
+                    rawData: data,
+                    tab,
+                  });
+                }}
+              />
+            )}
+            <MdDownload
+              className="text-xl"
+              onClick={(e: any) => {
+                e.stopPropagation();
+                handleDownload(name, insights);
+              }}
+            />
+          </div>
         </div>
       </div>
       {insights ? (
@@ -330,7 +355,8 @@ export function InsightTitle({
   );
 }
 
-function AdTitle({ ad }: { ad: IAd }) {
+function AdTitle({ ad, ad_account_id }: { ad: IAd; ad_account_id?: string }) {
+  const { setFormState, setSelectAdAccount } = useCampaignStore();
   return (
     <div className="flex justify-between items-start fioverflow-hidden">
       <div className="flex gap-4 items-center ">
@@ -357,13 +383,30 @@ function AdTitle({ ad }: { ad: IAd }) {
           </span>
         </div>
       </div>
-      <MdDownload
-        className="text-xl"
-        onClick={(e: any) => {
-          e.stopPropagation();
-          handleDownload(ad.name, ad.insights?.data[0]);
-        }}
-      />
+      <div className="flex items-center gap-4">
+        {ad_account_id && ad && (
+          <MdEdit
+            className="text-xl"
+            onClick={(e: any) => {
+              e.stopPropagation();
+              setSelectAdAccount(ad_account_id);
+              setFormState({
+                open: true,
+                mode: "edit",
+                rawData: ad,
+                tab: CampaignTab.ADS,
+              });
+            }}
+          />
+        )}
+        <MdDownload
+          className="text-xl"
+          onClick={(e: any) => {
+            e.stopPropagation();
+            handleDownload(ad.name, ad.insights?.data[0]);
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -391,7 +434,7 @@ export const DeployAdChildCard = ({
       ads?.map((ad) => {
         return {
           key: ad.id,
-          label: <AdTitle ad={ad} />,
+          label: <AdTitle ad={ad} ad_account_id={accountId} />,
           children: (
             <ErrorBoundary errorComponent={ErrorComponent}>
               <div className="flex flex-col gap-4">
@@ -410,7 +453,7 @@ export const DeployAdChildCard = ({
         };
       }) ?? []
     );
-  }, [ads]);
+  }, [ads, accountId]);
 
   return (
     <>
@@ -461,6 +504,8 @@ export const DeployAdInsightsCard = (props: DeployAdInsightsCardProps) => {
             <InsightTitle
               name={props.adset.name}
               insights={props.adset.insights?.data[0]}
+              data={props.adset}
+              tab={CampaignTab.ADSETS}
               label="campaign"
             />
           </ErrorBoundary>

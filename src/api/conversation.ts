@@ -26,12 +26,14 @@ import {
 import axios from "axios";
 import ObjectID from "bson-objectid";
 import { compact, omit } from "lodash";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useCredentials } from "./user";
 import { IFacebookAdInsight } from "@/interfaces/ISocial";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { useBusiness } from "@/context/BusinessContext";
 import { useSearchParams } from "next/navigation";
+import { RangeValueType } from "rc-picker/lib/PickerInput/RangePicker";
+import { Dayjs } from "dayjs";
 
 export interface InfiniteConversation {
   id: string;
@@ -58,8 +60,6 @@ export const useGetConversationInfinite = (cursorId?: string) => {
   const LIMIT = 4;
   const { pushConversationsToState } = useConversation();
   const { business } = useBusiness();
-
-  console.log("Testing | business - ", business);
 
   const fetchConversations = async (
     pageParam: undefined | string,
@@ -88,7 +88,7 @@ export const useGetConversationInfinite = (cursorId?: string) => {
       fetchConversations(pageParam, queryKey),
     initialPageParam: cursorId,
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length === 0 && lastPage.length < LIMIT) return undefined;
+      if (lastPage.length === 0 || lastPage.length < LIMIT) return undefined;
       return lastPage[lastPage.length - 1]?.id;
     },
     getPreviousPageParam: (firstPage, allPages) => {
@@ -447,10 +447,7 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
       let lastValue = "";
 
       while (true) {
-        // console.log('reader - ', await reader.read());
         const { value, done } = await reader.read();
-        // console.log("Testing | value - ", value);
-        // handleChunk({ chunk: value, done, index: i });
         if (done) {
           const parsedData = handleSSEEvent(lastValue);
           if (!containsJson) {
@@ -471,7 +468,6 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
         }
         if (!containsJson) {
           const parsedData = handleSSEEvent(value);
-          // console.log("Testing | parsedData - ", parsedData);
           setData(parsedData);
         }
         lastValue = value;
@@ -741,14 +737,40 @@ interface CampaignWithInsights {
   id: string;
 }
 
-export const useGetCampaignInsights = (
-  campaignId?: string,
-  enabled: boolean = true
-) => {
+type TimeRange = RangeValueType<Dayjs>;
+
+function prepareTimeRange(timeRange: TimeRange | undefined): string | null {
+  if (!timeRange) {
+    return null;
+  }
+  const [start, end] = timeRange;
+  if (!start || !end) return null;
+  const obj = {
+    since: start.format("YYYY-MM-DD"),
+    until: end.format("YYYY-MM-DD"),
+  };
+
+  return JSON.stringify(obj);
+}
+
+export const useGetCampaignInsights = ({
+  campaignId,
+  timeRange,
+  enabled = true,
+}: {
+  campaignId?: string;
+  timeRange?: TimeRange;
+  enabled?: boolean;
+}) => {
   const { accessToken } = useCredentials();
 
+  const parsedTimeRange = useMemo(
+    () => prepareTimeRange(timeRange),
+    [timeRange]
+  );
+
   const getCampaignInsights = async ({ queryKey }: QueryFunctionContext) => {
-    const [, accessToken, campaignId] = queryKey;
+    const [, accessToken, campaignId, timeRange] = queryKey;
 
     if (!accessToken) {
       throw new Error("Access token is required");
@@ -762,6 +784,7 @@ export const useGetCampaignInsights = (
       params: {
         access_token: accessToken,
         get_insights: true,
+        time_range: timeRange,
       },
     });
 
@@ -769,9 +792,14 @@ export const useGetCampaignInsights = (
   };
 
   return useQuery<CampaignWithInsights>({
-    queryKey: API_QUERIES.GET_CAMPAIGN(accessToken, campaignId),
+    queryKey: API_QUERIES.GET_CAMPAIGN(
+      accessToken,
+      campaignId,
+      parsedTimeRange
+    ),
     queryFn: getCampaignInsights,
     enabled: enabled && !!campaignId && !!accessToken,
+    staleTime: 1000 * 60 * 2,
   });
 };
 

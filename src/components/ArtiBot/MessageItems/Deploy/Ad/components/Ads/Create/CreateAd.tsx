@@ -18,7 +18,7 @@ import {
   Tooltip,
   cn,
 } from "@nextui-org/react";
-import { AutoComplete, Divider } from "antd";
+import { Divider } from "antd";
 import Image from "next/image";
 import { carouselImage1 as ProfileImage } from "@/assets/images/carousel-images";
 import UserAvatar from "@/assets/images/UserAvatar.webp";
@@ -45,8 +45,8 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { imageUrlToBase64 } from "@/utils/transformers";
 import { Brand, brands } from "@/constants/landingPageData";
-import { RxCross1 } from "react-icons/rx";
-import { SlOptionsVertical } from "react-icons/sl";
+import { RxCaretRight, RxCaretUp, RxCross1 } from "react-icons/rx";
+import { SlOptions, SlOptionsVertical } from "react-icons/sl";
 import { AiOutlineLike } from "react-icons/ai";
 import { GoComment } from "react-icons/go";
 import { TbShare3 } from "react-icons/tb";
@@ -63,6 +63,14 @@ import { SnackbarContext } from "@/context/SnackbarContext";
 import CreateLeadFormModal from "./CreateLeadForm";
 import { tooltips } from "@/constants/adCampaignData/tooltips";
 import Element from "@/components/shared/renderers/Element";
+import { IoHeartOutline } from "react-icons/io5";
+import { FaRegComment } from "react-icons/fa6";
+import { LuSend } from "react-icons/lu";
+import { PiBookmarkSimple, PiShareFat } from "react-icons/pi";
+import { BiLike } from "react-icons/bi";
+import { GrAnnounce } from "react-icons/gr";
+import { FiLink } from "react-icons/fi";
+import { AppDefaultImage } from "@/components/shared/renderers/ImageTemp";
 
 const BILLING_EVENT = [{ name: "Impressions", uid: "impressions" }];
 
@@ -188,7 +196,7 @@ const SOCIAL_PAGES = [
   { name: "button", uid: "button" },
 ];
 
-interface FacebookAdPreviewProps {
+interface PreviewProps {
   text: string;
   image: string;
   title?: string;
@@ -201,7 +209,7 @@ const FacebookAdPreview = ({
   brandLogo,
   brandLabel,
   title,
-}: FacebookAdPreviewProps) => {
+}: PreviewProps) => {
   return (
     <div
       className={"w-[300px] h-auto bg-gray-800 ad-preview-card py-3"}
@@ -214,8 +222,7 @@ const FacebookAdPreview = ({
       <div className={"flex items-center justify-between px-3 gap-4"}>
         <div className={"flex items-center gap-4"}>
           <div className={"w-7 h-7 rounded-full overflow-hidden"}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <AppDefaultImage
               className={"w-full h-full object-cover"}
               src={brandLogo ?? UserAvatar.src}
               alt={brandLabel ?? "Brand Name"}
@@ -253,8 +260,7 @@ const FacebookAdPreview = ({
         <span>{text}</span>
       </div>
       <div className={"w-full h-auto mt-2"}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <AppDefaultImage
           className={"w-full h-auto"}
           src={image}
           alt={"Amplified Ad Creative"}
@@ -317,6 +323,436 @@ const FacebookAdPreview = ({
     </div>
   );
 };
+
+const InstagramPostPreview = (props: PreviewProps) => {
+  return (
+    <div
+      className={"w-[300px] h-auto bg-gray-800 ad-preview-card py-3"}
+      style={
+        {
+          // "--shadow": "0 0 50px #bebebe45",
+        }
+      }
+    >
+      <div className={"flex items-center justify-between px-3 gap-4"}>
+        <div className={"flex items-center gap-4"}>
+          <div className={"w-7 h-7 rounded-full overflow-hidden"}>
+            <AppDefaultImage
+              className={"w-full h-full object-cover"}
+              src={props.brandLogo ?? UserAvatar.src}
+              alt={props.brandLabel ?? "Brand Name"}
+            />
+          </div>
+          <div className={"flex flex-col justify-center"}>
+            <div className={"text-xs text-white font-bold overflow-hidden"}>
+              <span className={"truncate block max-w-[160px]"}>
+                {props.brandLabel ?? "Brand Name"}
+              </span>
+            </div>
+            <div className={"flex items-center gap-2"}>
+              <span className={"text-[9px] font-light text-gray-300"}>
+                Sponsored
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          className={
+            "flex items-center gap-3 text-sm text-white cursor-pointer"
+          }
+        >
+          <SlOptions />
+        </div>
+      </div>
+      <div className={"w-full h-auto mt-2"}>
+        <AppDefaultImage
+          className={"w-full h-auto aspect-square"}
+          src={props.image}
+          alt={props.title}
+        />
+      </div>
+
+      <div className="w-full flex bg-gray-800 items-center gap-3 px-3 py-2 justify-between">
+        <p className=" text-sm">Sign up</p>
+        <div>
+          <RxCaretRight />
+        </div>
+      </div>
+      <Divider className="mb-2 mt-0 mx-auto w-[95%]" />
+
+      {/* <div
+        className={"bg-gray-700 py-4 px-3 flex items-center justify-between"}
+      >
+        <div className={"text-white flex flex-col text-[10px]"}>
+          <span>FORM ON FACEBOOK</span>
+          <span className={"font-bold"}>{brand.offer}</span>
+          <span>{brand.subOffer}</span>
+        </div>
+        <div>
+          <button
+            className={
+              "py-1.5 px-3 bg-gray-600 rounded text-white text-[13px] font-bold cursor-pointer"
+            }
+          >
+            {brand.cta}
+          </button>
+        </div>
+      </div> */}
+      <div className="text-[18px] flex justify-between items-center px-3 my-2">
+        <div className="flex justify-between items-center gap-2">
+          <IoHeartOutline className="text-[22px]" />
+          <FaRegComment />
+          <LuSend />
+        </div>
+        <div>
+          <PiBookmarkSimple />
+        </div>
+      </div>
+      <div className="px-3">
+        <p className="text-xs line-clamp-2">{props.text}</p>
+      </div>
+    </div>
+  );
+};
+
+const InstagramStoryPreview = (props: PreviewProps) => {
+  return (
+    <div
+      className={"w-[300px] h-auto bg-gray-800 ad-preview-card py-3 pt-1"}
+      style={
+        {
+          // "--shadow": "0 0 50px #bebebe45",
+        }
+      }
+    >
+      <div className="w-[95%] h-0.5 mx-auto mb-2 rounded bg-gray-700">
+        <div className="h-full rounded w-[30%] bg-gray-500"></div>
+      </div>
+      <div className={"flex items-center justify-between px-3 gap-4"}>
+        <div className={"flex items-center gap-2"}>
+          <div className={"w-7 h-7 rounded-full overflow-hidden"}>
+            <AppDefaultImage
+              className={"w-full h-full object-cover"}
+              src={props.brandLogo ?? UserAvatar.src}
+              alt={props.brandLabel ?? "Brand Name"}
+            />
+          </div>
+          <div className={"flex flex-col justify-center"}>
+            <div className={"text-xs text-white font-bold overflow-hidden"}>
+              <span className={"truncate block max-w-[160px]"}>
+                {props.brandLabel ?? "Brand Name"}
+              </span>
+            </div>
+            <div className={"flex items-center gap-2"}>
+              <span className={"text-[9px] font-light text-gray-300"}>
+                Sponsored
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          className={
+            "flex items-center gap-3 text-sm text-white cursor-pointer"
+          }
+        >
+          <SlOptions />
+          <RxCross1 />
+        </div>
+      </div>
+      <div
+        className={
+          "w-full flex flex-col items-center justify-center gap-2 h-auto my-12"
+        }
+      >
+        <div>
+          <p className="text-xl line-clamp-3 text-center mx-4 bg-gray-600">
+            {props.text}
+          </p>
+        </div>
+        <AppDefaultImage
+          className={"w-[90%] h-auto aspect-square"}
+          src={props.image}
+          alt={props.title}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1 items-center justify-center">
+        <div>
+          <RxCaretUp className="text-lg" />
+        </div>
+        <div className="bg-white rounded-full py-2 px-5">
+          <span className="block text-black font-medium text-sm">Sign up</span>
+        </div>
+      </div>
+
+      {/* <div
+        className={"bg-gray-700 py-4 px-3 flex items-center justify-between"}
+      >
+        <div className={"text-white flex flex-col text-[10px]"}>
+          <span>FORM ON FACEBOOK</span>
+          <span className={"font-bold"}>{brand.offer}</span>
+          <span>{brand.subOffer}</span>
+        </div>
+        <div>
+          <button
+            className={
+              "py-1.5 px-3 bg-gray-600 rounded text-white text-[13px] font-bold cursor-pointer"
+            }
+          >
+            {brand.cta}
+          </button>
+        </div>
+      </div> */}
+    </div>
+  );
+};
+
+const FacebookStoryPreview = (props: PreviewProps) => {
+  return (
+    <div
+      className={"w-[300px] h-auto bg-gray-800 ad-preview-card py-3 pt-1"}
+      style={
+        {
+          // "--shadow": "0 0 50px #bebebe45",
+        }
+      }
+    >
+      <div className="w-[95%] h-0.5 mx-auto mb-2 rounded bg-gray-700">
+        <div className="h-full rounded w-[30%] bg-gray-500"></div>
+      </div>
+      <div className={"flex items-center justify-between px-3 gap-4"}>
+        <div className={"flex items-center gap-2"}>
+          <div className={"w-7 h-7 rounded-full overflow-hidden"}>
+            <AppDefaultImage
+              className={"w-full h-full object-cover"}
+              src={props.brandLogo ?? UserAvatar.src}
+              alt={props.brandLabel ?? "Brand Name"}
+            />
+          </div>
+          <div className={"flex flex-col justify-center"}>
+            <div className={"text-xs text-white font-bold overflow-hidden"}>
+              <span className={"truncate block max-w-[160px]"}>
+                {props.brandLabel ?? "Brand Name"}
+              </span>
+            </div>
+            <div className={"flex items-center gap-2"}>
+              <span className={"text-[9px] font-light text-gray-300"}>
+                Sponsored
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          className={
+            "flex items-center gap-3 text-sm text-white cursor-pointer"
+          }
+        >
+          <SlOptions />
+          <RxCross1 />
+        </div>
+      </div>
+      <div
+        className={
+          "w-full flex flex-col items-center justify-center gap-2 h-auto my-7 px-3"
+        }
+      >
+        <AppDefaultImage
+          className={"w-[90%] h-auto aspect-square"}
+          src={props.image}
+          alt={props.title}
+        />
+        <div>
+          <p className="text-[15px] line-clamp-6 text-left mx-4">
+            {props.text}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1 items-center justify-center">
+        <div>
+          <RxCaretUp className="text-lg" />
+        </div>
+        <div className="bg-white rounded-lg flex gap-1 py-2 px-3">
+          <FiLink className="text-blue-500 text-lg" />
+          <span className="block text-black font-medium text-sm">Sign up</span>
+        </div>
+      </div>
+
+      {/* <div
+        className={"bg-gray-700 py-4 px-3 flex items-center justify-between"}
+      >
+        <div className={"text-white flex flex-col text-[10px]"}>
+          <span>FORM ON FACEBOOK</span>
+          <span className={"font-bold"}>{brand.offer}</span>
+          <span>{brand.subOffer}</span>
+        </div>
+        <div>
+          <button
+            className={
+              "py-1.5 px-3 bg-gray-600 rounded text-white text-[13px] font-bold cursor-pointer"
+            }
+          >
+            {brand.cta}
+          </button>
+        </div>
+      </div> */}
+    </div>
+  );
+};
+
+const FacebookReelPreview = (props: PreviewProps) => {
+  return (
+    <div
+      className={
+        "relative w-[300px] h-auto bg-gray-800 ad-preview-card py-3 pt-1"
+      }
+    >
+      <div className="w-full my-28">
+        <AppDefaultImage
+          className={"w-full h-auto aspect-square"}
+          src={props.image}
+          alt={props.title}
+        />
+      </div>
+      <div className="absolute bottom-0 w-full flex items-end gap-3 px-3 pb-4">
+        <div className="flex-1 flex flex-col gap-1 px-1">
+          <div className={"flex items-center gap-2"}>
+            <div className={"w-7 h-7 rounded-full overflow-hidden"}>
+              <AppDefaultImage
+                className={"w-full h-full object-cover"}
+                src={props.brandLogo ?? UserAvatar.src}
+                alt={props.brandLabel ?? "Brand Name"}
+              />
+            </div>
+            <div className={"flex flex-col justify-center"}>
+              <div className={"text-xs text-white font-bold overflow-hidden"}>
+                <span className={"truncate block max-w-[160px]"}>
+                  {props.brandLabel ?? "Brand Name"}
+                </span>
+              </div>
+            </div>
+          </div>
+          <p className="line-clamp-1 text-xs mt-1">{props.text}</p>
+          <button className="text-xs text-black bg-white rounded py-1.5 mt-2">
+            Sign up
+          </button>
+          <p className={"text-[10px] mt-2 font-light text-gray-300"}>
+            Sponsored
+          </p>
+        </div>
+        <div className="flex-shrink-0">
+          <div className="text-xl flex flex-col gap-4 text-gray-400">
+            <BiLike />
+            <FaRegComment />
+            <PiShareFat />
+            <SlOptions className="text-sm" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const InstagramReelPreview = (props: PreviewProps) => {
+  return (
+    <div
+      className={
+        "relative w-[300px] h-auto bg-gray-800 ad-preview-card py-3 pt-1"
+      }
+      style={
+        {
+          // "--shadow": "0 0 50px #bebebe45",
+        }
+      }
+    >
+      <div className="w-full my-28">
+        <AppDefaultImage
+          className={"w-full h-auto aspect-square"}
+          src={props.image}
+          alt={props.title}
+        />
+      </div>
+      <div className="absolute bottom-0 w-full flex items-end gap-3 px-3 pb-4">
+        <div className="flex-1 flex flex-col gap-1 px-1">
+          <div className={"flex items-center gap-2"}>
+            <div className={"w-7 h-7 rounded-full overflow-hidden"}>
+              <AppDefaultImage
+                className={"w-full h-full object-cover"}
+                src={props.brandLogo ?? UserAvatar.src}
+                alt={props.brandLabel ?? "Brand Name"}
+              />
+            </div>
+            <div className={"flex flex-col justify-center"}>
+              <div className={"text-xs text-white font-bold overflow-hidden"}>
+                <span className={"truncate block max-w-[160px]"}>
+                  {props.brandLabel ?? "Brand Name"}
+                </span>
+              </div>
+            </div>
+          </div>
+          <button className="text-xs text-black bg-white flex items-center justify-between rounded py-1.5 mt-2 px-3">
+            <span>Sign up</span>
+            <div>
+              <RxCaretRight className="text-xl" />
+            </div>
+          </button>
+          <p className="line-clamp-2 text-xs mt-1">{props.text}</p>
+          <div>
+            <p
+              className={
+                "text-[10px] mt-2 font-light text-gray-300 rounded-full bg-gray-900 inline-flex gap-1 py-1 px-2"
+              }
+            >
+              <GrAnnounce className="text-gray-300" />
+              <span>Sponsored</span>
+            </p>
+          </div>
+        </div>
+        <div className="flex-shrink-0">
+          <div className="text-xl flex flex-col gap-4 text-gray-400">
+            <IoHeartOutline className="text-[22px]" />
+            <FaRegComment />
+            <LuSend />
+            <SlOptions className="text-sm" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const previewOptions = [
+  {
+    uid: "facebook-post",
+    name: "Facebook Post",
+    el: (props: PreviewProps) => <FacebookAdPreview {...props} />,
+  },
+  {
+    uid: "facebook-story",
+    name: "Facebook Story",
+    el: (props: PreviewProps) => <FacebookStoryPreview {...props} />,
+  },
+  {
+    uid: "facebook-reel",
+    name: "Facebook Reel",
+    el: (props: PreviewProps) => <FacebookReelPreview {...props} />,
+  },
+  {
+    uid: "instagram-post",
+    name: "Instagram Post",
+    el: (props: PreviewProps) => <InstagramPostPreview {...props} />,
+  },
+  {
+    uid: "instagram-story",
+    name: "Instagram Story",
+    el: (props: PreviewProps) => <InstagramStoryPreview {...props} />,
+  },
+  {
+    uid: "instagram-reel",
+    name: "Instagram Reel",
+    el: (props: PreviewProps) => <InstagramReelPreview {...props} />,
+  },
+];
 
 interface LinkDataBase {
   link: string;
@@ -535,6 +971,10 @@ export default function CreateAd({
   const phoneNumberValue = watch("phone_number");
 
   const [selectedVariantId, setSelectedVariantId] = React.useState<string>("");
+  const [previewOptionValue, setPreviewOptionValue] = React.useState<string>(
+    previewOptions[0].uid
+  );
+
   const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns();
   const { data: adsets, isLoading: isAdsetFetching } = useGetAdSets({
     campaignIds: [campaignValue],
@@ -575,8 +1015,7 @@ export default function CreateAd({
   const conversationId = conversation?.id;
 
   const unSortedAdCreatives =
-    adVariantsByConversationId[conversationId as string].list;
-  const adCreatives = sortBy(unSortedAdCreatives, "updatedAt").reverse();
+    adVariantsByConversationId[conversationId as string]?.list;
 
   // const [conversionLocationValue, setConversionLocationValue] = useState<
   //   string | null
@@ -584,7 +1023,7 @@ export default function CreateAd({
 
   const selectedVariant = useMemo(() => {
     return unSortedAdCreatives
-      .map((adCreative) => adCreative.variants)
+      ?.map((adCreative) => adCreative.variants)
       .flat()
       .find((variant) => variant.id === selectedVariantId);
   }, [unSortedAdCreatives, selectedVariantId]);
@@ -602,12 +1041,8 @@ export default function CreateAd({
   }, [selectedVariant, setValue]);
 
   const conversionLocationValue = useMemo(() => {
-    const value = adsets?.find(
-      (adset) => adset.id === adsetValue
-    )?.destination_type;
-    if (value === "MESSENGER") setValue("callToAction", "MESSAGE_PAGE");
-    return value;
-  }, [adsets, adsetValue, setValue]);
+    return adsets?.find((adset) => adset.id === adsetValue)?.destination_type;
+  }, [adsets, adsetValue]);
 
   async function handleCreateAd(data: CreateAdFormValues) {
     try {
@@ -677,6 +1112,10 @@ export default function CreateAd({
     }
   }, [selectedVariant, storeFormState, primaryTextValue]);
 
+  const previewOptionEl = previewOptions.find(
+    (option) => option.uid === previewOptionValue
+  )?.el;
+
   useEffect(() => {
     if (storeFormState.mode === "edit" && storeFormState.open === true) {
       const formData = storeFormState.rawData as IAd;
@@ -688,10 +1127,6 @@ export default function CreateAd({
       setValue(
         "primaryText",
         formData.creative.object_story_spec?.link_data?.message ?? ""
-      );
-      setValue(
-        "callToAction",
-        formData.creative.object_story_spec?.link_data?.call_to_action?.type
       );
       setValue("status", formData.status);
     } else {
@@ -1093,6 +1528,40 @@ export default function CreateAd({
                 />
               </Tooltip>
             )}
+            <Autocomplete
+              inputProps={{
+                classNames: {
+                  input: "!text-white",
+                  label: "!text-gray-500",
+                },
+              }}
+              isDisabled={isPagesLoading || immutableFields["page_id"]}
+              label="Social Media Page"
+              placeholder={
+                isPagesLoading ? "Fetching Pages..." : "Select a Page"
+              }
+              onSelectionChange={(key: Key) => {
+                setValue("page_id", key as string);
+              }}
+              selectedKey={pageIdValue}
+              errorMessage={formState.errors.page_id?.message}
+            >
+              {facebookPages && facebookPages.length > 0 ? (
+                facebookPages.map((page) => (
+                  <AutocompleteItem key={page.id} textValue={page.name}>
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={page.picture} className="w-6 h-6" alt="Page" />
+                      {page.name}
+                    </div>
+                  </AutocompleteItem>
+                ))
+              ) : (
+                <AutocompleteItem key={"no-page-found"} isReadOnly>
+                  No pages found
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
             {conversionLocationValue === "ON_AD" && (
               <Tooltip
                 placement="top-end"
@@ -1179,23 +1648,6 @@ export default function CreateAd({
 
         <div className="flex flex-col gap-4 h-full flex-1 space-between">
           <div className="flex flex-col gap-4 flex-1 overflow-hidden">
-            <div className="flex justify-center">
-              {previewData ? (
-                <FacebookAdPreview
-                  text={previewData.text}
-                  image={previewData.image}
-                  title={headlineValue}
-                  brandLabel={selectedPage?.name}
-                  brandLogo={selectedPage?.picture}
-                />
-              ) : (
-                <div className="w-[300px] h-[400px] rounded-lg bg-gray-800 flex items-center justify-center text-lg text-gray-600">
-                  <p>Select Ad variant to preview</p>
-                </div>
-              )}
-            </div>
-            {/* <AdPreview3 brand={brands["amplified"]} /> */}
-            <Divider className="my-2" />
             <Autocomplete
               inputProps={{
                 classNames: {
@@ -1203,33 +1655,44 @@ export default function CreateAd({
                   label: "!text-gray-500",
                 },
               }}
-              isDisabled={isPagesLoading || immutableFields["page_id"]}
-              label="Social Media Page"
-              placeholder={
-                isPagesLoading ? "Fetching Pages..." : "Select a Page"
-              }
+              label="Preview Ad Variant"
+              // disabledKeys={[]}
+              placeholder={"Select Preview Style"}
               onSelectionChange={(key: Key) => {
-                setValue("page_id", key as string);
+                setPreviewOptionValue(key as string);
               }}
-              selectedKey={pageIdValue}
-              errorMessage={formState.errors.page_id?.message}
+              selectedKey={previewOptionValue}
+              isClearable={false}
             >
-              {facebookPages && facebookPages.length > 0 ? (
-                facebookPages.map((page) => (
-                  <AutocompleteItem key={page.id} textValue={page.name}>
-                    <div className="flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={page.picture} className="w-6 h-6" alt="Page" />
-                      {page.name}
-                    </div>
-                  </AutocompleteItem>
-                ))
-              ) : (
-                <AutocompleteItem key={"no-page-found"} isReadOnly>
-                  No pages found
+              {previewOptions.map((previewOption) => (
+                <AutocompleteItem
+                  key={previewOption.uid}
+                  textValue={previewOption.name}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {previewOption.name}
+                  </div>
                 </AutocompleteItem>
-              )}
+              ))}
             </Autocomplete>
+            <Divider className="my-2" />
+            <div className="flex justify-center">
+              {previewData && previewOptionEl ? (
+                previewOptionEl({
+                  text: previewData.text,
+                  image: previewData.image,
+                  title: headlineValue,
+                  brandLabel: selectedPage?.name,
+                  brandLogo: selectedPage?.picture,
+                })
+              ) : (
+                <div className="w-[300px] h-[400px] rounded-lg bg-gray-800 flex items-center justify-center text-lg text-gray-600">
+                  <p>Select Ad variant to preview</p>
+                </div>
+              )}
+            </div>
+            {/* <AdPreview3 brand={brands["amplified"]} /> */}
           </div>
         </div>
       </form>

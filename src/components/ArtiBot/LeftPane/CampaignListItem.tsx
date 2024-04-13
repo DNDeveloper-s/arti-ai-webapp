@@ -70,10 +70,10 @@ interface CampaignListItemProps {
 const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
   const [images, setImages] = useState<ImageType[]>([]);
   const { ref, isInView } = useInView();
-  const { data: campaignWithInsights, isLoading } = useGetCampaignInsights(
-    campaign.campaignId,
-    isInView
-  );
+  const { data: campaignWithInsights, isLoading } = useGetCampaignInsights({
+    campaignId: campaign.campaignId,
+    enabled: isInView,
+  });
   const { conversation } = useCurrentConversation();
 
   const insights = campaignWithInsights?.insights?.data || [];

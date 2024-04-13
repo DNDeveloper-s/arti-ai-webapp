@@ -11,11 +11,11 @@ const API_QUERIES = {
     "get-ad-account-id",
     access_token,
   ],
-  GET_CAMPAIGN: (access_token?: string | null, campaign_id?: string | null) => [
-    "get-campaign",
-    access_token,
-    campaign_id,
-  ],
+  GET_CAMPAIGN: (
+    access_token?: string | null,
+    campaign_id?: string | null,
+    timeRange?: string | null
+  ) => ["get-campaign", access_token, campaign_id, timeRange],
   GET_AD_ACCOUNTS: (access_token?: string | null) => [
     "get-ad-accounts",
     access_token,

@@ -173,7 +173,6 @@ function ClientMessageReducer(
       };
     case CLIENT_MESSAGE_ACTION_TYPE.SET_MESSAGE_DATA:
       const record = state.messageRecord.merge(payload.messages);
-      console.log("Testing | record - ", record, payload.messages);
       return {
         ...state,
         messageRecord: record,

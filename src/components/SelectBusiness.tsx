@@ -27,7 +27,6 @@ export default function SelectBusiness() {
         base: "max-w-[250px]",
       }}
       onSelectionChange={(key: Key) => {
-        console.log("Testing | key - ", key, data);
         const businessObj = data?.find((business) => business.id === key);
         businessObj && setBusiness(businessObj);
       }}
