@@ -1,5 +1,5 @@
 import { IAdCreative } from "@/interfaces/IAdCreative";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CardStackImages,
@@ -8,9 +8,12 @@ import {
 import { UserCampaign, useGetCampaignInsights } from "@/api/conversation";
 import useInView from "@/hooks/useInView";
 import { IFacebookAdInsight } from "@/interfaces/ISocial";
-import { getConversationURL } from "@/helpers";
+import { getCampaignPageUrl, getConversationURL } from "@/helpers";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import { ConversationType } from "@/interfaces/IConversation";
+import { useRouter } from "next/navigation";
+import { Route53RecoveryCluster } from "aws-sdk";
+import { ICampaignInfinite } from "@/api/admanager";
 
 export const CampaignInsightShimmer = () => {
   return (
@@ -53,7 +56,7 @@ export const CampaignListItemShimmer = () => {
   );
 };
 
-function extractFromInsights(insight?: IFacebookAdInsight) {
+export function extractFromInsights(insight?: IFacebookAdInsight) {
   if (!insight) return null;
   return {
     impressions: insight.impressions,
@@ -64,36 +67,42 @@ function extractFromInsights(insight?: IFacebookAdInsight) {
 }
 
 interface CampaignListItemProps {
-  campaign: UserCampaign;
+  campaign: ICampaignInfinite;
 }
 
 const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
   const [images, setImages] = useState<ImageType[]>([]);
+  const router = useRouter();
   const { ref, isInView } = useInView();
-  const { data: campaignWithInsights, isLoading } = useGetCampaignInsights({
-    campaignId: campaign.campaignId,
-    enabled: isInView,
-  });
-  const { conversation } = useCurrentConversation();
+  // const { data: campaignWithInsights, isLoading } = useGetCampaignInsights({
+  //   campaignId: campaign.id,
+  //   enabled: isInView,
+  // });
+  // const { conversation } = useCurrentConversation();
 
-  const insights = campaignWithInsights?.insights?.data || [];
+  const insights = campaign?.insights?.data || [];
   const latestInsight = insights[0];
   const extractedInsight = extractFromInsights(latestInsight);
 
-  const waitingForInsights = isLoading;
-  const noInsights = !waitingForInsights && !extractedInsight;
-  const hasInsights = !waitingForInsights && !!extractedInsight;
+  // const waitingForInsights = isLoading;
+  const noInsights = !extractedInsight;
+  const hasInsights = !!extractedInsight;
+
+  const url = useMemo(() => getCampaignPageUrl(campaign.id), [campaign.id]);
+
+  const goTo = () => {
+    router.push(url);
+  };
+
+  useEffect(() => {
+    url && router.prefetch(url);
+  }, [router, url]);
+
+  useEffect(() => {}, [router]);
 
   return (
-    <Link
-      href={
-        getConversationURL(
-          conversation?.id ?? "dummy_66122b08fde465fce15fc39d",
-          conversation?.conversation_type ?? ConversationType.AD_CREATIVE
-        ) +
-        "&campaign_id=" +
-        campaign.campaignId
-      }
+    <div
+      onClick={goTo}
       ref={ref}
       key={campaign.id}
       className={
@@ -111,7 +120,7 @@ const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
           )}
         </div>
       </div>
-      {waitingForInsights && <CampaignInsightShimmer />}
+      {/* {waitingForInsights && <CampaignInsightShimmer />} */}
       {hasInsights && (
         <div className="grid grid-cols-[2fr_3fr_3fr] gap-3">
           <div className="flex gap-1 flex-shrink-0 flex-col">
@@ -140,7 +149,7 @@ const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
           </div>
         </div>
       )}
-    </Link>
+    </div>
   );
 };
 

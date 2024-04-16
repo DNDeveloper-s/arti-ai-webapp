@@ -13,7 +13,36 @@ export default function ImageTemp(props: any) {
   );
 }
 
-const FallbackImage = ({ className, ...props }: AppDefaultImageProps) => {
+const FallbackImage = ({
+  className,
+  FallbackProps,
+  ...props
+}: AppDefaultImageProps) => {
+  const classNames = {
+    xs: {
+      image: "text-sm",
+      text: "text-xs mt-0.5",
+    },
+    sm: {
+      image: "text-base",
+      text: "text-sm mt-1",
+    },
+    md: {
+      image: "text-lg",
+      text: "text-base mt-1",
+    },
+    lg: {
+      image: "text-xl",
+      text: "text-lg mt-2",
+    },
+    xl: {
+      image: "text-2xl",
+      text: "text-xl mt-2",
+    },
+  };
+
+  const size = FallbackProps?.size ?? "lg";
+
   return (
     <div
       className={
@@ -23,8 +52,8 @@ const FallbackImage = ({ className, ...props }: AppDefaultImageProps) => {
       {...props}
     >
       <div className="flex flex-col justify-center items-center">
-        <IoMdImages className="text-xl" />
-        <span className="text-base mt-2">Image not found</span>
+        <IoMdImages className={classNames[size].image} />
+        <span className={classNames[size].text}>Image not found</span>
       </div>
     </div>
   );
@@ -36,9 +65,14 @@ interface AppDefaultImageProps
     HTMLImageElement
   > {
   fallback?: ReactNode;
+  FallbackProps?: React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
+  > & { size: "xs" | "sm" | "md" | "lg" | "xl" };
 }
 export const AppDefaultImage = ({
   fallback,
+  FallbackProps,
   ...props
 }: AppDefaultImageProps) => {
   const [hasError, setHasError] = useState(false);
@@ -48,7 +82,7 @@ export const AppDefaultImage = ({
   };
 
   return hasError ? (
-    fallback ?? <FallbackImage {...props} />
+    fallback ?? <FallbackImage {...props} FallbackProps={FallbackProps} />
   ) : (
     // eslint-disable-next-line @next/next/no-img-element
     <img alt="" onError={handleError} {...props} />

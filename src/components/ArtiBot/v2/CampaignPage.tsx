@@ -1,5 +1,5 @@
-import { useGetCampaignInsights } from "@/api/conversation";
-import { useEffect, useMemo, useState } from "react";
+import { useGetCampaignInsights, useGetConversation } from "@/api/conversation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DeployAdChildCard,
   InsightTitle,
@@ -16,14 +16,21 @@ import DateRangePicker, {
 import { RangeValueType } from "rc-picker/lib/PickerInput/RangePicker";
 import { Dayjs } from "dayjs";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
+import { LoadMoreButton } from "../LeftPane/LeftPane";
+import { CurrentConversationContextProvider } from "@/context/CurrentConversationContext";
+import CreateAdManagerModal from "../MessageItems/Deploy/Ad/CreateAdManagerModal";
+import AdPreviewModal from "./AdPreviewModal";
+import { PreviewProps } from "../MessageItems/Deploy/Ad/components/Ads/Create/CreateAd";
 
 interface DeployAdChildCardProps {
   campaignId: string;
   accountId: string;
+  handlePreview?: (props: PreviewProps) => void;
 }
 const CampaignChildCard = ({
   accountId,
   campaignId,
+  handlePreview,
 }: DeployAdChildCardProps) => {
   //   const { state } = useConversation();
   // //   const adsData = state.ad.findAllBy("adsetId", adsetId ?? "");
@@ -34,13 +41,20 @@ const CampaignChildCard = ({
   //   });
 
   const {
-    data: adsets,
+    data: adsetPages,
     isLoading,
     isFetching,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
   } = useGetAdSets({
     campaignIds: [campaignId],
     providedAccountId: accountId,
   });
+
+  const adsets = useMemo(() => {
+    return adsetPages?.pages.map((page) => page.data).flat();
+  }, [adsetPages]);
 
   const [activeKeys, setActiveKeys] = useState<string[]>([]);
   const onChange = (key: string | string[]) => {
@@ -77,13 +91,14 @@ const CampaignChildCard = ({
                 adsetId={adset.id}
                 accountId={accountId}
                 isActive={activeKeys.includes(adset.id)}
+                handlePreview={handlePreview}
               />
             </ErrorBoundary>
           ),
         };
       }) ?? []
     );
-  }, [accountId, activeKeys, adsets, isFetching]);
+  }, [accountId, activeKeys, adsets, isFetching, handlePreview]);
 
   return (
     <>
@@ -103,6 +118,14 @@ const CampaignChildCard = ({
                 <BiCaretRight style={{ rotate: `${isActive ? 90 : 0}deg` }} />
               )}
             />
+            {hasNextPage && (
+              <LoadMoreButton
+                doInfiniteScroll={false}
+                handleLoadMore={() => {
+                  if (!isFetching && !isFetchingNextPage) fetchNextPage();
+                }}
+              />
+            )}
           </div>
         ) : (
           <div className="flex items-center justify-center">
@@ -125,13 +148,23 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
     timeRange: rangeValue,
   });
 
-  const { setFormState } = useCampaignStore();
-
   const [activeKeys, setActiveKeys] = useState<string[]>(["1"]);
   const onChange = (key: string | string[]) => {
     console.log(key);
     setActiveKeys(typeof key === "string" ? [key] : key);
   };
+
+  const [open, setOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<PreviewProps | null>(null);
+
+  const handlePreview = useCallback((previeProps: PreviewProps) => {
+    setPreviewData(previeProps);
+    setOpen(true);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setOpen(false);
+  }, [setOpen]);
 
   const adsetItems = useMemo(() => {
     if (!data) return [];
@@ -155,13 +188,15 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
             <CampaignChildCard
               accountId={data.ad_account_id}
               campaignId={data.id}
+              handlePreview={handlePreview}
             />
           </ErrorBoundary>
         ),
       },
     ];
-  }, [data, isFetching]);
+  }, [data, isFetching, handlePreview]);
 
+  // <CurrentConversationContextProvider conversation={conversation}>
   return (
     <>
       <div className="w-full flex items-center justify-between mb-5">
@@ -190,6 +225,16 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
           />
         </div>
       )}
+      <CreateAdManagerModal />
+      <AdPreviewModal
+        open={open}
+        handleClose={handleClose}
+        previewData={previewData}
+      />
     </>
   );
+}
+
+{
+  /* </CurrentConversationContextProvider> */
 }

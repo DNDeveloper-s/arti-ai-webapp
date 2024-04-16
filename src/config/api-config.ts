@@ -5,8 +5,8 @@ export const apiConfig = {
   // process.env.NODE_ENV === "production"
   // ? "https://api.artiai.org"
   // : "http://localhost:8081",
-  baseUrl: "https://api.artiai.org",
-  // baseUrl: "http://localhost:8081",
+  // baseUrl: "https://api.artiai.org",
+  baseUrl: "http://localhost:8081",
   version: "/v1",
 };
 
@@ -43,6 +43,12 @@ export const ROUTES = {
   },
   BUSINESS: {
     ME: apiUrl("/users/me/business"),
+  },
+  CAMPAIGN: {
+    QUERY_INFINITE: apiUrl("/marketing/campaigns"),
+  },
+  PAYMENT: {
+    CHECKOUT: apiUrl("/payments/checkout"),
   },
   CONVERSATION: {
     CREATE: (id: string) => apiUrl(`/conversations/${id}`),

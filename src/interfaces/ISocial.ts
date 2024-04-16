@@ -44,6 +44,7 @@ export interface Like {
 
 export interface Paging {
   cursors: Cursors;
+  next?: string;
 }
 
 export interface Cursors {
@@ -164,6 +165,7 @@ export interface IFacebookAdInsight {
   reach?: string;
   spend?: string;
   unique_clicks?: string;
+  account_currency?: string;
 }
 
 export interface IAd {
@@ -216,3 +218,8 @@ export type OptimisationGoal =
   | "APP_INSTALLS_AND_OFFSITE_CONVERSIONS"
   | "CONVERSATIONS"
   | "SOCIAL_IMPRESSIONS";
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  paging: Paging;
+}

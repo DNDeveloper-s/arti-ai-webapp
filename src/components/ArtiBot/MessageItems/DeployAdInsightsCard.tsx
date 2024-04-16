@@ -14,11 +14,13 @@ import { omit } from "lodash";
 import { IAd, IAdSet, IFacebookAdInsight } from "@/interfaces/ISocial";
 import { useGetAds, useGetCampaigns } from "@/api/user";
 import { botData } from "@/constants/images";
-import { MdDownload, MdEdit } from "react-icons/md";
+import { MdDownload, MdEdit, MdRemoveRedEye } from "react-icons/md";
 import writeXlsxFile from "write-excel-file";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import ErrorComponent from "@/components/shared/error/ErrorComponent";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
+import { LoadMoreButton } from "../LeftPane/LeftPane";
+import { PreviewProps } from "./Deploy/Ad/components/Ads/Create/CreateAd";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -87,7 +89,7 @@ const insights = {
   date_stop: "2024-03-21",
 };
 
-function formatInsightName(name: string) {
+export function formatInsightName(name: string) {
   let _name: any = name;
   // Remove the word after "."
   _name = _name.split(".")[0];
@@ -111,7 +113,7 @@ function formatInsightName(name: string) {
   return _name.join(" ");
 }
 
-function formatInsightValue(value?: string | number | null): string {
+export function formatInsightValue(value?: string | number | null): string {
   if (!value) return "";
 
   // Check if the parsed value is a valid number
@@ -355,7 +357,15 @@ export function InsightTitle<T extends { id: string }>({
   );
 }
 
-function AdTitle({ ad, ad_account_id }: { ad: IAd; ad_account_id?: string }) {
+function AdTitle({
+  ad,
+  ad_account_id,
+  handlePreview,
+}: {
+  ad: IAd;
+  ad_account_id?: string;
+  handlePreview?: (props: PreviewProps) => void;
+}) {
   const { setFormState, setSelectAdAccount } = useCampaignStore();
   return (
     <div className="flex justify-between items-start fioverflow-hidden">
@@ -399,6 +409,22 @@ function AdTitle({ ad, ad_account_id }: { ad: IAd; ad_account_id?: string }) {
             }}
           />
         )}
+        {handlePreview && ad.creative.image_url && (
+          <MdRemoveRedEye
+            className="text-xl"
+            onClick={() => {
+              if (!ad.creative.image_url) return;
+              const previewProps: PreviewProps = {
+                image: ad.creative.image_url,
+                text:
+                  ad.creative.object_story_spec?.link_data?.message ??
+                  "No text provided",
+                previewLink: ad.preview_shareable_link,
+              };
+              handlePreview && handlePreview(previewProps);
+            }}
+          />
+        )}
         <MdDownload
           className="text-xl"
           onClick={(e: any) => {
@@ -417,24 +443,44 @@ interface DeployAdChildCardProps {
   isActive: boolean;
   adsetId: string;
   accountId: string;
+  handlePreview?: (props: PreviewProps) => void;
 }
 export const DeployAdChildCard = ({
   isActive,
   adsetId,
   accountId,
+  handlePreview,
 }: DeployAdChildCardProps) => {
-  const { data: ads, isLoading } = useGetAds({
+  const {
+    data: adPages,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    isLoading,
+  } = useGetAds({
     adsetIds: [adsetId],
     enabled: isActive,
     accountId: accountId,
   });
+
+  const ads = useMemo(
+    () => adPages?.pages.map((page) => page.data).flat(),
+    [adPages]
+  );
 
   const adItemsNest: CollapseProps["items"] = useMemo(() => {
     return (
       ads?.map((ad) => {
         return {
           key: ad.id,
-          label: <AdTitle ad={ad} ad_account_id={accountId} />,
+          label: (
+            <AdTitle
+              handlePreview={handlePreview}
+              ad={ad}
+              ad_account_id={accountId}
+            />
+          ),
           children: (
             <ErrorBoundary errorComponent={ErrorComponent}>
               <div className="flex flex-col gap-4">
@@ -470,6 +516,14 @@ export const DeployAdChildCard = ({
             <BiCaretRight style={{ rotate: `${isActive ? 90 : 0}deg` }} />
           )}
         />
+        {hasNextPage && (
+          <LoadMoreButton
+            doInfiniteScroll={false}
+            handleLoadMore={() => {
+              if (!isFetching && !isFetchingNextPage) fetchNextPage();
+            }}
+          />
+        )}
       </div>
     </>
   );

@@ -71,7 +71,7 @@ export default function SelectMetaPage({
   );
 }
 
-export const SelectMetPageFormControl = ({
+export const SelectMetaPageFormControl = ({
   name = "page_id",
 }: {
   name?: string;

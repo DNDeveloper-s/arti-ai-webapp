@@ -2,14 +2,19 @@ import { useGetConversationInfinite } from "@/api/conversation";
 import ConversationCard, { ConversationCardShimmer } from "./ConversationCard";
 import { Spinner } from "@nextui-org/react";
 import useInView from "@/hooks/useInView";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { EmptySection, EmptySectionType } from "./CardSection";
 import useCampaignStore from "@/store/campaign";
+import InsightCard from "./InsightCard";
+import { useGetCampaigns } from "@/api/user";
+import { useGetInifiniteCampaigns } from "@/api/admanager";
 
 export default function InsightSection() {
-  const { data, isLoading, hasNextPage, ...props } =
-    useGetConversationInfinite();
-  const conversations = data?.pages.map((page) => page).flat() || [];
+  const { data, isLoading, hasNextPage, ...props } = useGetInifiniteCampaigns();
+  const campaigns = useMemo(
+    () => data?.pages.map((page) => page.data).flat() || [],
+    [data]
+  );
   const { ref, isInView } = useInView();
 
   useEffect(() => {
@@ -18,9 +23,9 @@ export default function InsightSection() {
     }
   }, [isInView, props, hasNextPage]);
 
-  const waiting = isLoading && conversations.length === 0;
-  const empty = !waiting && conversations.length === 0;
-  const notEmpty = !waiting && conversations.length > 0;
+  const waiting = isLoading && campaigns.length === 0;
+  const empty = !waiting && campaigns.length === 0;
+  const notEmpty = !waiting && campaigns.length > 0;
 
   return (
     <section className="mb-10 w-full">
@@ -46,11 +51,8 @@ export default function InsightSection() {
           />
         )}
         {notEmpty &&
-          conversations.map((conversation) => (
-            <ConversationCard
-              key={conversation.id}
-              conversation={conversation}
-            />
+          campaigns.map((campaign) => (
+            <InsightCard key={campaign.id} campaign={campaign} />
           ))}
         {hasNextPage && (
           <div

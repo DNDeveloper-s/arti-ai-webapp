@@ -32,7 +32,10 @@ const ArtiBotPage: FC<ArtiBotPageProps> = ({ projectName }) => {
 
   if (!business) return redirect("/", RedirectType.replace);
 
-  if (!isValidType) return redirect("/artibot", RedirectType.replace);
+  if (!isValidType) {
+    console.log("Redirection - ");
+    return redirect("/artibot", RedirectType.replace);
+  }
 
   // Check if the conversation with no activity exists
   const id = ObjectId();

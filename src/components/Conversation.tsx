@@ -12,12 +12,12 @@ import {
 } from "@/context/ConversationContext";
 import useSessionToken from "@/hooks/useSessionToken";
 import ArtiBotPage from "./ArtiBot/ConversationPage";
-import { useGetUserProviders } from "@/api/user";
+import { useGetCampaigns, useGetUserProviders } from "@/api/user";
 import { useUser } from "@/context/UserContext";
 import { red } from "tailwindcss/colors";
 import { CurrentConversationContextProvider } from "@/context/CurrentConversationContext";
 import { ClientMessageContextProvider } from "@/context/ClientMessageContext";
-import { useGetConversation } from "@/api/conversation";
+import { useGetCampaignInsights, useGetConversation } from "@/api/conversation";
 
 // Fetch the conversation from the database
 // If the conversation doesn't exist, create a new conversation
@@ -44,9 +44,18 @@ export default function Conversation({
   const searchParams = useSearchParams();
   const projectName = searchParams.get("project_name");
   const token = useSessionToken();
-  const conversationId = searchParams.get("conversation_id");
+  const queryConversationId = searchParams.get("conversation_id");
+
+  const campaignId = searchParams.get("campaign_id");
+
+  const { data, isFetching, ...props } = useGetCampaignInsights({
+    campaignId,
+  });
+
   const { data: accounts } = useGetUserProviders();
   const { setAccounts } = useUser();
+
+  const conversationId = data?.conversation_id ?? queryConversationId;
   const { data: serverConversation, isLoading } =
     useGetConversation(conversationId);
 
@@ -66,7 +75,7 @@ export default function Conversation({
   }, [dispatch, token, conversationId]);
 
   useEffect(() => {
-    if (isLoading || !dispatch || !conversationId) return;
+    if (isLoading || !dispatch || !conversationId || campaignId) return;
 
     if (!clientConversation) {
       if (!projectName) return redirect("/artibot");
@@ -89,9 +98,13 @@ export default function Conversation({
     conversationId,
     type,
     projectName,
+    campaignId,
   ]);
 
-  if (!conversationId) return redirect("/artibot");
+  if (!conversationId && !campaignId) {
+    console.log("Redirection - ");
+    return redirect("/artibot");
+  }
 
   return (
     <main>
@@ -104,7 +117,11 @@ export default function Conversation({
         <CurrentConversationContextProvider conversation={conversation}>
           <ClientMessageContextProvider>
             <ArtiBotPage
-              conversation={state.conversation.map[conversationId.toString()]}
+              conversation={
+                conversationId
+                  ? state.conversation.map[conversationId?.toString()]
+                  : undefined
+              }
             />
           </ClientMessageContextProvider>
         </CurrentConversationContextProvider>

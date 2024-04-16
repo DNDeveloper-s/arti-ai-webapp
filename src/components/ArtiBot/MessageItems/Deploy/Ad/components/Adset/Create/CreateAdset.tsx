@@ -466,7 +466,12 @@ export default function CreateAdset({
     setValue,
     watch,
   } = methods;
-  const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns();
+  const { data: campaignPages, isLoading: isCampaignsFetching } =
+    useGetCampaigns();
+
+  const campaigns = useMemo(() => {
+    return campaignPages?.pages.map((page) => page.data).flat() || [];
+  }, [campaignPages]);
 
   const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 
@@ -732,7 +737,7 @@ export default function CreateAdset({
    */
   // Handle the AutoComplete fields
   useEffect(() => {
-    if (!autoCompleteFields) return;
+    if (!autoCompleteFields || storeFormState.mode === "edit") return;
     validateAutoCompleteValue(autoCompleteFields?.default_fields?.name) &&
       setValue("name", autoCompleteFields.default_fields?.name as string);
     if (autoCompleteFields?.default_fields?.daily_budget) {
@@ -797,7 +802,7 @@ export default function CreateAdset({
       }));
       setValue("demographics", demographicValue);
     }
-  }, [autoCompleteFields, setValue]);
+  }, [autoCompleteFields, setValue, storeFormState.mode]);
 
   function handleDateChange(name: "start_time" | "end_time") {
     return (date: Dayjs, dateString: string | string[]) => {
@@ -811,6 +816,8 @@ export default function CreateAdset({
 
   const campaignObjective = useMemo(() => {
     const objective = campaigns?.find((c) => c.id === campaignValue)?.objective;
+
+    if (!objective) return null;
 
     // Set the default optimisation goal based on the objective
     const defaultOptimisationGoal = conditionalData[

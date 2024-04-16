@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getConversationURL } from "@/helpers";
 import { ConversationType } from "@/interfaces/IConversation";
 import useConversations from "@/hooks/useConversations";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import useAdCreatives from "@/hooks/useAdCreatives";
 import Image1, { StaticImageData } from "next/image";
 import { useConversation } from "@/context/ConversationContext";
@@ -158,6 +158,7 @@ const ConversationListItem: FC<ConversationListItemProps> = ({
     propConversation.id,
     isActive
   );
+  const router = useRouter();
 
   const conversation = useMemo(() => {
     if (!freshConversation) return propConversation;
@@ -183,9 +184,18 @@ const ConversationListItem: FC<ConversationListItemProps> = ({
     setImages(variantImages);
   }, [conversation.adCreatives]);
 
+  const url = useMemo(
+    () => getConversationURL(conversation.id, conversation.conversation_type),
+    [conversation.id, conversation.conversation_type]
+  );
+
+  useEffect(() => {
+    url && router.prefetch(url);
+  }, [url, router]);
+
   return (
     <Link
-      href={getConversationURL(conversation.id, ConversationType.AD_CREATIVE)}
+      href={url}
       key={conversation.id}
       className={
         "flex gap-4 mx-2 items-start px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-900 rounded overflow-hidden transition-all text-sm leading-6 " +

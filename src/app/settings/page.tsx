@@ -1,4 +1,6 @@
 "use client";
+import { useGetCredits } from "@/api/conversation";
+import { useCreatePayment } from "@/api/payment";
 import { useUpdateUser } from "@/api/user";
 import Navbar from "@/components/Settings/Navbar";
 import Snackbar from "@/components/Snackbar";
@@ -10,7 +12,78 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { MdDone, MdEmail } from "react-icons/md";
 
-import { string, object, boolean } from "yup";
+import { string, object, boolean, number } from "yup";
+
+const valSchema = object({
+  amount: number().required("Refill Amount is required"),
+});
+
+interface RefillCreditFormValues {
+  amount: number;
+}
+
+function RefillCreditForm() {
+  const resolver = useYupValidationResolver(valSchema);
+  const { data: creditData, isFetching } = useGetCredits();
+  const { handleSubmit, register, watch } = useForm<RefillCreditFormValues>({
+    resolver,
+  });
+  const {
+    mutate: postRefillCredit,
+    isPending,
+    isSuccess,
+    data,
+  } = useCreatePayment();
+
+  const refillAmountValue = watch("amount");
+
+  const refillCredit = (data: RefillCreditFormValues) => {
+    postRefillCredit({
+      amount: data.amount,
+    });
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      window.open(data.url, "_self");
+    }
+  }, [isSuccess, data]);
+
+  return (
+    <form action="" onSubmit={handleSubmit(refillCredit)}>
+      <div className="flex flex-col items-center justify-center">
+        <div className="flex gap-4">
+          <Input
+            size="md"
+            variant="bordered"
+            disabled
+            isDisabled
+            label="Credit Balance"
+            value={creditData?.balance.toString() ?? ""}
+          />
+          <Input
+            size="md"
+            variant="bordered"
+            label="Amount"
+            {...register("amount")}
+            value={refillAmountValue?.toString() ?? ""}
+          />
+        </div>
+        <div className="my-4 flex justify-end gap-4">
+          <Button
+            isLoading={isPending}
+            type="submit"
+            color="primary"
+            size="md"
+            className="text-sm"
+          >
+            Refill Balance
+          </Button>
+        </div>
+      </div>
+    </form>
+  );
+}
 
 const validationSchema = object({
   firstName: string().required("First Name is required"),
@@ -83,7 +156,7 @@ export default function Settings() {
           />
           <label
             htmlFor="change-avatar"
-            className="mt-2 text-xs text-primary cursor-pointer"
+            className="mt-1 text-xs text-primary cursor-pointer"
           >
             <input
               type="file"
@@ -163,41 +236,8 @@ export default function Settings() {
           </Button>
         </div>
       </form>
+      <Divider className="my-5" />
+      <RefillCreditForm />
     </main>
   );
-}
-
-{
-  /* <div className="bg-slate-800 ml-20 mr-20 items-center justify-center p-8 rounded-lg mt-12">
-        <div className="flex py-5 justify-between">
-          <label>Receive Post Suggestions</label>
-          <SwitchComponent
-            checked={canReceiveSuggestions}
-            onChange={setCanReceiveSuggestions}
-          />
-        </div>
-        <div
-          className={`flex py-5 justify-between ${canReceiveSuggestions ? "opacity-100" : "opacity-50"}`}
-        >
-          <label>Suggestion Frequency</label>
-          <select
-            disabled={!canReceiveSuggestions}
-            id="dropdown"
-            name="dropdown"
-            onChange={(a) => {}}
-            className="border border-coolGray-500 rounded-lg p-2 outline-0 text-white bg-slate-800"
-          >
-            {["Daily", "Weekly", "Monthly"].map((item, index) => (
-              <option key={index} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </div>
-        <center>
-          <CTAButton className="py-3 mr-2 rounded-lg text-sm mt-10">
-            <span>Save</span>
-          </CTAButton>
-        </center>
-      </div> */
 }

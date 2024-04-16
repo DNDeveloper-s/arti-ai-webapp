@@ -11,10 +11,12 @@ import React, {
 import { useSearchParams } from "next/navigation";
 import {
   IBusinessResponse,
+  SocialPageType,
   useGetConversation,
   useQueryUserBusiness,
 } from "@/api/conversation";
 import { IConversation } from "@/interfaces/IConversation";
+import useCampaignStore from "@/store/campaign";
 
 type IBusinessState = IBusinessResponse | undefined | null;
 
@@ -46,6 +48,7 @@ const useBusinessContext = (initState: IBusinessState) => {
   const [state, dispatch] = useReducer(BusinessReducer, initState);
   const [business, setBusiness] = useState<IBusinessState>(null);
   const { data } = useQueryUserBusiness();
+  const { setSelectAdAccount } = useCampaignStore();
 
   useEffect(() => {
     if (!business && data) {
@@ -55,6 +58,18 @@ const useBusinessContext = (initState: IBusinessState) => {
     }
     data && business?.id && localStorage.setItem("business_id", business.id);
   }, [business, data]);
+
+  // Set the AdAccount ID when the business is set
+  useEffect(() => {
+    if (business) {
+      const adAccountProvider = business.socialPages?.find(
+        (c) => c.type === SocialPageType.FACEBOOK_AD_ACCOUNT
+      );
+      if (adAccountProvider?.providerId) {
+        setSelectAdAccount(adAccountProvider.providerId);
+      }
+    }
+  }, [business, setSelectAdAccount]);
 
   return { business, setBusiness, state, dispatch };
 };

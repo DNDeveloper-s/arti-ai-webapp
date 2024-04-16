@@ -147,7 +147,7 @@ export default function CreateCampaign({
 
   // Handle the AutoComplete
   useEffect(() => {
-    if (autoCompleteFields) {
+    if (autoCompleteFields && storeFormState.mode !== "edit") {
       validateAutoCompleteValue(autoCompleteFields?.name) &&
         setValue("name", autoCompleteFields.name as string);
       validateAutoCompleteValue(autoCompleteFields?.objective, {
@@ -162,9 +162,9 @@ export default function CreateCampaign({
           CAMPAIGN_OBJECTIVES.find(
             (c) => c.numericUid === autoCompleteFields.objective
           )?.uid ?? ""
-        );
+      );
     }
-  }, [autoCompleteFields, setValue]);
+  }, [autoCompleteFields, setValue, storeFormState.mode]);
 
   // Return JSX for the component
   return (

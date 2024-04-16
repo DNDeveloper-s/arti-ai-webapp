@@ -71,6 +71,7 @@ import { BiLike } from "react-icons/bi";
 import { GrAnnounce } from "react-icons/gr";
 import { FiLink } from "react-icons/fi";
 import { AppDefaultImage } from "@/components/shared/renderers/ImageTemp";
+import { useConversation } from "@/context/ConversationContext";
 
 const BILLING_EVENT = [{ name: "Impressions", uid: "impressions" }];
 
@@ -196,12 +197,13 @@ const SOCIAL_PAGES = [
   { name: "button", uid: "button" },
 ];
 
-interface PreviewProps {
+export interface PreviewProps {
   text: string;
   image: string;
   title?: string;
   brandLogo?: string;
   brandLabel?: string;
+  previewLink?: string;
 }
 const FacebookAdPreview = ({
   text,
@@ -721,7 +723,7 @@ const InstagramReelPreview = (props: PreviewProps) => {
   );
 };
 
-const previewOptions = [
+export const previewOptions = [
   {
     uid: "facebook-post",
     name: "Facebook Post",
@@ -975,10 +977,17 @@ export default function CreateAd({
     previewOptions[0].uid
   );
 
-  const { data: campaigns, isLoading: isCampaignsFetching } = useGetCampaigns();
-  const { data: adsets, isLoading: isAdsetFetching } = useGetAdSets({
+  const { data: campaignPages, isLoading: isCampaignsFetching } =
+    useGetCampaigns();
+  const campaigns = useMemo(() => {
+    return campaignPages?.pages.map((page) => page.data).flat() || [];
+  }, [campaignPages]);
+  const { data: adsetPages, isLoading: isAdsetFetching } = useGetAdSets({
     campaignIds: [campaignValue],
   });
+  const adsets = useMemo(() => {
+    return adsetPages?.pages.map((page) => page.data).flat() || [];
+  }, [adsetPages]);
 
   const { state } = useUser();
 
@@ -998,7 +1007,7 @@ export default function CreateAd({
     return {
       campaign_id: true,
       adset_id: true,
-      callToAction: true,
+      // callToAction: true,
       page_id: true,
     };
   }, [storeFormState.mode]);
@@ -1006,27 +1015,29 @@ export default function CreateAd({
   const pageIdValue = watch("page_id");
   const facebookPages = state.data?.facebook?.pages;
 
-  const { adVariantsByConversationId } = useAdCreatives();
-  const searchParams = useSearchParams();
+  const { state: conversationState } = useConversation();
+
   const [erroredAdVariants, setErroredAdVariants] = useState<IAdVariant[]>([]);
   const [showCreateLeadFormModal, setShowCreateLeadFormModal] = useState(false);
 
   const { conversation } = useCurrentConversation();
   const conversationId = conversation?.id;
 
-  const unSortedAdCreatives =
-    adVariantsByConversationId[conversationId as string]?.list;
-
+  const unSortedVariants = conversationState.adCreative
+    ?.findAllBy("conversationId", conversationId ?? "")
+    ?.map((adCreative) =>
+      conversationState.variant.findAllBy("adCreativeId", adCreative.id)
+    )
+    ?.flat();
   // const [conversionLocationValue, setConversionLocationValue] = useState<
   //   string | null
   // >(null);
 
   const selectedVariant = useMemo(() => {
-    return unSortedAdCreatives
-      ?.map((adCreative) => adCreative.variants)
-      .flat()
-      .find((variant) => variant.id === selectedVariantId);
-  }, [unSortedAdCreatives, selectedVariantId]);
+    return unSortedVariants?.find(
+      (variant) => variant.id === selectedVariantId
+    );
+  }, [unSortedVariants, selectedVariantId]);
 
   useEffect(() => {
     setSelectedVariantId(meta.selectedVariant?.id ?? "");
@@ -1148,11 +1159,8 @@ export default function CreateAd({
   }, [isSuccess, setFormState]);
 
   const variants = useMemo(() => {
-    return difference(
-      unSortedAdCreatives.map((adCreative) => adCreative.variants).flat(),
-      erroredAdVariants
-    );
-  }, [unSortedAdCreatives, erroredAdVariants]);
+    return difference(unSortedVariants, erroredAdVariants);
+  }, [unSortedVariants, erroredAdVariants]);
 
   const selectedPage = useMemo(() => {
     if (facebookPages && pageIdValue) {
@@ -1171,7 +1179,7 @@ export default function CreateAd({
 
   // Handle the Autocomplete fields
   useEffect(() => {
-    if (!autoCompleteFields) return;
+    if (!autoCompleteFields || storeFormState.mode === "edit") return;
     const websiteUrl =
       autoCompleteFields.custom_values_based_on_conversion_location?.website
         ?.website_url;
@@ -1193,7 +1201,7 @@ export default function CreateAd({
       validateAutoCompleteValue(appUrl.toString()) &&
         setValue("app_url", appUrl.toString());
     }
-  }, [autoCompleteFields, setValue]);
+  }, [autoCompleteFields, setValue, storeFormState.mode]);
 
   return (
     <>
@@ -1327,7 +1335,7 @@ export default function CreateAd({
                   startContent={
                     selectedVariant ? (
                       <div className="w-5 h-5 rounded flex-shrink-0 overflow-hidden">
-                        <Image
+                        <AppDefaultImage
                           className="w-full h-full object-cover"
                           src={selectedVariant.imageUrl}
                           width={30}
@@ -1356,18 +1364,19 @@ export default function CreateAd({
                           <div className="w-full flex justify-between gap-2">
                             <div className="flex flex-1 overflow-hidden gap-2">
                               <div className="w-12 flex-shrink-0 h-12 overflow-hidden">
-                                <Image
+                                <AppDefaultImage
                                   className="w-full h-full object-cover hover:object-contain"
                                   width={200}
                                   height={200}
                                   src={variant.imageUrl}
                                   alt="Profile Image"
-                                  onError={() => {
-                                    setErroredAdVariants((c) => [
-                                      ...c,
-                                      variant,
-                                    ]);
-                                  }}
+                                  FallbackProps={{ size: "xs" }}
+                                  // onError={() => {
+                                  //   setErroredAdVariants((c) => [
+                                  //     ...c,
+                                  //     variant,
+                                  //   ]);
+                                  // }}
                                 />
                               </div>
                               <span className="text-small flex-1 whitespace-pre-wrap">

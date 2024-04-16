@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import AdCreativeListItem from "./AdCreativeListItem";
 import { PaginatedList } from "./LeftPane";
 import { useGetVariantsByConversation } from "@/api/conversation";
@@ -11,7 +12,10 @@ export default function AdCreativeSection() {
     isFetchingNextPage,
     ...props
   } = useGetVariantsByConversation();
-  const adCreatives = data?.pages.map((page) => page).flat() || [];
+  const adCreatives = useMemo(
+    () => data?.pages.map((page) => page).flat() || [],
+    [data]
+  );
 
   return (
     <div className="w-full my-4">

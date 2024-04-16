@@ -1,6 +1,6 @@
 import { useGetVariantsByConversation } from "@/api/conversation";
 import useInView from "@/hooks/useInView";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import AdCreativeCard, { AdCreativeCardShimmer } from "./AdCreativeCard";
 import { Spinner } from "@nextui-org/react";
 import Drawer, { Position } from "@/components/Drawer";
@@ -14,7 +14,10 @@ import { EmptySection, EmptySectionType } from "./CardSection";
 export default function AdCreativeSection() {
   const { data, isLoading, hasNextPage, ...props } =
     useGetVariantsByConversation();
-  const adCreatives = data?.pages.map((page) => page).flat() || [];
+  const adCreatives = useMemo(
+    () => data?.pages.map((page) => page).flat() || [],
+    [data]
+  );
   // const lastRef = useRef(null);
   const { ref: lastRef, isInView } = useInView();
 

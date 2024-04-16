@@ -104,12 +104,27 @@ export default function ViewAds() {
         : (Array.from(selected.campaigns) as string[]),
   };
   const {
-    data: _ads,
+    data: _adsPages,
     isFetching,
+    isLoading,
     fetchStatus,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
   } = useGetAds({
     ...filters,
   });
+
+  const fetchNextPagnFn = useCallback(() => {
+    if (!isFetching && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isFetching, fetchNextPage, isFetchingNextPage]);
+
+  const _ads = useMemo(
+    () => _adsPages?.pages.map((page) => page.data).flat() ?? [],
+    [_adsPages]
+  );
 
   const { mutate: postUpdateAd, isPending: isUpdating } = useUpdateAd();
 
@@ -119,8 +134,8 @@ export default function ViewAds() {
         ad: {
           status,
           name: ad.name,
-          creativeId: ad.creative.id,
-          adsetId: ad.adset.id,
+          creative_id: ad.creative.id,
+          adset_id: ad.adset.id,
         },
         adId: id,
         onSuccess: {
@@ -307,11 +322,13 @@ export default function ViewAds() {
         pronoun="ad"
         selectedKeys={selected.ads}
         setSelectedKeys={setSelected(CampaignTab.ADS)}
-        isLoading={isFetching}
+        isLoading={isLoading}
         fetchStatus={fetchStatus}
         emptyContent="No ads found"
         onAddClick={handleAddClick}
         onEditClick={handleEditClick}
+        hasMore={hasNextPage}
+        fetchMore={fetchNextPagnFn}
       />
     </>
   );

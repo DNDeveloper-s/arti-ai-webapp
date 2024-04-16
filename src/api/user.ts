@@ -4,14 +4,18 @@ import {
   IUserAccount,
   IUserFacebookPost,
   IUserPage,
+  Paging,
   UserSettingsToUpdate,
 } from "@/interfaces/IUser";
 import { Platform, SupportedPlatform, useUser } from "@/context/UserContext";
 import {
   Query,
   QueryFunctionContext,
+  QueryKey,
+  UseInfiniteQueryResult,
   UseMutationResult,
   UseQueryResult,
+  useInfiniteQuery,
   useMutation,
   useQueries,
   useQuery,
@@ -22,7 +26,12 @@ import axios, { AxiosError } from "axios";
 import { access } from "fs";
 import { ISnackbarData, SnackbarContext } from "@/context/SnackbarContext";
 import { use, useCallback, useContext } from "react";
-import { IAd, IAdCampaign, IAdSet } from "@/interfaces/ISocial";
+import {
+  IAd,
+  IAdCampaign,
+  IAdSet,
+  PaginatedResponse,
+} from "@/interfaces/ISocial";
 import { ZipCodeResponseObject } from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/Adset/Create/SelectZipCodes";
 import { getSession, signIn, useSession } from "next-auth/react";
 import { wait } from "@/helpers";
@@ -31,6 +40,7 @@ import { omit } from "lodash";
 import { getServerSession } from "next-auth";
 import { RedirectType, redirect } from "next/navigation";
 import { LinkData } from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/Ads/Create/CreateAd";
+import { ICampaignInfinite } from "./admanager";
 
 function getAxiosResponseError(error: any) {
   if (error instanceof Error && error instanceof AxiosError) {
@@ -593,38 +603,90 @@ export function useLinkAccount() {
   });
 }
 
-export function useGetCampaigns(): UseQueryResult<IAdCampaign[], Error> {
-  const { accessToken, accountId, isFetching } = useCredentials();
+interface UseGetCampaignsProps {
+  get_insights?: boolean;
+  enabled?: boolean;
+}
 
-  const getCampaigns = async ({ queryKey }: QueryFunctionContext) => {
-    const [, accessToken, accountId] = queryKey;
-    if (!accessToken) throw new Error("Access token is required");
-    if (!accountId) throw new Error("Account id is required");
-    const response = await axios.get(ROUTES.ADS.CAMPAIGNS, {
+interface GetCampaignsInifiniteResponse {
+  data: ICampaignInfinite[];
+  paging: Paging;
+}
+
+export function useGetCampaigns(props?: UseGetCampaignsProps) {
+  const LIMIT = 5;
+  const { accessToken, accountId } = useCredentials();
+
+  // const getCampaigns = async ({ queryKey }: QueryFunctionContext) => {
+  //   const [, accessToken, accountId] = queryKey;
+  //   if (!accessToken) throw new Error("Access token is required");
+  //   if (!accountId) throw new Error("Account id is required");
+  //   const response = await axios.get(ROUTES.ADS.CAMPAIGNS, {
+  //     params: {
+  //       access_token: accessToken,
+  //       account_id: accountId,
+  //     },
+  //   });
+  //   return response.data.data;
+  // };
+
+  // const query = useQuery<IAdCampaign[]>({
+  //   queryKey: API_QUERIES.GET_CAMPAIGNS(accessToken, accountId),
+  //   queryFn: getCampaigns,
+  //   enabled: !!accessToken && !!accountId,
+  //   retry(failureCount, error) {
+  //     if (error instanceof Error && error instanceof AxiosError) {
+  //       return false;
+  //     }
+  //     return failureCount < 3;
+  //   },
+  // });
+
+  // return {
+  //   ...query,
+  //   isFetching: isFetching || query.isFetching,
+  // };
+
+  const fetchCampaigns = async (
+    pageParam: undefined | string,
+    queryKey: QueryKey
+  ) => {
+    const [, accountId, accessToken, get_insights] = queryKey;
+    const response = await axios.get(ROUTES.CAMPAIGN.QUERY_INFINITE, {
       params: {
-        access_token: accessToken,
         account_id: accountId,
+        access_token: accessToken,
+        limit: LIMIT,
+        get_insights: !!get_insights,
+        after: pageParam,
       },
     });
+
+    // pushCampaignsToState(response.data.data ?? []);
+
     return response.data.data;
   };
 
-  const query = useQuery<IAdCampaign[]>({
-    queryKey: API_QUERIES.GET_CAMPAIGNS(accessToken, accountId),
-    queryFn: getCampaigns,
-    enabled: !!accessToken && !!accountId,
-    retry(failureCount, error) {
-      if (error instanceof Error && error instanceof AxiosError) {
-        return false;
-      }
-      return failureCount < 3;
+  return useInfiniteQuery<GetCampaignsInifiniteResponse>({
+    queryKey: API_QUERIES.GET_INFINITE_CAMPAIGNS(
+      accountId,
+      accessToken,
+      props?.get_insights
+    ),
+    queryFn: ({ pageParam, queryKey }: any) =>
+      fetchCampaigns(pageParam, queryKey),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.data.length === 0 || lastPage.data.length < LIMIT)
+        return undefined;
+      return lastPage.paging.cursors.after;
+    },
+    getPreviousPageParam: (firstPage, allPages) => {
+      if (firstPage.data.length === 0 || firstPage.data.length < LIMIT)
+        return undefined;
+      return firstPage.paging.cursors.before;
     },
   });
-
-  return {
-    ...query,
-    isFetching: isFetching || query.isFetching,
-  };
 }
 
 export function useGetAdSets({
@@ -635,12 +697,16 @@ export function useGetAdSets({
   campaignIds?: string[] | null;
   providedAccountId?: string | null;
   enabled?: boolean;
-}): UseQueryResult<IAdSet[], Error> {
+}) {
+  const LIMIT = 5;
   const { accessToken, accountId: defaultAccountId } = useCredentials();
 
   const accountId = providedAccountId ?? defaultAccountId;
 
-  const getAdSets = async ({ queryKey }: QueryFunctionContext) => {
+  const getAdSets = async (
+    pageParam: undefined | string,
+    queryKey: QueryKey
+  ) => {
     const [, accessToken, accountId, campaignIds] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
@@ -651,15 +717,27 @@ export function useGetAdSets({
         account_id: accountId,
         campaign_ids: campaignIds,
         get_insights: true,
+        after: pageParam,
       },
     });
     return response.data.data;
   };
 
-  const query = useQuery({
+  return useInfiniteQuery<PaginatedResponse<IAdSet>>({
     queryKey: API_QUERIES.GET_ADSETS(accessToken, accountId, campaignIds),
-    queryFn: getAdSets,
     enabled: enabled && !!accessToken && !!accountId && !!campaignIds,
+    queryFn: ({ pageParam, queryKey }: any) => getAdSets(pageParam, queryKey),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.data.length === 0 || lastPage.data.length < LIMIT)
+        return undefined;
+      return lastPage.paging.cursors.after;
+    },
+    getPreviousPageParam: (firstPage, allPages) => {
+      if (firstPage.data.length === 0 || firstPage.data.length < LIMIT)
+        return undefined;
+      return firstPage.paging.cursors.before;
+    },
     retry(failureCount, error) {
       if (error instanceof Error && error instanceof AxiosError) {
         return false;
@@ -667,11 +745,6 @@ export function useGetAdSets({
       return failureCount < 3;
     },
   });
-
-  return {
-    ...query,
-    isFetching: query.isFetching,
-  };
 }
 
 export function useGetAdSet({
@@ -722,9 +795,10 @@ export function useGetAds({
   adIds?: string[] | null;
   enabled?: boolean;
   accountId?: string | null;
-}): UseQueryResult<IAd[], Error> {
+}) {
+  const LIMIT = 5;
   const { accessToken, accountId: defaultAccountId } = useCredentials();
-  const getAds = async ({ queryKey }: QueryFunctionContext) => {
+  const getAds = async (pageParam: undefined | string, queryKey: QueryKey) => {
     const [, accessToken, accountId, adsetIds, campaignIds, adIds] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
@@ -736,6 +810,7 @@ export function useGetAds({
         campaign_ids: campaignIds,
         ad_ids: adIds,
         get_insights: true,
+        after: pageParam,
       },
     });
     return response.data.data;
@@ -743,7 +818,7 @@ export function useGetAds({
 
   const _accountId = accountId ?? defaultAccountId;
 
-  return useQuery({
+  return useInfiniteQuery<PaginatedResponse<IAd>>({
     queryKey: API_QUERIES.GET_ADS(
       accessToken,
       _accountId,
@@ -751,8 +826,19 @@ export function useGetAds({
       campaignIds,
       adIds
     ),
-    queryFn: getAds,
     enabled: !!enabled && !!accessToken && !!_accountId,
+    queryFn: ({ pageParam, queryKey }: any) => getAds(pageParam, queryKey),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.data.length === 0 || lastPage.data.length < LIMIT)
+        return undefined;
+      return lastPage.paging.cursors.after;
+    },
+    getPreviousPageParam: (firstPage, allPages) => {
+      if (firstPage.data.length === 0 || firstPage.data.length < LIMIT)
+        return undefined;
+      return firstPage.paging.cursors.before;
+    },
     retry(failureCount, error) {
       if (error instanceof Error && error instanceof AxiosError) {
         return false;

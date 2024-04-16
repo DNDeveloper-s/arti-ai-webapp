@@ -18,12 +18,13 @@ import {
   useUserPages,
 } from "@/api/user";
 import ConnectProviderModal from "../ArtiBot/MessageItems/Deploy/ConnectProviderModal";
-import { SelectMetPageFormControl } from "../ArtiBot/MessageItems/Deploy/SelectMetaPage";
+import { SelectMetaPageFormControl } from "../ArtiBot/MessageItems/Deploy/SelectMetaPage";
 import SelectWithAutoComplete, {
   SelectWithAutoCompleteProps,
 } from "../shared/renderers/SelectWithAutoComplete";
 import { SelectAdAccountFormControl } from "../ArtiBot/MessageItems/Deploy/Ad/components/SelectAdAccount";
 import { Platform, useUser } from "@/context/UserContext";
+import { compact, omit } from "lodash";
 
 interface RegisterBusinessFormValues {
   name: string;
@@ -36,6 +37,8 @@ interface RegisterBusinessFormValues {
     locality: string;
   }[];
   details: string;
+  page_id: string;
+  ad_account_id: string;
 }
 const validationSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
@@ -112,28 +115,29 @@ export default function RegisterBusiness() {
   const registerBusiness = (data: RegisterBusinessFormValues) => {
     if (isPending) return;
 
-    const providers =
+    const dataToSend = omit(data, ["page_id", "ad_account_id"]);
+
+    const providers = (
       pagesData?.map((page) => ({
         name: page.name,
         image: page.picture,
         providerId: page.id,
         providerAccessToken: page.page_access_token,
         type: SocialPageType.FACEBOOK_PAGE,
-      })) ?? ([] as SocialPageObject[]);
+      })) ?? ([] as SocialPageObject[])
+    ).find((c) => c.providerId === data.page_id);
 
-    const accountProviders =
+    const accountProviders = (
       accounts?.map((account) => ({
         name: account.name,
         providerId: account.id,
         type: SocialPageType.FACEBOOK_AD_ACCOUNT,
-      })) ?? ([] as SocialPageObject[]);
-
-    console.log("providers - ", providers);
-    console.log("accountProviders - ", accountProviders);
+      })) ?? ([] as SocialPageObject[])
+    ).find((c) => c.providerId === data.ad_account_id);
 
     postRegisterBusiness({
       ...data,
-      socialPages: [providers, accountProviders].flat(),
+      social_pages: compact([providers, accountProviders]),
     });
   };
 
@@ -205,7 +209,7 @@ export default function RegisterBusiness() {
               <ConnectProviderModal classNames={{ base: "w-full" }} />
             ) : (
               <>
-                <SelectMetPageFormControl />
+                <SelectMetaPageFormControl />
                 <SelectAdAccountFormControl />
               </>
             )}

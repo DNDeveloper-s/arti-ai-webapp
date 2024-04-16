@@ -8,11 +8,12 @@ import React, {
   useReducer,
 } from "react";
 import { useSearchParams } from "next/navigation";
-import { useGetConversation } from "@/api/conversation";
+import { InfiniteConversation, useGetConversation } from "@/api/conversation";
 import { IConversation } from "@/interfaces/IConversation";
 
 type ICurrentConversationState = {
-  conversation: IConversation | undefined;
+  conversation: InfiniteConversation | undefined;
+  conversation_id?: string | undefined;
 };
 
 export const initCurrentConversationState: ICurrentConversationState = {
@@ -82,7 +83,7 @@ const CurrentConversationContextProvider: FC<
 type UseCurrentConversationHookType = {
   state: ICurrentConversationState;
   dispatch: (action: CurrentConversationAction) => void;
-  conversation: IConversation | undefined;
+  conversation: InfiniteConversation | undefined;
 };
 
 function useCurrentConversation(): UseCurrentConversationHookType {

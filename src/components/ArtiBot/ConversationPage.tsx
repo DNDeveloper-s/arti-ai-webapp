@@ -168,7 +168,7 @@ export function ArtiAiDropdown({
 export default function ArtiBotPage({
   conversation,
 }: {
-  conversation: IConversation;
+  conversation?: IConversation;
 }) {
   const [adCreatives, setAdCreatives] = useState(
     conversation?.adCreatives ? conversation?.adCreatives : []
@@ -294,6 +294,7 @@ export default function ArtiBotPage({
               <ArtiBotV2 hideHeader={true} />
             )}
           </div>
+          {!isConversationCollapsible && <CreateAdManagerModal />}
         </div>
         {!shouldShowCampaign && adCreative && (
           <>
@@ -315,6 +316,7 @@ export default function ArtiBotPage({
                 <AdVariants adCreative={adCreative} isAdCampaign={false} />
               </div>
             </div>
+            <CreateAdManagerModal />
           </>
         )}
         {shouldShowCampaign && (
@@ -335,7 +337,6 @@ export default function ArtiBotPage({
         )}
         <Tooltip id="edit-ad-variant-tooltip" />
       </div>
-      <CreateAdManagerModal />
     </div>
   );
 

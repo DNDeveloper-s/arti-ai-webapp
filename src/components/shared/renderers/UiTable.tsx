@@ -1,3 +1,4 @@
+import useInView from "@/hooks/useInView";
 import {
   Button,
   Divider,
@@ -20,11 +21,12 @@ import {
 } from "@nextui-org/react";
 import { FetchStatus } from "@tanstack/react-query";
 import { popGraphicsState } from "pdf-lib";
-import React, { Key, ReactNode, useEffect, useRef, useState } from "react";
+import React, { Key, ReactNode, use, useEffect, useRef, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { GoSearch } from "react-icons/go";
 import { IoChevronDown } from "react-icons/io5";
 import { MdDelete, MdModeEditOutline } from "react-icons/md";
+import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
 
 interface UiTableProps<T> {
   renderCell: (item: T, columnKey: Key) => React.ReactNode;
@@ -41,6 +43,8 @@ interface UiTableProps<T> {
   onEditClick?: () => any;
   onDeleteClick?: () => any;
   fetchStatus: FetchStatus;
+  hasMore?: boolean;
+  fetchMore?: () => any;
 }
 export default function UiTable<T = any>(props: UiTableProps<T>) {
   const {
@@ -54,6 +58,7 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
     onEditClick,
     onDeleteClick,
     fetchStatus,
+    fetchMore,
   } = props;
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
@@ -76,6 +81,14 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
     direction: "ascending",
   });
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+  // const lastScrollPosRef = useRef(0);
+  // const scrollerRef = useRef<HTMLDivElement>(null);
+  const { ref: loaderRef, isInView } = useInView();
+
+  useEffect(() => {
+    isInView && typeof fetchMore === "function" && fetchMore();
+  }, [isInView, fetchMore]);
 
   const hasSearchFilter = Boolean(filterValue);
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -112,12 +125,7 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
-  const items = React.useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-
-    return filteredItems.slice(start, end);
-  }, [page, rowsPerPage, filteredItems]);
+  const items = filteredItems;
 
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a, b) => {
@@ -128,6 +136,25 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
+
+  // useEffect(() => {
+  //   if (!scrollerRef.current) return;
+  //   const scrollEl = scrollerRef.current;
+  //   setTimeout(() => {
+  //     console.log("scrollEl - ", scrollEl, lastScrollPosRef.current);
+  //     scrollEl.scrollTo(0, lastScrollPosRef.current);
+  //   }, 200);
+
+  //   const handleScroll = () => {
+  //     lastScrollPosRef.current = scrollEl.scrollTop;
+  //   };
+
+  //   scrollEl.addEventListener("scroll", handleScroll);
+
+  //   return () => {
+  //     scrollEl.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, [sortedItems]);
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -368,8 +395,15 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
     <Table
       aria-label="Example table with custom cells, pagination and sorting"
       isHeaderSticky
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
+      // bottomContent={bottomContent}
+      // bottomContentPlacement="outside"
+      bottomContent={
+        props.hasMore ? (
+          <div className="flex w-full justify-center">
+            <Spinner ref={loaderRef} color="white" />
+          </div>
+        ) : null
+      }
       classNames={{
         wrapper: "h-[330px]",
         td: "py-1",
@@ -377,6 +411,7 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
       onCellAction={(key: Key) => {
         console.log("action - ", key);
       }}
+      // scrollRef={scrollerRef}
       key={key}
       selectedKeys={selectedKeys}
       selectionMode="multiple"

@@ -142,8 +142,8 @@ interface IError {
 
 interface IConversationState {
   conversation: StateRecord<IConversation, ["id"]>;
-  adCreative: StateRecord<IAdCreative>;
-  variant: StateRecord<IAdVariant, ["id"]>;
+  adCreative: StateRecord<IAdCreativeNew, ["id", "conversationId"]>;
+  variant: StateRecord<IAdVariant, ["id", "adCreativeId"]>;
   campaign: StateRecord<ICampaignMongoDB>;
   adset: StateRecord<IAdsetMongoDB, ["id", "adCreativeId"]>;
   ad: StateRecord<IAdMongoDB, ["id", "adsetId"]>;

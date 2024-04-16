@@ -31,7 +31,7 @@ interface LoadMoreButtonProps {
   handleLoadMore?: () => void;
   loading?: boolean;
 }
-function LoadMoreButton({
+export function LoadMoreButton({
   doInfiniteScroll,
   handleLoadMore,
   loading,

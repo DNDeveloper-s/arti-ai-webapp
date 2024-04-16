@@ -1,4 +1,11 @@
-import { Key, useCallback, useContext, useEffect, useState } from "react";
+import {
+  Key,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import api from "../../../api/arti_api";
 import Loader from "@/components/Loader";
 import {
@@ -58,12 +65,27 @@ export default function ViewAdset() {
     viewAdsByAdset,
   } = useCampaignStore();
   const {
-    data: adsets,
+    data: adsetPages,
     isFetching,
+    isLoading,
     fetchStatus,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
   } = useGetAdSets({
     campaignIds: Array.from(selected.campaigns) as string[],
   });
+
+  const adsets = useMemo(
+    () => adsetPages?.pages.map((page) => page.data).flat(),
+    [adsetPages]
+  );
+
+  const fetchNextPageFn = useCallback(() => {
+    if (!isFetching && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isFetching, fetchNextPage, isFetchingNextPage]);
 
   const { mutate: postUpdateAdset, isPending: isUpdating } = useUpdateAdset();
 
@@ -228,11 +250,13 @@ export default function ViewAdset() {
       pronoun="adset"
       selectedKeys={selected.adsets}
       setSelectedKeys={setSelected(CampaignTab.ADSETS)}
-      isLoading={isFetching}
+      isLoading={isLoading}
       emptyContent="No adsets found"
       onAddClick={handleAddClick}
       onEditClick={handleEditClick}
       fetchStatus={fetchStatus}
+      hasMore={hasNextPage}
+      fetchMore={fetchNextPageFn}
     />
   );
 }

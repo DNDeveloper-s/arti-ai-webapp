@@ -59,7 +59,12 @@ const API_QUERIES = {
     access_token,
     account_id,
   ],
-  GET_CONVERSATION: (conversation_id: string | null) => [
+  GET_INFINITE_CAMPAIGNS: (
+    account_id?: string | null,
+    access_token?: string | null,
+    get_insights?: boolean | null
+  ) => ["get-infinite-campaigns", account_id, access_token, get_insights],
+  GET_CONVERSATION: (conversation_id?: string | null) => [
     "get-conversation",
     conversation_id,
   ],

@@ -54,6 +54,7 @@ export interface InfiniteConversation {
   updatedAt: string;
   businessId: string;
 }
+
 export type GetConversationInifiniteResponse = InfiniteConversation[];
 
 export const useGetConversationInfinite = (cursorId?: string) => {
@@ -217,7 +218,7 @@ interface DefaultBaseResponse<T> {
   message?: string;
 }
 export const useGetConversation = (
-  conversationId: string | null,
+  conversationId?: string | null,
   enabled: boolean = true
 ) => {
   const { pushConversationsToState } = useConversation();
@@ -247,7 +248,7 @@ export const useGetConversation = (
     queryFn: fetchConversation,
     staleTime: 1000 * 60 * 5,
     retry: 3,
-    enabled,
+    enabled: !!enabled && !!conversationId,
   });
 
   useEffect(() => {
@@ -522,6 +523,9 @@ export const useSaveMessages = () => {
       queryClient.invalidateQueries({
         queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id),
       });
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_CREDIT_BALANCE,
+      });
     },
   });
 };
@@ -561,6 +565,9 @@ export const useSaveAdCreativeMessages = () => {
       });
       queryClient.invalidateQueries({
         queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_CREDIT_BALANCE,
       });
     },
   });
@@ -605,6 +612,8 @@ export interface UserCampaign {
   id: string;
   /** This is the campaign id from meta */
   campaignId: string;
+  conversation_id?: string;
+  ad_account_id: string;
 }
 type GetUserCampaignsInfiniteResponse = UserCampaign[];
 export const useGetUserCampaigns = (cursorId?: string) => {
@@ -720,6 +729,7 @@ const insights = {
 
 interface CampaignWithInsights {
   ad_account_id: string;
+  conversation_id?: string;
   name: string;
   status: string;
   objective: string;
@@ -758,7 +768,7 @@ export const useGetCampaignInsights = ({
   timeRange,
   enabled = true,
 }: {
-  campaignId?: string;
+  campaignId?: string | null;
   timeRange?: TimeRange;
   enabled?: boolean;
 }) => {
@@ -921,7 +931,7 @@ export const useGetCredits = () => {
   return useQuery<UseGetCreditResponse>({
     queryKey: API_QUERIES.GET_CREDIT_BALANCE,
     queryFn: getCredits,
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60 * 5, // 10 minutes
   });
 };
 
@@ -1090,7 +1100,7 @@ export interface RegisterBusinessVariables {
     locality: string;
   }[];
   details: string;
-  socialPages: SocialPageObject[];
+  social_pages: SocialPageObject[];
 }
 
 export const useRegisterBusiness = (
@@ -1157,7 +1167,7 @@ export interface IBusinessResponse {
   summary?: string;
   socialPages?: IBusinessSocialPageResponse[];
 }
-type GetQueryBusinessResponse = IBusiness[];
+type GetQueryBusinessResponse = IBusinessResponse[];
 export const useQueryUserBusiness = () => {
   const queryClient = useQueryClient();
 

@@ -36,6 +36,7 @@ import ConversationSection from "./ConversationSection";
 import AdCreativeSection from "./AdCreativeSection";
 import { useGetUserProviders } from "@/api/user";
 import { useUser } from "@/context/UserContext";
+import InsightSection from "./InsightSection";
 
 export enum EmptySectionType {
   CONVERSATION = "conversation",
@@ -171,6 +172,7 @@ export default function CardSection() {
 
   return (
     <>
+      <InsightSection />
       <ConversationSection />
       <AdCreativeSection />
       <AttachmentModal

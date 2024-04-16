@@ -54,7 +54,10 @@ export default function CreateAdManagerModal() {
         <ModalContent>
           <ModalHeader>
             <div className="w-full flex items-center justify-between">
-              <span>Create {AD_MANAGER_TABS[formState.tab]?.singular}</span>
+              <span>
+                {formState.mode === "edit" ? "Edit" : "Create"}{" "}
+                {AD_MANAGER_TABS[formState.tab]?.singular}
+              </span>
               {isFetching && (
                 <Spinner
                   classNames={{

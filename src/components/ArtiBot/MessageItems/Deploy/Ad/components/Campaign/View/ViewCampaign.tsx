@@ -41,6 +41,7 @@ import { ADMANAGER_STATUS_TYPE, IAdCampaign } from "@/interfaces/ISocial";
 import { useQueryClient } from "@tanstack/react-query";
 import API_QUERIES from "@/config/api-queries";
 import SwitchStatus from "../../SwitchStatus";
+import { ICampaignInfinite, useGetInifiniteCampaigns } from "@/api/admanager";
 
 const delay = (delay: number) =>
   new Promise((res) => {
@@ -71,7 +72,21 @@ export default function ViewCampaign(
   }
 ) {
   const queryClient = useQueryClient();
-  const { data: campaigns, isFetching, fetchStatus } = useGetCampaigns();
+  const {
+    data: campaignPagesData,
+    isFetching,
+    isLoading,
+    fetchStatus,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useGetInifiniteCampaigns();
+  const campaigns = campaignPagesData?.pages.map((page) => page.data).flat();
+
+  const fetchNextPageFn = useCallback(() => {
+    if (!isFetching && !isFetchingNextPage) fetchNextPage();
+  }, [fetchNextPage, isFetching, isFetchingNextPage]);
+
   const [snackBarData, setSnackBarData] =
     useContext(SnackbarContext).snackBarData;
 
@@ -192,7 +207,7 @@ export default function ViewCampaign(
         (selected.campaigns.values().next().value as string);
 
       const currentCampaign = campaigns?.find(
-        (campaign: IAdCampaign) => campaign.id === currentCampaignId
+        (campaign: ICampaignInfinite) => campaign.id === currentCampaignId
       );
 
       if (!currentCampaign) {
@@ -223,9 +238,11 @@ export default function ViewCampaign(
       selectedKeys={selected.campaigns}
       setSelectedKeys={setSelected(CampaignTab.CAMPAIGNS)}
       emptyContent={isFetching ? "" : "No campaigns found"}
-      isLoading={isFetching}
+      isLoading={isLoading}
       onAddClick={handleAddClick}
       onEditClick={handleEditClick}
+      fetchMore={fetchNextPageFn}
+      hasMore={hasNextPage}
     />
   );
 }

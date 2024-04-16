@@ -5,6 +5,8 @@ import Link from "next/link";
 import { getConversationURL } from "@/helpers";
 import { useSearchParams } from "next/navigation";
 import { ConversationType } from "@/interfaces/IConversation";
+import { useMemo } from "react";
+import { useGetInifiniteCampaigns } from "@/api/admanager";
 
 export default function CampaignSection() {
   const {
@@ -14,8 +16,11 @@ export default function CampaignSection() {
     isFetching,
     isFetchingNextPage,
     ...props
-  } = useGetUserCampaigns();
-  const campaigns = data?.pages.map((page) => page).flat() || [];
+  } = useGetInifiniteCampaigns();
+  const campaigns = useMemo(
+    () => data?.pages.map((page) => page.data).flat() || [],
+    [data]
+  );
 
   const searchParams = useSearchParams();
 
@@ -25,7 +30,11 @@ export default function CampaignSection() {
         <h3>Campaigns</h3>
       </div>
       <div className="mt-2 flex flex-col gap-2">
-        <PaginatedList doInfiniteScroll={true}>
+        <PaginatedList
+          noMore={!hasNextPage}
+          handleLoadMore={props.fetchNextPage}
+          loading={isLoading || isFetching || isFetchingNextPage}
+        >
           {isLoading &&
             [1, 2, 3, 4].map((ind) => <CampaignListItemShimmer key={ind} />)}
           {!isLoading &&
