@@ -35,6 +35,7 @@ import AdCreativeIcon from "../shared/icons/AdCreativeIcon";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import CampaignPage from "./v2/CampaignPage";
 import CreditCounter from "../CreditCounter";
+import { TimeRangeContextProvider } from "@/context/TimeRangeContext";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -331,7 +332,9 @@ export default function ArtiBotPage({
                 "w-full max-w-[1920px] mx-auto h-full overflow-auto p-10 pt-5"
               }
             >
-              <CampaignPage campaignId={campaignId} />
+              <TimeRangeContextProvider>
+                <CampaignPage campaignId={campaignId} />
+              </TimeRangeContextProvider>
             </div>
           </div>
         )}

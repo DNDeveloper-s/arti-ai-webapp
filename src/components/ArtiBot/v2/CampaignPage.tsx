@@ -1,4 +1,4 @@
-import { useGetCampaignInsights, useGetConversation } from "@/api/conversation";
+import { useGetCampaignInsights } from "@/api/conversation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DeployAdChildCard,
@@ -10,17 +10,15 @@ import { Collapse, CollapseProps } from "antd";
 import { useGetAdSets } from "@/api/user";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import ErrorComponent from "@/components/shared/error/ErrorComponent";
-import DateRangePicker, {
-  DateRangePickerControl,
-} from "@/components/shared/renderers/DateRangePicker";
+import DateRangePicker from "@/components/shared/renderers/DateRangePicker";
 import { RangeValueType } from "rc-picker/lib/PickerInput/RangePicker";
 import { Dayjs } from "dayjs";
-import useCampaignStore, { CampaignTab } from "@/store/campaign";
+import { CampaignTab } from "@/store/campaign";
 import { LoadMoreButton } from "../LeftPane/LeftPane";
-import { CurrentConversationContextProvider } from "@/context/CurrentConversationContext";
 import CreateAdManagerModal from "../MessageItems/Deploy/Ad/CreateAdManagerModal";
 import AdPreviewModal from "./AdPreviewModal";
 import { PreviewProps } from "../MessageItems/Deploy/Ad/components/Ads/Create/CreateAd";
+import { useTimeRange } from "@/context/TimeRangeContext";
 
 interface DeployAdChildCardProps {
   campaignId: string;
@@ -32,14 +30,7 @@ const CampaignChildCard = ({
   campaignId,
   handlePreview,
 }: DeployAdChildCardProps) => {
-  //   const { state } = useConversation();
-  // //   const adsData = state.ad.findAllBy("adsetId", adsetId ?? "");
-  //   const { data: ads, isLoading } = useGetAds({
-  //     adIds: adsData.map((ad) => ad.adId),
-  //     enabled: adsData.length > 0 && isActive,
-  //     accountId: adsData[0]?.adAccountId ?? undefined,
-  //   });
-
+  const { timeRange } = useTimeRange();
   const {
     data: adsetPages,
     isLoading,
@@ -50,6 +41,8 @@ const CampaignChildCard = ({
   } = useGetAdSets({
     campaignIds: [campaignId],
     providedAccountId: accountId,
+    timeRange,
+    get_leads: true,
   });
 
   const adsets = useMemo(() => {
@@ -139,18 +132,16 @@ const CampaignChildCard = ({
 };
 
 export default function CampaignPage({ campaignId }: { campaignId: string }) {
-  const [rangeValue, setRangeValue] = useState<
-    RangeValueType<Dayjs> | undefined
-  >(undefined);
+  const { timeRange, setTimeRange } = useTimeRange();
 
   const { data, isFetching, ...props } = useGetCampaignInsights({
     campaignId,
-    timeRange: rangeValue,
+    timeRange: timeRange,
+    get_leads: true,
   });
 
   const [activeKeys, setActiveKeys] = useState<string[]>(["1"]);
   const onChange = (key: string | string[]) => {
-    console.log(key);
     setActiveKeys(typeof key === "string" ? [key] : key);
   };
 
@@ -196,7 +187,11 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
     ];
   }, [data, isFetching, handlePreview]);
 
-  // <CurrentConversationContextProvider conversation={conversation}>
+  function handleDateRangeChange(range: RangeValueType<Dayjs>) {
+    console.log("range - ", range);
+    setTimeRange(range);
+  }
+
   return (
     <>
       <div className="w-full flex items-center justify-between mb-5">
@@ -204,7 +199,7 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
           <h1 className="text-lg font-bold text-white">Campaign Insights</h1>
         </div>
         <div className="max-w-[300px]">
-          <DateRangePicker value={rangeValue} onChange={setRangeValue} />
+          <DateRangePicker value={timeRange} onChange={handleDateRangeChange} />
         </div>
       </div>
       {props.isLoading && (
@@ -233,8 +228,4 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
       />
     </>
   );
-}
-
-{
-  /* </CurrentConversationContextProvider> */
 }

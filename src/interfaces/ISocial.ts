@@ -1,3 +1,4 @@
+import { AdLeadData, LeadData } from "@/api/conversation";
 import { CTA_AD } from "@/api/user";
 import { String } from "aws-sdk/clients/ec2";
 
@@ -139,6 +140,7 @@ export interface IAdSet {
       location_types?: string[];
     };
   };
+  ads?: PaginatedResponse<AdLeadData>;
   insights?: {
     data: [undefined] | IFacebookAdInsight[];
     paging: Paging;
@@ -194,6 +196,7 @@ export interface IAd {
     data: [undefined] | IFacebookAdInsight[];
     paging: Paging;
   };
+  leads?: PaginatedResponse<LeadData>;
   bid_amount: number;
   last_updated_by_app_id: string;
   preview_shareable_link?: string;

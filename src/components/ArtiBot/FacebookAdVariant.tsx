@@ -218,6 +218,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({
       key={adVariant.oneLiner}
       className={"ad-variant text-xs md:text-base !p-0 " + (className ?? "")}
       {...props}
+      data-variant={adVariant.id}
     >
       <div
         className={

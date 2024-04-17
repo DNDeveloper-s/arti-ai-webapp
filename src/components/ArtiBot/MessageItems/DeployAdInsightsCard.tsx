@@ -7,11 +7,16 @@ import {
 } from "@nextui-org/react";
 import { Collapse, CollapseProps } from "antd";
 import { AnimatePresence } from "framer-motion";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { BiCaretDown, BiCaretRight, BiCaretUp } from "react-icons/bi";
 import { motion } from "framer-motion";
 import { omit } from "lodash";
-import { IAd, IAdSet, IFacebookAdInsight } from "@/interfaces/ISocial";
+import {
+  IAd,
+  IAdSet,
+  IFacebookAdInsight,
+  PaginatedResponse,
+} from "@/interfaces/ISocial";
 import { useGetAds, useGetCampaigns } from "@/api/user";
 import { botData } from "@/constants/images";
 import { MdDownload, MdEdit, MdRemoveRedEye } from "react-icons/md";
@@ -21,6 +26,9 @@ import ErrorComponent from "@/components/shared/error/ErrorComponent";
 import useCampaignStore, { CampaignTab } from "@/store/campaign";
 import { LoadMoreButton } from "../LeftPane/LeftPane";
 import { PreviewProps } from "./Deploy/Ad/components/Ads/Create/CreateAd";
+import { useTimeRange } from "@/context/TimeRangeContext";
+import { AdLeadData } from "@/api/conversation";
+import { SnackbarContext } from "@/context/SnackbarContext";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -228,61 +236,118 @@ function InsightCard(
   );
 }
 
-async function handleDownload(name: string, insights?: IFacebookAdInsight) {
-  if (!insights) return;
+async function handleDownload(
+  name: string,
+  ads?: PaginatedResponse<AdLeadData>
+) {
+  if (!ads) {
+    throw new Error("No data to download");
+  }
 
-  const HEADER_ROW = [
-    {
-      value: "Insight Key",
+  const excelData = ads.data.reduce((acc, ad) => {
+    if (!ad.leads) return acc;
+    const headerData = ad.leads.data[0].field_data.map((field) => ({
+      value: formatInsightName(field.name),
       fontWeight: "bold",
-    },
+    }));
+    const data = ad.leads.data.reduce((acc, lead) => {
+      const leadData = headerData.map((header) => {
+        const field = lead.field_data.find(
+          (field) => formatInsightName(field.name) === header.value
+        );
+        return {
+          type: String,
+          value: field ? field.values.join(", ") : "",
+        };
+      });
+      acc.push(leadData);
+      return acc;
+    }, [] as any);
+    const obj = {
+      sheet: ad.name,
+      data: [headerData, ...data],
+      columns: headerData.map((c) => ({ width: 40 })),
+    };
+    acc.push(obj);
+    return acc;
+  }, [] as any);
+
+  // const HEADER_ROW = [
+  //   {
+  //     value: "Insight Key",
+  //     fontWeight: "bold",
+  //   },
+  //   {
+  //     value: "Insight Value",
+  //     fontWeight: "bold",
+  //   },
+  // ];
+
+  // const HEADER_ROW_2 = [
+  //   {
+  //     value: "Insight Key",
+  //     fontWeight: "bold",
+  //   },
+  //   {
+  //     value: "Insight Value",
+  //     fontWeight: "bold",
+  //   },
+  // ];
+
+  // const globalKeyObject: Omit<
+  //   IFacebookAdInsight,
+  //   "date_start" | "date_stop" | "actions" | "conversions"
+  // > = omit(insights, ["date_start", "date_stop", "actions", "conversions"]);
+
+  // const globals = Object.keys(globalKeyObject).map((key) => [
+  //   {
+  //     type: String,
+  //     value: formatInsightName(key),
+  //   },
+  //   {
+  //     type: String,
+  //     value: formatInsightValue(
+  //       globalKeyObject[key as keyof typeof globalKeyObject]
+  //     ),
+  //   },
+  // ]);
+
+  // const actions =
+  //   insights?.actions.map((action) => [
+  //     {
+  //       type: String,
+  //       value: formatInsightName(action.action_type),
+  //     },
+  //     {
+  //       type: String,
+  //       value: formatInsightValue(action.value),
+  //     },
+  //   ]) ?? [];
+
+  // const data = [HEADER_ROW, ...globals];
+
+  // const data2 = [HEADER_ROW_2, ...actions];
+
+  console.log("excelData - ", excelData);
+
+  if (excelData.length === 0) {
+    throw new Error("No data to download");
+  }
+
+  await writeXlsxFile(
+    excelData.map((c: any) => c.data),
     {
-      value: "Insight Value",
-      fontWeight: "bold",
-    },
-  ];
-
-  const globalKeyObject: Omit<
-    IFacebookAdInsight,
-    "date_start" | "date_stop" | "actions" | "conversions"
-  > = omit(insights, ["date_start", "date_stop", "actions", "conversions"]);
-
-  const globals = Object.keys(globalKeyObject).map((key) => [
-    {
-      type: String,
-      value: formatInsightName(key),
-    },
-    {
-      type: String,
-      value: formatInsightValue(
-        globalKeyObject[key as keyof typeof globalKeyObject]
-      ),
-    },
-  ]);
-
-  const actions =
-    insights?.actions.map((action) => [
-      {
-        type: String,
-        value: formatInsightName(action.action_type),
-      },
-      {
-        type: String,
-        value: formatInsightValue(action.value),
-      },
-    ]) ?? [];
-
-  const data = [HEADER_ROW, ...globals, ...actions];
-
-  await writeXlsxFile(data, {
-    columns: [{ width: 40 }, { width: 30 }],
-    fileName: name + ".xlsx",
-    fontSize: 14,
-    sheet: name.slice(0, 20),
-  });
+      columns: excelData.map((c: any) => c.columns),
+      fileName: name + ".xlsx",
+      fontSize: 14,
+      sheets: excelData.map((c: any) => c.sheet.slice(0, 30)),
+    }
+  );
 }
 
-export function InsightTitle<T extends { id: string }>({
+export function InsightTitle<
+  T extends { id: string; ads?: PaginatedResponse<AdLeadData> },
+>({
   name,
   data,
   insights,
@@ -301,6 +366,7 @@ export function InsightTitle<T extends { id: string }>({
 }) {
   const [show, setShow] = useState(false);
   const { setSelectAdAccount, setFormState } = useCampaignStore();
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 
   return (
     <div className="overflow-hidden">
@@ -336,9 +402,16 @@ export function InsightTitle<T extends { id: string }>({
             )}
             <MdDownload
               className="text-xl"
-              onClick={(e: any) => {
+              onClick={async (e: any) => {
                 e.stopPropagation();
-                handleDownload(name, insights);
+                try {
+                  await handleDownload(name, data?.ads);
+                } catch (e: any) {
+                  setSnackbarData({
+                    message: e.message ?? "Failed to download data",
+                    status: "error",
+                  });
+                }
               }}
             />
           </div>
@@ -367,6 +440,7 @@ function AdTitle({
   handlePreview?: (props: PreviewProps) => void;
 }) {
   const { setFormState, setSelectAdAccount } = useCampaignStore();
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
   return (
     <div className="flex justify-between items-start fioverflow-hidden">
       <div className="flex gap-4 items-center ">
@@ -427,9 +501,30 @@ function AdTitle({
         )}
         <MdDownload
           className="text-xl"
-          onClick={(e: any) => {
+          onClick={async (e: any) => {
             e.stopPropagation();
-            handleDownload(ad.name, ad.insights?.data[0]);
+            try {
+              await handleDownload(ad.name, {
+                data: [
+                  {
+                    name: ad.name,
+                    id: ad.id,
+                    leads: ad.leads,
+                  },
+                ],
+                paging: {
+                  cursors: {
+                    before: "",
+                    after: "",
+                  },
+                },
+              });
+            } catch (e: any) {
+              setSnackbarData({
+                message: e.message ?? "Failed to download data",
+                status: "error",
+              });
+            }
           }}
         />
       </div>
@@ -451,6 +546,7 @@ export const DeployAdChildCard = ({
   accountId,
   handlePreview,
 }: DeployAdChildCardProps) => {
+  const { timeRange } = useTimeRange();
   const {
     data: adPages,
     isFetching,
@@ -462,6 +558,8 @@ export const DeployAdChildCard = ({
     adsetIds: [adsetId],
     enabled: isActive,
     accountId: accountId,
+    timeRange,
+    get_leads: true,
   });
 
   const ads = useMemo(

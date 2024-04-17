@@ -28,7 +28,7 @@ import ObjectID from "bson-objectid";
 import { compact, omit } from "lodash";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useCredentials } from "./user";
-import { IFacebookAdInsight } from "@/interfaces/ISocial";
+import { IFacebookAdInsight, PaginatedResponse } from "@/interfaces/ISocial";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { useBusiness } from "@/context/BusinessContext";
 import { useSearchParams } from "next/navigation";
@@ -734,22 +734,32 @@ interface CampaignWithInsights {
   status: string;
   objective: string;
   effective_status: string;
-  insights?: {
-    data: IFacebookAdInsight[];
-    paging: {
-      cursors: {
-        before: string;
-        after: string;
-      };
-    };
-  };
+  insights?: PaginatedResponse<IFacebookAdInsight>;
+  ads: PaginatedResponse<AdLeadData>;
   /** This is the campaign Id from meta */
   id: string;
 }
 
-type TimeRange = RangeValueType<Dayjs>;
+export interface AdLeadData {
+  id: string;
+  name: string;
+  leads?: PaginatedResponse<LeadData>;
+}
 
-function prepareTimeRange(timeRange: TimeRange | undefined): string | null {
+export interface LeadData {
+  created_time: string;
+  id: string;
+  field_data: {
+    name: string;
+    values: string[];
+  }[];
+}
+
+export type TimeRange = RangeValueType<Dayjs>;
+
+export function prepareTimeRange(
+  timeRange: TimeRange | undefined
+): string | null {
   if (!timeRange) {
     return null;
   }
@@ -767,10 +777,12 @@ export const useGetCampaignInsights = ({
   campaignId,
   timeRange,
   enabled = true,
+  get_leads = false,
 }: {
   campaignId?: string | null;
   timeRange?: TimeRange;
   enabled?: boolean;
+  get_leads?: boolean;
 }) => {
   const { accessToken } = useCredentials();
 
@@ -780,7 +792,7 @@ export const useGetCampaignInsights = ({
   );
 
   const getCampaignInsights = async ({ queryKey }: QueryFunctionContext) => {
-    const [, accessToken, campaignId, timeRange] = queryKey;
+    const [, accessToken, campaignId, timeRange, get_leads] = queryKey;
 
     if (!accessToken) {
       throw new Error("Access token is required");
@@ -795,6 +807,7 @@ export const useGetCampaignInsights = ({
         access_token: accessToken,
         get_insights: true,
         time_range: timeRange,
+        get_leads: !!get_leads,
       },
     });
 
@@ -805,7 +818,8 @@ export const useGetCampaignInsights = ({
     queryKey: API_QUERIES.GET_CAMPAIGN(
       accessToken,
       campaignId,
-      parsedTimeRange
+      parsedTimeRange,
+      get_leads
     ),
     queryFn: getCampaignInsights,
     enabled: enabled && !!campaignId && !!accessToken,

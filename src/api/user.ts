@@ -25,7 +25,7 @@ import { String } from "aws-sdk/clients/acm";
 import axios, { AxiosError } from "axios";
 import { access } from "fs";
 import { ISnackbarData, SnackbarContext } from "@/context/SnackbarContext";
-import { use, useCallback, useContext } from "react";
+import { use, useCallback, useContext, useMemo } from "react";
 import {
   IAd,
   IAdCampaign,
@@ -41,6 +41,7 @@ import { getServerSession } from "next-auth";
 import { RedirectType, redirect } from "next/navigation";
 import { LinkData } from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/Ads/Create/CreateAd";
 import { ICampaignInfinite } from "./admanager";
+import { TimeRange, prepareTimeRange } from "./conversation";
 
 function getAxiosResponseError(error: any) {
   if (error instanceof Error && error instanceof AxiosError) {
@@ -617,36 +618,6 @@ export function useGetCampaigns(props?: UseGetCampaignsProps) {
   const LIMIT = 5;
   const { accessToken, accountId } = useCredentials();
 
-  // const getCampaigns = async ({ queryKey }: QueryFunctionContext) => {
-  //   const [, accessToken, accountId] = queryKey;
-  //   if (!accessToken) throw new Error("Access token is required");
-  //   if (!accountId) throw new Error("Account id is required");
-  //   const response = await axios.get(ROUTES.ADS.CAMPAIGNS, {
-  //     params: {
-  //       access_token: accessToken,
-  //       account_id: accountId,
-  //     },
-  //   });
-  //   return response.data.data;
-  // };
-
-  // const query = useQuery<IAdCampaign[]>({
-  //   queryKey: API_QUERIES.GET_CAMPAIGNS(accessToken, accountId),
-  //   queryFn: getCampaigns,
-  //   enabled: !!accessToken && !!accountId,
-  //   retry(failureCount, error) {
-  //     if (error instanceof Error && error instanceof AxiosError) {
-  //       return false;
-  //     }
-  //     return failureCount < 3;
-  //   },
-  // });
-
-  // return {
-  //   ...query,
-  //   isFetching: isFetching || query.isFetching,
-  // };
-
   const fetchCampaigns = async (
     pageParam: undefined | string,
     queryKey: QueryKey
@@ -693,21 +664,31 @@ export function useGetAdSets({
   campaignIds,
   enabled = true,
   providedAccountId,
+  timeRange,
+  get_leads,
 }: {
   campaignIds?: string[] | null;
   providedAccountId?: string | null;
   enabled?: boolean;
+  timeRange?: TimeRange;
+  get_leads?: boolean;
 }) {
   const LIMIT = 5;
   const { accessToken, accountId: defaultAccountId } = useCredentials();
 
   const accountId = providedAccountId ?? defaultAccountId;
 
+  const parsedTimeRange = useMemo(
+    () => prepareTimeRange(timeRange),
+    [timeRange]
+  );
+
   const getAdSets = async (
     pageParam: undefined | string,
     queryKey: QueryKey
   ) => {
-    const [, accessToken, accountId, campaignIds] = queryKey;
+    const [, accessToken, accountId, campaignIds, timeRange, get_leads] =
+      queryKey;
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
     if (!campaignIds) throw new Error("Campaign id is required");
@@ -718,13 +699,21 @@ export function useGetAdSets({
         campaign_ids: campaignIds,
         get_insights: true,
         after: pageParam,
+        time_range: timeRange,
+        get_leads: !!get_leads,
       },
     });
     return response.data.data;
   };
 
   return useInfiniteQuery<PaginatedResponse<IAdSet>>({
-    queryKey: API_QUERIES.GET_ADSETS(accessToken, accountId, campaignIds),
+    queryKey: API_QUERIES.GET_ADSETS(
+      accessToken,
+      accountId,
+      campaignIds,
+      parsedTimeRange,
+      get_leads
+    ),
     enabled: enabled && !!accessToken && !!accountId && !!campaignIds,
     queryFn: ({ pageParam, queryKey }: any) => getAdSets(pageParam, queryKey),
     initialPageParam: undefined,
@@ -789,17 +778,36 @@ export function useGetAds({
   adIds,
   enabled = true,
   accountId,
+  timeRange,
+  get_leads,
 }: {
   campaignIds?: string[] | null;
   adsetIds?: string[] | null;
   adIds?: string[] | null;
   enabled?: boolean;
   accountId?: string | null;
+  timeRange?: TimeRange;
+  get_leads?: boolean;
 }) {
   const LIMIT = 5;
   const { accessToken, accountId: defaultAccountId } = useCredentials();
+
+  const parsedTimeRange = useMemo(
+    () => prepareTimeRange(timeRange),
+    [timeRange]
+  );
+
   const getAds = async (pageParam: undefined | string, queryKey: QueryKey) => {
-    const [, accessToken, accountId, adsetIds, campaignIds, adIds] = queryKey;
+    const [
+      ,
+      accessToken,
+      accountId,
+      adsetIds,
+      campaignIds,
+      adIds,
+      parsedTimeRange,
+      get_leads,
+    ] = queryKey;
     if (!accessToken) throw new Error("Access token is required");
     if (!accountId) throw new Error("Account id is required");
     const response = await axios.get(ROUTES.ADS.AD_ENTITIES, {
@@ -811,6 +819,8 @@ export function useGetAds({
         ad_ids: adIds,
         get_insights: true,
         after: pageParam,
+        time_range: parsedTimeRange,
+        get_leads: !!get_leads,
       },
     });
     return response.data.data;
@@ -824,7 +834,9 @@ export function useGetAds({
       _accountId,
       adsetIds,
       campaignIds,
-      adIds
+      adIds,
+      parsedTimeRange,
+      get_leads
     ),
     enabled: !!enabled && !!accessToken && !!_accountId,
     queryFn: ({ pageParam, queryKey }: any) => getAds(pageParam, queryKey),

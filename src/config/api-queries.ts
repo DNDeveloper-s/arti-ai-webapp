@@ -14,8 +14,9 @@ const API_QUERIES = {
   GET_CAMPAIGN: (
     access_token?: string | null,
     campaign_id?: string | null,
-    timeRange?: string | null
-  ) => ["get-campaign", access_token, campaign_id, timeRange],
+    timeRange?: string | null,
+    get_leads?: boolean | null
+  ) => ["get-campaign", access_token, campaign_id, timeRange, get_leads],
   GET_AD_ACCOUNTS: (access_token?: string | null) => [
     "get-ad-accounts",
     access_token,
@@ -75,8 +76,17 @@ const API_QUERIES = {
   GET_ADSETS: (
     access_token?: string | null,
     account_id?: string | null,
-    campaign_ids?: string[] | null
-  ) => ["get-adsets", access_token, account_id, campaign_ids],
+    campaign_ids?: string[] | null,
+    parsedTimeRange?: string | null,
+    get_leads?: boolean | null
+  ) => [
+    "get-adsets",
+    access_token,
+    account_id,
+    campaign_ids,
+    parsedTimeRange,
+    get_leads,
+  ],
   GET_ADSET: (access_token?: string | null, adset_id?: string | null) => [
     "get-adset",
     access_token,
@@ -88,8 +98,19 @@ const API_QUERIES = {
     account_id?: string | null,
     adset_ids?: string[] | null,
     campaign_ids?: string[] | null,
-    ad_ids?: string[] | null
-  ) => ["get-ads", access_token, account_id, adset_ids, campaign_ids, ad_ids],
+    ad_ids?: string[] | null,
+    parsedTimeRange?: string | null,
+    get_leads?: boolean | null
+  ) => [
+    "get-ads",
+    access_token,
+    account_id,
+    adset_ids,
+    campaign_ids,
+    ad_ids,
+    parsedTimeRange,
+    get_leads,
+  ],
   CREATE_CAMPAIGN: ["create-campaign"],
   CREATE_ADSET: ["create-adset"],
   CREATE_AD: ["create-ad"],
