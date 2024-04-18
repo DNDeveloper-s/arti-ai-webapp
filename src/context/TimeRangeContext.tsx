@@ -45,13 +45,8 @@ const useTimeRangeContext = (initState: ITimeRangeState) => {
     RangeValueType<Dayjs> | undefined
   >(undefined);
 
-  function setRangeValueFn(props: any) {
-    console.log("props - ", props);
-    setRangeValue(props);
-  }
-
   return {
-    setTimeRange: setRangeValueFn,
+    setTimeRange: setRangeValue,
     state,
     timeRange: rangeValue,
     dispatch,

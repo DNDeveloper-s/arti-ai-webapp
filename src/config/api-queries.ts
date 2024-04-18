@@ -1,4 +1,10 @@
 const API_QUERIES = {
+  GET_LEADS: (
+    accessToken?: string | null,
+    type?: string | null,
+    id?: string | null,
+    timeRange?: string | null
+  ) => ["get-leads", accessToken, type, id, timeRange],
   GET_CREDIT_BALANCE: ["get-credit-balance"],
   USER_PAGES: (access_token?: string | null) => ["user-pages", access_token],
   USER_FACEBOOK_POSTS: (page_id: string, page_access_token: string) => [

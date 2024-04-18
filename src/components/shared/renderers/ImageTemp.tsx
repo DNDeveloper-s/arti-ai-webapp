@@ -1,4 +1,5 @@
 import { useUser } from "@/context/UserContext";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import Image from "next/image";
 import { ReactNode, useState } from "react";
 import { IoMdImages } from "react-icons/io";
@@ -7,7 +8,7 @@ export default function ImageTemp(props: any) {
   const { state } = useUser();
 
   return state.data?.email === "ramukakano211@gmail.com" ? (
-    <img {...props} />
+    <Image {...props} />
   ) : (
     <Image {...props} />
   );
@@ -60,11 +61,16 @@ const FallbackImage = ({
 };
 
 interface AppDefaultImageProps
-  extends React.DetailedHTMLProps<
-    React.ImgHTMLAttributes<HTMLImageElement>,
-    HTMLImageElement
+  extends Omit<
+    React.DetailedHTMLProps<
+      React.ImgHTMLAttributes<HTMLImageElement>,
+      HTMLImageElement
+    >,
+    "src" | "ref"
   > {
   fallback?: ReactNode;
+  ref?: React.Ref<HTMLImageElement>;
+  src: string | StaticImport;
   FallbackProps?: React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLDivElement>,
     HTMLDivElement
@@ -73,6 +79,8 @@ interface AppDefaultImageProps
 export const AppDefaultImage = ({
   fallback,
   FallbackProps,
+  src,
+  ref,
   ...props
 }: AppDefaultImageProps) => {
   const [hasError, setHasError] = useState(false);
@@ -82,9 +90,18 @@ export const AppDefaultImage = ({
   };
 
   return hasError ? (
-    fallback ?? <FallbackImage {...props} FallbackProps={FallbackProps} />
+    fallback ?? (
+      <FallbackImage src={src} {...props} FallbackProps={FallbackProps} />
+    )
   ) : (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img alt="" onError={handleError} {...props} />
+    <Image
+      alt=""
+      onError={handleError}
+      {...props}
+      width={+(props.width ?? 100)}
+      height={+(props.height ?? 100)}
+      placeholder={"blur"}
+      src={src}
+    />
   );
 };

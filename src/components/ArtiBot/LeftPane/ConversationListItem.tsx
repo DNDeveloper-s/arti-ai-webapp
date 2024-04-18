@@ -10,7 +10,7 @@ import { useConversation } from "@/context/ConversationContext";
 import { IoMdImages } from "react-icons/io";
 import { InfiniteConversation, useGetConversation } from "@/api/conversation";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
-import { sortBy } from "lodash";
+import { random, sortBy } from "lodash";
 import ImageTemp from "@/components/shared/renderers/ImageTemp";
 
 export function NoImage({
@@ -55,32 +55,7 @@ interface CardStackImagesProps {
   images: ImageType[];
 }
 export const CardStackImages: FC<CardStackImagesProps> = ({ images }) => {
-  // function loadImage(image: ImageType, index: number) {
-  //   const img = new Image();
-  //   img.src = image as string;
-  //   console.log("img - ", image);
-
-  //   img.onerror = () => {
-  //     setImages((c) => {
-  //       c[index] = null;
-  //       return c;
-  //     });
-  //   };
-
-  //   img.onload = () => {
-  //     setImages((c) => {
-  //       c[index] = image;
-  //       return c;
-  //     });
-  //   };
-  // }
-
-  // useEffect(() => {
-  //   loadImage(_images[0], 0);
-  //   loadImage(_images[1], 1);
-  // }, [_images]);
-
-  return !images[1] && !images[2] ? (
+  return !images[0] && !images[1] ? (
     <div className={"w-8 h-8 rounded relative flex-shrink-0"}>
       <div
         className={
@@ -145,6 +120,34 @@ export const CardStackImages: FC<CardStackImagesProps> = ({ images }) => {
   );
 };
 
+const DummyProjectName = "Thi si muy caamdsf asdlfj lasjdfkl asjdf";
+
+export function ConversationListItemShimmer() {
+  const projectName = useMemo(() => {
+    return DummyProjectName.slice(0, random(17, 23));
+  }, []);
+
+  const projectType = useMemo(() => {
+    return random(0, 1) === 0 ? "Social Media Post" : "Ad Creative";
+  }, []);
+
+  return (
+    <div
+      className={
+        "animate-pulse flex gap-4 mx-2 px-4 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
+      }
+    >
+      <CardStackImages images={[]} />
+      <div className={"flex-shrink-0 flex flex-col justify-center gap-1"}>
+        <p className={"app-shimmer rounded truncate text-sm"}>{projectName}</p>
+        <p className={"app-shimmer rounded text-xs text-gray-500"}>
+          {projectType}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 interface ConversationListItemProps {
   conversation: InfiniteConversation;
 }
@@ -173,6 +176,7 @@ const ConversationListItem: FC<ConversationListItemProps> = ({
       conversation.adCreatives,
       "updatedAt"
     ).pop();
+
     if (!latestAdCreative) return;
 
     const sortedVariant = sortBy(
@@ -181,8 +185,9 @@ const ConversationListItem: FC<ConversationListItemProps> = ({
     ).reverse();
 
     const variantImages = sortedVariant.map((v) => v.imageUrl);
+
     setImages(variantImages);
-  }, [conversation.adCreatives]);
+  }, [conversation.adCreatives, conversation.id]);
 
   const url = useMemo(
     () => getConversationURL(conversation.id, conversation.conversation_type),

@@ -121,6 +121,7 @@ type DestinationType =
 export interface IAdSet {
   id: string;
   name: string;
+  account_id?: string;
   optimization_goal: OptimisationGoal;
   bid_strategy: string;
   destination_type?: DestinationType;
@@ -181,6 +182,7 @@ export interface IAd {
   creative: {
     id: string;
     image_url?: string;
+    thumbnail_url?: string;
     status: "ACTIVE" | "PAUSED";
     object_story_spec?: {
       page_id?: string;
@@ -224,5 +226,5 @@ export type OptimisationGoal =
 
 export interface PaginatedResponse<T> {
   data: T[];
-  paging: Paging;
+  paging?: Paging;
 }

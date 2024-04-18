@@ -166,8 +166,8 @@ export const getCampaignPageUrl = (campaignId?: string) => {
 
 export const isProduction = process.env.NODE_ENV === "production";
 
-export const getNextImageProxyUrl = (url: string) => {
-  return `${window ? window.location.origin : "https://artiai.org"}/_next/image?url=${url}&w=1080&q=75`;
+export const getNextImageProxyUrl = (url: string, useProd?: boolean) => {
+  return `${window && !useProd ? window.location.origin : "https://artiai.org"}/_next/image?url=${url}&w=1080&q=75`;
 };
 
 export const debounce = (fn: Function, delay: number) => {

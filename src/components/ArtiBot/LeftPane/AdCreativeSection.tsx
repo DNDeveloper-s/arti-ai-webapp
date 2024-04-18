@@ -1,5 +1,7 @@
 import { useMemo } from "react";
-import AdCreativeListItem from "./AdCreativeListItem";
+import AdCreativeListItem, {
+  AdCreativeListItemShimmer,
+} from "./AdCreativeListItem";
 import { PaginatedList } from "./LeftPane";
 import { useGetVariantsByConversation } from "@/api/conversation";
 
@@ -10,6 +12,7 @@ export default function AdCreativeSection() {
     hasNextPage,
     isFetching,
     isFetchingNextPage,
+    isPending,
     ...props
   } = useGetVariantsByConversation();
   const adCreatives = useMemo(
@@ -28,6 +31,8 @@ export default function AdCreativeSection() {
           handleLoadMore={props.fetchNextPage}
           loading={isLoading || isFetching || isFetchingNextPage}
         >
+          {isPending &&
+            [1, 2, 3, 4].map((ind) => <AdCreativeListItemShimmer key={ind} />)}
           {adCreatives.map((variantByConversation) => (
             <AdCreativeListItem
               key={variantByConversation.id}

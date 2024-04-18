@@ -1562,15 +1562,22 @@ export const useGetInterests = (
   });
 };
 
+export function prefixAccountId(account_id?: string) {
+  if (!account_id) return account_id;
+  if (account_id.startsWith("act_")) return account_id;
+  return `act_${account_id}`;
+}
+
 export const useCredentials = () => {
   const { state } = useUser();
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   ).userAccessToken;
   const { selectedAccountId } = useCampaignStore();
+
   return {
     accessToken,
-    accountId: selectedAccountId,
+    accountId: prefixAccountId(selectedAccountId),
     /**@deprecated */
     isFetching: false,
   };

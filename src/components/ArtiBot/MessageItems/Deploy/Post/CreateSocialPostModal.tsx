@@ -150,7 +150,7 @@ function CreateSocialPostModalContent(
                       onLoad={() => {
                         setValue(
                           "imageUrl",
-                          getNextImageProxyUrl(selectedVariant.imageUrl)
+                          getNextImageProxyUrl(selectedVariant.imageUrl, true)
                         );
                       }}
                       alt="placeholder"

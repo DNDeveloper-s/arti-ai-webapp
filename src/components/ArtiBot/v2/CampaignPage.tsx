@@ -12,7 +12,7 @@ import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import ErrorComponent from "@/components/shared/error/ErrorComponent";
 import DateRangePicker from "@/components/shared/renderers/DateRangePicker";
 import { RangeValueType } from "rc-picker/lib/PickerInput/RangePicker";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { CampaignTab } from "@/store/campaign";
 import { LoadMoreButton } from "../LeftPane/LeftPane";
 import CreateAdManagerModal from "../MessageItems/Deploy/Ad/CreateAdManagerModal";
@@ -75,6 +75,7 @@ const CampaignChildCard = ({
                 data={adset}
                 tab={CampaignTab.ADSETS}
                 ad_account_id={accountId}
+                type="adsets"
               />
             </ErrorBoundary>
           ),
@@ -134,6 +135,10 @@ const CampaignChildCard = ({
 export default function CampaignPage({ campaignId }: { campaignId: string }) {
   const { timeRange, setTimeRange } = useTimeRange();
 
+  useEffect(() => {
+    setTimeRange([dayjs().subtract(7, "days"), dayjs()]);
+  }, [setTimeRange]);
+
   const { data, isFetching, ...props } = useGetCampaignInsights({
     campaignId,
     timeRange: timeRange,
@@ -157,7 +162,7 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
     setOpen(false);
   }, [setOpen]);
 
-  const adsetItems = useMemo(() => {
+  const campaignItems = useMemo(() => {
     if (!data) return [];
     return [
       {
@@ -171,6 +176,7 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
               insights={data.insights?.data[0]}
               tab={CampaignTab.CAMPAIGNS}
               ad_account_id={data.ad_account_id}
+              type="campaigns"
             />
           </ErrorBoundary>
         ),
@@ -213,7 +219,7 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
             className="w-full bg-gray-800"
             onChange={onChange}
             defaultActiveKey={activeKeys}
-            items={adsetItems}
+            items={campaignItems}
             expandIcon={({ isActive }) => (
               <BiCaretRight style={{ rotate: `${isActive ? 90 : 0}deg` }} />
             )}

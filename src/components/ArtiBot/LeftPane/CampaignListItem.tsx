@@ -44,11 +44,11 @@ export const CampaignListItemShimmer = () => {
   return (
     <div
       className={
-        "flex flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
+        "animate-pulse flex flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
       }
     >
       <div className="flex gap-4 items-start ">
-        <CardStackImages images={[]} />
+        {/* <CardStackImages images={[]} /> */}
         <span className={"app-shimmer rounded truncate"}>My one Campaign</span>
       </div>
       <CampaignInsightShimmer />
@@ -71,7 +71,6 @@ interface CampaignListItemProps {
 }
 
 const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
-  const [images, setImages] = useState<ImageType[]>([]);
   const router = useRouter();
   const { ref, isInView } = useInView();
   // const { data: campaignWithInsights, isLoading } = useGetCampaignInsights({
@@ -110,7 +109,7 @@ const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
       }
     >
       <div className="flex gap-4 items-start ">
-        <CardStackImages images={images} />
+        {/* <CardStackImages images={images} /> */}
         <div>
           <span className={"truncate"}>{campaign.name}</span>
           {noInsights && (

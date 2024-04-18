@@ -36,6 +36,8 @@ const pickValidKeys = (obj: object): Record<string, string> => {
   ) as Record<string, string>;
 };
 
+export type AD_MANAGER_ITEM = "campaigns" | "adsets" | "ad_entities";
+
 export const ROUTES = {
   UTIL: {
     TEXT_TO_IMAGE: apiUrl("/utils/text-to-image"),
@@ -43,6 +45,10 @@ export const ROUTES = {
   },
   BUSINESS: {
     ME: apiUrl("/users/me/business"),
+  },
+  MARKETING: {
+    LEADS: (type: AD_MANAGER_ITEM, id: string) =>
+      apiUrl(`/marketing/${type}/${id}/leads`),
   },
   CAMPAIGN: {
     QUERY_INFINITE: apiUrl("/marketing/campaigns"),

@@ -1,3 +1,4 @@
+import { prefixAccountId } from "@/api/user";
 import { IAdVariant } from "@/interfaces/IArtiBot";
 import { IAdCampaign } from "@/interfaces/ISocial";
 import { Selection } from "@nextui-org/react";
@@ -116,7 +117,7 @@ const useCampaignStore = create<CampaignState & CampaignActions>((set) => ({
     }));
   },
   setSelectAdAccount: (accountId: string) => {
-    set({ selectedAccountId: accountId });
+    set({ selectedAccountId: prefixAccountId(accountId) });
   },
   viewAdsByAdset: (adsetId: string) => {
     set((state) => ({

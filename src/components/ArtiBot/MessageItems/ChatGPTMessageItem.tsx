@@ -208,6 +208,8 @@ export const welcomeMessage = {
     "Hello! I am Arti, an AI with proficiency in consultancy. I am here to help you understand key SWOT parameters for your business, provide insights on how to improve your marketing, digital presence, and overall offering. May I know your name, profession, and what your business is about?",
   [ConversationType.SOCIAL_MEDIA_POST]:
     "Hello! I'm Arti, your AI assistant for social media management. 🌟 Whether you're promoting your business or sharing personal updates, I'm here to make it easy. Let's craft eye-catching posts and schedule them for optimal engagement. To get started, could you please tell me your name and what you're looking to achieve with your social media presence? Additionally, let me know which platforms you'd like to target and any specific ideas you have in mind for your posts. Let's elevate your social media game together! 🚀",
+
+  "": "Hello! I am Arti, an AI with a background in creating social media content. I can assist you in crafting captivating social media posts for various platforms. May I please know your name and your role in this project? Additionally, could you let me know the type of post you wish to create and where you intend to display these posts?  ",
 };
 
 export const ChatGPTMessageWelcomeMessage = ({

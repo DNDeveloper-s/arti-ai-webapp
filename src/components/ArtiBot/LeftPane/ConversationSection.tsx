@@ -1,5 +1,7 @@
 import { useGetConversationInfinite } from "@/api/conversation";
-import ConversationListItem from "./ConversationListItem";
+import ConversationListItem, {
+  ConversationListItemShimmer,
+} from "./ConversationListItem";
 import { PaginatedList } from "./LeftPane";
 
 export default function ConversationSection() {
@@ -24,6 +26,10 @@ export default function ConversationSection() {
           handleLoadMore={props.fetchNextPage}
           loading={isLoading || isFetching || isFetchingNextPage}
         >
+          {isLoading &&
+            [1, 2, 3, 4].map((ind) => (
+              <ConversationListItemShimmer key={ind} />
+            ))}
           {conversations.map((conversation) => (
             <ConversationListItem
               key={conversation.id}

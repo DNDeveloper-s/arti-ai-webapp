@@ -1,5 +1,5 @@
 import { IAdCreative, IAdCreativeNew } from "@/interfaces/IAdCreative";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getConversationURL } from "@/helpers";
 import { ConversationType } from "@/interfaces/IConversation";
@@ -10,7 +10,28 @@ import {
   ImageType,
 } from "@/components/ArtiBot/LeftPane/ConversationListItem";
 import { IAdVariant } from "@/interfaces/IArtiBot";
-import { sortBy } from "lodash";
+import { random, sortBy } from "lodash";
+
+const DummyProjectName = "Thi si muy caamdsf asdlfj lasjdfkl asjdf";
+
+export function AdCreativeListItemShimmer() {
+  const projectName = useMemo(() => {
+    return DummyProjectName.slice(0, random(15, 23));
+  }, []);
+
+  return (
+    <div
+      className={
+        "animate-pulse flex gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
+      }
+    >
+      <CardStackImages images={[]} />
+      <div>
+        <span className={"app-shimmer rounded truncate"}>{projectName}</span>
+      </div>
+    </div>
+  );
+}
 
 interface AdCreativeListItemProps {
   conversationId: string;

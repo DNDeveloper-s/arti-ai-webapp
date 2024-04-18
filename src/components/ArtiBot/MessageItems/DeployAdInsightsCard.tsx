@@ -17,7 +17,7 @@ import {
   IFacebookAdInsight,
   PaginatedResponse,
 } from "@/interfaces/ISocial";
-import { useGetAds, useGetCampaigns } from "@/api/user";
+import { prefixAccountId, useGetAds, useGetCampaigns } from "@/api/user";
 import { botData } from "@/constants/images";
 import { MdDownload, MdEdit, MdRemoveRedEye } from "react-icons/md";
 import writeXlsxFile from "write-excel-file";
@@ -29,6 +29,8 @@ import { PreviewProps } from "./Deploy/Ad/components/Ads/Create/CreateAd";
 import { useTimeRange } from "@/context/TimeRangeContext";
 import { AdLeadData } from "@/api/conversation";
 import { SnackbarContext } from "@/context/SnackbarContext";
+import { useFetchLeadsData } from "@/api/admanager";
+import { AD_MANAGER_ITEM } from "@/config/api-config";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -245,7 +247,7 @@ async function handleDownload(
   }
 
   const excelData = ads.data.reduce((acc, ad) => {
-    if (!ad.leads) return acc;
+    if (!ad.leads || ad.leads?.data?.length === 0) return acc;
     const headerData = ad.leads.data[0].field_data.map((field) => ({
       value: formatInsightName(field.name),
       fontWeight: "bold",
@@ -355,6 +357,7 @@ export function InsightTitle<
   label = "adset",
   tab,
   ad_account_id,
+  type = "campaigns",
 }: {
   name: string;
   data?: T;
@@ -363,10 +366,25 @@ export function InsightTitle<
   label?: "adset" | "campaign" | "ad";
   tab?: CampaignTab;
   ad_account_id?: string;
+  type: "adsets" | "campaigns";
 }) {
   const [show, setShow] = useState(false);
   const { setSelectAdAccount, setFormState } = useCampaignStore();
   const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+
+  const { mutate: fetchLeadsData, isPending: isLeadsDataFetching } =
+    useFetchLeadsData<typeof type>({
+      onSuccess: async (data, variables, context) => {
+        try {
+          await handleDownload(name, data);
+        } catch (e: any) {
+          setSnackbarData({
+            message: e.message ?? "Failed to download data",
+            status: "error",
+          });
+        }
+      },
+    });
 
   return (
     <div className="overflow-hidden">
@@ -400,20 +418,21 @@ export function InsightTitle<
                 }}
               />
             )}
-            <MdDownload
-              className="text-xl"
-              onClick={async (e: any) => {
-                e.stopPropagation();
-                try {
-                  await handleDownload(name, data?.ads);
-                } catch (e: any) {
-                  setSnackbarData({
-                    message: e.message ?? "Failed to download data",
-                    status: "error",
-                  });
-                }
-              }}
-            />
+            {data?.id &&
+              (isLeadsDataFetching ? (
+                <Spinner size="sm" />
+              ) : (
+                <MdDownload
+                  className="text-xl"
+                  onClick={async (e: any) => {
+                    e.stopPropagation();
+                    fetchLeadsData({
+                      type,
+                      id: data?.id,
+                    });
+                  }}
+                />
+              ))}
           </div>
         </div>
       </div>
@@ -441,6 +460,35 @@ function AdTitle({
 }) {
   const { setFormState, setSelectAdAccount } = useCampaignStore();
   const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+
+  const { mutate: fetchLeadsData, isPending: isLeadsDataFetching } =
+    useFetchLeadsData<"ad_entities">({
+      onSuccess: async (data, variables, context) => {
+        try {
+          await handleDownload(ad.name, {
+            data: [
+              {
+                id: ad.id,
+                name: ad.name,
+                leads: data,
+              },
+            ],
+            paging: {
+              cursors: {
+                before: "",
+                after: "",
+              },
+            },
+          });
+        } catch (e: any) {
+          setSnackbarData({
+            message: e.message ?? "Failed to download data",
+            status: "error",
+          });
+        }
+      },
+    });
+
   return (
     <div className="flex justify-between items-start fioverflow-hidden">
       <div className="flex gap-4 items-center ">
@@ -456,7 +504,11 @@ function AdTitle({
           classNames={{
             base: "flex-shrink-0",
           }}
-          src={ad.creative.image_url ?? botData.image.src}
+          src={
+            ad.creative.thumbnail_url ??
+            ad.creative.image_url ??
+            botData.image.src
+          }
         />
         <div className="flex flex-col gap-1">
           <span className="text-sm font-medium">{ad.name}</span>
@@ -499,7 +551,22 @@ function AdTitle({
             }}
           />
         )}
-        <MdDownload
+        {ad.id &&
+          (isLeadsDataFetching ? (
+            <Spinner size="sm" />
+          ) : (
+            <MdDownload
+              className="text-xl"
+              onClick={async (e: any) => {
+                e.stopPropagation();
+                fetchLeadsData({
+                  type: "ad_entities",
+                  id: ad?.id,
+                });
+              }}
+            />
+          ))}
+        {/* <MdDownload
           className="text-xl"
           onClick={async (e: any) => {
             e.stopPropagation();
@@ -526,7 +593,7 @@ function AdTitle({
               });
             }
           }}
-        />
+        /> */}
       </div>
     </div>
   );
@@ -537,7 +604,7 @@ function AdTitle({
 interface DeployAdChildCardProps {
   isActive: boolean;
   adsetId: string;
-  accountId: string;
+  accountId?: string;
   handlePreview?: (props: PreviewProps) => void;
 }
 export const DeployAdChildCard = ({
@@ -667,6 +734,7 @@ export const DeployAdInsightsCard = (props: DeployAdInsightsCardProps) => {
             <DeployAdChildCard
               isActive={activeKeys.includes("1")}
               adsetId={props.adset?.id}
+              accountId={prefixAccountId(props.adset?.account_id)}
             />
           </ErrorBoundary>
         ),

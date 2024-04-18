@@ -128,7 +128,7 @@ const MessageContainer: FC<MessageContainerProps> = ({
               src={WavingHand}
               alt="Arti AI welcomes you"
             />
-            <span>, How can Arti Ai help you?</span>
+            <span>, How can Arti AI help you?</span>
           </div>
           <div className="h-0.5 ml-5 flex-1 bg-gray-800" />
         </div>
