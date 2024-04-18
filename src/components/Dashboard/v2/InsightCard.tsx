@@ -35,7 +35,7 @@ export default function InsightCard({ campaign, last7Day }: InsightCardProps) {
     <Link
       href={`/artibot/ad_creative?campaign_id=${campaign.id}`}
       className={
-        "w-[25rem] flex-shrink-0 h-[13rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground"
+        "w-[25rem] flex flex-col flex-shrink-0 h-[13rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground"
       }
       prefetch={true}
     >
