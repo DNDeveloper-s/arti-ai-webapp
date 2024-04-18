@@ -607,6 +607,7 @@ export function useLinkAccount() {
 interface UseGetCampaignsProps {
   get_insights?: boolean;
   enabled?: boolean;
+  time_range?: TimeRange;
 }
 
 interface GetCampaignsInifiniteResponse {
@@ -617,19 +618,21 @@ interface GetCampaignsInifiniteResponse {
 export function useGetCampaigns(props?: UseGetCampaignsProps) {
   const LIMIT = 5;
   const { accessToken, accountId } = useCredentials();
+  const parsedTimeRange = prepareTimeRange(props?.time_range);
 
   const fetchCampaigns = async (
     pageParam: undefined | string,
     queryKey: QueryKey
   ) => {
-    const [, accountId, accessToken, get_insights] = queryKey;
+    const [, accountId, accessToken, get_insights, parsedTimeRange] = queryKey;
     const response = await axios.get(ROUTES.CAMPAIGN.QUERY_INFINITE, {
       params: {
-        account_id: accountId,
+        account_id: accountId ?? "act_167093713134679",
         access_token: accessToken,
         limit: LIMIT,
         get_insights: !!get_insights,
         after: pageParam,
+        time_range: parsedTimeRange,
       },
     });
 
@@ -642,7 +645,8 @@ export function useGetCampaigns(props?: UseGetCampaignsProps) {
     queryKey: API_QUERIES.GET_INFINITE_CAMPAIGNS(
       accountId,
       accessToken,
-      props?.get_insights
+      props?.get_insights,
+      parsedTimeRange
     ),
     queryFn: ({ pageParam, queryKey }: any) =>
       fetchCampaigns(pageParam, queryKey),

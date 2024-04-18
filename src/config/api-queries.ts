@@ -1,3 +1,5 @@
+import { TimeRange } from "@/api/conversation";
+
 const API_QUERIES = {
   GET_LEADS: (
     accessToken?: string | null,
@@ -69,8 +71,15 @@ const API_QUERIES = {
   GET_INFINITE_CAMPAIGNS: (
     account_id?: string | null,
     access_token?: string | null,
-    get_insights?: boolean | null
-  ) => ["get-infinite-campaigns", account_id, access_token, get_insights],
+    get_insights?: boolean | null,
+    time_range?: string | null
+  ) => [
+    "get-infinite-campaigns",
+    account_id,
+    access_token,
+    get_insights,
+    time_range,
+  ],
   GET_CONVERSATION: (conversation_id?: string | null) => [
     "get-conversation",
     conversation_id,

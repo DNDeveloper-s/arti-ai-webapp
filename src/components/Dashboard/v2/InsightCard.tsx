@@ -13,13 +13,16 @@ import { TbBulbFilled } from "react-icons/tb";
 
 interface InsightCardProps {
   campaign: ICampaignInfinite;
+  last7Day: ICampaignInfinite | undefined;
 }
-export default function InsightCard({ campaign }: InsightCardProps) {
+export default function InsightCard({ campaign, last7Day }: InsightCardProps) {
   const insights = campaign.insights?.data || [];
   const latestInsight = insights[0] ?? {};
   const extractedInsight = extractFromInsights(latestInsight);
-  const noInsights = !extractedInsight;
-  const hasInsights = !!extractedInsight;
+
+  const last7Insights = last7Day?.insights?.data || [];
+  const last7DayInsight = last7Insights[0] ?? {};
+  const extractedLast7Insight = extractFromInsights(last7DayInsight);
 
   const globalKeyObject = omit(latestInsight, [
     "date_start",
@@ -36,71 +39,60 @@ export default function InsightCard({ campaign }: InsightCardProps) {
       }
       prefetch={true}
     >
-      <div className="pointer-events-none w-full h-full absolute top-0 z-10 left-0 bg-[linear-gradient(180deg,_rgba(0,0,0,0.00)_55.23%,_rgba(0,0,0,0.61)_77%,_rgba(0,0,0,0.82)_100%)]" />
+      {/* <div className="pointer-events-none w-full h-full absolute top-0 z-10 left-0 bg-[linear-gradient(180deg,_rgba(0,0,0,0.00)_55.23%,_rgba(0,0,0,0.61)_77%,_rgba(0,0,0,0.82)_100%)]" /> */}
       <div className="py-3 px-3 flex items-center justify-between">
         <h2 className="whitespace-nowrap w-full overflow-hidden overflow-ellipsis mr-5 text-base font-medium text-primary">
           {campaign.name}
         </h2>
       </div>
-      <div className="flex flex-col">
-        <div className="flex justify-evenly">
-          <div className="flex flex-col items-end">
-            <div className="flex gap-1 items-center">
-              <TbBulbFilled className="text-primary text-3xl" />
-              <p className="text-xl mt-1">
-                {extractedInsight?.impressions ?? 0}
-              </p>
-            </div>
-            <div>
-              <span className="text-xs text-gray-500">Impressions</span>
-            </div>
+      <div className="flex-1 flex flex-col pb-2">
+        <div className="flex-1 grid grid-cols-3 w-full">
+          <div className="flex items-center justify-center">
+            <span className="text-xl">
+              {extractedLast7Insight?.impressions ?? 0}
+            </span>
           </div>
-          <div className="flex flex-col items-end">
-            <div className="flex gap-2 items-center">
-              <FaHandshakeSimple className="text-primary text-3xl" />
-              <p className="text-xl mt-1">{extractedInsight?.leads ?? 0}</p>
-            </div>
-            <div>
-              <span className="text-xs text-gray-500">Leads</span>
-            </div>
+          <div className="flex items-center justify-center">
+            <span className="text-xl">{extractedLast7Insight?.leads ?? 0}</span>
           </div>
-          <div className="flex flex-col items-end">
-            <div className="flex gap-2 items-center">
-              <IoWallet className="text-primary text-2xl" />
-              <p className="text-xl mt-1">${extractedInsight?.spent ?? 0}</p>
-            </div>
-            <div>
-              <span className="text-xs text-gray-500">Spent</span>
-            </div>
+          <div className="flex items-center justify-center">
+            <span className="text-xl">{extractedLast7Insight?.spent ?? 0}</span>
           </div>
         </div>
-        <div className="px-5 grid grid-cols-4 gap-3 mt-3">
-          {Object.keys(globalKeyObject).map((key, index) => (
-            <div key={key} className="flex justify-end">
-              <div className="flex flex-col items-end gap-1 py-1 px-2 bg-gray-800 rounded">
-                <p className="text-sm text-gray-200">
-                  {formatInsightValue(
-                    globalKeyObject[key as keyof typeof globalKeyObject]
-                  )}
-                </p>
-                <p className="text-[10px] text-gray-500">
-                  {formatInsightName(key)}
-                </p>
-              </div>
-            </div>
-          ))}
-          {latestInsight?.actions?.map((action, index) => (
-            <div key={action.action_type} className="flex justify-end">
-              <div className="flex flex-col items-end gap-1 py-1 px-2 bg-gray-800 rounded">
-                <p className="text-sm text-gray-200">
-                  {formatInsightValue(action.value)}
-                </p>
-                <p className="text-[10px] text-gray-500">
-                  {formatInsightName(action.action_type)}
-                </p>
-              </div>
-            </div>
-          ))}
+        <div className="w-full flex justify-end pr-6">
+          <p className="text-gray-500 text-[10px]">Last 7 days</p>
+        </div>
+        <Divider className="my-1 w-[90%] mx-auto opacity-40" />
+        <div className="flex-1 grid grid-cols-3 w-full">
+          <div className="flex items-center justify-center">
+            <span className="text-xl">
+              {extractedInsight?.impressions ?? 0}
+            </span>
+          </div>
+          <div className="flex items-center justify-center">
+            <span className="text-xl">{extractedInsight?.leads ?? 0}</span>
+          </div>
+          <div className="flex items-center justify-center">
+            <span className="text-xl">${extractedInsight?.spent ?? 0}</span>
+          </div>
+        </div>
+        <div className="w-full flex justify-end pr-6">
+          <p className="text-gray-500 text-[10px]">Lifetime</p>
+        </div>
+        <Divider className="my-1 w-[90%] mx-auto opacity-40" />
+        <div className="flex-1 grid grid-cols-3 w-full">
+          <div className="flex items-center gap-1 justify-center">
+            <TbBulbFilled className="text-primary text-3xl" />
+            <span className="text-gray-400 text-xs mt-1">Impressions</span>
+          </div>
+          <div className="flex items-center gap-1 justify-center">
+            <FaHandshakeSimple className="text-primary text-3xl" />
+            <span className="text-gray-400 text-xs">Leads</span>
+          </div>
+          <div className="flex items-center gap-1 justify-center">
+            <IoWallet className="text-primary text-2xl" />
+            <span className="text-gray-400 text-xs">Spent</span>
+          </div>
         </div>
       </div>
     </Link>

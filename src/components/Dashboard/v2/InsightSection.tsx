@@ -8,12 +8,26 @@ import useCampaignStore from "@/store/campaign";
 import InsightCard from "./InsightCard";
 import { useGetCampaigns } from "@/api/user";
 import { useGetInifiniteCampaigns } from "@/api/admanager";
+import dayjs from "dayjs";
 
 export default function InsightSection() {
-  const { data, isLoading, hasNextPage, ...props } = useGetInifiniteCampaigns();
+  const { data, isLoading, hasNextPage, ...props } = useGetCampaigns();
+  const {
+    data: last7DaysData,
+    isLoading: is7DaysLoading,
+    hasNextPage: has7DaysNextPage,
+    ...props7Days
+  } = useGetCampaigns({
+    time_range: [dayjs().subtract(7, "days"), dayjs()],
+  });
   const campaigns = useMemo(
     () => data?.pages.map((page) => page.data).flat() || [],
     [data]
+  );
+
+  const last7DaysCampaigns = useMemo(
+    () => last7DaysData?.pages.map((page) => page.data).flat() || [],
+    [last7DaysData]
   );
   const { ref, isInView } = useInView();
 
@@ -22,6 +36,12 @@ export default function InsightSection() {
       props.fetchNextPage();
     }
   }, [isInView, props, hasNextPage]);
+
+  useEffect(() => {
+    if (isInView && !props7Days.isFetching && has7DaysNextPage) {
+      props7Days.fetchNextPage();
+    }
+  }, [isInView, props7Days, has7DaysNextPage]);
 
   const waiting = isLoading && campaigns.length === 0;
   const empty = !waiting && campaigns.length === 0;
@@ -52,7 +72,11 @@ export default function InsightSection() {
         )}
         {notEmpty &&
           campaigns.map((campaign) => (
-            <InsightCard key={campaign.id} campaign={campaign} />
+            <InsightCard
+              key={campaign.id}
+              campaign={campaign}
+              last7Day={last7DaysCampaigns.find((c) => c.id === campaign.id)}
+            />
           ))}
         {hasNextPage && (
           <div
