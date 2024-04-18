@@ -277,7 +277,7 @@ export default function ArtiBotPage({
         {headerContent}
         <div
           className={
-            "transition-all w-full overflow-hidden relative " +
+            "transition-none w-full overflow-hidden relative " +
             (isConversationCollapsible ? "h-[0] " : "h-full flex-1 ")
           }
         >
@@ -305,7 +305,7 @@ export default function ArtiBotPage({
 					</div> */}
             <div
               className={
-                "transition-all w-full overflow-hidden " +
+                "transition-none w-full overflow-hidden " +
                 (isConversationCollapsible ? "h-full flex-1 " : "h-[0]")
               }
             >
@@ -323,7 +323,7 @@ export default function ArtiBotPage({
         {shouldShowCampaign && (
           <div
             className={
-              "transition-all w-full overflow-hidden " +
+              "transition-none w-full overflow-hidden " +
               (isConversationCollapsible ? "h-full flex-1 " : "h-[0]")
             }
           >

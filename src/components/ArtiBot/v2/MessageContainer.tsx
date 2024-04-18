@@ -28,9 +28,10 @@ export default function MessageContainer() {
   const queryParams = useSearchParams();
   const { conversation } = useCurrentConversation();
   const conversationId = conversation?.id;
-  const { data, hasNextPage, isLoading, ...props } = useGetMessages(
-    conversationId ?? null
-  );
+  const { data, hasNextPage, isLoading, ...props } = useGetMessages({
+    conversationId: conversationId ?? null,
+    enabled: true,
+  });
   const serverMessages = useMemo(() => {
     return (
       data?.pages

@@ -137,7 +137,7 @@ export default function RegisterBusiness() {
 
     postRegisterBusiness({
       ...data,
-      social_pages: compact([providers, accountProviders]),
+      socialPages: compact([providers, accountProviders]),
     });
   };
 

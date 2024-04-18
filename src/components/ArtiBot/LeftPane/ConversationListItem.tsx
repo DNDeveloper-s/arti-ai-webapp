@@ -8,10 +8,15 @@ import useAdCreatives from "@/hooks/useAdCreatives";
 import Image1, { StaticImageData } from "next/image";
 import { useConversation } from "@/context/ConversationContext";
 import { IoMdImages } from "react-icons/io";
-import { InfiniteConversation, useGetConversation } from "@/api/conversation";
+import {
+  InfiniteConversation,
+  useGetConversation,
+  useGetMessages,
+} from "@/api/conversation";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import { random, sortBy } from "lodash";
 import ImageTemp from "@/components/shared/renderers/ImageTemp";
+import useInView from "@/hooks/useInView";
 
 export function NoImage({
   className,
@@ -157,10 +162,17 @@ const ConversationListItem: FC<ConversationListItemProps> = ({
   const [images, setImages] = useState<ImageType[]>([]);
   const { conversation: currentConversation } = useCurrentConversation();
   const isActive = currentConversation?.id === propConversation.id;
+  const { isInView, ref: linkRef } = useInView();
   const { data: freshConversation } = useGetConversation(
     propConversation.id,
-    isActive
+    isActive || isInView
   );
+
+  useGetMessages({
+    conversationId: propConversation.id ?? null,
+    enabled: isInView,
+  });
+
   const router = useRouter();
 
   const conversation = useMemo(() => {
@@ -200,6 +212,7 @@ const ConversationListItem: FC<ConversationListItemProps> = ({
 
   return (
     <Link
+      ref={linkRef}
       href={url}
       key={conversation.id}
       className={

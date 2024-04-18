@@ -19,6 +19,7 @@ import CreateAdManagerModal from "../MessageItems/Deploy/Ad/CreateAdManagerModal
 import AdPreviewModal from "./AdPreviewModal";
 import { PreviewProps } from "../MessageItems/Deploy/Ad/components/Ads/Create/CreateAd";
 import { useTimeRange } from "@/context/TimeRangeContext";
+import { defaultTimeRange } from "../LeftPane/CampaignListItem";
 
 interface DeployAdChildCardProps {
   campaignId: string;
@@ -136,7 +137,7 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
   const { timeRange, setTimeRange } = useTimeRange();
 
   useEffect(() => {
-    setTimeRange([dayjs().subtract(7, "days"), dayjs()]);
+    setTimeRange(defaultTimeRange);
   }, [setTimeRange]);
 
   const { data, isFetching, ...props } = useGetCampaignInsights({

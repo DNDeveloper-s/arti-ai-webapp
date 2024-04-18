@@ -5,7 +5,11 @@ import {
   CardStackImages,
   ImageType,
 } from "@/components/ArtiBot/LeftPane/ConversationListItem";
-import { UserCampaign, useGetCampaignInsights } from "@/api/conversation";
+import {
+  TimeRange,
+  UserCampaign,
+  useGetCampaignInsights,
+} from "@/api/conversation";
 import useInView from "@/hooks/useInView";
 import { IFacebookAdInsight } from "@/interfaces/ISocial";
 import { getCampaignPageUrl, getConversationURL } from "@/helpers";
@@ -14,6 +18,7 @@ import { ConversationType } from "@/interfaces/IConversation";
 import { useRouter } from "next/navigation";
 import { Route53RecoveryCluster } from "aws-sdk";
 import { ICampaignInfinite } from "@/api/admanager";
+import dayjs from "dayjs";
 
 export const CampaignInsightShimmer = () => {
   return (
@@ -70,6 +75,11 @@ interface CampaignListItemProps {
   campaign: ICampaignInfinite;
 }
 
+export const defaultTimeRange: TimeRange = [
+  dayjs().subtract(7, "days"),
+  dayjs(),
+];
+
 const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
   const router = useRouter();
   const { ref, isInView } = useInView();
@@ -78,6 +88,11 @@ const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
   //   enabled: isInView,
   // });
   // const { conversation } = useCurrentConversation();
+  useGetCampaignInsights({
+    campaignId: campaign.id,
+    timeRange: defaultTimeRange,
+    enabled: isInView,
+  });
 
   const insights = campaign?.insights?.data || [];
   const latestInsight = insights[0];

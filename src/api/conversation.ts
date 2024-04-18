@@ -158,10 +158,15 @@ export interface InfiniteMessage {
   adCreatives: IAdCreativeWithVariants[];
 }
 type GetMessagesInifiniteResponse = InfiniteMessage[];
-export const useGetMessages = (
-  conversationId: string | null,
-  initialPageParam?: string
-) => {
+export const useGetMessages = ({
+  conversationId,
+  initialPageParam,
+  enabled = false,
+}: {
+  conversationId: string | null;
+  initialPageParam?: string;
+  enabled?: boolean;
+}) => {
   const { archiveByConversationId } = useClientMessages();
   const qc = useQueryClient();
   const LIMIT = 10;
@@ -197,6 +202,7 @@ export const useGetMessages = (
     queryFn: ({ pageParam, queryKey }: any) =>
       fetchMessages(pageParam, queryKey),
     initialPageParam: initialPageParam,
+    enabled: !!enabled && !!conversationId,
     // select: (data) => ({
     //   pages: [...data.pages].reverse(),
     //   pageParams: [...data.pageParams].reverse(),
@@ -1114,7 +1120,7 @@ export interface RegisterBusinessVariables {
     locality: string;
   }[];
   details: string;
-  social_pages: SocialPageObject[];
+  socialPages: SocialPageObject[];
 }
 
 export const useRegisterBusiness = (
