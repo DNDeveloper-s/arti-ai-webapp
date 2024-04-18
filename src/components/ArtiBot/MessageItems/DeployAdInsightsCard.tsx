@@ -30,7 +30,8 @@ import { useTimeRange } from "@/context/TimeRangeContext";
 import { AdLeadData } from "@/api/conversation";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { useFetchLeadsData } from "@/api/admanager";
-import { AD_MANAGER_ITEM } from "@/config/api-config";
+import { TbEyeShare } from "react-icons/tb";
+import Link from "next/link";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -535,7 +536,7 @@ function AdTitle({
             }}
           />
         )}
-        {handlePreview && ad.creative.image_url && (
+        {handlePreview && ad.creative.image_url ? (
           <MdRemoveRedEye
             className="text-xl"
             onClick={() => {
@@ -550,6 +551,12 @@ function AdTitle({
               handlePreview && handlePreview(previewProps);
             }}
           />
+        ) : (
+          ad.preview_shareable_link && (
+            <Link href={ad.preview_shareable_link} target="_blank">
+              <TbEyeShare className="text-xl" />
+            </Link>
+          )
         )}
         {ad.id &&
           (isLeadsDataFetching ? (

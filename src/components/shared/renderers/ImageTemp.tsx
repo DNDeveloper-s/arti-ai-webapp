@@ -83,20 +83,28 @@ export const AppDefaultImage = ({
   ref,
   ...props
 }: AppDefaultImageProps) => {
+  const [hasErrorInNext, setHasErrorInNext] = useState(false);
   const [hasError, setHasError] = useState(false);
 
+  const handleErrorInNext = () => {
+    setHasErrorInNext(true);
+  };
   const handleError = () => {
     setHasError(true);
   };
 
-  return hasError ? (
-    fallback ?? (
-      <FallbackImage src={src} {...props} FallbackProps={FallbackProps} />
+  return hasErrorInNext ? (
+    hasError ? (
+      fallback ?? (
+        <FallbackImage src={src} {...props} FallbackProps={FallbackProps} />
+      )
+    ) : (
+      <img onError={handleError} {...props} src={src} />
     )
   ) : (
     <Image
       alt=""
-      onError={handleError}
+      onError={handleErrorInNext}
       {...props}
       width={+(props.width ?? 100)}
       height={+(props.height ?? 100)}

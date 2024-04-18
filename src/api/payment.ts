@@ -10,8 +10,10 @@ interface CreatePaymentResponse {
   [key: string]: any;
 }
 
+type PaymentMode = "payment" | "subscription";
 interface CreatePaymentFields {
   amount: number;
+  mode?: PaymentMode;
 }
 export const useCreatePayment = () => {
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
@@ -23,6 +25,7 @@ export const useCreatePayment = () => {
       product_name: "Arti AI Credits",
       success_callback: window.location.origin + "/",
       cancel_callback: window.location.origin + "/settings",
+      mode: data.mode ?? "payment",
     });
 
     return response.data.data;
