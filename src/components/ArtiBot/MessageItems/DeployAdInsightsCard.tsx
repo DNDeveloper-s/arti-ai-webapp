@@ -27,7 +27,7 @@ import useCampaignStore, { CampaignTab } from "@/store/campaign";
 import { LoadMoreButton } from "../LeftPane/LeftPane";
 import { PreviewProps } from "./Deploy/Ad/components/Ads/Create/CreateAd";
 import { useTimeRange } from "@/context/TimeRangeContext";
-import { AdLeadData } from "@/api/conversation";
+import { AdLeadData, useGetVariant } from "@/api/conversation";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { useFetchLeadsData } from "@/api/admanager";
 import { TbEyeShare } from "react-icons/tb";
@@ -450,6 +450,36 @@ export function InsightTitle<
   );
 }
 
+function AdPreviewWithAdId({
+  ad_id,
+  handlePreview,
+  previewLink,
+}: {
+  ad_id?: string;
+  handlePreview?: (props: PreviewProps) => void;
+  previewLink?: string;
+}) {
+  const { data, isFetching } = useGetVariant({ ad_id });
+  return isFetching ? (
+    <Spinner size="sm" />
+  ) : (
+    data?.imageUrl && (
+      <MdRemoveRedEye
+        className="text-xl cursor-pointer"
+        onClick={async (e: any) => {
+          e.stopPropagation();
+          const previewProps: PreviewProps = {
+            image: data?.imageUrl,
+            text: data?.text,
+            previewLink: previewLink,
+          };
+          handlePreview && handlePreview(previewProps);
+        }}
+      />
+    )
+  );
+}
+
 function AdTitle({
   ad,
   ad_account_id,
@@ -516,11 +546,11 @@ function AdTitle({
         />
         <div className="flex flex-col gap-1">
           <span className="text-sm font-medium">{ad.name}</span>
-          <span className="text-xs opacity-60 line-clamp-2">
+          {/* <span className="text-xs opacity-60 line-clamp-2">
             {ad.creative.object_story_spec?.link_data?.message ?? (
-              <span className="opacity-40">No text provided for this ad.</span>
+              <span className="opacity-40"></span>
             )}
-          </span>
+          </span> */}
         </div>
       </div>
       <div className="flex items-center gap-4">
@@ -546,20 +576,14 @@ function AdTitle({
               if (!ad.creative.image_url) return;
               const previewProps: PreviewProps = {
                 image: ad.creative.image_url,
-                text:
-                  ad.creative.object_story_spec?.link_data?.message ??
-                  "No text provided",
+                text: ad.creative.object_story_spec?.link_data?.message ?? "",
                 previewLink: ad.preview_shareable_link,
               };
               handlePreview && handlePreview(previewProps);
             }}
           />
         ) : (
-          ad.preview_shareable_link && (
-            <Link href={ad.preview_shareable_link} target="_blank">
-              <TbEyeShare className="text-xl" />
-            </Link>
-          )
+          <AdPreviewWithAdId ad_id={ad.id} handlePreview={handlePreview} />
         )}
         {ad.id &&
           (isLeadsDataFetching ? (
@@ -576,34 +600,6 @@ function AdTitle({
               }}
             />
           ))}
-        {/* <MdDownload
-          className="text-xl"
-          onClick={async (e: any) => {
-            e.stopPropagation();
-            try {
-              await handleDownload(ad.name, {
-                data: [
-                  {
-                    name: ad.name,
-                    id: ad.id,
-                    leads: ad.leads,
-                  },
-                ],
-                paging: {
-                  cursors: {
-                    before: "",
-                    after: "",
-                  },
-                },
-              });
-            } catch (e: any) {
-              setSnackbarData({
-                message: e.message ?? "Failed to download data",
-                status: "error",
-              });
-            }
-          }}
-        /> */}
       </div>
     </div>
   );
@@ -674,7 +670,7 @@ export const DeployAdChildCard = ({
         };
       }) ?? []
     );
-  }, [ads, accountId]);
+  }, [ads, handlePreview, accountId]);
 
   return (
     <>

@@ -28,7 +28,11 @@ import ObjectID from "bson-objectid";
 import { compact, omit } from "lodash";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useCredentials } from "./user";
-import { IFacebookAdInsight, PaginatedResponse } from "@/interfaces/ISocial";
+import {
+  IAd,
+  IFacebookAdInsight,
+  PaginatedResponse,
+} from "@/interfaces/ISocial";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { useBusiness } from "@/context/BusinessContext";
 import { useSearchParams } from "next/navigation";
@@ -171,6 +175,7 @@ export interface InfiniteMessage {
   updatedAt?: string;
   adCreatives: IAdCreativeWithVariants[];
 }
+
 type GetMessagesInifiniteResponse = InfiniteMessage[];
 export const useGetMessages = ({
   conversationId,
@@ -1216,5 +1221,28 @@ export const useQueryUserBusiness = () => {
     queryKey: API_QUERIES.GET_USER_BUSINESS,
     queryFn: getUserBusiness,
     staleTime: 1000 * 60 * 5,
+  });
+};
+
+interface UseGetVariantProps {
+  ad_id?: string;
+  id?: string;
+}
+
+export const useGetVariant = ({ ad_id, id }: UseGetVariantProps) => {
+  const fetchVariant = async ({ queryKey }: QueryFunctionContext) => {
+    const [, id, ad_id] = queryKey;
+    const response = await axios.get(ROUTES.VARIANT.GET, {
+      params: {
+        id: id,
+        ad_id: ad_id,
+      },
+    });
+    return response.data.data;
+  };
+  return useQuery<IAdVariant>({
+    queryKey: API_QUERIES.GET_VARIANT(id, ad_id),
+    queryFn: fetchVariant,
+    enabled: !!ad_id || !!id,
   });
 };

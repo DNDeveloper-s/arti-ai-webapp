@@ -29,6 +29,11 @@ const API_QUERIES = {
     "get-ad-accounts",
     access_token,
   ],
+  GET_VARIANT: (id?: string | null, ad_id?: string | null) => [
+    "get-variant",
+    id,
+    ad_id,
+  ],
   GET_CREATIVE_AUTO_COMPLETE: (adCreativeId?: string) => [
     "get-creative-auto-complete",
     adCreativeId,

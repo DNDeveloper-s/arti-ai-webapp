@@ -106,8 +106,8 @@ export const AppDefaultImage = ({
       alt=""
       onError={handleErrorInNext}
       {...props}
-      width={+(props.width ?? 100)}
-      height={+(props.height ?? 100)}
+      width={+(props.width ?? 600)}
+      height={+(props.height ?? 600)}
       placeholder={"blur"}
       src={src}
     />

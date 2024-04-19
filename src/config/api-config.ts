@@ -91,6 +91,7 @@ export const ROUTES = {
     DECODE: apiUrl("/tokens/decode"),
   },
   VARIANT: {
+    GET: apiUrl(`/variants`),
     UPDATE: (variantId: string) => apiUrl(`/variants/${variantId}/keys`),
     UPDATE_IMAGE: (variantId: string) => apiUrl(`/variants/${variantId}/image`),
     REGENERATE_DATA: (

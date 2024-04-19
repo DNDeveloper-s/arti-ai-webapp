@@ -47,6 +47,21 @@ export default function InsightCard({ campaign, last7Day }: InsightCardProps) {
       </div>
       <div className="flex-1 flex flex-col pb-2">
         <div className="flex-1 grid grid-cols-3 w-full">
+          <div className="flex items-center gap-1 justify-center">
+            <TbBulbFilled className="text-primary text-3xl" />
+            <span className="text-gray-400 text-xs mt-1">Impressions</span>
+          </div>
+          <div className="flex items-center gap-1 justify-center">
+            <FaHandshakeSimple className="text-primary text-3xl" />
+            <span className="text-gray-400 text-xs">Leads</span>
+          </div>
+          <div className="flex items-center gap-1 justify-center">
+            <IoWallet className="text-primary text-2xl" />
+            <span className="text-gray-400 text-xs">Spent</span>
+          </div>
+        </div>
+        <Divider className="my-1 w-[90%] mx-auto opacity-40" />
+        <div className="flex-1 grid grid-cols-3 w-full">
           <div className="flex items-center justify-center">
             <span className="text-xl">
               {extractedLast7Insight?.impressions ?? 0}
@@ -56,7 +71,9 @@ export default function InsightCard({ campaign, last7Day }: InsightCardProps) {
             <span className="text-xl">{extractedLast7Insight?.leads ?? 0}</span>
           </div>
           <div className="flex items-center justify-center">
-            <span className="text-xl">{extractedLast7Insight?.spent ?? 0}</span>
+            <span className="text-xl">
+              ${extractedLast7Insight?.spent ?? 0}
+            </span>
           </div>
         </div>
         <div className="w-full flex justify-end pr-6">
@@ -78,21 +95,6 @@ export default function InsightCard({ campaign, last7Day }: InsightCardProps) {
         </div>
         <div className="w-full flex justify-end pr-6">
           <p className="text-gray-500 text-[10px]">Lifetime</p>
-        </div>
-        <Divider className="my-1 w-[90%] mx-auto opacity-40" />
-        <div className="flex-1 grid grid-cols-3 w-full">
-          <div className="flex items-center gap-1 justify-center">
-            <TbBulbFilled className="text-primary text-3xl" />
-            <span className="text-gray-400 text-xs mt-1">Impressions</span>
-          </div>
-          <div className="flex items-center gap-1 justify-center">
-            <FaHandshakeSimple className="text-primary text-3xl" />
-            <span className="text-gray-400 text-xs">Leads</span>
-          </div>
-          <div className="flex items-center gap-1 justify-center">
-            <IoWallet className="text-primary text-2xl" />
-            <span className="text-gray-400 text-xs">Spent</span>
-          </div>
         </div>
       </div>
     </Link>
