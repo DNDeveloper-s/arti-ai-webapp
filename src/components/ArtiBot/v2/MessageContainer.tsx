@@ -102,7 +102,7 @@ export default function MessageContainer() {
 
   const messages = useMemo(() => {
     const clientMessages = messageRecord.getByConversationId(conversation?.id);
-    return sortBy(uniqBy([...serverMessages, ...clientMessages], "id"), "id");
+    return uniqBy([...serverMessages, ...clientMessages], "id");
   }, [messageRecord, conversation?.id, serverMessages]);
 
   useEffect(() => {

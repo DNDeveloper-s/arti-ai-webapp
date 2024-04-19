@@ -23,6 +23,7 @@ import { ChatGPTRole } from "@/interfaces/IArtiBot";
 import { sortBy } from "lodash";
 import { message } from "antd";
 import ObjectID from "bson-objectid";
+import { SnackbarContext } from "./SnackbarContext";
 
 interface ClientMessage {
   id: string;
@@ -185,6 +186,7 @@ function ClientMessageReducer(
 const useClientMessageContext = (initState: IClientMessageState) => {
   const [state, dispatch] = useReducer(ClientMessageReducer, initState);
   const { conversation } = useCurrentConversation();
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 
   const {
     data,
@@ -192,7 +194,14 @@ const useClientMessageContext = (initState: IClientMessageState) => {
     isPending,
     isGeneratingJson,
     isDone,
-  } = useSendMessage();
+  } = useSendMessage({
+    onError: (error) => {
+      setSnackbarData({
+        message: error.message ?? "Error in sending message",
+        status: "error",
+      });
+    },
+  });
 
   useEffect(() => {
     if (data?.data?.id) {

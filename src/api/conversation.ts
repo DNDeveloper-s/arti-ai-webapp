@@ -390,6 +390,7 @@ export interface SendMessageVariables {
 export const useSendMessage = (options?: UseSendMessageOptions) => {
   const { onError } = options || {};
 
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
   const [data, setData] = useState<FormattedEventResponse | null>(null);
   const [isPending, setIsPending] = useState<boolean>(false);
   const [isGeneratingJson, setIsGeneratingJson] = useState<boolean>(false);
@@ -465,6 +466,14 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
         throw new Error("No response body present");
       }
 
+      if (
+        response.status !== 200 &&
+        response.headers.get("Content-Type")?.includes("application/json")
+      ) {
+        const json = await response.json();
+        throw new Error(json.message ?? "Error in sending the message");
+      }
+
       const reader = response.body
         .pipeThrough(new TextDecoderStream())
         .getReader();
@@ -500,8 +509,8 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
         }
         lastValue = value;
       }
-    } catch (e) {
-      console.error("Error in sending the message - ", e);
+    } catch (e: any) {
+      console.log("e - ", e.message);
       setIsError(true);
       onError && onError(e);
     }
