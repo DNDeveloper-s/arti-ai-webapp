@@ -57,14 +57,18 @@ export interface InfiniteConversation {
 
 export type GetConversationInifiniteResponse = InfiniteConversation[];
 
-export const useGetConversationInfinite = (cursorId?: string) => {
+export const useGetConversationInfinite = (
+  cursorId?: string | null,
+  enabled: boolean = true
+) => {
   const LIMIT = 4;
   const { pushConversationsToState } = useConversation();
   const { business } = useBusiness();
 
   const fetchConversations = async (
-    pageParam: undefined | string,
-    queryKey: QueryKey
+    pageParam: any,
+    queryKey: QueryKey,
+    direction: "forward" | "backward" = "forward"
   ) => {
     const [, businessId] = queryKey;
     if (!businessId) {
@@ -72,8 +76,9 @@ export const useGetConversationInfinite = (cursorId?: string) => {
     }
     const response = await axios.get(ROUTES.CONVERSATION.QUERY_INFINITE, {
       params: {
-        cursor_id: pageParam,
-        limit: LIMIT,
+        cursor_id: pageParam?.cursorId,
+        include_cursor: pageParam?.include_cursor,
+        limit: LIMIT * (direction === "forward" ? 1 : -1),
         business_id: businessId,
       },
     });
@@ -85,17 +90,26 @@ export const useGetConversationInfinite = (cursorId?: string) => {
 
   return useInfiniteQuery<GetConversationInifiniteResponse>({
     queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id),
-    queryFn: ({ pageParam, queryKey }: any) =>
-      fetchConversations(pageParam, queryKey),
-    initialPageParam: cursorId,
+    queryFn: ({ pageParam, queryKey, direction, meta }: any) =>
+      fetchConversations(pageParam, queryKey, direction),
+    meta: {},
+    initialPageParam: { cursorId, include_cursor: true },
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.length === 0 || lastPage.length < LIMIT) return undefined;
-      return lastPage[lastPage.length - 1]?.id;
+      return {
+        cursorId: lastPage[lastPage.length - 1]?.id,
+        include_cursor: false,
+      };
     },
     getPreviousPageParam: (firstPage, allPages) => {
-      if (firstPage.length === 0) return undefined;
-      return firstPage[0].id;
+      if (
+        firstPage.length === 0 ||
+        (allPages.length > 1 && firstPage.length < LIMIT)
+      )
+        return undefined;
+      return { cursorId: firstPage[0].id, include_cursor: false };
     },
+    enabled,
   });
 };
 
@@ -164,15 +178,15 @@ export const useGetMessages = ({
   enabled = false,
 }: {
   conversationId: string | null;
-  initialPageParam?: string;
+  initialPageParam?: string | null;
   enabled?: boolean;
 }) => {
-  const { archiveByConversationId } = useClientMessages();
   const qc = useQueryClient();
   const LIMIT = 10;
   const fetchMessages = async (
-    pageParam: undefined | string,
-    queryKey: QueryKey
+    pageParam: undefined | any,
+    queryKey: QueryKey,
+    direction: "forward" | "backward" = "forward"
   ) => {
     const [, conversationId] = queryKey;
     if (!conversationId || typeof conversationId !== "string") {
@@ -182,38 +196,40 @@ export const useGetMessages = ({
       ROUTES.CONVERSATION.GET_MESSAGES(conversationId),
       {
         params: {
-          cursor_id: pageParam,
-          limit: LIMIT,
+          cursor_id: pageParam?.cursorId,
+          limit:
+            LIMIT *
+            (pageParam?.initial ? -1 : direction === "forward" ? 1 : -1),
+          include_cursor: pageParam?.include_cursor,
         },
       }
     );
-
-    // const queryState = qc.getQueryState(
-    //   API_QUERIES.GET_MESSAGES(conversationId)
-    // );
-
-    // queryState?.isInvalidated && archiveByConversationId(conversationId);
 
     return response.data.data;
   };
 
   return useInfiniteQuery<GetMessagesInifiniteResponse>({
     queryKey: API_QUERIES.GET_MESSAGES(conversationId),
-    queryFn: ({ pageParam, queryKey }: any) =>
-      fetchMessages(pageParam, queryKey),
-    initialPageParam: initialPageParam,
+    queryFn: ({ pageParam, queryKey, direction }: any) =>
+      fetchMessages(pageParam, queryKey, direction),
+    initialPageParam: initialPageParam
+      ? {
+          cursorId: initialPageParam,
+          initial: true,
+          include_cursor: true,
+        }
+      : undefined,
     enabled: !!enabled && !!conversationId,
-    // select: (data) => ({
-    //   pages: [...data.pages].reverse(),
-    //   pageParams: [...data.pageParams].reverse(),
-    // }),
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length === 0 || lastPage.length < LIMIT) return undefined;
-      return lastPage[lastPage.length - 1]?.id;
+      if (lastPage.length === 0) return undefined;
+      return {
+        cursorId: lastPage[lastPage.length - 1]?.id,
+        include_cursor: false,
+      };
     },
     getPreviousPageParam: (firstPage, allPages) => {
       if (firstPage.length === 0) return undefined;
-      return firstPage[0].id;
+      return { cursorId: firstPage[0]?.id, include_cursor: false };
     },
   });
 };

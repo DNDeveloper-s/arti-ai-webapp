@@ -491,7 +491,10 @@ function AdTitle({
     });
 
   return (
-    <div className="flex justify-between items-start fioverflow-hidden">
+    <div
+      className="flex justify-between items-start fioverflow-hidden"
+      data-adid={ad.id}
+    >
       <div className="flex gap-4 items-center ">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {/* <img

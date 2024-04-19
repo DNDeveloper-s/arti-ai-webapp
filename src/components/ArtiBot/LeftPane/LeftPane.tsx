@@ -25,6 +25,7 @@ import { useGetConversationInfinite } from "@/api/conversation";
 import AdCreativeSection from "./AdCreativeSection";
 import ConversationSection from "./ConversationSection";
 import CampaignSection from "./CampaignSection";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
 
 interface LoadMoreButtonProps {
   doInfiniteScroll?: boolean;
@@ -81,14 +82,24 @@ export function LoadMoreButton({
 interface PaginatedListProps extends LoadMoreButtonProps {
   children: ReactNode;
   noMore?: boolean;
+  noPrevMore?: boolean;
+  handlePrevMore?: () => void;
 }
 export const PaginatedList: FC<PaginatedListProps> = ({
   children,
   noMore,
+  handlePrevMore,
+  noPrevMore,
   ...props
 }) => {
   return (
     <>
+      {children && !noPrevMore && (
+        <LoadMoreButton
+          handleLoadMore={handlePrevMore}
+          loading={props.loading}
+        />
+      )}
       {children}
       {children && !noMore && <LoadMoreButton {...props} />}
       {noMore && (
@@ -106,6 +117,7 @@ interface LeftPaneProps {}
 
 const LeftPane: FC<LeftPaneProps> = (props) => {
   const router = useRouter();
+  const { conversation } = useCurrentConversation();
 
   return (
     <div className="flex flex-col w-[250px] h-full overflow-hidden">

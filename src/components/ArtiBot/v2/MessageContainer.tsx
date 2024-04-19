@@ -25,13 +25,20 @@ import classNames from "classnames";
 export default function MessageContainer() {
   const containerRef = useRef<HTMLDivElement>(null);
   const showGetAdNowButton = false;
-  const queryParams = useSearchParams();
+  const searchParams = useSearchParams();
   const { conversation } = useCurrentConversation();
   const conversationId = conversation?.id;
-  const { data, hasNextPage, isLoading, ...props } = useGetMessages({
-    conversationId: conversationId ?? null,
-    enabled: true,
-  });
+  const queryMessageId = searchParams.get("message_id");
+
+  const { data, hasNextPage, hasPreviousPage, isLoading, ...props } =
+    useGetMessages({
+      conversationId: conversationId ?? null,
+      enabled: true,
+      initialPageParam: queryMessageId,
+    });
+
+  const { ref: firstRef, isInView: isFirstInView } = useInView();
+
   const serverMessages = useMemo(() => {
     return (
       data?.pages
@@ -41,15 +48,55 @@ export default function MessageContainer() {
     );
   }, [data]);
 
+  const wasLastActiveMessageId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (
+      queryMessageId &&
+      serverMessages &&
+      wasLastActiveMessageId.current !== queryMessageId
+    ) {
+      const messageIndex = serverMessages.findIndex(
+        (msg) => msg.id === queryMessageId
+      );
+      if (messageIndex !== -1) {
+        setTimeout(() => {
+          const div = document.querySelector(
+            `[data-message="${queryMessageId}"]`
+          );
+          console.log("div - ", div);
+          div?.scrollIntoView({ behavior: "instant", block: "center" });
+        }, 100);
+        wasLastActiveMessageId.current = queryMessageId;
+      }
+    }
+  }, [queryMessageId, serverMessages]);
+
   // const lastRef = useRef(null);
   const { ref: lastRef, isInView } = useInView();
   const { ref: keepInViewRef, setKeepInView } = useKeepInView();
 
   useEffect(() => {
-    if (isInView && !props.isFetching && hasNextPage) {
+    if (
+      isInView &&
+      !props.isFetching &&
+      hasNextPage &&
+      !props.isFetchingNextPage
+    ) {
       props.fetchNextPage();
     }
   }, [isInView, props, hasNextPage]);
+
+  useEffect(() => {
+    if (
+      isFirstInView &&
+      !props.isFetching &&
+      hasPreviousPage &&
+      !props.isFetchingPreviousPage
+    ) {
+      props.fetchPreviousPage();
+    }
+  }, [isFirstInView, props, hasPreviousPage]);
 
   const { messageRecord, isPending, isGeneratingJson } = useClientMessages();
 
@@ -81,6 +128,14 @@ export default function MessageContainer() {
           </div>
         ) : (
           <>
+            {hasPreviousPage && (
+              <div
+                ref={firstRef}
+                className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3"
+              >
+                <Spinner />
+              </div>
+            )}
             {/*<ChatGPTMessageCreatingAd/>*/}
             {/* {isGeneratingAd && <ChatGPTMessageCreatingAd />} */}
             {/* <div className="text-white whitespace-pre-wrap">{msg}</div> */}
@@ -97,7 +152,11 @@ export default function MessageContainer() {
                 />
               )}
               {messages.map((messageItem) => (
-                <MessageItem key={messageItem.id} messageItem={messageItem} />
+                <MessageItem
+                  key={messageItem.id}
+                  isActive={messageItem.id === queryMessageId}
+                  messageItem={messageItem}
+                />
               ))}
 
               {/* {isPending && <ChatGPTMessageGeneratingAnimation />} */}

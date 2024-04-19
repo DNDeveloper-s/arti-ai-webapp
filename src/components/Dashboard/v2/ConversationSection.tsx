@@ -4,18 +4,26 @@ import { Spinner } from "@nextui-org/react";
 import useInView from "@/hooks/useInView";
 import { useEffect, useRef } from "react";
 import { EmptySection, EmptySectionType } from "./CardSection";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
 
 export default function ConversationSection() {
   const { data, isLoading, hasNextPage, ...props } =
     useGetConversationInfinite();
   const conversations = data?.pages.map((page) => page).flat() || [];
   const { ref, isInView } = useInView();
+  const { ref: firstRef, isInView: isFirstInView } = useInView();
 
   useEffect(() => {
     if (isInView && !props.isFetching && hasNextPage) {
       props.fetchNextPage();
     }
   }, [isInView, props, hasNextPage]);
+
+  useEffect(() => {
+    if (isFirstInView && !props.isFetching && props.hasPreviousPage) {
+      props.fetchPreviousPage();
+    }
+  }, [isFirstInView, props]);
 
   const waiting = isLoading && conversations.length === 0;
   const empty = !waiting && conversations.length === 0;
@@ -43,6 +51,14 @@ export default function ConversationSection() {
             }}
             type={EmptySectionType.CONVERSATION}
           />
+        )}
+        {props.hasPreviousPage && (
+          <div
+            className="w-[60px] p-0 pr-[20px] h-full flex items-center justify-center"
+            ref={firstRef}
+          >
+            <Spinner />
+          </div>
         )}
         {notEmpty &&
           conversations.map((conversation) => (

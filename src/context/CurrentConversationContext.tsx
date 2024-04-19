@@ -49,11 +49,14 @@ const useCurrentConversationContext = (
   initState: ICurrentConversationState
 ) => {
   const [state, dispatch] = useReducer(CurrentConversationReducer, initState);
+  const searchParams = useSearchParams();
+  const conversation_id = searchParams.get("conversation_id");
 
   return {
     state,
     dispatch,
     conversation: initState.conversation,
+    queryConversationId: conversation_id,
   };
 };
 
@@ -66,6 +69,7 @@ export const CurrentConversationContext =
     state: initCurrentConversationState,
     dispatch: (action: CurrentConversationAction) => {},
     conversation: undefined,
+    queryConversationId: null,
   });
 
 const CurrentConversationContextProvider: FC<
@@ -84,6 +88,7 @@ type UseCurrentConversationHookType = {
   state: ICurrentConversationState;
   dispatch: (action: CurrentConversationAction) => void;
   conversation: InfiniteConversation | undefined;
+  queryConversationId: string | null;
 };
 
 function useCurrentConversation(): UseCurrentConversationHookType {

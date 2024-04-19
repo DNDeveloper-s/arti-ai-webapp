@@ -35,6 +35,7 @@ interface GetCampaignsInifiniteResponse {
 
 interface UseGetInifiniteCampaignsProps {
   get_insights?: boolean;
+  campaign_id?: string | null;
 }
 
 export const useGetInifiniteCampaigns = (
@@ -45,17 +46,29 @@ export const useGetInifiniteCampaigns = (
   //   const { pushCampaignsToState } = useCampaign();
 
   const fetchCampaigns = async (
-    pageParam: undefined | string,
-    queryKey: QueryKey
+    pageParam: undefined | any,
+    queryKey: QueryKey,
+    direction: "forward" | "backward" = "forward"
   ) => {
     const [, accountId, accessToken, get_insights] = queryKey;
+
+    const paginationKey = pageParam.initial
+      ? "campaign_ids"
+      : direction === "forward"
+        ? "after"
+        : "before";
+
     const response = await axios.get(ROUTES.CAMPAIGN.QUERY_INFINITE, {
       params: {
         account_id: accountId ?? "act_167093713134679",
         access_token: accessToken,
         limit: LIMIT,
         get_insights: !!get_insights,
-        after: pageParam,
+        [paginationKey]: pageParam.id
+          ? pageParam.initial
+            ? [pageParam.id]
+            : pageParam.id
+          : undefined,
       },
     });
 
@@ -70,18 +83,16 @@ export const useGetInifiniteCampaigns = (
       accessToken,
       props?.get_insights
     ),
-    queryFn: ({ pageParam, queryKey }: any) =>
-      fetchCampaigns(pageParam, queryKey),
-    initialPageParam: undefined,
+    queryFn: ({ pageParam, queryKey, direction }: any) =>
+      fetchCampaigns(pageParam, queryKey, direction),
+    initialPageParam: { id: props?.campaign_id, initial: true },
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.data.length === 0 || lastPage.data.length < LIMIT)
-        return undefined;
-      return lastPage.paging.cursors.after;
+      if (lastPage.data.length === 0) return undefined;
+      return { id: lastPage.paging.cursors.after, initial: false };
     },
     getPreviousPageParam: (firstPage, allPages) => {
-      if (firstPage.data.length === 0 || firstPage.data.length < LIMIT)
-        return undefined;
-      return firstPage.paging.cursors.before;
+      if (firstPage.data.length === 0) return undefined;
+      return { id: firstPage.paging.cursors.before, initial: false };
     },
   });
 };

@@ -407,7 +407,7 @@ export const FacebookAdVariantMini: FC<FacebookAdVariantProps> = ({
         <SlOptions className="text-[10.5px]" />
       </div>
       <div className="mb-[7px] px-[7px]">
-        <span className="text-[6.65px] inline-flex leading-[10.5px]">
+        <span className="text-[6.65px] inline-flex leading-[10.5px] line-clamp-4 text-ellipsis">
           {adVariant.text}
         </span>
       </div>

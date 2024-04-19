@@ -3,8 +3,10 @@ import ConversationListItem, {
   ConversationListItemShimmer,
 } from "./ConversationListItem";
 import { PaginatedList } from "./LeftPane";
+import { useCurrentConversation } from "@/context/CurrentConversationContext";
 
 export default function ConversationSection() {
+  const { queryConversationId } = useCurrentConversation();
   const {
     data,
     isLoading,
@@ -12,7 +14,7 @@ export default function ConversationSection() {
     isFetching,
     isFetchingNextPage,
     ...props
-  } = useGetConversationInfinite();
+  } = useGetConversationInfinite(queryConversationId);
   const conversations = data?.pages.map((page) => page).flat() || [];
 
   return (
@@ -25,6 +27,8 @@ export default function ConversationSection() {
           noMore={!hasNextPage}
           handleLoadMore={props.fetchNextPage}
           loading={isLoading || isFetching || isFetchingNextPage}
+          handlePrevMore={props.fetchPreviousPage}
+          noPrevMore={!props.hasPreviousPage}
         >
           {isLoading &&
             [1, 2, 3, 4].map((ind) => (

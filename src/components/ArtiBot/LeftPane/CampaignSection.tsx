@@ -9,6 +9,8 @@ import { useMemo } from "react";
 import { useGetInifiniteCampaigns } from "@/api/admanager";
 
 export default function CampaignSection() {
+  const searchParams = useSearchParams();
+  const campaignId = searchParams.get("campaign_id");
   const {
     data,
     isLoading,
@@ -16,13 +18,13 @@ export default function CampaignSection() {
     isFetching,
     isFetchingNextPage,
     ...props
-  } = useGetInifiniteCampaigns();
+  } = useGetInifiniteCampaigns({
+    campaign_id: campaignId,
+  });
   const campaigns = useMemo(
     () => data?.pages.map((page) => page.data).flat() || [],
     [data]
   );
-
-  const searchParams = useSearchParams();
 
   return (
     <div className="w-full my-4">
@@ -34,6 +36,8 @@ export default function CampaignSection() {
           noMore={!hasNextPage}
           handleLoadMore={props.fetchNextPage}
           loading={isLoading || isFetching || isFetchingNextPage}
+          handlePrevMore={props.fetchPreviousPage}
+          noPrevMore={!props.hasPreviousPage}
         >
           {isLoading &&
             [1, 2, 3, 4].map((ind) => <CampaignListItemShimmer key={ind} />)}

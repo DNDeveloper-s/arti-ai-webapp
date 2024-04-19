@@ -27,6 +27,7 @@ interface MessageItemProps {
   size?: number;
   disableCopy?: boolean;
   isClient?: boolean;
+  isActive?: boolean;
 }
 export default function MessageItem(props: MessageItemProps) {
   const { messageItem, size, disableCopy, isClient } = props;
@@ -104,6 +105,7 @@ export default function MessageItem(props: MessageItemProps) {
               ? ""
               : "bg-background bg-opacity-30")
           }
+          data-message={messageItem.id}
         >
           <div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
             <Avatar radius="sm" src={avatarSrc} />
