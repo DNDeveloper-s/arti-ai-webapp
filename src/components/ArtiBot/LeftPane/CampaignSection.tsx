@@ -1,14 +1,16 @@
 import { useGetUserCampaigns } from "@/api/conversation";
 import CampaignListItem, { CampaignListItemShimmer } from "./CampaignListItem";
-import { PaginatedList } from "./LeftPane";
+import { LeftPaneSectionBaseProps, PaginatedList } from "./LeftPane";
 import Link from "next/link";
 import { getConversationURL } from "@/helpers";
 import { useSearchParams } from "next/navigation";
 import { ConversationType } from "@/interfaces/IConversation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useGetInifiniteCampaigns } from "@/api/admanager";
 
-export default function CampaignSection() {
+interface CampaignSectionProps extends LeftPaneSectionBaseProps {}
+
+export default function CampaignSection(props: CampaignSectionProps) {
   const searchParams = useSearchParams();
   const campaignId = searchParams.get("campaign_id");
   const {
@@ -17,7 +19,7 @@ export default function CampaignSection() {
     hasNextPage,
     isFetching,
     isFetchingNextPage,
-    ...props
+    ...queryProps
   } = useGetInifiniteCampaigns({
     campaign_id: campaignId,
   });
@@ -27,23 +29,38 @@ export default function CampaignSection() {
   );
 
   return (
-    <div className="w-full my-4">
+    <div
+      className={
+        "w-full my-4 flex-1 overflow-hidden flex flex-col transition-all " +
+        (props.isActive ? " basis-6/12" : "")
+      }
+    >
       <div className="px-4 text-sm font-bold text-gray-400">
         <h3>Campaigns</h3>
       </div>
-      <div className="mt-2 flex flex-col gap-2">
+      <div
+        className="mt-2 flex flex-col gap-2 overflow-auto"
+        onScroll={() => {
+          props.onScroll && props.onScroll("campaign");
+        }}
+      >
         <PaginatedList
           noMore={!hasNextPage}
-          handleLoadMore={props.fetchNextPage}
+          handleLoadMore={queryProps.fetchNextPage}
           loading={isLoading || isFetching || isFetchingNextPage}
-          handlePrevMore={props.fetchPreviousPage}
-          noPrevMore={!props.hasPreviousPage}
+          handlePrevMore={queryProps.fetchPreviousPage}
+          noPrevMore={!queryProps.hasPreviousPage}
+          doInfiniteScroll
         >
           {isLoading &&
             [1, 2, 3, 4].map((ind) => <CampaignListItemShimmer key={ind} />)}
           {!isLoading &&
             campaigns.map((campaign) => (
-              <CampaignListItem key={campaign.id} campaign={campaign} />
+              <CampaignListItem
+                key={campaign.id}
+                containerClassName="flex-shrink-0"
+                campaign={campaign}
+              />
             ))}
         </PaginatedList>
       </div>

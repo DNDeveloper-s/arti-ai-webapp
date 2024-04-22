@@ -2,10 +2,11 @@ import { useMemo } from "react";
 import AdCreativeListItem, {
   AdCreativeListItemShimmer,
 } from "./AdCreativeListItem";
-import { PaginatedList } from "./LeftPane";
+import { LeftPaneSectionBaseProps, PaginatedList } from "./LeftPane";
 import { useGetVariantsByConversation } from "@/api/conversation";
 
-export default function AdCreativeSection() {
+interface AdCreativeSectionProps extends LeftPaneSectionBaseProps {}
+export default function AdCreativeSection(props: AdCreativeSectionProps) {
   const {
     data,
     isLoading,
@@ -13,7 +14,7 @@ export default function AdCreativeSection() {
     isFetching,
     isFetchingNextPage,
     isPending,
-    ...props
+    ...queryProps
   } = useGetVariantsByConversation();
   const adCreatives = useMemo(
     () => data?.pages.map((page) => page).flat() || [],
@@ -21,15 +22,27 @@ export default function AdCreativeSection() {
   );
 
   return (
-    <div className="w-full my-4">
+    <div
+      className={
+        "w-full my-4 flex-1 overflow-hidden flex flex-col transition-all " +
+        (props.isActive ? " basis-6/12" : "")
+      }
+    >
       <div className="px-4 text-sm font-bold text-gray-400">
         <h3>Ad Creatives</h3>
       </div>
-      <div className="mt-2 flex flex-col gap-2">
+      <div
+        className="mt-2 flex flex-col gap-2 overflow-auto"
+        onScroll={() => {
+          props.onScroll && props.onScroll("ad_creative");
+        }}
+      >
         <PaginatedList
           noMore={!hasNextPage}
-          handleLoadMore={props.fetchNextPage}
+          handleLoadMore={queryProps.fetchNextPage}
           loading={isLoading || isFetching || isFetchingNextPage}
+          doInfiniteScroll
+          noPrevMore={true}
         >
           {isPending &&
             [1, 2, 3, 4].map((ind) => <AdCreativeListItemShimmer key={ind} />)}
@@ -39,6 +52,7 @@ export default function AdCreativeSection() {
               adCreative={variantByConversation.ad_creative}
               conversationId={variantByConversation.id}
               variants={variantByConversation.variants}
+              containerClassName="flex-shrink-0"
             />
           ))}
         </PaginatedList>

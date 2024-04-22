@@ -19,6 +19,7 @@ const API_QUERIES = {
     "get-ad-account-id",
     access_token,
   ],
+  GET_AD_IDENTIFIERS: (ad_id?: string | null) => ["get-ad-identifiers", ad_id],
   GET_CAMPAIGN: (
     access_token?: string | null,
     campaign_id?: string | null,

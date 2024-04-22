@@ -5,6 +5,7 @@ import ArtiBot from "@/components/ArtiBot/ArtiBot";
 import { IConversation } from "@/interfaces/IConversation";
 import React, {
   FC,
+  Key,
   useCallback,
   useEffect,
   useMemo,
@@ -36,6 +37,7 @@ import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import CampaignPage from "./v2/CampaignPage";
 import CreditCounter from "../CreditCounter";
 import { TimeRangeContextProvider } from "@/context/TimeRangeContext";
+import SelectWithAutoComplete from "../shared/renderers/SelectWithAutoComplete";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -178,6 +180,7 @@ export default function ArtiBotPage({
   const { state: editVariantState } = useEditVariant();
   const [isConversationCollapsible, setIsConversationCollapsible] =
     useState<boolean>(false);
+  const [selectedMode, setSelectedMode] = useState(ArtiAiDropdownItems.Chat);
   const search = useSearchParams();
   const { conversation: _currentConversation } = useCurrentConversation();
 
@@ -222,7 +225,7 @@ export default function ArtiBotPage({
       },
       {
         id: "2",
-        icon: <AdCreativeIcon />,
+        icon: <AdCreativeIcon width={25} style={{ fill: "#eee" }} />,
         label: ArtiAiDropdownItems.AdCreatives,
         disabled: !Boolean(adCreative),
       },
@@ -236,6 +239,13 @@ export default function ArtiBotPage({
     [adCreative]
   );
 
+  const autoCompleteDropdownItems = useMemo(() => {
+    return dropdownItems.map((item) => ({
+      uid: item.label,
+      name: item.label,
+    }));
+  }, [dropdownItems]);
+
   useEffect(() => {
     setIsConversationCollapsible(
       search.get("ad_creative") === "expand" || !!search.get("campaign_id")
@@ -244,11 +254,27 @@ export default function ArtiBotPage({
 
   const headerContent = (
     <div className="z-30 flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
-      <ArtiAiDropdown
+      {/* <ArtiAiDropdown
         handleChange={(item: ArtiAiDropdownItem) => {
           setIsConversationCollapsible(item.label !== ArtiAiDropdownItems.Chat);
         }}
         items={dropdownItems}
+      /> */}
+      <SelectWithAutoComplete
+        noControl
+        items={autoCompleteDropdownItems}
+        label="Select Mode"
+        selectedKey={selectedMode}
+        onSelectionChange={(item: Key) => {
+          setSelectedMode(item as ArtiAiDropdownItems);
+          setIsConversationCollapsible(item !== ArtiAiDropdownItems.Chat);
+        }}
+        startContent={
+          dropdownItems.find((c) => c.label == selectedMode)?.icon ?? null
+        }
+        classNames={{
+          base: "max-w-[250px]",
+        }}
       />
       <div className="opacity-0 pointer-events-none">
         <CreditCounter />

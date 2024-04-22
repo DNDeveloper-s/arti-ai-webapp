@@ -22,7 +22,7 @@ export function AdCreativeListItemShimmer() {
   return (
     <div
       className={
-        "animate-pulse flex gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
+        "animate-pulse flex flex-shrink-0 gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
       }
     >
       <CardStackImages images={[]} />
@@ -37,12 +37,14 @@ interface AdCreativeListItemProps {
   conversationId: string;
   variants: IAdVariant[];
   adCreative: IAdCreativeNew;
+  containerClassName?: string;
 }
 
 const AdCreativeListItem: FC<AdCreativeListItemProps> = ({
   conversationId,
   variants,
   adCreative,
+  containerClassName,
 }) => {
   const params = useParams();
   const [images, setImages] = useState<ImageType[]>([]);
@@ -62,7 +64,8 @@ const AdCreativeListItem: FC<AdCreativeListItemProps> = ({
       key={conversationId}
       className={
         "flex gap-4 items-start px-4 py-3 mx-2 hover:bg-gray-900 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6 " +
-        (isActive ? "bg-gray-900" : "bg-gray-950")
+        (isActive ? "bg-gray-900 " : "bg-gray-950 ") +
+        (containerClassName ?? "")
       }
     >
       <CardStackImages images={images} />

@@ -139,7 +139,7 @@ export function ConversationListItemShimmer() {
   return (
     <div
       className={
-        "animate-pulse flex gap-4 mx-2 px-4 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
+        "animate-pulse flex flex-shrink-0 gap-4 mx-2 px-4 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
       }
     >
       <CardStackImages images={[]} />
@@ -155,9 +155,11 @@ export function ConversationListItemShimmer() {
 
 interface ConversationListItemProps {
   conversation: InfiniteConversation;
+  containerClassName?: string;
 }
 const ConversationListItem: FC<ConversationListItemProps> = ({
   conversation: propConversation,
+  containerClassName,
 }) => {
   const [images, setImages] = useState<ImageType[]>([]);
   const { conversation: currentConversation } = useCurrentConversation();
@@ -217,7 +219,8 @@ const ConversationListItem: FC<ConversationListItemProps> = ({
       key={conversation.id}
       className={
         "flex gap-4 mx-2 items-start px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-900 rounded overflow-hidden transition-all text-sm leading-6 " +
-        (isActive ? "bg-gray-900" : "bg-gray-950")
+        (isActive ? "bg-gray-900 " : "bg-gray-950 ") +
+        (containerClassName ?? "")
       }
     >
       <CardStackImages key={conversation.id} images={images} />

@@ -98,6 +98,7 @@ export const PaginatedList: FC<PaginatedListProps> = ({
         <LoadMoreButton
           handleLoadMore={handlePrevMore}
           loading={props.loading}
+          doInfiniteScroll={props.doInfiniteScroll}
         />
       )}
       {children}
@@ -115,9 +116,23 @@ export const PaginatedList: FC<PaginatedListProps> = ({
 
 interface LeftPaneProps {}
 
+export type LeftPaneSection = "conversation" | "ad_creative" | "campaign";
+
+export interface LeftPaneSectionBaseProps {
+  onScroll?: (section: LeftPaneSection) => void;
+  isActive: boolean;
+}
+
 const LeftPane: FC<LeftPaneProps> = (props) => {
   const router = useRouter();
   const { conversation } = useCurrentConversation();
+
+  const [activeScroll, setActiveScroll] =
+    useState<LeftPaneSection>("conversation");
+
+  function handleScroll(section: LeftPaneSection) {
+    setActiveScroll(section);
+  }
 
   return (
     <div className="flex flex-col w-[250px] h-full overflow-hidden">
@@ -138,12 +153,21 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
         </button>
       </Link>
       <hr className="border-gray-700" />
-      <div className={"relative overflow-auto w-full"}>
-        <ConversationSection />
+      <div className={"relative overflow-hidden w-full flex flex-col"}>
+        <ConversationSection
+          onScroll={handleScroll}
+          isActive={activeScroll === "conversation"}
+        />
         <hr className="border-gray-700" />
-        <AdCreativeSection />
+        <AdCreativeSection
+          onScroll={handleScroll}
+          isActive={activeScroll === "ad_creative"}
+        />
         <hr className="border-gray-700" />
-        <CampaignSection />
+        <CampaignSection
+          onScroll={handleScroll}
+          isActive={activeScroll === "campaign"}
+        />
       </div>
     </div>
   );

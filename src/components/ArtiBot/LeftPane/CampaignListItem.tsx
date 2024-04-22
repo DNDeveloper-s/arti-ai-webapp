@@ -49,7 +49,7 @@ export const CampaignListItemShimmer = () => {
   return (
     <div
       className={
-        "animate-pulse flex flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
+        "animate-pulse flex flex-shrink-0 flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
       }
     >
       <div className="flex gap-4 items-start ">
@@ -73,6 +73,7 @@ export function extractFromInsights(insight?: IFacebookAdInsight) {
 
 interface CampaignListItemProps {
   campaign: ICampaignInfinite;
+  containerClassName?: string;
 }
 
 export const defaultTimeRange: TimeRange = [
@@ -80,7 +81,10 @@ export const defaultTimeRange: TimeRange = [
   dayjs(),
 ];
 
-const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
+const CampaignListItem: FC<CampaignListItemProps> = ({
+  campaign,
+  containerClassName,
+}) => {
   const router = useRouter();
   const { ref, isInView } = useInView();
   // const { data: campaignWithInsights, isLoading } = useGetCampaignInsights({
@@ -120,7 +124,8 @@ const CampaignListItem: FC<CampaignListItemProps> = ({ campaign }) => {
       ref={ref}
       key={campaign.id}
       className={
-        "flex flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6"
+        "flex flex-col gap-4 px-4 mx-2 py-3 hover:bg-gray-900 bg-gray-950 rounded text-gray-300 cursor-pointer overflow-hidden transition-all text-sm leading-6 " +
+        (containerClassName ?? "")
       }
     >
       <div className="flex gap-4 items-start ">

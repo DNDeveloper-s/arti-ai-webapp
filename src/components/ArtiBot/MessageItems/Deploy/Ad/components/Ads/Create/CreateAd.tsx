@@ -1023,12 +1023,14 @@ export default function CreateAd({
   const { conversation } = useCurrentConversation();
   const conversationId = conversation?.id;
 
-  const unSortedVariants = conversationState.adCreative
-    ?.findAllBy("conversationId", conversationId ?? "")
-    ?.map((adCreative) =>
-      conversationState.variant.findAllBy("adCreativeId", adCreative.id)
-    )
-    ?.flat();
+  const unSortedVariants = useMemo(() => {
+    return conversationState.adCreative
+      ?.findAllBy("conversationId", conversationId ?? "")
+      ?.map((adCreative) =>
+        conversationState.variant.findAllBy("adCreativeId", adCreative.id)
+      )
+      ?.flat();
+  }, [conversationId, conversationState.adCreative, conversationState.variant]);
   // const [conversionLocationValue, setConversionLocationValue] = useState<
   //   string | null
   // >(null);
@@ -1038,6 +1040,13 @@ export default function CreateAd({
       (variant) => variant.id === selectedVariantId
     );
   }, [unSortedVariants, selectedVariantId]);
+
+  const selectedAdCreative = useMemo(() => {
+    return conversationState.adCreative.findOneBy(
+      "id",
+      selectedVariant?.adCreativeId ?? ""
+    );
+  }, [conversationState.adCreative, selectedVariant?.adCreativeId]);
 
   useEffect(() => {
     setSelectedVariantId(meta.selectedVariant?.id ?? "");
@@ -1080,6 +1089,9 @@ export default function CreateAd({
               campaign_id: data.campaign_id,
               name: data.adName,
               variant_id: selectedVariantId,
+              ad_creative_id: selectedVariant?.adCreativeId,
+              message_id: selectedAdCreative?.messageId,
+              conversation_id: conversationId,
             },
             adCreativeData: {
               name: data.adName,

@@ -29,9 +29,11 @@ import { PreviewProps } from "./Deploy/Ad/components/Ads/Create/CreateAd";
 import { useTimeRange } from "@/context/TimeRangeContext";
 import { AdLeadData, useGetVariant } from "@/api/conversation";
 import { SnackbarContext } from "@/context/SnackbarContext";
-import { useFetchLeadsData } from "@/api/admanager";
+import { useFetchLeadsData, useGetAdIdentifiers } from "@/api/admanager";
 import { TbEyeShare } from "react-icons/tb";
 import Link from "next/link";
+import { RiExternalLinkFill } from "react-icons/ri";
+import { useRouter } from "next/navigation";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -489,8 +491,12 @@ function AdTitle({
   ad_account_id?: string;
   handlePreview?: (props: PreviewProps) => void;
 }) {
+  const router = useRouter();
   const { setFormState, setSelectAdAccount } = useCampaignStore();
   const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+
+  const { data: adIdentifierMap, isFetching: isAdIdentifierFetching } =
+    useGetAdIdentifiers({ ad_id: ad.id });
 
   const { mutate: fetchLeadsData, isPending: isLeadsDataFetching } =
     useFetchLeadsData<"ad_entities">({
@@ -584,6 +590,19 @@ function AdTitle({
           />
         ) : (
           <AdPreviewWithAdId ad_id={ad.id} handlePreview={handlePreview} />
+        )}
+        {isAdIdentifierFetching ? (
+          <Spinner size="sm" />
+        ) : (
+          <RiExternalLinkFill
+            className="text-xl cursor-pointer"
+            onClick={() => {
+              if (!adIdentifierMap) return;
+              router.push(
+                `/artibot/ad_creative?conversation_id=${adIdentifierMap.conversationId}&message_id=${adIdentifierMap.messageId}`
+              );
+            }}
+          />
         )}
         {ad.id &&
           (isLeadsDataFetching ? (

@@ -135,6 +135,10 @@ export const ROUTES = {
     GET_LEADGEN_FORMS: apiUrl("/marketing/leads"),
     CREATE_LEADGEN_FORMS: apiUrl("/marketing/leads"),
   },
+  AD: {
+    GET_IDENTIFIERS: (adId: string) =>
+      apiUrl(`/marketing/ad_entities/${adId}/identifiers`),
+  },
   LOCATION: {
     ZIPCODE: apiUrl("/location/zipcode"),
     GET_ALL_COUNTRIES: apiUrl("/location/countries"),

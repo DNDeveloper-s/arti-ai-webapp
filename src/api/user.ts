@@ -1181,6 +1181,9 @@ interface ICreateAd {
   campaign_id: string;
   creative_id?: string;
   variant_id?: string;
+  ad_creative_id?: string;
+  message_id?: string;
+  conversation_id?: string;
 }
 
 // interface ICreateAdCreative {
