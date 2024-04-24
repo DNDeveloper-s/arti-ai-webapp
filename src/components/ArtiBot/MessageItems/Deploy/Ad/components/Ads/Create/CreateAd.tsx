@@ -936,6 +936,7 @@ export default function CreateAd({
   const { handleSubmit, formState, register, setValue, watch } =
     useForm<CreateAdFormValues>({
       resolver,
+      defaultValues: { status: "PAUSED" },
     });
 
   const {

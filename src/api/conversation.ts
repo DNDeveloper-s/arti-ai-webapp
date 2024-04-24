@@ -499,7 +499,7 @@ export const useSendMessage = (options?: UseSendMessageOptions) => {
           setIsGeneratingJson(false);
           break;
         }
-        if (value.includes("{\\n")) {
+        if (value.includes("{\\n") && !containsJson) {
           containsJson = true;
           setIsGeneratingJson(true);
         }
@@ -1169,7 +1169,7 @@ export const useRegisterBusiness = (
     mutationFn: registerBusiness,
     onSettled: (data, error, variables, ...rest) => {
       queryClient.invalidateQueries({
-        queryKey: API_QUERIES.GET_USER_BUSINESS,
+        queryKey: API_QUERIES.GET_USER_BUSINESSES,
       });
       onSettled && onSettled(data, error, variables, ...rest);
     },
@@ -1188,6 +1188,72 @@ export const useRegisterBusiness = (
       onError && onError(error, variables, ...rest);
     },
     ...options,
+  });
+};
+
+export interface UpdateBusinessVariables extends RegisterBusinessVariables {
+  id: string;
+}
+
+export const useUpdateBusiness = (
+  props: UseMutationOptions<any, Error, UpdateBusinessVariables, any> = {}
+) => {
+  const { onError, onSuccess, onSettled, ...options } = props;
+  const queryClient = useQueryClient();
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+
+  const updateBusiness = async (data: UpdateBusinessVariables) => {
+    if (!data.id) throw new Error("Business ID is required");
+    const response = await axios.patch(ROUTES.BUSINESS.ME, data, {
+      params: {
+        business_id: data.id,
+      },
+    });
+    return response.data;
+  };
+
+  return useMutation({
+    mutationFn: updateBusiness,
+    onSettled: (data, error, variables, ...rest) => {
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_USER_BUSINESSES,
+      });
+      onSettled && onSettled(data, error, variables, ...rest);
+    },
+    onSuccess: (data, variables, ...rest) => {
+      setSnackbarData({
+        message: "Business updated successfully",
+        status: "success",
+      });
+      onSuccess && onSuccess(data, variables, ...rest);
+    },
+    onError: (error, variables, ...rest) => {
+      setSnackbarData({
+        message: "Error in updating the business",
+        status: "error",
+      });
+      onError && onError(error, variables, ...rest);
+    },
+    ...options,
+  });
+};
+
+export const useGetBusiness = (business_id?: string | null, enabled = true) => {
+  const getBusiness = async ({ queryKey }: QueryFunctionContext) => {
+    const [, business_id] = queryKey;
+    if (!business_id && typeof business_id !== "string")
+      throw new Error("Business ID is required");
+    const response = await axios.get(
+      ROUTES.BUSINESS.GET(business_id as string)
+    );
+    return response.data.data;
+  };
+
+  return useQuery<IBusinessResponse>({
+    queryKey: API_QUERIES.GET_USER_BUSINESS(business_id),
+    queryFn: getBusiness,
+    staleTime: 1000 * 60 * 5,
+    enabled: !!enabled && !!business_id,
   });
 };
 
@@ -1227,7 +1293,7 @@ export const useQueryUserBusiness = () => {
   };
 
   return useQuery<GetQueryBusinessResponse>({
-    queryKey: API_QUERIES.GET_USER_BUSINESS,
+    queryKey: API_QUERIES.GET_USER_BUSINESSES,
     queryFn: getUserBusiness,
     staleTime: 1000 * 60 * 5,
   });
@@ -1236,9 +1302,14 @@ export const useQueryUserBusiness = () => {
 interface UseGetVariantProps {
   ad_id?: string;
   id?: string;
+  enabled?: boolean;
 }
 
-export const useGetVariant = ({ ad_id, id }: UseGetVariantProps) => {
+export const useGetVariant = ({
+  ad_id,
+  id,
+  enabled = true,
+}: UseGetVariantProps) => {
   const fetchVariant = async ({ queryKey }: QueryFunctionContext) => {
     const [, id, ad_id] = queryKey;
     const response = await axios.get(ROUTES.VARIANT.GET, {
@@ -1252,6 +1323,6 @@ export const useGetVariant = ({ ad_id, id }: UseGetVariantProps) => {
   return useQuery<IAdVariant>({
     queryKey: API_QUERIES.GET_VARIANT(id, ad_id),
     queryFn: fetchVariant,
-    enabled: !!ad_id || !!id,
+    enabled: enabled && (!!ad_id || !!id),
   });
 };

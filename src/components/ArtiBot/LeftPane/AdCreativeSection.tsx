@@ -4,6 +4,7 @@ import AdCreativeListItem, {
 } from "./AdCreativeListItem";
 import { LeftPaneSectionBaseProps, PaginatedList } from "./LeftPane";
 import { useGetVariantsByConversation } from "@/api/conversation";
+import { RiExpandUpDownLine } from "react-icons/ri";
 
 interface AdCreativeSectionProps extends LeftPaneSectionBaseProps {}
 export default function AdCreativeSection(props: AdCreativeSectionProps) {
@@ -28,13 +29,23 @@ export default function AdCreativeSection(props: AdCreativeSectionProps) {
         (props.isActive ? " basis-6/12" : "")
       }
     >
-      <div className="px-4 text-sm font-bold text-gray-400">
+      <div className="px-4 text-sm font-bold text-gray-400 flex items-center justify-between">
         <h3>Ad Creatives</h3>
+        {!props.isActive && (
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              props.onSectionActive && props.onSectionActive("ad_creative");
+            }}
+          >
+            <RiExpandUpDownLine />
+          </div>
+        )}
       </div>
       <div
         className="mt-2 flex flex-col gap-2 overflow-auto"
         onScroll={() => {
-          props.onScroll && props.onScroll("ad_creative");
+          props.onSectionActive && props.onSectionActive("ad_creative");
         }}
       >
         <PaginatedList

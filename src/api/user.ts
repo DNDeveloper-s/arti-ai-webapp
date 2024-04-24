@@ -502,6 +502,8 @@ export function useGetVariantPosts({
   //   staleTime: 1000 * 60 * 2,
   // });
 
+  console.log("postIds - ", postIds, isInView, accessToken);
+
   return useQueries({
     queries:
       postIds?.map((postId) => ({
@@ -551,7 +553,7 @@ export function useGetUserProviders() {
     return response.data;
   };
 
-  return useQuery<GetUserProvidersResponse>({
+  const query = useQuery<GetUserProvidersResponse>({
     queryKey: API_QUERIES.GET_USER_ACCOUNTS,
     queryFn: getUserProviders,
     retry(failureCount, error) {
@@ -565,6 +567,15 @@ export function useGetUserProviders() {
     },
     staleTime: 1000 * 60 * 15,
   });
+
+  const facebookProvider = useMemo(() => {
+    return query.data?.find((c) => c.provider === "facebook");
+  }, [query?.data]);
+
+  return {
+    ...query,
+    facebookProvider,
+  };
 }
 
 export function useLinkAccount() {

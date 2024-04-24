@@ -45,6 +45,7 @@ export const ROUTES = {
   },
   BUSINESS: {
     ME: apiUrl("/users/me/business"),
+    GET: (businessId: string) => apiUrl(`/business/${businessId}`),
   },
   MARKETING: {
     LEADS: (type: AD_MANAGER_ITEM, id: string) =>
@@ -55,6 +56,7 @@ export const ROUTES = {
   },
   PAYMENT: {
     CHECKOUT: apiUrl("/payments/checkout"),
+    PRODUCTS: apiUrl("/payments/products"),
   },
   CONVERSATION: {
     CREATE: (id: string) => apiUrl(`/conversations/${id}`),

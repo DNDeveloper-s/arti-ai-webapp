@@ -9,6 +9,7 @@ import {
   Input,
   Pagination,
   Selection,
+  SlotsToClasses,
   SortDescriptor,
   Spinner,
   Table,
@@ -17,7 +18,9 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  TableSlots,
   Tooltip,
+  select,
 } from "@nextui-org/react";
 import { FetchStatus } from "@tanstack/react-query";
 import { popGraphicsState } from "pdf-lib";
@@ -29,22 +32,25 @@ import { MdDelete, MdModeEditOutline } from "react-icons/md";
 import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
 
 interface UiTableProps<T> {
-  renderCell: (item: T, columnKey: Key) => React.ReactNode;
+  renderCell?: (item: T, columnKey: Key) => React.ReactNode;
   totalItems: any[];
   initialVisibleColumns?: string[];
   columns: any[];
   pronoun?: string;
-  selectedKeys: Selection;
-  setSelectedKeys: (keys: Selection) => any;
+  selectedKeys?: Selection;
+  setSelectedKeys?: (keys: Selection) => any;
   isLoading?: boolean;
   loadingContent?: ReactNode;
   emptyContent?: ReactNode;
   onAddClick?: () => any;
   onEditClick?: () => any;
   onDeleteClick?: () => any;
+  classNames?: SlotsToClasses<TableSlots>;
   fetchStatus: FetchStatus;
   hasMore?: boolean;
   fetchMore?: () => any;
+  noTopContent?: boolean;
+  selectionMode?: "single" | "multiple" | "none";
 }
 export default function UiTable<T = any>(props: UiTableProps<T>) {
   const {
@@ -59,6 +65,9 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
     onDeleteClick,
     fetchStatus,
     fetchMore,
+    selectionMode = "multiple",
+    noTopContent,
+    classNames,
   } = props;
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
@@ -187,7 +196,7 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
     setPage(1);
   }, []);
 
-  const isSingularSelected = selectedKeys !== "all" && selectedKeys.size === 1;
+  const isSingularSelected = selectedKeys !== "all" && selectedKeys?.size === 1;
 
   const topContent = React.useMemo(() => {
     return (
@@ -339,57 +348,11 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
 
   const handleSelectionChange: (keys: Selection) => any = (keys: Selection) => {
     console.log("keys - ", keys);
-    setSelectedKeys(keys as any);
+    setSelectedKeys && setSelectedKeys(keys as any);
     if (keys instanceof Set) {
       // keys.
     }
   };
-
-  const bottomContent = React.useMemo(() => {
-    return (
-      <div className="py-2 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-400">
-          {selectedKeys === "all"
-            ? "All items selected"
-            : `${selectedKeys.size} of ${filteredItems.length} selected`}
-        </span>
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color="primary"
-          page={page}
-          total={pages}
-          onChange={setPage}
-        />
-        <div className="hidden sm:flex w-[30%] justify-end gap-2">
-          <Button
-            isDisabled={pages === 1}
-            size="sm"
-            variant="flat"
-            onPress={onPreviousPage}
-          >
-            Previous
-          </Button>
-          <Button
-            isDisabled={pages === 1}
-            size="sm"
-            variant="flat"
-            onPress={onNextPage}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    );
-  }, [
-    selectedKeys,
-    filteredItems.length,
-    page,
-    pages,
-    onPreviousPage,
-    onNextPage,
-  ]);
 
   return (
     <Table
@@ -404,19 +367,21 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
           </div>
         ) : null
       }
-      classNames={{
-        wrapper: "h-[330px]",
-        td: "py-1",
-      }}
+      classNames={
+        classNames ?? {
+          wrapper: "h-[330px]",
+          td: "py-1",
+        }
+      }
       onCellAction={(key: Key) => {
         console.log("action - ", key);
       }}
       // scrollRef={scrollerRef}
       key={key}
       selectedKeys={selectedKeys}
-      selectionMode="multiple"
+      selectionMode={selectionMode}
       sortDescriptor={sortDescriptor}
-      topContent={topContent}
+      topContent={noTopContent ? null : topContent}
       topContentPlacement="outside"
       onSelectionChange={handleSelectionChange}
       onSortChange={setSortDescriptor}
@@ -445,7 +410,9 @@ export default function UiTable<T = any>(props: UiTableProps<T>) {
         {(item) => (
           <TableRow key={item.id}>
             {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey)}</TableCell>
+              <TableCell>
+                {renderCell ? renderCell(item, columnKey) : item[columnKey]}
+              </TableCell>
             )}
           </TableRow>
         )}

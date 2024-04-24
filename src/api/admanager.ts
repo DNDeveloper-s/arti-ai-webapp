@@ -4,6 +4,7 @@ import { IFacebookAdInsight, Paging } from "@/interfaces/ISocial";
 import {
   QueryFunctionContext,
   QueryKey,
+  UseInfiniteQueryOptions,
   UseMutationOptions,
   useInfiniteQuery,
   useMutation,
@@ -105,6 +106,7 @@ interface LeadsDataResponse {
 
 interface GetLeadsDataResponse<T extends AD_MANAGER_ITEM> {
   data: LeadsDataResponse[T];
+  paging: Paging;
 }
 
 interface GetLeadsDataVariables<T extends AD_MANAGER_ITEM> {
@@ -137,6 +139,7 @@ export const useFetchLeadsData = <T extends AD_MANAGER_ITEM>(
         params: {
           time_range: parsedTimeRange,
           access_token: accessToken,
+          limit: 1000,
         },
       }
     );
@@ -155,20 +158,61 @@ export const useFetchLeadsData = <T extends AD_MANAGER_ITEM>(
   });
 };
 
-const map = {
-  id: "6610e2dda5a15cb890b0c8d6",
-  adId: "120207183720600340",
-  adAccountId: "act_167093713134679",
-  accessToken:
-    "EAAJKrtHx2ZB8BO61SJb8b5KLTNV6EqF6Y7VdyrL5qWBFlxpv8rRzCa01BpZBZBLQN4u9xSEog5vVkASupddTPUZBOhMLCAOvFCLu82jt7GmwwZChzEqkY0ZCtI4nd9oMthReTvKTtgfCmHujfWScKUV6ISjKZAeG8rV0PC4PFXyfzflNiFOWFe4uf4r",
-  userId: "66040baff5ac2361ea74a338",
-  variantId: "6610e227211119401c79b48c",
-  adCreativeId: "6610e227211119401c79b48b",
-  messageId: "6610e227211119401c79b48a",
-  conversationId: "6610e227211119401c79b489",
-  adsetId: "120207183720570340",
-  campaignId: null,
-  adsetRecordId: "6610e2dda5a15cb890b0c8d5",
+export const useQueryLeadsData = <T extends "ad_entities">(
+  type: T,
+  id: string,
+  options?: UseInfiniteQueryOptions<
+    GetLeadsDataResponse<T>,
+    Error,
+    GetLeadsDataVariables<T>
+  >
+) => {
+  const LIMIT = 10;
+  const { accessToken } = useCredentials();
+  //   const { pushCampaignsToState } = useCampaign();
+  const { timeRange } = useTimeRange();
+  const parsedTimeRange = prepareTimeRange(timeRange);
+
+  const fetchLeadsData = async (
+    pageParam: undefined | any,
+    queryKey: QueryKey
+  ) => {
+    const [, access_token, type, id, timeRange] = queryKey;
+    if (type === undefined || id === undefined)
+      return console.error("Type or Id is undefined");
+    const response = await axios.get(
+      ROUTES.MARKETING.LEADS(type as AD_MANAGER_ITEM, id as string),
+      {
+        params: {
+          time_range: timeRange,
+          access_token: access_token,
+          after: pageParam,
+          limit: LIMIT,
+        },
+      }
+    );
+    return response.data.data;
+  };
+
+  return useInfiniteQuery<GetLeadsDataResponse<T>>({
+    queryKey: API_QUERIES.GET_INFINITE_LEADS(
+      accessToken,
+      type,
+      id,
+      parsedTimeRange
+    ),
+    queryFn: ({ pageParam, queryKey }: any) =>
+      fetchLeadsData(pageParam, queryKey),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.data.length === 0) return undefined;
+      return lastPage.paging.cursors.after;
+    },
+    getPreviousPageParam: (firstPage, allPages) => {
+      if (firstPage.data.length === 0) return undefined;
+      return undefined;
+    },
+  });
 };
 
 interface AdIdentifierMap {

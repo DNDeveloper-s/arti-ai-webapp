@@ -119,7 +119,7 @@ interface LeftPaneProps {}
 export type LeftPaneSection = "conversation" | "ad_creative" | "campaign";
 
 export interface LeftPaneSectionBaseProps {
-  onScroll?: (section: LeftPaneSection) => void;
+  onSectionActive?: (section: LeftPaneSection) => void;
   isActive: boolean;
 }
 
@@ -127,11 +127,11 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
   const router = useRouter();
   const { conversation } = useCurrentConversation();
 
-  const [activeScroll, setActiveScroll] =
+  const [activeSection, setActiveSection] =
     useState<LeftPaneSection>("conversation");
 
-  function handleScroll(section: LeftPaneSection) {
-    setActiveScroll(section);
+  function handleSection(section: LeftPaneSection) {
+    setActiveSection(section);
   }
 
   return (
@@ -155,18 +155,18 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
       <hr className="border-gray-700" />
       <div className={"relative overflow-hidden w-full flex flex-col"}>
         <ConversationSection
-          onScroll={handleScroll}
-          isActive={activeScroll === "conversation"}
+          onSectionActive={handleSection}
+          isActive={activeSection === "conversation"}
         />
         <hr className="border-gray-700" />
         <AdCreativeSection
-          onScroll={handleScroll}
-          isActive={activeScroll === "ad_creative"}
+          onSectionActive={handleSection}
+          isActive={activeSection === "ad_creative"}
         />
         <hr className="border-gray-700" />
         <CampaignSection
-          onScroll={handleScroll}
-          isActive={activeScroll === "campaign"}
+          onSectionActive={handleSection}
+          isActive={activeSection === "campaign"}
         />
       </div>
     </div>

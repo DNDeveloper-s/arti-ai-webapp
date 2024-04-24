@@ -13,6 +13,7 @@ import tickAnimation from "@/assets/lottie/tick_animation.json";
 import AdItem from "./AdItem/AdItem";
 import { useGetMe } from "@/api/user";
 import { Avatar } from "@nextui-org/react";
+import { ChatGPTMessageCreatingAd } from "../MessageItems/ChatGPTMessageItem";
 
 type MessageItemWithAdCreatives = InfiniteMessage;
 
@@ -28,6 +29,7 @@ interface MessageItemProps {
   disableCopy?: boolean;
   isClient?: boolean;
   isActive?: boolean;
+  isGeneratingJson?: boolean;
 }
 export default function MessageItem(props: MessageItemProps) {
   const { messageItem, size, disableCopy, isClient } = props;
@@ -88,6 +90,8 @@ export default function MessageItem(props: MessageItemProps) {
       ? botData.image.src
       : user?.image ?? dummyUser.image.src;
   }, [messageItem.role, user?.image]);
+
+  if (props.isGeneratingJson) return <ChatGPTMessageCreatingAd />;
 
   return (
     <AnimatePresence mode="wait">

@@ -3,7 +3,7 @@ import { extractFromInsights } from "@/components/ArtiBot/LeftPane/CampaignListI
 import {
   formatInsightName,
   formatInsightValue,
-} from "@/components/ArtiBot/MessageItems/DeployAdInsightsCard";
+} from "@/components/ArtiBot/MessageItems/Insights/DeployAdInsightsCard";
 import { Divider } from "antd";
 import { omit } from "lodash";
 import Link from "next/link";

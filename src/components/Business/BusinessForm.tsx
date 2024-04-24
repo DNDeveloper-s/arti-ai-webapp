@@ -1,6 +1,6 @@
 "use client";
 
-import { FieldPath, FormProvider, useForm } from "react-hook-form";
+import { FieldPath, FormProvider, useForm, useWatch } from "react-hook-form";
 import * as yup from "yup";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import { useCallback, useEffect, useState } from "react";
@@ -10,7 +10,9 @@ import { useRouter } from "next/navigation";
 import {
   SocialPageObject,
   SocialPageType,
+  useGetBusiness,
   useRegisterBusiness,
+  useUpdateBusiness,
 } from "@/api/conversation";
 import {
   useGetAdAccounts,
@@ -62,19 +64,22 @@ const CATEGORY_ITEMS: SelectWithAutoCompleteProps["items"] = [
   { uid: "fashion", name: "Fashion" },
 ];
 
-export default function RegisterBusiness() {
+interface BusinessFormProps {
+  business_id?: string;
+}
+export default function BusinessForm(props: BusinessFormProps) {
   const router = useRouter();
   const resolver = useYupValidationResolver(validationSchema);
   const methods = useForm<RegisterBusinessFormValues>({
     resolver,
-    defaultValues: {
-      name: "",
-      category: "",
-      position: "",
-      website: "",
-      location: [],
-      details: "",
-    },
+    // defaultValues: {
+    //   name: "",
+    //   category: "",
+    //   position: "",
+    //   website: "",
+    //   location: [],
+    //   details: "",
+    // },
   });
   const { state } = useUser();
   const accessToken = Platform.getPlatform(
@@ -82,6 +87,10 @@ export default function RegisterBusiness() {
   )?.userAccessToken;
   const { data: pagesData, isLoading: isPagesLoading } =
     useUserPages(accessToken);
+
+  const { data: editBusinessData, isFetching } = useGetBusiness(
+    props.business_id
+  );
 
   const { handleSubmit, watch, formState, setValue, register } = methods;
 
@@ -93,11 +102,23 @@ export default function RegisterBusiness() {
 
   const { data: accounts } = useGetAdAccounts();
 
-  const { mutate: postRegisterBusiness, isPending } = useRegisterBusiness({
-    onSuccess: () => {
-      router.push("/");
-    },
-  });
+  const { mutate: postRegisterBusiness, isPending: isRegisterPending } =
+    useRegisterBusiness({
+      onSuccess: () => {
+        router.push("/");
+      },
+    });
+
+  const { mutate: postUpdateBusiness, isPending: isUpdatePending } =
+    useUpdateBusiness({
+      onSuccess: () => {
+        router.push("/");
+      },
+    });
+
+  const isPending = isRegisterPending || isUpdatePending;
+
+  const isEditMode = !!props.business_id;
 
   const myRegister = useCallback(
     (name: FieldPath<RegisterBusinessFormValues>) => {
@@ -135,11 +156,42 @@ export default function RegisterBusiness() {
       })) ?? ([] as SocialPageObject[])
     ).find((c) => c.providerId === data.ad_account_id);
 
-    postRegisterBusiness({
-      ...data,
-      socialPages: compact([providers, accountProviders]),
-    });
+    if (isEditMode && props.business_id) {
+      postUpdateBusiness({
+        id: props.business_id,
+        ...dataToSend,
+        socialPages: compact([providers, accountProviders]),
+      });
+    } else {
+      postRegisterBusiness({
+        ...data,
+        socialPages: compact([providers, accountProviders]),
+      });
+    }
   };
+
+  useEffect(() => {
+    if (editBusinessData && isEditMode) {
+      console.log("editBusinessData - ", editBusinessData);
+      setValue("name", editBusinessData.name);
+      setValue("position", editBusinessData.position);
+      setValue("website", editBusinessData.website);
+      setValue("details", editBusinessData.details ?? "");
+      setValue("category", editBusinessData.category);
+      setValue(
+        "page_id",
+        editBusinessData.socialPages?.find(
+          (c) => c.type === SocialPageType.FACEBOOK_PAGE
+        )?.providerId ?? ""
+      );
+      setValue(
+        "ad_account_id",
+        editBusinessData.socialPages?.find(
+          (c) => c.type === SocialPageType.FACEBOOK_AD_ACCOUNT
+        )?.providerId ?? ""
+      );
+    }
+  }, [setValue, editBusinessData, isEditMode]);
 
   useEffect(() => {
     router.prefetch("/");
@@ -155,7 +207,9 @@ export default function RegisterBusiness() {
               style={{ fontSize: "21px" }}
             />
           </div>
-          <h1 className="text-xl font-diatype mt-3 mb-4">Register Business</h1>
+          <h1 className="text-xl font-diatype mt-3 mb-4">
+            {isEditMode ? "Edit" : "Register"} Business
+          </h1>
           <div className="flex items-center gap-1 opacity-0 pointer-events-none">
             <MdArrowBackIos style={{ fontSize: "21px" }} />
           </div>
@@ -173,6 +227,7 @@ export default function RegisterBusiness() {
               label="Business Name"
               variant="flat"
               {...myRegister("name")}
+              value={watch("name")}
             />
             <SelectWithAutoComplete
               plural="Categories"
@@ -187,6 +242,7 @@ export default function RegisterBusiness() {
               label="Position"
               variant="flat"
               {...myRegister("position")}
+              value={watch("position")}
             />
             <Input
               classNames={{
@@ -195,6 +251,7 @@ export default function RegisterBusiness() {
               label="Website"
               variant="flat"
               {...myRegister("website")}
+              value={watch("website")}
             />
             <Input
               classNames={{
@@ -203,6 +260,7 @@ export default function RegisterBusiness() {
               label="Details"
               variant="flat"
               {...myRegister("details")}
+              value={watch("details")}
             />
             <Divider className="my-3" />
             {hasNoAccount ? (
@@ -222,7 +280,7 @@ export default function RegisterBusiness() {
                 color="primary"
                 isDisabled={isPending}
               >
-                <span>Register</span>
+                <span>{isEditMode ? "Update" : "Register"}</span>
               </Button>
             </div>
           </form>

@@ -458,6 +458,7 @@ export default function CreateAdset({
   const resolver = useYupValidationResolver(validationSchema);
   const methods = useForm<CreateAdsetFormValues>({
     resolver,
+    defaultValues: { status: "PAUSED" },
   });
   const {
     handleSubmit,

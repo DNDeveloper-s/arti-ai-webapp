@@ -3,7 +3,7 @@
 import React, { createContext, FC, useState } from "react";
 
 export interface ISnackbarData {
-  status: "warning" | "error" | "success" | "info";
+  status: "warning" | "error" | "success" | "info" | "progress";
   message: string;
 }
 

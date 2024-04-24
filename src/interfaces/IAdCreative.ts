@@ -45,6 +45,7 @@ export interface IAdCreative extends AdJSONInput {
 }
 
 export interface IAdVariantClient {
+  id: undefined;
   adName: string;
   adOrientation: string;
   adType: string;

@@ -31,6 +31,7 @@ import DeployButton from "./DeployButton";
 import {
   useGetAdSet,
   useGetFacebookPage,
+  useGetUserProviders,
   useGetVariantPosts,
 } from "@/api/user";
 import DeployedPostCard from "./DeployedPostCard";
@@ -38,7 +39,7 @@ import { FacebookPage, Platform, useUser } from "@/context/UserContext";
 import useConversations from "@/hooks/useConversations";
 import { useSearchParams } from "next/navigation";
 import { ConversationType } from "@/interfaces/IConversation";
-import { DeployAdInsightsCard } from "./DeployAdInsightsCard";
+import { DeployAdInsightsCard } from "./Insights/DeployAdInsightsCard";
 import useInView from "@/hooks/useInView";
 
 export function blobToBase64(blob: Blob) {
@@ -333,7 +334,7 @@ export function ConversationAdVariantWithPostInsights({
   const variant = (state.variant.map[variantId] as IAdVariant) ?? null;
   const editMode = editState.variant && editState.variant.id === variantId;
   // const isInView = useInView(containerRef, { timeInView: 1000 });
-  const { ref: containerRef, isInView } = useInView({ timeInView: 1000 });
+  const { ref: containerRef, isInView } = useInView({ timeInView: 0 });
 
   // TODO: Refactor to CurrentConversationContext
   const { getConversationById } = useConversations();
@@ -348,6 +349,8 @@ export function ConversationAdVariantWithPostInsights({
   const { state: userState } = useUser();
   const platform = Platform.getPlatform(userState.data?.facebook);
 
+  const { facebookProvider } = useGetUserProviders();
+
   const {
     data: pageData,
     refetch: getFacebookPage,
@@ -355,11 +358,19 @@ export function ConversationAdVariantWithPostInsights({
     isFetching: isPageFetching,
     isPaused,
   } = useGetFacebookPage({
-    accessToken: platform?.userAccessToken ?? undefined,
+    accessToken: facebookProvider?.access_token ?? undefined,
     pageId:
       variant?.posts && variant.posts[0] ? variant.posts[0].pageId : undefined,
     isInView,
   });
+
+  console.log(
+    "pageData - ",
+    isInView,
+    pageData,
+    facebookProvider,
+    variant?.posts && variant.posts[0] ? variant.posts[0].pageId : undefined
+  );
 
   const page = FacebookPage.getPage(pageData);
   // const {

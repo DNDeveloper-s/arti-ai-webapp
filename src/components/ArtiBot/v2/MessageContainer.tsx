@@ -151,18 +151,21 @@ export default function MessageContainer() {
                   type={conversation?.conversation_type}
                 />
               )}
-              {messages.map((messageItem) => (
+              {messages.map((messageItem, ind) => (
                 <MessageItem
                   key={messageItem.id}
                   isActive={messageItem.id === queryMessageId}
                   messageItem={messageItem}
+                  isGeneratingJson={
+                    ind === messages.length - 1 ? isGeneratingJson : false
+                  }
                 />
               ))}
 
               {/* {isPending && <ChatGPTMessageGeneratingAnimation />} */}
-              {isGeneratingJson && (
+              {/* {isGeneratingJson && (
                 <ChatGPTMessageCreatingAd hideProfilePic={true} />
-              )}
+              )} */}
               <div ref={keepInViewRef} />
               {/* <ClientMessages /> */}
             </motion.div>

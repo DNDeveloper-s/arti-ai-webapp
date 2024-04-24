@@ -82,7 +82,10 @@ export default function CreateCampaign({
   // Hook for form validation resolver
   const resolver = useYupValidationResolver(validationSchema);
   const { handleSubmit, register, setValue, watch } =
-    useForm<CreateCampaignFormValues>({ resolver });
+    useForm<CreateCampaignFormValues>({
+      resolver,
+      defaultValues: { status: "PAUSED" },
+    });
 
   const { conversation } = useCurrentConversation();
   const conversationId = conversation?.id;
@@ -162,7 +165,7 @@ export default function CreateCampaign({
           CAMPAIGN_OBJECTIVES.find(
             (c) => c.numericUid === autoCompleteFields.objective
           )?.uid ?? ""
-      );
+        );
     }
   }, [autoCompleteFields, setValue, storeFormState.mode]);
 

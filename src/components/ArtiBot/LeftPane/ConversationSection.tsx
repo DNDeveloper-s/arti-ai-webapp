@@ -34,14 +34,21 @@ export default function ConversationSection(props: ConversationSectionProps) {
     >
       <div className="px-4 text-sm font-bold text-gray-400 flex items-center justify-between">
         <h3>Conversations</h3>
-        <div className="cursor-pointer">
-          <RiExpandUpDownLine />
-        </div>
+        {!props.isActive && (
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              props.onSectionActive && props.onSectionActive("conversation");
+            }}
+          >
+            <RiExpandUpDownLine />
+          </div>
+        )}
       </div>
       <div
         className="mt-2 flex flex-col gap-2 overflow-auto"
         onScroll={() => {
-          props.onScroll && props.onScroll("conversation");
+          props.onSectionActive && props.onSectionActive("conversation");
         }}
       >
         <PaginatedList

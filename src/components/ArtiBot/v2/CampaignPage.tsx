@@ -1,9 +1,5 @@
 import { useGetCampaignInsights } from "@/api/conversation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  DeployAdChildCard,
-  InsightTitle,
-} from "../MessageItems/DeployAdInsightsCard";
 import { Spinner } from "@nextui-org/react";
 import { BiCaretRight } from "react-icons/bi";
 import { Collapse, CollapseProps } from "antd";
@@ -20,16 +16,16 @@ import AdPreviewModal from "./AdPreviewModal";
 import { PreviewProps } from "../MessageItems/Deploy/Ad/components/Ads/Create/CreateAd";
 import { useTimeRange } from "@/context/TimeRangeContext";
 import { defaultTimeRange } from "../LeftPane/CampaignListItem";
+import InsightTitle from "../MessageItems/Insights/InsightTitle";
+import { DeployAdChildCard } from "../MessageItems/Insights/DeployAdChildCard";
 
 interface DeployAdChildCardProps {
   campaignId: string;
   accountId: string;
-  handlePreview?: (props: PreviewProps) => void;
 }
 const CampaignChildCard = ({
   accountId,
   campaignId,
-  handlePreview,
 }: DeployAdChildCardProps) => {
   const { timeRange } = useTimeRange();
   const {
@@ -86,14 +82,13 @@ const CampaignChildCard = ({
                 adsetId={adset.id}
                 accountId={accountId}
                 isActive={activeKeys.includes(adset.id)}
-                handlePreview={handlePreview}
               />
             </ErrorBoundary>
           ),
         };
       }) ?? []
     );
-  }, [accountId, activeKeys, adsets, isFetching, handlePreview]);
+  }, [accountId, activeKeys, adsets, isFetching]);
 
   return (
     <>
@@ -151,18 +146,6 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
     setActiveKeys(typeof key === "string" ? [key] : key);
   };
 
-  const [open, setOpen] = useState(false);
-  const [previewData, setPreviewData] = useState<PreviewProps | null>(null);
-
-  const handlePreview = useCallback((previeProps: PreviewProps) => {
-    setPreviewData(previeProps);
-    setOpen(true);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
-
   const campaignItems = useMemo(() => {
     if (!data) return [];
     return [
@@ -186,13 +169,12 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
             <CampaignChildCard
               accountId={data.ad_account_id}
               campaignId={data.id}
-              handlePreview={handlePreview}
             />
           </ErrorBoundary>
         ),
       },
     ];
-  }, [data, isFetching, handlePreview]);
+  }, [data, isFetching]);
 
   function handleDateRangeChange(range: RangeValueType<Dayjs>) {
     console.log("range - ", range);
@@ -228,11 +210,6 @@ export default function CampaignPage({ campaignId }: { campaignId: string }) {
         </div>
       )}
       <CreateAdManagerModal />
-      <AdPreviewModal
-        open={open}
-        handleClose={handleClose}
-        previewData={previewData}
-      />
     </>
   );
 }

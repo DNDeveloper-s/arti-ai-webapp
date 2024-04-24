@@ -1,11 +1,14 @@
 import { ClientMessageItem, InfiniteMessage } from "@/api/conversation";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
-import { IAdCreativeWithVariants } from "@/interfaces/IAdCreative";
+import {
+  IAdCreativeWithVariants,
+  IAdVariantClient,
+} from "@/interfaces/IAdCreative";
 import { ConversationType } from "@/interfaces/IConversation";
 import { useMemo, useRef } from "react";
 import { ConversationAdVariant } from "./ConversationAdVariant";
 import ClientAdVariant from "../ClientState/ClientAdVariant";
-import { DeployAdInsightsCard } from "../../MessageItems/DeployAdInsightsCard";
+import { DeployAdInsightsCard } from "../../MessageItems/Insights/DeployAdInsightsCard";
 import useInView from "@/hooks/useInView";
 import { useConversation } from "@/context/ConversationContext";
 import { useGetAdSet } from "@/api/user";
@@ -40,6 +43,13 @@ export default function AdItem({
     adsetId: adset?.adsetId,
     enabled: isInView,
   });
+
+  const isAdCreativeInState = state.adCreative.findOneBy(
+    "id",
+    messageItem.adCreatives?.[0]?.id ?? ""
+  );
+
+  console.log("isAdCreativeInState - ", isAdCreativeInState);
 
   //   if (!adCreative || !currentConversation) return null;
   if (!adCreative || !conversation) return null;
@@ -87,23 +97,27 @@ export default function AdItem({
         </p>
       </div>
       <div className="flex w-full overflow-auto items-start gap-6 my-[2.5em]">
-        {isClient &&
+        {/* {!isAdCreativeInState &&
           messageItem.adCreatives &&
-          messageItem.adCreatives[0].variants.map((variant) => (
-            <ClientAdVariant key={variant.variantNo} variant={variant} />
-          ))}
+          messageItem.adCreatives[0]?.variants.map((variant) => (
+            <ClientAdVariant
+              key={variant.variantNo}
+              variant={variant as IAdVariantClient}
+            />
+          ))} */}
         {messageItem.adCreatives && !isClient && (
           <>
             {conversation.conversation_type === ConversationType.AD_CREATIVE &&
-              messageItem.adCreatives[0].variants.map((variant) => (
+              messageItem.adCreatives[0]?.variants.map((variant) => (
                 <ConversationAdVariant
                   key={variant.id}
                   variantId={variant.id}
+                  baseVariant={variant}
                 />
               ))}
             {conversation.conversation_type ===
               ConversationType.SOCIAL_MEDIA_POST &&
-              messageItem.adCreatives[0].variants.map((variant) => (
+              messageItem.adCreatives[0]?.variants.map((variant) => (
                 <ConversationAdVariantWithPostInsights
                   key={variant.id}
                   variantId={variant.id}

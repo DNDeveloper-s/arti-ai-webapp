@@ -3,6 +3,7 @@ import { useGetCredits } from "@/api/conversation";
 import { useCreatePayment } from "@/api/payment";
 import { useUpdateUser } from "@/api/user";
 import Navbar from "@/components/Settings/Navbar";
+import SubscriptionPlans from "@/components/Settings/SubscriptionPlans";
 import Snackbar from "@/components/Snackbar";
 import { botData, dummyUser } from "@/constants/images";
 import { useUser } from "@/context/UserContext";
@@ -238,6 +239,8 @@ export default function Settings() {
       </form>
       <Divider className="my-5" />
       <RefillCreditForm />
+      <Divider className="my-5" />
+      <SubscriptionPlans />
     </main>
   );
 }

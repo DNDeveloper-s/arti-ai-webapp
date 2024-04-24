@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { ConversationType } from "@/interfaces/IConversation";
 import { useMemo, useState } from "react";
 import { useGetInifiniteCampaigns } from "@/api/admanager";
+import { RiExpandUpDownLine } from "react-icons/ri";
 
 interface CampaignSectionProps extends LeftPaneSectionBaseProps {}
 
@@ -35,13 +36,23 @@ export default function CampaignSection(props: CampaignSectionProps) {
         (props.isActive ? " basis-6/12" : "")
       }
     >
-      <div className="px-4 text-sm font-bold text-gray-400">
+      <div className="px-4 text-sm font-bold text-gray-400 flex items-center justify-between">
         <h3>Campaigns</h3>
+        {!props.isActive && (
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              props.onSectionActive && props.onSectionActive("campaign");
+            }}
+          >
+            <RiExpandUpDownLine />
+          </div>
+        )}
       </div>
       <div
         className="mt-2 flex flex-col gap-2 overflow-auto"
         onScroll={() => {
-          props.onScroll && props.onScroll("campaign");
+          props.onSectionActive && props.onSectionActive("campaign");
         }}
       >
         <PaginatedList

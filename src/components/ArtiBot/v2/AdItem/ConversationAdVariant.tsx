@@ -22,7 +22,13 @@ import { dataUrlToBase64, fetchImage } from "../../MessageItems/AdItem";
 // @ts-ignore
 import { saveAs } from "file-saver";
 
-export function ConversationAdVariant({ variantId }: { variantId: string }) {
+export function ConversationAdVariant({
+  variantId,
+  baseVariant,
+}: {
+  variantId: string;
+  baseVariant: IAdVariant;
+}) {
   const containerRef = useRef(null);
   const { dispatch, state: editState } = useEditVariant();
   const {
@@ -34,7 +40,8 @@ export function ConversationAdVariant({ variantId }: { variantId: string }) {
   const [updating, setUpdating] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  const variant = state.variant.findOneBy("id", variantId) ?? null;
+  const variantInState = state.variant.findOneBy("id", variantId);
+  const variant = variantInState ?? baseVariant;
   const editMode = editState.variant && editState.variant.id === variantId;
 
   async function handleDownload() {
@@ -200,6 +207,7 @@ export function ConversationAdVariant({ variantId }: { variantId: string }) {
                 opacity: editMode ? 0 : 1,
                 pointerEvents: editMode ? "none" : "all",
               }}
+              isClient={!variantInState}
             />
           ) : (
             <EditFacebookAdVariant

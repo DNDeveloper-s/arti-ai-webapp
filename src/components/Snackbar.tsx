@@ -1,21 +1,23 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useContext, useEffect } from "react";
+import { use, useContext, useEffect, useRef } from "react";
 import { SnackbarContext } from "@/context/SnackbarContext";
 import { clearError, useConversation } from "@/context/ConversationContext";
+import { Spinner } from "@nextui-org/react";
 
 export default function Snackbar() {
   const [snackBarData, setSnackBarData] =
     useContext(SnackbarContext).snackBarData;
   const { state, dispatch } = useConversation();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (snackBarData) {
-      let timeout = setTimeout(() => {
-        setSnackBarData(null);
+      timeoutRef.current = setTimeout(() => {
+        snackBarData.status !== "progress" && setSnackBarData(null);
       }, 5000);
 
       return () => {
-        clearTimeout(timeout);
+        timeoutRef.current && clearTimeout(timeoutRef.current);
       };
     }
   }, [setSnackBarData, snackBarData]);
@@ -28,6 +30,8 @@ export default function Snackbar() {
     warning:
       "text-white border-2 border-yellow-500 bg-yellow-700 shadow-[0_0_10px_#c4995e]",
     info: "text-white border-2 border-blue-500 bg-blue-700 shadow-[0_0_10px_#95acec]",
+    progress:
+      "text-white border-2 border-blue-500 bg-blue-700 shadow-[0_0_10px_#95acec]",
   };
 
   const props = {
@@ -50,15 +54,25 @@ export default function Snackbar() {
           style={{ zIndex: 100000 }}
           role="alert"
         >
-          <svg
-            className="flex-shrink-0 inline w-4 h-4 mr-3"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-          </svg>
+          {snackBarData.status !== "progress" ? (
+            <svg
+              className="flex-shrink-0 inline w-4 h-4 mr-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+            </svg>
+          ) : (
+            <Spinner
+              classNames={{
+                base: "w-4 h-4",
+                wrapper: "w-4 h-4",
+              }}
+              className="flex-shrink-0 inline w-4 h-4 mr-3"
+            />
+          )}
           <span className="sr-only capitalize">{snackBarData.status}</span>
           <div>{snackBarData.message}</div>
         </motion.div>

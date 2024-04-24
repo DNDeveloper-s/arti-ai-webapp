@@ -1,5 +1,5 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import RegisterBusiness from "@/components/Business/RegisterBusiness";
+import BusinessForm from "@/components/Business/BusinessForm";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { FC } from "react";
@@ -10,7 +10,7 @@ const Page: FC<PageProps> = async (props) => {
 
   if (!session) return redirect("/");
 
-  return <RegisterBusiness />;
+  return <BusinessForm />;
 };
 
 export default Page;

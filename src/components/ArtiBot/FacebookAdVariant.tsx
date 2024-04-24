@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useContext, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Image1 from "next/image";
 import dummyImage from "@/assets/images/image4.webp";
@@ -8,6 +8,7 @@ import { IAdVariant } from "@/interfaces/IArtiBot";
 import { REACTION } from "@/interfaces";
 import { SlOptions } from "react-icons/sl";
 import {
+  generateAdCreativeImages,
   updateVariantImage,
   useConversation,
 } from "@/context/ConversationContext";
@@ -22,6 +23,7 @@ import { resetImageUrl, useEditVariant } from "@/context/EditVariantContext";
 import { NoImage } from "./LeftPane/ConversationListItem";
 import { useUser } from "@/context/UserContext";
 import ImageTemp from "../shared/renderers/ImageTemp";
+import { SnackbarContext } from "@/context/SnackbarContext";
 
 export const FacebookAdVariantShimmer = ({ style = {}, className = "" }) => {
   return (
@@ -85,6 +87,7 @@ export interface FacebookAdVariantProps
   className?: string;
   mock?: Mock;
   forceAdVariant?: boolean;
+  isClient?: boolean;
   handleEditVariantClose?: () => void;
 }
 
@@ -94,8 +97,10 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({
   adVariant: _adVariant,
   noExpand,
   className,
+  isClient,
   ...props
 }) => {
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
   const [expand, setExpand] = useState<boolean>(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [reactionState, setReactionState] = useState<REACTION>();
@@ -126,19 +131,79 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({
     );
   }
 
-  // useEffect(() => {
-  // 	if(!headingRef.current) return;
-  // 	// const height = headingRef.current.offsetTop;
-  // 	headingRef.current.scrollIntoView({behavior: 'smooth', block: 'start'})
-  // }, [expand]);
+  useEffect(() => {
+    if (!headingRef.current) return;
+    // const height = headingRef.current.offsetTop;
+    headingRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [expand]);
+
+  useEffect(() => {
+    if (
+      !adVariant.id ||
+      adVariant.id.includes("variant") ||
+      noExpand ||
+      isClient
+    )
+      return;
+    if (
+      !adVariant.imageUrl &&
+      adVariant.imageDescription &&
+      (!inProcess || !inProcess[adVariant.id]) &&
+      (!inError || !inError[adVariant.id])
+    ) {
+      console.log("adVariant.id - ", adVariant.id);
+      updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
+      // generateAdCreativeImages(
+      //   dispatch,
+      //   adVariant.adCreativeId,
+      //   (err: Error) => {
+      //     console.log("Error in creating - ", err);
+      //     setSnackBarData({
+      //       message:
+      //         err.message ?? "Error in generating images for ad creative.",
+      //       status: "error",
+      //     });
+      //   }
+      // );
+    }
+  }, [
+    adVariant,
+    dispatch,
+    inError,
+    inProcess,
+    noExpand,
+    setSnackBarData,
+    isClient,
+  ]);
 
   // useEffect(() => {
-  // 	if(!adVariant.id || adVariant.id.includes('variant') || noExpand) return;
-  // 	if(!adVariant.imageUrl && adVariant.imageDescription && (!inProcess || !inProcess[adVariant.id]) && (!inError || !inError[adVariant.id])) {
-  // 		console.log('adVariant.id - ', adVariant.id);
-  // 		updateVariantImage(dispatch, adVariant.imageDescription, adVariant.id);
-  // 	}
-  // }, [adVariant, dispatch, inError, inProcess, noExpand]);
+  //   if (variantList) {
+  //     const hasAtLeastOneVariantToFetch = variantList.some(
+  //       (variant) =>
+  //         !variant.imageUrl &&
+  //         variant.imageDescription &&
+  //         (!inProcess || !inProcess[variant.id]) &&
+  //         (!inError || !inError[variant.id] || !inError[adCreative.id])
+  //     );
+  //     if (
+  //       !ranTheGenerationRef.current &&
+  //       !inProcess[adCreative.id] &&
+  //       hasAtLeastOneVariantToFetch
+  //     ) {
+  //       ranTheGenerationRef.current = true;
+  //       generateAdCreativeImages(dispatch, adCreative.id, (err: Error) => {
+  //         console.log("Error in creating - ", err);
+  //         setSnackBarData({
+  //           message:
+  //             err.message ?? "Error in generating images for ad creative.",
+  //           status: "error",
+  //         });
+  //       });
+  //     }
+  //     ranTheGenerationRef.current = true;
+  //   }
+  // }, [dispatch, variantList, inProcess, inError, adCreative.id]);
+
   const [imageUrl, setImageUrl] = useState<string | null>(
     mock.is ? null : adVariant.imageUrl
   );
@@ -200,7 +265,7 @@ const FacebookAdVariant: FC<FacebookAdVariantProps> = ({
       <NoImage className="!text-6xl !flex-col !aspect-square">
         <span className="text-lg mt-2">Image not found</span>
       </NoImage>
-    ) : imageUrl ? (
+    ) : imageUrl && !isClient ? (
       <ImageTemp
         width={600}
         height={100}

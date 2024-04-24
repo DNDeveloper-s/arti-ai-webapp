@@ -8,6 +8,7 @@ const API_QUERIES = {
     timeRange?: string | null
   ) => ["get-leads", accessToken, type, id, timeRange],
   GET_CREDIT_BALANCE: ["get-credit-balance"],
+  GET_USER_BUSINESSES: ["get-user-businesses"],
   USER_PAGES: (access_token?: string | null) => ["user-pages", access_token],
   USER_FACEBOOK_POSTS: (page_id: string, page_access_token: string) => [
     "user-facebook-posts",
@@ -35,10 +36,17 @@ const API_QUERIES = {
     id,
     ad_id,
   ],
+  GET_PRODUCTS: ["get-products"],
   GET_CREATIVE_AUTO_COMPLETE: (adCreativeId?: string) => [
     "get-creative-auto-complete",
     adCreativeId,
   ],
+  GET_INFINITE_LEADS: (
+    accessToken?: string | null,
+    type?: string | null,
+    id?: string | null,
+    parsedTimeRange?: string | null
+  ) => ["get-infinite-leads", accessToken, type, id, parsedTimeRange],
   GET_ME: ["get-me"],
   GET_FACEBOOK_USER_ACCESS_TOKEN: ["get-facebook-user-access-token"],
   VALIDATE_FACEBOOK_ACCESS_TOKEN: ["validate-facebook-access-token"],
@@ -113,7 +121,10 @@ const API_QUERIES = {
     access_token,
     adset_id,
   ],
-  GET_USER_BUSINESS: ["get-user-business"],
+  GET_USER_BUSINESS: (business_id?: string | null) => [
+    "get-user-business",
+    business_id,
+  ],
   GET_ADS: (
     access_token?: string | null,
     account_id?: string | null,
