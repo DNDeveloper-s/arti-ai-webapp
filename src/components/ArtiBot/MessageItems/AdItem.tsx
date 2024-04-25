@@ -332,11 +332,11 @@ export function ConversationAdVariantWithPostInsights({
   const [downloading, setDownloading] = useState(false);
 
   const variant = (state.variant.map[variantId] as IAdVariant) ?? null;
+  const _var = state.variant.get(variantId);
   const editMode = editState.variant && editState.variant.id === variantId;
   // const isInView = useInView(containerRef, { timeInView: 1000 });
   const { ref: containerRef, isInView } = useInView({ timeInView: 0 });
 
-  // TODO: Refactor to CurrentConversationContext
   const { getConversationById } = useConversations();
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("conversation_id");
@@ -344,10 +344,6 @@ export function ConversationAdVariantWithPostInsights({
     if (!conversationId) return null;
     return getConversationById(conversationId);
   }, [conversationId, getConversationById]);
-
-  // Fetching the page or posts data
-  const { state: userState } = useUser();
-  const platform = Platform.getPlatform(userState.data?.facebook);
 
   const { facebookProvider } = useGetUserProviders();
 
@@ -364,25 +360,7 @@ export function ConversationAdVariantWithPostInsights({
     isInView,
   });
 
-  console.log(
-    "pageData - ",
-    isInView,
-    pageData,
-    facebookProvider,
-    variant?.posts && variant.posts[0] ? variant.posts[0].pageId : undefined
-  );
-
   const page = FacebookPage.getPage(pageData);
-  // const {
-  //   data: postData,
-  //   refetch: getVariantPost,
-  //   isLoading: isPostLoading,
-  //   isFetching: isPostFetching,
-  // } = useGetVariantPost({
-  //   accessToken: page?.page_access_token ?? undefined,
-  //   postId:
-  //     variant?.posts && variant.posts[0] ? variant.posts[0].postId : undefined,
-  // });
 
   const {
     data: postData,
@@ -394,12 +372,17 @@ export function ConversationAdVariantWithPostInsights({
     // isFetching: isPostFetching,
   } = useGetVariantPosts({
     accessToken: page?.page_access_token ?? undefined,
-    postIds:
-      variant?.posts instanceof Array
-        ? variant.posts.map((c) => c.postId)
-        : undefined,
+    postIds: variant?.posts ? variant.posts.map((c) => c.postId) : undefined,
     isInView,
   });
+
+  console.log(
+    "useGetVariantPosts - ",
+    page,
+    pageData,
+    variant,
+    facebookProvider
+  );
 
   async function handleDownload() {
     setDownloading(true);

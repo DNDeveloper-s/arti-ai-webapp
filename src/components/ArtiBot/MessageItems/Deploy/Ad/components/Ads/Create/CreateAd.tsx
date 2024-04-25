@@ -723,6 +723,74 @@ const InstagramReelPreview = (props: PreviewProps) => {
   );
 };
 
+export const FacebookSocialPostPreview = (props: PreviewProps) => {
+  return (
+    <div
+      className={"w-[300px] h-auto bg-gray-800 ad-preview-card py-3"}
+      style={
+        {
+          // "--shadow": "0 0 50px #bebebe45",
+        }
+      }
+    >
+      <div className={"flex items-center justify-between px-3 gap-4"}>
+        <div className={"flex items-center gap-4"}>
+          <div className={"w-7 h-7 rounded-full overflow-hidden"}>
+            <AppDefaultImage
+              className={"w-full h-full object-cover"}
+              src={props.brandLogo ?? UserAvatar.src}
+              alt={props.brandLabel}
+            />
+          </div>
+          <div className={"flex flex-col justify-center gap-1"}>
+            <div className={"text-xs text-white font-bold overflow-hidden"}>
+              <span className={"truncate block max-w-[160px]"}>
+                {props.brandLabel ?? "Brand Name"}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          className={
+            "flex items-center gap-3 text-sm text-white cursor-pointer"
+          }
+        >
+          {/* <RxCross1 /> */}
+          <SlOptions />
+        </div>
+      </div>
+      <div className={"text-white text-[11px] mt-1.5 px-3"}>
+        <span>{props.text}</span>
+      </div>
+      <div className={"w-full h-auto mt-2"}>
+        <AppDefaultImage
+          className={"w-full h-auto"}
+          src={props.image}
+          alt={props.brandLabel}
+        />
+      </div>
+      <div
+        className={
+          "flex text-sm items-center justify-between text-white text-[10px] mt-3 px-6"
+        }
+      >
+        <div className={"flex items-center gap-2 text-[12px]"}>
+          <AiOutlineLike />
+          <span>Like</span>
+        </div>
+        <div className={"flex items-center gap-2 text-[12px]"}>
+          <GoComment />
+          <span>Comment</span>
+        </div>
+        <div className={"flex items-center gap-2 text-[12px]"}>
+          <TbShare3 />
+          <span>Share</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const previewOptions = [
   {
     uid: "facebook-post",

@@ -1134,8 +1134,8 @@ export enum SocialPageType {
 export interface SocialPageObject {
   name: string;
   image?: string;
-  providerId: string;
-  providerAccessToken?: string;
+  provider_id: string;
+  provider_access_token?: string;
   type: SocialPageType;
 }
 
@@ -1150,7 +1150,7 @@ export interface RegisterBusinessVariables {
     locality: string;
   }[];
   details: string;
-  socialPages: SocialPageObject[];
+  social_pages: SocialPageObject[];
 }
 
 export const useRegisterBusiness = (
@@ -1257,16 +1257,6 @@ export const useGetBusiness = (business_id?: string | null, enabled = true) => {
   });
 };
 
-interface IBusinessSocialPageResponse {
-  name: string;
-  image: string;
-  providerId: string;
-  providerAccessToken: string;
-  type: SocialPageType;
-  id: string;
-  businessId: string;
-}
-
 export interface IBusinessResponse {
   id: string;
   userId: string;
@@ -1281,7 +1271,7 @@ export interface IBusinessResponse {
   }[];
   details?: string;
   summary?: string;
-  socialPages?: IBusinessSocialPageResponse[];
+  social_pages?: SocialPageObject[];
 }
 type GetQueryBusinessResponse = IBusinessResponse[];
 export const useQueryUserBusiness = () => {

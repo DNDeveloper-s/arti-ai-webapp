@@ -33,8 +33,8 @@ const ArtiBotPage: FC<ArtiBotPageProps> = ({ projectName }) => {
   if (!business) return redirect("/", RedirectType.replace);
 
   if (!isValidType) {
-    console.log("Redirection - ");
-    return redirect("/artibot", RedirectType.replace);
+    console.log("Redirection - ", conversationType);
+    return redirect("/artibot/create", RedirectType.replace);
   }
 
   // Check if the conversation with no activity exists
@@ -42,7 +42,7 @@ const ArtiBotPage: FC<ArtiBotPageProps> = ({ projectName }) => {
 
   // if (isStrategy) {
   return redirect(
-    `/artibot/${conversationType}?conversation_id=${id}&project_name=${projectName}&business_id=${business.id}`,
+    `/artibot?conversation_type=${conversationType}&conversation_id=${id}&project_name=${projectName}&business_id=${business.id}`,
     RedirectType.replace
   );
   // } else {

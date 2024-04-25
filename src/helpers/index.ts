@@ -143,25 +143,12 @@ export const getConversationURL = (
   id: IConversation["id"],
   conversationParams: IConversation | IConversation["conversation_type"]
 ) => {
-  if (typeof conversationParams === "string")
-    return `/artibot/${conversationParams}?conversation_id=${id}`;
-
-  const isValidConversationType = ValidConversationTypes.includes(
-    conversationParams.conversation_type
-  );
-
-  if (!isValidConversationType) {
-    // throw new Error(
-    //   "Invalid conversation type: " + conversationParams.conversation_type
-    // );
-  }
-
-  return `/artibot/${conversationParams.conversation_type}?conversation_id=${id}`;
+  return `/artibot?conversation_id=${id}`;
 };
 
 export const getCampaignPageUrl = (campaignId?: string) => {
-  if (!campaignId) return "/artibot";
-  return `/artibot/ad_creative?campaign_id=${campaignId}`;
+  if (!campaignId) return "/artibot/create";
+  return `/artibot?campaign_id=${campaignId}`;
 };
 
 export const isProduction = process.env.NODE_ENV === "production";

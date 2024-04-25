@@ -1,5 +1,6 @@
-import { useUserPages } from "@/api/user";
+import { useGetUserProviders, useUserPages } from "@/api/user";
 import SelectWithAutoComplete from "@/components/shared/renderers/SelectWithAutoComplete";
+import { useBusiness } from "@/context/BusinessContext";
 import { Platform, useUser } from "@/context/UserContext";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { AutoCompleteProps } from "antd";
@@ -7,22 +8,28 @@ import React, { Key } from "react";
 
 interface SelectMetaPageProps extends AutoCompleteProps {
   pageValue?: string;
+  useBusinessValues?: boolean;
   setPageValue: (
     val: string
   ) => void | React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export default function SelectMetaPage({
-  pageValue,
+  pageValue: _pageValue,
   setPageValue,
+  useBusinessValues = true,
   ...props
 }: SelectMetaPageProps) {
   const { state } = useUser();
   const accessToken = Platform.getPlatform(
     state.data?.facebook
   )?.userAccessToken;
-  const { data: pagesData, isLoading: isPagesLoading } =
-    useUserPages(accessToken);
+  const { data: pagesData, isLoading: isPagesLoading } = useUserPages();
+  const { businessMap } = useBusiness();
+
+  const pageValue = useBusinessValues
+    ? businessMap.getFacebookPage()?.provider_id
+    : _pageValue;
 
   return (
     <Autocomplete
@@ -76,12 +83,10 @@ export const SelectMetaPageFormControl = ({
 }: {
   name?: string;
 }) => {
-  const { state } = useUser();
-  const accessToken = Platform.getPlatform(
-    state.data?.facebook
-  )?.userAccessToken;
-  const { data: pagesData, isLoading: isPagesLoading } =
-    useUserPages(accessToken);
+  const { facebookProvider } = useGetUserProviders();
+  const { data: pagesData, isLoading: isPagesLoading } = useUserPages(
+    facebookProvider?.access_token
+  );
 
   return (
     <SelectWithAutoComplete

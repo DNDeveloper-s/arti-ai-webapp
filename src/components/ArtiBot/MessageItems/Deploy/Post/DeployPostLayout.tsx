@@ -10,7 +10,6 @@ import { MdArrowBackIos, MdEmail } from "react-icons/md";
 import FacebookSignInButton from "@/components/Auth/FacebookSigninButton";
 import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import FacebookLogin from "react-facebook-login";
 import { linkAccount } from "@/context/UserContext";
 import { useUser } from "@/context/UserContext";
 import { IUserAccount, IUserPage } from "@/interfaces/IUser";
@@ -51,7 +50,7 @@ export default function DeployPostLayout({
     error,
     refetch,
     isLoading,
-  } = useUserPages(accessToken);
+  } = useUserPages();
 
   const showConnectFacebookButton = !accessToken;
 
@@ -83,7 +82,9 @@ export default function DeployPostLayout({
     }
   };
 
-  return <CreatePostView selectedVariant={variant} isPagesLoading={isLoading} />;
+  return (
+    <CreatePostView selectedVariant={variant} isPagesLoading={isLoading} />
+  );
 
   /**
    * @deprecated

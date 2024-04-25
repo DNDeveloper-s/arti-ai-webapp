@@ -18,12 +18,13 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import React, { Key, useContext, useEffect, useState } from "react";
+import React, { Key, useContext, useEffect, useMemo, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { current, trueGray } from "tailwindcss/colors";
 import { object, string } from "yup";
 import SelectMetaPage from "../SelectMetaPage";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import { FacebookSocialPostPreview } from "../Ad/components/Ads/Create/CreateAd";
 
 interface CreatePostFormValues {
   imageUrl: string;
@@ -53,14 +54,10 @@ function CreateSocialPostModalContent(
   const { state } = useUser();
   const searchParams = useSearchParams();
   const resolver = useYupValidationResolver(validationSchema);
-  const { handleSubmit, formState, setValue, getValues, watch } =
+  const { handleSubmit, formState, setValue, register, watch } =
     useForm<CreatePostFormValues>({
       resolver,
     });
-
-  const accessToken = Platform.getPlatform(
-    state.data?.facebook
-  )?.userAccessToken;
   const { conversation } = useCurrentConversation();
   const conversationId = conversation?.id;
 
@@ -71,7 +68,7 @@ function CreateSocialPostModalContent(
     error,
     refetch,
     isLoading: isPagesLoading,
-  } = useUserPages(accessToken);
+  } = useUserPages();
 
   const {
     mutate: postCreatePost,
@@ -80,15 +77,18 @@ function CreateSocialPostModalContent(
   } = useCreatePost();
 
   const pageIdValue = watch("pageId");
+  const messageValue = watch("message");
   const facebookPages = state.data?.facebook?.pages;
+
+  const selectedPage = useMemo(() => {
+    return pagesData?.find((page) => page.id === pageIdValue);
+  }, [pageIdValue, pagesData]);
 
   useEffect(() => {
     if (selectedVariant.text) {
       setValue("message", selectedVariant.text);
     }
   }, [selectedVariant.text, setValue]);
-
-  console.log("formState", formState.errors);
 
   const onSubmit: SubmitHandler<CreatePostFormValues> = async (data) => {
     console.log("data - ", data, selectedVariant, pagesData);
@@ -140,7 +140,7 @@ function CreateSocialPostModalContent(
               <div className="flex gap-4 pb-5">
                 {/* Post Image */}
                 <div className="bg-default-100 flex flex-col rounded-md py-2 px-3">
-                  <p className="mb-1 text-small origin-top-left text-gray-500 scale-85">
+                  {/* <p className="mb-1 text-small origin-top-left text-gray-500 scale-85">
                     Post Image
                   </p>
                   <div className="w-[300px] flex-1 rounded overflow-hidden border border-gray-600">
@@ -155,21 +155,27 @@ function CreateSocialPostModalContent(
                       }}
                       alt="placeholder"
                     />
-                  </div>
+                  </div> */}
+                  <FacebookSocialPostPreview
+                    image={selectedVariant.imageUrl}
+                    text={messageValue}
+                    brandLabel={selectedPage?.name}
+                    brandLogo={selectedPage?.picture}
+                  />
                 </div>
                 <div className="flex flex-col w-[300px] justify-between gap-6">
                   <div className="flex flex-col gap-6">
                     {/* Post Description Input */}
                     <Textarea
-                      isReadOnly
                       classNames={{
                         label: "!text-gray-500",
                       }}
                       label="Post Description"
-                      value={selectedVariant.text}
+                      value={messageValue}
                       variant="flat"
                       maxRows={7}
                       errorMessage={formState.errors.message?.message}
+                      {...register("message")}
                     />
                     {/* Select Page Dropdown */}
                     <SelectMetaPage

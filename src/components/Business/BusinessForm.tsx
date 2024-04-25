@@ -142,30 +142,32 @@ export default function BusinessForm(props: BusinessFormProps) {
       pagesData?.map((page) => ({
         name: page.name,
         image: page.picture,
-        providerId: page.id,
-        providerAccessToken: page.page_access_token,
+        provider_id: page.id,
+        provider_access_token: page.page_access_token,
         type: SocialPageType.FACEBOOK_PAGE,
       })) ?? ([] as SocialPageObject[])
-    ).find((c) => c.providerId === data.page_id);
+    ).find((c) => c.provider_id === data.page_id);
 
     const accountProviders = (
       accounts?.map((account) => ({
         name: account.name,
-        providerId: account.id,
+        provider_id: account.id,
         type: SocialPageType.FACEBOOK_AD_ACCOUNT,
       })) ?? ([] as SocialPageObject[])
-    ).find((c) => c.providerId === data.ad_account_id);
+    ).find((c) => c.provider_id === data.ad_account_id);
 
     if (isEditMode && props.business_id) {
       postUpdateBusiness({
         id: props.business_id,
         ...dataToSend,
-        socialPages: compact([providers, accountProviders]),
+        location: [],
+        social_pages: compact([providers, accountProviders]),
       });
     } else {
       postRegisterBusiness({
         ...data,
-        socialPages: compact([providers, accountProviders]),
+        location: [],
+        social_pages: compact([providers, accountProviders]),
       });
     }
   };
@@ -180,15 +182,15 @@ export default function BusinessForm(props: BusinessFormProps) {
       setValue("category", editBusinessData.category);
       setValue(
         "page_id",
-        editBusinessData.socialPages?.find(
+        editBusinessData.social_pages?.find(
           (c) => c.type === SocialPageType.FACEBOOK_PAGE
-        )?.providerId ?? ""
+        )?.provider_id ?? ""
       );
       setValue(
         "ad_account_id",
-        editBusinessData.socialPages?.find(
+        editBusinessData.social_pages?.find(
           (c) => c.type === SocialPageType.FACEBOOK_AD_ACCOUNT
-        )?.providerId ?? ""
+        )?.provider_id ?? ""
       );
     }
   }, [setValue, editBusinessData, isEditMode]);

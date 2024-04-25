@@ -38,7 +38,7 @@ import { useGetCampaignInsights, useGetConversation } from "@/api/conversation";
 export default function Conversation({
   type = ConversationType.AD_CREATIVE,
 }: {
-  type: ConversationType;
+  type?: ConversationType;
 }) {
   const { state, dispatch } = useConversation();
   const searchParams = useSearchParams();
@@ -78,7 +78,7 @@ export default function Conversation({
     if (isLoading || !dispatch || !conversationId || campaignId) return;
 
     if (!clientConversation) {
-      if (!projectName) return redirect("/artibot");
+      if (!projectName) return redirect("/artibot/create");
       const newConversation: IConversation = {
         id: Array.isArray(conversationId) ? conversationId[0] : conversationId,
         messages: [],
@@ -102,8 +102,13 @@ export default function Conversation({
   ]);
 
   if (!conversationId && !campaignId) {
-    console.log("Redirection - ");
-    return redirect("/artibot");
+    console.log(
+      "Redirection - ",
+      searchParams.get("conversation_id"),
+      searchParams.get("campaign_id")
+    );
+    return null;
+    // return redirect("/artibot/create");
   }
 
   return (

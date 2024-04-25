@@ -82,7 +82,7 @@ type CampaignActions = {
     value: CampaignStateMeta[keyof CampaignStateMeta]
   ) => any;
   setShowProgress: (value: boolean) => any;
-  setSelectAdAccount: (accountId: string) => any;
+  setSelectAdAccount: (accountId: string | undefined) => any;
 };
 
 const initialCampaignState: CampaignState = {
@@ -116,7 +116,7 @@ const useCampaignStore = create<CampaignState & CampaignActions>((set) => ({
       },
     }));
   },
-  setSelectAdAccount: (accountId: string) => {
+  setSelectAdAccount: (accountId: string | undefined) => {
     set({ selectedAccountId: prefixAccountId(accountId) });
   },
   viewAdsByAdset: (adsetId: string) => {

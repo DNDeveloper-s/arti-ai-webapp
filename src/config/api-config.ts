@@ -114,6 +114,7 @@ export const ROUTES = {
       apiUrl(`/social/posts/facebook/${post_id}`),
     FACEBOOK_PAGE: (page_id: string) =>
       apiUrl(`/social/pages/facebook/${page_id}`),
+    POSTS: (platform: string) => apiUrl(`/social/posts/${platform}`),
   },
   ADS: {
     CAMPAIGNS: apiUrl("/marketing/campaigns"),
@@ -156,5 +157,6 @@ export const ROUTES = {
       `/tokens/validate/facebook-access-token`
     ),
     CREDIT_BALANCE: apiUrl(`/users/me/balance`),
+    SUBSCRIPTIONS: apiUrl(`/users/me/subscriptions`),
   },
 };

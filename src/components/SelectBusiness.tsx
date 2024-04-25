@@ -36,7 +36,9 @@ export default function SelectBusiness() {
         const businessObj = data?.find((business) => business.id === key);
         businessObj && setBusiness(businessObj);
       }}
-      endContent={<MdEdit className="text-xl" onClick={handleEdit} />}
+      endContent={
+        <MdEdit className="text-xl cursor-pointer" onClick={handleEdit} />
+      }
       selectedKey={business?.id}
       components={[
         {

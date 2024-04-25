@@ -23,7 +23,7 @@ export interface ICampaignInfinite {
   status: string;
   effective_status: string;
   objective: string;
-  insights: {
+  insights?: {
     data: IFacebookAdInsight[];
     paging: Paging;
   };
@@ -61,7 +61,7 @@ export const useGetInifiniteCampaigns = (
 
     const response = await axios.get(ROUTES.CAMPAIGN.QUERY_INFINITE, {
       params: {
-        account_id: accountId ?? "act_167093713134679",
+        account_id: accountId,
         access_token: accessToken,
         limit: LIMIT,
         get_insights: !!get_insights,

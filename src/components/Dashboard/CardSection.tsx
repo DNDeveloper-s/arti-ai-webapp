@@ -69,7 +69,7 @@ const EmptySection: FC<EmptySectionProps> = (props) => {
         <p className={"text-xs text-white text-opacity-40"}>
           Fortunately, it&apos;s easy to create new one.
         </p>
-        <Link href="/artibot" className="text-primary underline">
+        <Link href="/artibot/create" className="text-primary underline">
           Start Chat
         </Link>
       </>

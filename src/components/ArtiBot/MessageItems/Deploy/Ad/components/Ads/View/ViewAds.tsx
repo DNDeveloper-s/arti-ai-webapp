@@ -168,116 +168,119 @@ export default function ViewAds() {
   //   const [campaignList, setCampaignList] = useState<Campaign[]>([]);
   //   const [isLoading, setLoadingState] = useState(true);
   //   const [errorMessage, setErrorMessage] = useState("");
-  const renderCell = useCallback((ad: IAd, columnKey: Key): ReactNode => {
-    const cellValue = Object.hasOwn(ad, columnKey)
-      ? ad[columnKey as keyof IAd]
-      : "";
+  const renderCell = useCallback(
+    (ad: IAd, columnKey: Key): ReactNode => {
+      const cellValue = Object.hasOwn(ad, columnKey)
+        ? ad[columnKey as keyof IAd]
+        : "";
 
-    switch (columnKey) {
-      case "id":
-        return (
-          <div className="h-full w-full">
-            <Link
-              color="primary"
-              href="#"
-              showAnchorIcon
-              className="text-small h-full leading-[3] hover:underline"
+      switch (columnKey) {
+        case "id":
+          return (
+            <div className="h-full w-full">
+              <Link
+                color="primary"
+                href="#"
+                showAnchorIcon
+                className="text-small h-full leading-[3] hover:underline"
+              >
+                {ad.id}
+              </Link>
+            </div>
+          );
+        case "image":
+          return (
+            <div className="w-8 h-8 overflow-hidden rounded">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={cellValue}
+                alt="Ad Image"
+                className="object-cover w-full h-full"
+              />
+            </div>
+          );
+        case "name":
+          return (
+            <div className="flex w-[150px] line-clamp-3 items-center gap-3">
+              {ad.name}
+            </div>
+          );
+        case "amount_spent":
+          return (
+            <div className="flex items-center gap-3">
+              {ad.insights?.data[0]?.spend}
+            </div>
+          );
+        case "reach":
+          return (
+            <div className="flex items-center gap-3">
+              {ad.insights?.data[0]?.reach}
+            </div>
+          );
+        case "results":
+          return (
+            <div className="flex items-center gap-3">
+              {getResultsFromInsights(
+                ad.insights,
+                ad.adset.optimization_goal as OptimisationGoal
+              )}
+            </div>
+          );
+        case "preview_shareable_link":
+          return (
+            <Snippet
+              hideSymbol
+              color="default"
+              size="sm"
+              classNames={{
+                copyButton: "!w-[24px] !w-[24px] !min-w-[unset] !min-h-[unset]",
+                content: "!font-diatype",
+              }}
             >
-              {ad.id}
-            </Link>
-          </div>
-        );
-      case "image":
-        return (
-          <div className="w-8 h-8 overflow-hidden rounded">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={cellValue}
-              alt="Ad Image"
-              className="object-cover w-full h-full"
+              {cellValue}
+            </Snippet>
+          );
+        case "objective":
+          return (
+            <div className="flex flex-col">
+              {/* <p className="text-bold text-small capitalize">{cellValue}</p> */}
+              <p className="text-bold text-tiny capitalize text-default-500">
+                {ad.objective}
+              </p>
+            </div>
+          );
+        case "status":
+          return (
+            <SwitchStatus
+              onToggle={(status: ADMANAGER_STATUS_TYPE) =>
+                handleToggle(ad.id, status, ad)
+              }
+              value={cellValue as any}
             />
-          </div>
-        );
-      case "name":
-        return (
-          <div className="flex w-[150px] line-clamp-3 items-center gap-3">
-            {ad.name}
-          </div>
-        );
-      case "amount_spent":
-        return (
-          <div className="flex items-center gap-3">
-            {ad.insights?.data[0]?.spend}
-          </div>
-        );
-      case "reach":
-        return (
-          <div className="flex items-center gap-3">
-            {ad.insights?.data[0]?.reach}
-          </div>
-        );
-      case "results":
-        return (
-          <div className="flex items-center gap-3">
-            {getResultsFromInsights(
-              ad.insights,
-              ad.adset.optimization_goal as OptimisationGoal
-            )}
-          </div>
-        );
-      case "preview_shareable_link":
-        return (
-          <Snippet
-            hideSymbol
-            color="default"
-            size="sm"
-            classNames={{
-              copyButton: "!w-[24px] !w-[24px] !min-w-[unset] !min-h-[unset]",
-              content: "!font-diatype",
-            }}
-          >
-            {cellValue}
-          </Snippet>
-        );
-      case "objective":
-        return (
-          <div className="flex flex-col">
-            {/* <p className="text-bold text-small capitalize">{cellValue}</p> */}
-            <p className="text-bold text-tiny capitalize text-default-500">
-              {ad.objective}
-            </p>
-          </div>
-        );
-      case "status":
-        return (
-          <SwitchStatus
-            onToggle={(status: ADMANAGER_STATUS_TYPE) =>
-              handleToggle(ad.id, status, ad)
-            }
-            value={cellValue as any}
-          />
-        );
-      case "actions":
-        return (
-          <div className="relative flex justify-end items-center gap-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light">
-                  <FaEllipsisVertical className="text-default-300" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem>View</DropdownItem>
-                <DropdownItem>Edit</DropdownItem>
-                <DropdownItem>Delete</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        );
-      default:
-        return cellValue;
-    }
-  }, []);
+          );
+        case "actions":
+          return (
+            <div className="relative flex justify-end items-center gap-2">
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly size="sm" variant="light">
+                    <FaEllipsisVertical className="text-default-300" />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu>
+                  <DropdownItem>View</DropdownItem>
+                  <DropdownItem>Edit</DropdownItem>
+                  <DropdownItem>Delete</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+          );
+        default:
+          return cellValue;
+      }
+    },
+    [handleToggle]
+  );
 
   function handleAddClick() {
     setFormState({

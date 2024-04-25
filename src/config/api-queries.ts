@@ -7,6 +7,7 @@ const API_QUERIES = {
     id?: string | null,
     timeRange?: string | null
   ) => ["get-leads", accessToken, type, id, timeRange],
+  GET_SUBSCRIPTIONS: ["get-subscriptions"],
   GET_CREDIT_BALANCE: ["get-credit-balance"],
   GET_USER_BUSINESSES: ["get-user-businesses"],
   USER_PAGES: (access_token?: string | null) => ["user-pages", access_token],
@@ -20,6 +21,11 @@ const API_QUERIES = {
     "get-ad-account-id",
     access_token,
   ],
+  GET_SOCIAL_POST: (
+    page_id?: string | null,
+    page_access_token?: string | null,
+    period?: "week"
+  ) => ["get-social-post", page_id, page_access_token, period],
   GET_AD_IDENTIFIERS: (ad_id?: string | null) => ["get-ad-identifiers", ad_id],
   GET_CAMPAIGN: (
     access_token?: string | null,

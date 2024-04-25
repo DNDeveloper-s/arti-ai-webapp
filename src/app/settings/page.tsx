@@ -1,15 +1,37 @@
 "use client";
 import { useGetCredits } from "@/api/conversation";
-import { useCreatePayment } from "@/api/payment";
+import {
+  SubscriptionObject,
+  useCreatePayment,
+  useGetMySubscriptions,
+} from "@/api/payment";
 import { useUpdateUser } from "@/api/user";
+import SwitchStatus from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/SwitchStatus";
 import Navbar from "@/components/Settings/Navbar";
 import SubscriptionPlans from "@/components/Settings/SubscriptionPlans";
 import Snackbar from "@/components/Snackbar";
+import UiTable from "@/components/shared/renderers/UiTable";
 import { botData, dummyUser } from "@/constants/images";
 import { useUser } from "@/context/UserContext";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
-import { Avatar, Button, Checkbox, Divider, Input } from "@nextui-org/react";
-import { useEffect, useMemo, useState } from "react";
+import { ADMANAGER_STATUS_TYPE } from "@/interfaces/ISocial";
+import {
+  Avatar,
+  Button,
+  Checkbox,
+  Divider,
+  Input,
+  Switch,
+} from "@nextui-org/react";
+import dayjs from "dayjs";
+import {
+  Key,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { MdDone, MdEmail } from "react-icons/md";
 
@@ -83,6 +105,102 @@ function RefillCreditForm() {
         </div>
       </div>
     </form>
+  );
+}
+
+const columns = [
+  { name: "Plan Name", uid: "name" },
+  { name: "Price", uid: "price" },
+  { name: "Start Date", uid: "start_date" },
+  { name: "Next Renewal Date", uid: "end_date" },
+  { name: "Plan Status", uid: "status" },
+];
+
+function SubscriptionDetails() {
+  const {
+    data: subscriptions,
+    isLoading,
+    fetchStatus,
+  } = useGetMySubscriptions();
+
+  const renderCell = useCallback(
+    (subscription: SubscriptionObject, columnKey: Key): ReactNode => {
+      const cellValue = Object.hasOwn(subscription, columnKey)
+        ? subscription[columnKey as keyof SubscriptionObject]
+        : "";
+
+      switch (columnKey) {
+        case "name":
+          return (
+            <div className="flex w-[100px] line-clamp-3 py-3 items-center gap-3">
+              Premium
+            </div>
+          );
+        case "price":
+          return (
+            <div className="font-bold text-primary text-lg">
+              ${subscription.amount / 100}
+            </div>
+          );
+        case "start_date":
+          return (
+            <div className="flex">
+              {dayjs(subscription.current_period_start).format("DD MMM YYYY")}
+            </div>
+          );
+        case "end_date":
+          return (
+            <div className="flex">
+              {dayjs(subscription.current_period_end).format("DD MMM YYYY")}
+            </div>
+          );
+        case "status":
+          return <Switch color="primary" size="sm"></Switch>;
+        // case "actions":
+        //   return (
+        //     <div className="relative flex justify-end items-center gap-2">
+        //       <Dropdown>
+        //         <DropdownTrigger>
+        //           <Button isIconOnly size="sm" variant="light">
+        //             <FaEllipsisVertical className="text-default-300" />
+        //           </Button>
+        //         </DropdownTrigger>
+        //         <DropdownMenu>
+        //           <DropdownItem>View</DropdownItem>
+        //           <DropdownItem>Edit</DropdownItem>
+        //           <DropdownItem>Delete</DropdownItem>
+        //         </DropdownMenu>
+        //       </Dropdown>
+        //     </div>
+        //   );
+        default:
+          return cellValue;
+      }
+    },
+    []
+  );
+
+  return (
+    <>
+      <div className="mb-4">
+        <h2>Subscriptions</h2>
+      </div>
+      <UiTable<SubscriptionObject>
+        columns={columns}
+        renderCell={renderCell}
+        totalItems={subscriptions ?? []}
+        pronoun="ad"
+        // selectedKeys={selected.ads}
+        // setSelectedKeys={setSelected(CampaignTab.ADS)}
+        selectionMode="none"
+        isLoading={isLoading}
+        fetchStatus={fetchStatus}
+        emptyContent="No subscriptions"
+        noTopContent
+        // hasMore={hasNextPage}
+        // fetchMore={fetchNextPagnFn}
+      />
+    </>
   );
 }
 
@@ -237,6 +355,8 @@ export default function Settings() {
           </Button>
         </div>
       </form>
+      <Divider className="my-5" />
+      <SubscriptionDetails />
       <Divider className="my-5" />
       <RefillCreditForm />
       <Divider className="my-5" />

@@ -5,18 +5,22 @@ import React, {
   FC,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
+  useRef,
   useState,
 } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   IBusinessResponse,
+  SocialPageObject,
   SocialPageType,
   useGetConversation,
   useQueryUserBusiness,
 } from "@/api/conversation";
 import { IConversation } from "@/interfaces/IConversation";
 import useCampaignStore from "@/store/campaign";
+import { set } from "lodash";
 
 type IBusinessState = IBusinessResponse | undefined | null;
 
@@ -44,34 +48,134 @@ function BusinessReducer(
   }
 }
 
+class Business {
+  id?: string;
+  name?: string;
+  social_pages?: SocialPageObject[];
+
+  constructor(data?: IBusinessResponse) {
+    this.id = data?.id;
+    this.name = data?.name;
+    this.social_pages = data?.social_pages;
+  }
+
+  getFacebookPage() {
+    return this.social_pages?.find(
+      (page) => page.type === SocialPageType.FACEBOOK_PAGE
+    );
+  }
+
+  getAdAccount() {
+    return this.social_pages?.find(
+      (page) => page.type === SocialPageType.FACEBOOK_AD_ACCOUNT
+    );
+  }
+
+  static fromData(data?: IBusinessResponse) {
+    return new Business(data);
+  }
+
+  static fromLocalStorage() {
+    const data = localStorage.getItem("business");
+    if (data) {
+      return Business.fromData(JSON.parse(data));
+    }
+    return null;
+  }
+
+  static setLocalStorage(data?: IBusinessResponse) {
+    localStorage.setItem("business", JSON.stringify(data));
+  }
+
+  static clearLocalStorage() {
+    localStorage.removeItem("business");
+  }
+
+  static getLocalStorage() {
+    const data = localStorage.getItem("business");
+    if (data) {
+      return JSON.parse(data);
+    }
+    return null;
+  }
+
+  static setLocalStorageId(id: string) {
+    localStorage.setItem("business_id", id);
+  }
+
+  static getLocalStorageId() {
+    return localStorage.getItem("business_id");
+  }
+
+  static clearLocalStorageId() {
+    localStorage.removeItem("business_id");
+  }
+}
+
 const useBusinessContext = (initState: IBusinessState) => {
   const [state, dispatch] = useReducer(BusinessReducer, initState);
   const [business, setBusiness] = useState<IBusinessState>(null);
   const { data } = useQueryUserBusiness();
   const { setSelectAdAccount } = useCampaignStore();
+  const selectedBusinessIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!business && data) {
+    if (!selectedBusinessIdRef.current && data) {
       const localStorageBusinessId = localStorage.getItem("business_id");
       const _business = data.find((b) => b.id === localStorageBusinessId);
-      setBusiness(_business ?? data[0]);
+      const businessToSelect = _business ?? data[0];
+      console.log(
+        "businessToSelect 0",
+        businessToSelect,
+        selectedBusinessIdRef.current
+      );
+      setBusiness(businessToSelect);
+      selectedBusinessIdRef.current = businessToSelect.id;
+      localStorage.setItem("business_id", selectedBusinessIdRef.current);
+      const adAccountProvider = businessToSelect.social_pages?.find(
+        (c) => c.type === SocialPageType.FACEBOOK_AD_ACCOUNT
+      );
+      setSelectAdAccount(adAccountProvider?.provider_id);
     }
-    data && business?.id && localStorage.setItem("business_id", business.id);
-  }, [business, data]);
+
+    if (selectedBusinessIdRef.current && data) {
+      const _business = data.find(
+        (b) => b.id === selectedBusinessIdRef.current
+      );
+      const businessToSelect = _business ?? data[0];
+      console.log(
+        "businessToSelect 1",
+        businessToSelect,
+        selectedBusinessIdRef.current
+      );
+      setBusiness(businessToSelect);
+      selectedBusinessIdRef.current = businessToSelect.id;
+      localStorage.setItem("business_id", selectedBusinessIdRef.current);
+      const adAccountProvider = businessToSelect.social_pages?.find(
+        (c) => c.type === SocialPageType.FACEBOOK_AD_ACCOUNT
+      );
+      setSelectAdAccount(adAccountProvider?.provider_id);
+    }
+  }, [data, setSelectAdAccount]);
 
   // Set the AdAccount ID when the business is set
   useEffect(() => {
     if (business) {
-      const adAccountProvider = business.socialPages?.find(
+      const adAccountProvider = business.social_pages?.find(
         (c) => c.type === SocialPageType.FACEBOOK_AD_ACCOUNT
       );
-      if (adAccountProvider?.providerId) {
-        setSelectAdAccount(adAccountProvider.providerId);
-      }
+      setSelectAdAccount(adAccountProvider?.provider_id);
+      selectedBusinessIdRef.current = business.id;
+      localStorage.setItem("business_id", business.id);
     }
   }, [business, setSelectAdAccount]);
 
-  return { business, setBusiness, state, dispatch };
+  const businessMap = useMemo(() => {
+    const _business = data?.find((b) => b.id === business?.id);
+    return new Business(_business);
+  }, [business, data]);
+
+  return { businessMap, business, setBusiness, state, dispatch };
 };
 
 type UseBusinessContextType = ReturnType<typeof useBusinessContext>;
@@ -81,6 +185,7 @@ export const BusinessContext = createContext<UseBusinessContextType>({
   setBusiness: () => {},
   state: initBusinessState,
   dispatch: () => {},
+  businessMap: new Business(),
 });
 
 const BusinessContextProvider: FC<{ children: React.ReactElement }> = ({
@@ -99,6 +204,7 @@ type UseBusinessHookType = {
   state: IBusinessState;
   dispatch: (action: BusinessAction) => void;
   business: IBusinessState;
+  businessMap: Business;
   setBusiness: (business: IBusinessState) => void;
 };
 

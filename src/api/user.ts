@@ -27,6 +27,7 @@ import { access } from "fs";
 import { ISnackbarData, SnackbarContext } from "@/context/SnackbarContext";
 import { use, useCallback, useContext, useMemo } from "react";
 import {
+  ADMANAGER_STATUS_TYPE,
   IAd,
   IAdCampaign,
   IAdSet,
@@ -122,9 +123,7 @@ axios.interceptors.request.use(
   }
 );
 
-export function useUserPages(
-  accessToken?: string | null
-): UseQueryResult<IUserPage[], Error> {
+export function useUserPages(): UseQueryResult<IUserPage[], Error> {
   const queryClient = useQueryClient();
   const { setUserPagesData } = useUser();
   const { accessToken: _accessToken } = useCredentials();
@@ -390,6 +389,14 @@ export function useValidateFacebookAccessToken() {
   });
 }
 
+interface FacebookPageObject {
+  account_type: string;
+  id: string;
+  name: string;
+  picture: string;
+  page_access_token: string;
+}
+
 export function useGetFacebookPage({
   accessToken,
   pageId,
@@ -417,7 +424,7 @@ export function useGetFacebookPage({
     []
   );
 
-  return useQuery({
+  return useQuery<FacebookPageObject>({
     queryKey: API_QUERIES.GET_FACEBOOK_PAGE(accessToken, pageId),
     queryFn: getFacebookPage,
     staleTime: 1000 * 60 * 60,
@@ -619,6 +626,7 @@ interface UseGetCampaignsProps {
   get_insights?: boolean;
   enabled?: boolean;
   time_range?: TimeRange;
+  status?: ADMANAGER_STATUS_TYPE;
 }
 
 interface GetCampaignsInifiniteResponse {
@@ -636,14 +644,21 @@ export function useGetCampaigns(props?: UseGetCampaignsProps) {
     queryKey: QueryKey
   ) => {
     const [, accountId, accessToken, get_insights, parsedTimeRange] = queryKey;
+
+    console.log("account_id - ", accountId);
+
+    if (!accessToken) throw new Error("Access token is required");
+    if (!accountId) throw new Error("Account id is required");
+
     const response = await axios.get(ROUTES.CAMPAIGN.QUERY_INFINITE, {
       params: {
-        account_id: accountId ?? "act_167093713134679",
+        account_id: accountId,
         access_token: accessToken,
         limit: LIMIT,
         get_insights: !!get_insights,
         after: pageParam,
         time_range: parsedTimeRange,
+        status: props?.status,
       },
     });
 
@@ -1587,17 +1602,14 @@ export function prefixAccountId(account_id?: string) {
 }
 
 export const useCredentials = () => {
-  const { state } = useUser();
-  const accessToken = Platform.getPlatform(
-    state.data?.facebook
-  ).userAccessToken;
+  const { facebookProvider, isFetching } = useGetUserProviders();
   const { selectedAccountId } = useCampaignStore();
+  const accessToken = facebookProvider?.access_token;
 
   return {
     accessToken,
     accountId: prefixAccountId(selectedAccountId),
-    /**@deprecated */
-    isFetching: false,
+    isFetching,
   };
 };
 

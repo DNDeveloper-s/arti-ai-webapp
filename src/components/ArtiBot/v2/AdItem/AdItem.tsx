@@ -49,8 +49,6 @@ export default function AdItem({
     messageItem.adCreatives?.[0]?.id ?? ""
   );
 
-  console.log("isAdCreativeInState - ", isAdCreativeInState);
-
   //   if (!adCreative || !currentConversation) return null;
   if (!adCreative || !conversation) return null;
 

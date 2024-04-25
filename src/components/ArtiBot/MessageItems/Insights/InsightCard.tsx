@@ -1,7 +1,7 @@
 import { IFacebookAdInsight } from "@/interfaces/ISocial";
 import { AnimatePresence } from "framer-motion";
-import { omit } from "lodash";
-import { useEffect, useState } from "react";
+import { merge, omit } from "lodash";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { formatInsightName, formatInsightValue } from "./DeployAdInsightsCard";
 import { BiCaretDown, BiCaretUp } from "react-icons/bi";
@@ -20,12 +20,36 @@ export default function InsightCard(
     !show && setShowMore(false);
   }, [show]);
 
-  const globalKeyObject = omit(insights, [
-    "date_start",
-    "date_stop",
-    "actions",
-    "conversions",
-  ]);
+  const globalKeyObject = useMemo(() => {
+    const omittedGlobals = omit(insights, [
+      "date_start",
+      "date_stop",
+      "actions",
+      "conversions",
+      "campaign_id",
+      "adset_id",
+      "ad_id",
+      "account_currency",
+    ]);
+
+    return merge(omittedGlobals, {
+      impressions: insights.impressions,
+      leads:
+        insights.actions?.find((a) => a.action_type === "lead")?.value || 0,
+      reach: insights.reach,
+      spent: insights.spend,
+    });
+  }, [insights]);
+
+  // export function extractFromInsights(insight?: IFacebookAdInsight) {
+  //   if (!insight) return null;
+  //   return {
+  //     impressions: insight.impressions,
+  //     leads: insight.actions?.find((a) => a.action_type === "lead")?.value || 0,
+  //     reach: insight.reach,
+  //     spent: insight.spend,
+  //   };
+  // }
 
   return (
     <AnimatePresence mode="wait">

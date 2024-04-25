@@ -170,7 +170,7 @@ export default function AdTitle({
         case "redirect":
           if (adIdentifierMap) {
             router.push(
-              `/artibot/ad_creative?conversation_id=${adIdentifierMap.conversationId}&message_id=${adIdentifierMap.messageId}`
+              `/artibot?conversation_type=ad_creative&conversation_id=${adIdentifierMap.conversationId}&message_id=${adIdentifierMap.messageId}`
             );
           }
           break;

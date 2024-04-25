@@ -121,3 +121,36 @@ export const useGetProducts = () => {
     queryFn: getProducts,
   });
 };
+
+const sampleSubscription = {
+  _id: "6622524744492ef89644a78d",
+  subscription_id: "sub_1P7FPVSJD4Ji53WuSn5dLPep",
+  customer_id: "cus_PwOM9SCDHnsprv",
+  userId: "66040baff5ac2361ea74a338",
+  amount: 2999,
+  current_period_start: "2024-04-19T11:15:17.000Z",
+  current_period_end: "2024-05-19T11:15:17.000Z",
+};
+
+export interface SubscriptionObject {
+  _id: string;
+  subscription_id: string;
+  customer_id: string;
+  userId: string;
+  amount: number;
+  current_period_start: string;
+  current_period_end: string;
+}
+
+type GetSubscriptionResponse = SubscriptionObject[];
+
+export const useGetMySubscriptions = () => {
+  const getSubscriptions = async () => {
+    const response = await axios.get(ROUTES.USERS.SUBSCRIPTIONS);
+    return response.data.data;
+  };
+  return useQuery<GetSubscriptionResponse>({
+    queryKey: API_QUERIES.GET_SUBSCRIPTIONS,
+    queryFn: getSubscriptions,
+  });
+};

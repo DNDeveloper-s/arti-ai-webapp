@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, Key, use, useEffect, useState } from "react";
+import React, { FC, Key, use, useEffect, useMemo, useState } from "react";
 import { MdArrowBackIos } from "react-icons/md";
 import Link from "next/link";
 import Logo from "@/components/Logo";
@@ -21,6 +21,8 @@ import SelectAdAccount from "./ArtiBot/MessageItems/Deploy/Ad/components/SelectA
 import SelectMetaPage from "./ArtiBot/MessageItems/Deploy/SelectMetaPage";
 import { useUser } from "@/context/UserContext";
 import { ConversationType } from "@/interfaces/IConversation";
+import ObjectID from "bson-objectid";
+import { useBusiness } from "@/context/BusinessContext";
 
 interface AskConversationTypeProps {}
 
@@ -62,10 +64,18 @@ const BasicConversationInfo = ({
   setProjectName: (val: string) => void;
 }) => {
   const router = useRouter();
+  const { business } = useBusiness();
+  const conversationId = useMemo(() => ObjectID(), []);
+
   useEffect(() => {
-    router.prefetch("/artibot?conversation_type=ad_creative");
-    router.prefetch("/artibot?conversation_type=social_media_post");
-  }, [router]);
+    if (!business) return;
+    router.prefetch(
+      `/artibot?conversation_type=ad_creative&conversation_id=${conversationId}&project_name=${projectName}&business_id=${business.id}`
+    );
+    router.prefetch(
+      `/artibot?conversation_type=social_media_post&conversation_id=${conversationId}&project_name=${projectName}&business_id=${business.id}`
+    );
+  }, [router, conversationId, business, projectName]);
 
   return (
     <div className={"flex-1 p-5 flex flex-col"}>
@@ -127,7 +137,9 @@ const BasicConversationInfo = ({
               </div>
               <div className="flex gap-5 mx-1 justify-between items-center">
                 <div className="flex-1">
-                  <Link href={"/artibot?conversation_type=ad_creative"}>
+                  <Link
+                    href={`/artibot?conversation_type=ad_creative&conversation_id=${conversationId}&project_name=${projectName}&business_id=${business?.id}`}
+                  >
                     <CTAButton
                       // onClick={() => {
                       //   setProjectType(ConversationType.AD_CREATIVE);
@@ -149,7 +161,9 @@ const BasicConversationInfo = ({
                   </span>
                 </div>
                 <div className="flex-1">
-                  <Link href={"/artibot?conversation_type=ad_creative"}>
+                  <Link
+                    href={`/artibot?conversation_type=social_media_post&conversation_id=${conversationId}&project_name=${projectName}&business_id=${business?.id}`}
+                  >
                     <CTAButton
                       // onClick={() => {
                       //   setProjectType(ConversationType.SOCIAL_MEDIA_POST);
