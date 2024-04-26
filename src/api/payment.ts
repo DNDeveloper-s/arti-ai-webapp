@@ -1,7 +1,7 @@
 import { ROUTES } from "@/config/api-config";
 import API_QUERIES from "@/config/api-queries";
 import { SnackbarContext } from "@/context/SnackbarContext";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useContext } from "react";
 
@@ -122,27 +122,24 @@ export const useGetProducts = () => {
   });
 };
 
-const sampleSubscription = {
-  _id: "6622524744492ef89644a78d",
-  subscription_id: "sub_1P7FPVSJD4Ji53WuSn5dLPep",
-  customer_id: "cus_PwOM9SCDHnsprv",
-  userId: "66040baff5ac2361ea74a338",
-  amount: 2999,
-  current_period_start: "2024-04-19T11:15:17.000Z",
-  current_period_end: "2024-05-19T11:15:17.000Z",
-};
-
 export interface SubscriptionObject {
-  _id: string;
+  id: string;
   subscription_id: string;
+  currency: string;
   customer_id: string;
+  price_id: string;
+  plan_name: string;
   userId: string;
   amount: number;
   current_period_start: string;
   current_period_end: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  canceled_at: string;
 }
 
-type GetSubscriptionResponse = SubscriptionObject[];
+type GetSubscriptionResponse = SubscriptionObject;
 
 export const useGetMySubscriptions = () => {
   const getSubscriptions = async () => {
@@ -152,5 +149,38 @@ export const useGetMySubscriptions = () => {
   return useQuery<GetSubscriptionResponse>({
     queryKey: API_QUERIES.GET_SUBSCRIPTIONS,
     queryFn: getSubscriptions,
+  });
+};
+
+export const useCancelSubscription = () => {
+  const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
+  const qc = useQueryClient();
+
+  const cancelSubscription = async () => {
+    setSnackBarData({
+      status: "progress",
+      message: "Cancelling subscription...",
+    });
+    const response = await axios.delete(ROUTES.PAYMENT.SUBSCRIPTIONS);
+    return response.data.data;
+  };
+
+  return useMutation({
+    mutationFn: cancelSubscription,
+    onError: (error) => {
+      setSnackBarData({
+        message: error.message ?? "Subscription cancel failed",
+        status: "error",
+      });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: API_QUERIES.GET_SUBSCRIPTIONS });
+    },
+    onSuccess: (data) => {
+      setSnackBarData({
+        message: data.message ?? "Subscription cancel successful",
+        status: "success",
+      });
+    },
   });
 };

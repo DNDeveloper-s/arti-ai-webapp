@@ -39,6 +39,7 @@ import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { Tooltip as TooltipAntd } from "antd";
 import LableWithTooltip from "@/components/shared/renderers/LabelWithTooltip";
 import { DateRangePickerControl } from "@/components/shared/renderers/DateRangePicker";
+import { SelectPlatformControl } from "./SelectPlatform";
 
 {
   /* <option value="">None</option>
@@ -425,6 +426,7 @@ type CreateAdsetFormValues = Omit<
   max_age: string;
   gender: string;
   destination_type: IAdSet["destination_type"];
+  platform: string;
 };
 
 const validationSchema = object({
@@ -642,6 +644,7 @@ export default function CreateAdset({
       promoted_object: promotedObject,
       bid_strategy: "LOWEST_COST_WITHOUT_CAP",
       daily_budget: +data.daily_budget,
+      publisher_platforms: ["facebook", "instagram"],
     };
 
     if (data.start_time) {
@@ -1182,6 +1185,7 @@ export default function CreateAdset({
               setValue("zip_codes", option);
             }}
           /> */}
+            <SelectPlatformControl mode="multiple" />
             <SelectLocations
               value={locationValue}
               onChange={(value: string, option: any) => {

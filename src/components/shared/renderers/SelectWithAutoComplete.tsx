@@ -36,6 +36,7 @@ export type SelectWithAutoCompleteProps = {
   isFetching?: boolean;
   plural?: string;
   label: string;
+  placeholder?: string;
   items: SelectWithAutoCompleteItem[] | undefined;
   components?: SelectWithAutoCompleteComponent[];
 } & (
@@ -53,6 +54,7 @@ function SelectWithAutoCompleteComponent({
   components,
   plural,
   noControl,
+  placeholder,
   ...props
 }: SelectWithAutoCompleteProps) {
   let methods = useFormContext();
@@ -83,10 +85,15 @@ function SelectWithAutoCompleteComponent({
           label: "!text-gray-500",
         },
       }}
-      // disabledKeys={[]}
+      // disabledKeys={["disabled"]}
       isDisabled={isFetching || props.isDisabled}
       placeholder={
-        isFetching ? `Fetching ${plural ?? "Item"}` : `${props.label}`
+        isFetching
+          ? `Fetching ${plural ?? "Item"}`
+          : `${placeholder ?? props.label}`
+      }
+      errorMessage={
+        methods?.formState.errors[props.name ?? ""]?.message as string
       }
       {...localProps}
       {...props}
@@ -133,4 +140,10 @@ export default function SelectWithAutoComplete(
       <SelectWithAutoCompleteComponent {...props} />
     </ErrorBoundary>
   );
+}
+
+{
+  /* <AutocompleteItem key="disabled">
+        <p>Group</p>
+      </AutocompleteItem> */
 }

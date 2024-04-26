@@ -123,7 +123,7 @@ axios.interceptors.request.use(
   }
 );
 
-export function useUserPages(): UseQueryResult<IUserPage[], Error> {
+export function useUserPages() {
   const queryClient = useQueryClient();
   const { setUserPagesData } = useUser();
   const { accessToken: _accessToken } = useCredentials();
@@ -153,8 +153,18 @@ export function useUserPages(): UseQueryResult<IUserPage[], Error> {
     },
   });
 
+  const facebookPages = useMemo(() => {
+    return query.data?.filter((c) => c.account_type === "facebook");
+  }, [query.data]);
+
+  const instagramPages = useMemo(() => {
+    return query.data?.filter((c) => c.account_type === "instagram");
+  }, [query.data]);
+
   return {
     ...query,
+    facebookPages,
+    instagramPages,
   };
 }
 
@@ -203,6 +213,8 @@ export function useCreatePost() {
     conversationId,
     variantId,
     adCreativeId,
+    messageId,
+    platform,
   }: {
     pageId: string;
     pageAccessToken: string;
@@ -211,9 +223,11 @@ export function useCreatePost() {
     conversationId: string;
     variantId: string;
     adCreativeId: string;
+    messageId?: string;
+    platform: "facebook" | "instagram";
   }) => {
     const response = await axios.post(
-      ROUTES.SOCIAL.FACEBOOK_POSTS,
+      ROUTES.SOCIAL.POSTS(platform),
       {
         post: {
           url: imageUrl,
@@ -222,14 +236,12 @@ export function useCreatePost() {
         conversation_id: conversationId,
         variant_id: variantId,
         ad_creative_id: adCreativeId,
+        message_id: messageId,
       },
       {
         params: {
           page_id: pageId,
           page_access_token: pageAccessToken,
-        },
-        headers: {
-          Authorization: `Bearer ${(session?.data?.user as any)?.token?.accessToken}`,
         },
       }
     );

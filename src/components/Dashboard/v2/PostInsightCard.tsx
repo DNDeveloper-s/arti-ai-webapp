@@ -1,4 +1,5 @@
 import { ICampaignInfinite } from "@/api/admanager";
+import { useGetVariant } from "@/api/conversation";
 import { FacebookPost } from "@/api/social";
 import { extractFromInsights } from "@/components/ArtiBot/LeftPane/CampaignListItem";
 import {
@@ -8,6 +9,8 @@ import {
 import { Divider } from "antd";
 import { omit } from "lodash";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 import { FaHandshakeSimple } from "react-icons/fa6";
 import { IoWallet } from "react-icons/io5";
 import { TbBulbFilled } from "react-icons/tb";
@@ -28,6 +31,8 @@ export default function PostInsightCard({
   post,
   last7Day,
 }: PostInsightCardProps) {
+  const router = useRouter();
+  const { data: variant } = useGetVariant({ post_id: post.id });
   const insights = post.insights || [];
   const latestInsight = insights[0] ?? {};
   const extractedInsight = extractPostInsights(post);
@@ -42,10 +47,21 @@ export default function PostInsightCard({
     "actions",
     "conversions",
   ]);
+  const url = useMemo(() => {
+    return `/artibot?conversation_id=${variant?.AdCreative.conversationId}&message_id=${variant?.AdCreative.messageId}`;
+  }, [variant]);
+
+  useEffect(() => {
+    try {
+      url && router.prefetch(url);
+    } catch (e) {
+      console.log("Error prefetching url", e, url);
+    }
+  }, [url, router]);
 
   return (
     <Link
-      href="#"
+      href={url}
       className={
         "w-[25rem] flex flex-col flex-shrink-0 h-[13rem] relative border-2 border-secondaryBackground transition-all cursor-pointer hover:border-primary rounded-xl overflow-hidden text-[9px] bg-secondaryBackground"
       }

@@ -57,6 +57,7 @@ export const ROUTES = {
   PAYMENT: {
     CHECKOUT: apiUrl("/payments/checkout"),
     PRODUCTS: apiUrl("/payments/products"),
+    SUBSCRIPTIONS: apiUrl("/payments/subscriptions"),
   },
   CONVERSATION: {
     CREATE: (id: string) => apiUrl(`/conversations/${id}`),
@@ -114,7 +115,8 @@ export const ROUTES = {
       apiUrl(`/social/posts/facebook/${post_id}`),
     FACEBOOK_PAGE: (page_id: string) =>
       apiUrl(`/social/pages/facebook/${page_id}`),
-    POSTS: (platform: string) => apiUrl(`/social/posts/${platform}`),
+    POSTS: (platform: "facebook" | "instagram") =>
+      apiUrl(`/social/posts/${platform}`),
   },
   ADS: {
     CAMPAIGNS: apiUrl("/marketing/campaigns"),

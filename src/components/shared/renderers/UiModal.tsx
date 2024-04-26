@@ -13,7 +13,9 @@ export default function UiModal(props: UiModalProps) {
     <Modal
       {...modalProps}
       portalContainer={
-        document.getElementById("contextmenuportal") as HTMLElement
+        window
+          ? (window.document.getElementById("contextmenuportal") as HTMLElement)
+          : undefined
       }
     >
       {(keepMounted ? true : open) && children}

@@ -83,18 +83,38 @@ export const SelectMetaPageFormControl = ({
 }: {
   name?: string;
 }) => {
-  const { facebookProvider } = useGetUserProviders();
-  const { data: pagesData, isLoading: isPagesLoading } = useUserPages(
-    facebookProvider?.access_token
-  );
+  const { facebookPages, isLoading: isPagesLoading } = useUserPages();
 
   return (
     <SelectWithAutoComplete
-      label="Social Media Page"
+      label="Facebook Page"
       name={name}
-      isDisabled={!pagesData || isPagesLoading}
+      isDisabled={!facebookPages || isPagesLoading}
       isFetching={isPagesLoading}
-      items={pagesData?.map((page) => ({
+      placeholder="Select a Page"
+      items={facebookPages?.map((page) => ({
+        uid: page.id,
+        name: page.name,
+      }))}
+    />
+  );
+};
+
+export const SelectInstagramPageFormControl = ({
+  name = "page_id",
+}: {
+  name?: string;
+}) => {
+  const { instagramPages, isLoading: isPagesLoading } = useUserPages();
+
+  return (
+    <SelectWithAutoComplete
+      label="Instagram Page"
+      name={name}
+      isDisabled={!instagramPages || isPagesLoading}
+      isFetching={isPagesLoading}
+      placeholder="Select a Page"
+      items={instagramPages?.map((page) => ({
         uid: page.id,
         name: page.name,
       }))}

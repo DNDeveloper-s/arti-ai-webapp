@@ -4,7 +4,7 @@ import { FieldPath, FormProvider, useForm, useWatch } from "react-hook-form";
 import * as yup from "yup";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import { useCallback, useEffect, useState } from "react";
-import { Button, Divider, Input } from "@nextui-org/react";
+import { Button, Divider, Input, Radio, RadioGroup } from "@nextui-org/react";
 import { MdArrowBackIos } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import {
@@ -20,7 +20,10 @@ import {
   useUserPages,
 } from "@/api/user";
 import ConnectProviderModal from "../ArtiBot/MessageItems/Deploy/ConnectProviderModal";
-import { SelectMetaPageFormControl } from "../ArtiBot/MessageItems/Deploy/SelectMetaPage";
+import {
+  SelectInstagramPageFormControl,
+  SelectMetaPageFormControl,
+} from "../ArtiBot/MessageItems/Deploy/SelectMetaPage";
 import SelectWithAutoComplete, {
   SelectWithAutoCompleteProps,
 } from "../shared/renderers/SelectWithAutoComplete";
@@ -40,8 +43,16 @@ interface RegisterBusinessFormValues {
   }[];
   details: string;
   page_id: string;
+  instagram_page_id: string;
   ad_account_id: string;
 }
+
+const frequencies = [
+  { uid: "daily", name: "Daily" },
+  { uid: "weekly", name: "Weekly" },
+  { uid: "monthly", name: "Monthly" },
+];
+
 const validationSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
   category: yup.string().required("Category is required"),
@@ -81,12 +92,11 @@ export default function BusinessForm(props: BusinessFormProps) {
     //   details: "",
     // },
   });
-  const { state } = useUser();
-  const accessToken = Platform.getPlatform(
-    state.data?.facebook
-  )?.userAccessToken;
-  const { data: pagesData, isLoading: isPagesLoading } =
-    useUserPages(accessToken);
+  const {
+    facebookPages,
+    instagramPages,
+    isLoading: isPagesLoading,
+  } = useUserPages();
 
   const { data: editBusinessData, isFetching } = useGetBusiness(
     props.business_id
@@ -96,8 +106,10 @@ export default function BusinessForm(props: BusinessFormProps) {
 
   const [selectedPageId, setSelectedPageId] = useState<string>("");
 
-  const { data: providers } = useGetUserProviders();
+  const { data: providers, isFetching: isFetchingProviders } =
+    useGetUserProviders();
   const hasNoAccount =
+    !isFetchingProviders &&
     (providers ?? []).filter((c) => c.provider === "facebook").length === 0;
 
   const { data: accounts } = useGetAdAccounts();
@@ -136,10 +148,14 @@ export default function BusinessForm(props: BusinessFormProps) {
   const registerBusiness = (data: RegisterBusinessFormValues) => {
     if (isPending) return;
 
-    const dataToSend = omit(data, ["page_id", "ad_account_id"]);
+    const dataToSend = omit(data, [
+      "page_id",
+      "instagram_page_id",
+      "ad_account_id",
+    ]);
 
-    const providers = (
-      pagesData?.map((page) => ({
+    const facebookProvider = (
+      facebookPages?.map((page) => ({
         name: page.name,
         image: page.picture,
         provider_id: page.id,
@@ -147,6 +163,16 @@ export default function BusinessForm(props: BusinessFormProps) {
         type: SocialPageType.FACEBOOK_PAGE,
       })) ?? ([] as SocialPageObject[])
     ).find((c) => c.provider_id === data.page_id);
+
+    const instagramProvider = (
+      instagramPages?.map((page) => ({
+        name: page.name,
+        image: page.picture,
+        provider_id: page.id,
+        provider_access_token: page.page_access_token,
+        type: SocialPageType.INSTAGRAM_PAGE,
+      })) ?? ([] as SocialPageObject[])
+    ).find((c) => c.provider_id === data.instagram_page_id);
 
     const accountProviders = (
       accounts?.map((account) => ({
@@ -161,13 +187,21 @@ export default function BusinessForm(props: BusinessFormProps) {
         id: props.business_id,
         ...dataToSend,
         location: [],
-        social_pages: compact([providers, accountProviders]),
+        social_pages: compact([
+          instagramProvider,
+          facebookProvider,
+          accountProviders,
+        ]),
       });
     } else {
       postRegisterBusiness({
         ...data,
         location: [],
-        social_pages: compact([providers, accountProviders]),
+        social_pages: compact([
+          instagramProvider,
+          facebookProvider,
+          accountProviders,
+        ]),
       });
     }
   };
@@ -201,7 +235,7 @@ export default function BusinessForm(props: BusinessFormProps) {
 
   return (
     <div className="w-screen h-screen bg-secondaryBackground flex items-center justify-center">
-      <div className="w-[90vw] bg-black max-w-[500px] pt-2 pb-8 p-7 h-auto max-h-[90vh] overflow-auto">
+      <div className="w-[90vw] bg-black max-w-[900px] pt-2 pb-8 p-7 h-auto max-h-[90vh] overflow-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-1">
             <MdArrowBackIos
@@ -220,70 +254,109 @@ export default function BusinessForm(props: BusinessFormProps) {
           <form
             action=""
             onSubmit={handleSubmit(registerBusiness)}
-            className="flex flex-col gap-4"
+            className="flex gap-4"
           >
-            <Input
-              classNames={{
-                label: "!text-gray-500",
-              }}
-              label="Business Name"
-              variant="flat"
-              {...myRegister("name")}
-              value={watch("name")}
-            />
-            <SelectWithAutoComplete
-              plural="Categories"
-              label="Category"
-              items={CATEGORY_ITEMS}
-              name="category"
-            />
-            <Input
-              classNames={{
-                label: "!text-gray-500",
-              }}
-              label="Position"
-              variant="flat"
-              {...myRegister("position")}
-              value={watch("position")}
-            />
-            <Input
-              classNames={{
-                label: "!text-gray-500",
-              }}
-              label="Website"
-              variant="flat"
-              {...myRegister("website")}
-              value={watch("website")}
-            />
-            <Input
-              classNames={{
-                label: "!text-gray-500",
-              }}
-              label="Details"
-              variant="flat"
-              {...myRegister("details")}
-              value={watch("details")}
-            />
-            <Divider className="my-3" />
-            {hasNoAccount ? (
-              <ConnectProviderModal classNames={{ base: "w-full" }} />
-            ) : (
-              <>
-                <SelectMetaPageFormControl />
-                <SelectAdAccountFormControl />
-              </>
-            )}
-            <Divider className="my-3" />
-            <div className="w-full flex items-center gap-5">
-              <Button
-                className="flex-1"
-                isLoading={isPending}
-                type="submit"
-                color="primary"
-                isDisabled={isPending}
-              >
-                <span>{isEditMode ? "Update" : "Register"}</span>
-              </Button>
+            <div className="flex flex-1 flex-shrink-0 flex-col gap-4">
+              <Input
+                classNames={{
+                  label: "!text-gray-500",
+                }}
+                label="Business Name"
+                variant="flat"
+                {...myRegister("name")}
+                value={watch("name")}
+              />
+              <SelectWithAutoComplete
+                plural="Categories"
+                label="Category"
+                items={CATEGORY_ITEMS}
+                name="category"
+              />
+              <Input
+                classNames={{
+                  label: "!text-gray-500",
+                }}
+                label="Position"
+                variant="flat"
+                {...myRegister("position")}
+                value={watch("position")}
+              />
+              <Input
+                classNames={{
+                  label: "!text-gray-500",
+                }}
+                label="Website"
+                variant="flat"
+                {...myRegister("website")}
+                value={watch("website")}
+              />
+              <Input
+                classNames={{
+                  label: "!text-gray-500",
+                }}
+                label="Details"
+                variant="flat"
+                {...myRegister("details")}
+                value={watch("details")}
+              />
+              {!isFetchingProviders &&
+                (hasNoAccount ? (
+                  <ConnectProviderModal classNames={{ base: "w-full" }} />
+                ) : (
+                  <>
+                    <SelectAdAccountFormControl />
+                  </>
+                ))}
+            </div>
+            <div className="flex flex-1 flex-shrink-0 flex-col gap-4">
+              {!isFetchingProviders && !hasNoAccount && (
+                <>
+                  <SelectMetaPageFormControl />
+                  <SelectInstagramPageFormControl name="instagram_page_id" />
+                </>
+              )}
+              <Divider className="my-3" />
+              <div className="flex flex-col gap-4">
+                <div className="w-full flex flex-col">
+                  <p className="text-tiny text-gray-500 mb-2">
+                    Social Media Post Settings
+                  </p>
+                  <SelectWithAutoComplete
+                    items={frequencies}
+                    label="Post Frequency"
+                    noControl={false}
+                    name="post_frequency"
+                    className="w-full"
+                  />
+                </div>
+                <RadioGroup
+                  label="Select the Post Creation Method"
+                  orientation="horizontal"
+                  className="w-full"
+                  classNames={{
+                    label: "text-tiny text-gray-500",
+                  }}
+                  size="sm"
+                >
+                  <Radio value="reminder">Remind via Email</Radio>
+                  <Radio value="automatically_post">
+                    Automatically Create Post & Remind (Debit Credits)
+                  </Radio>
+                </RadioGroup>
+              </div>
+              <div className="flex-1"></div>
+              <Divider className="my-3" />
+              <div className="w-full flex items-center gap-5">
+                <Button
+                  className="flex-1"
+                  isLoading={isPending}
+                  type="submit"
+                  color="primary"
+                  isDisabled={isPending}
+                >
+                  <span>{isEditMode ? "Update" : "Register"}</span>
+                </Button>
+              </div>
             </div>
           </form>
         </FormProvider>

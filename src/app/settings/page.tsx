@@ -2,6 +2,7 @@
 import { useGetCredits } from "@/api/conversation";
 import {
   SubscriptionObject,
+  useCancelSubscription,
   useCreatePayment,
   useGetMySubscriptions,
 } from "@/api/payment";
@@ -10,9 +11,11 @@ import SwitchStatus from "@/components/ArtiBot/MessageItems/Deploy/Ad/components
 import Navbar from "@/components/Settings/Navbar";
 import SubscriptionPlans from "@/components/Settings/SubscriptionPlans";
 import Snackbar from "@/components/Snackbar";
+import UiModal from "@/components/shared/renderers/UiModal";
 import UiTable from "@/components/shared/renderers/UiTable";
 import { botData, dummyUser } from "@/constants/images";
 import { useUser } from "@/context/UserContext";
+import useMounted from "@/hooks/useMounted";
 import { useYupValidationResolver } from "@/hooks/useYupValidationResolver";
 import { ADMANAGER_STATUS_TYPE } from "@/interfaces/ISocial";
 import {
@@ -21,8 +24,12 @@ import {
   Checkbox,
   Divider,
   Input,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
   Switch,
 } from "@nextui-org/react";
+import { Modal } from "antd";
 import dayjs from "dayjs";
 import {
   Key,
@@ -114,14 +121,24 @@ const columns = [
   { name: "Start Date", uid: "start_date" },
   { name: "Next Renewal Date", uid: "end_date" },
   { name: "Plan Status", uid: "status" },
+  { name: "Action", uid: "cancel" },
 ];
 
 function SubscriptionDetails() {
   const {
-    data: subscriptions,
+    data: subscription,
     isLoading,
     fetchStatus,
   } = useGetMySubscriptions();
+
+  const { mutate: postCancelSubscription, isPending } = useCancelSubscription();
+
+  const [open, setOpen] = useState(false);
+  const handleClose = () => setOpen(false);
+
+  const subscriptions = useMemo(() => {
+    return [subscription];
+  }, [subscription]);
 
   const renderCell = useCallback(
     (subscription: SubscriptionObject, columnKey: Key): ReactNode => {
@@ -133,7 +150,7 @@ function SubscriptionDetails() {
         case "name":
           return (
             <div className="flex w-[100px] line-clamp-3 py-3 items-center gap-3">
-              Premium
+              {subscription.plan_name}
             </div>
           );
         case "price":
@@ -155,7 +172,13 @@ function SubscriptionDetails() {
             </div>
           );
         case "status":
-          return <Switch color="primary" size="sm"></Switch>;
+          return (
+            <Switch
+              color="primary"
+              size="sm"
+              isSelected={subscription.status === "ACTIVE"}
+            ></Switch>
+          );
         // case "actions":
         //   return (
         //     <div className="relative flex justify-end items-center gap-2">
@@ -173,11 +196,23 @@ function SubscriptionDetails() {
         //       </Dropdown>
         //     </div>
         //   );
+        case "cancel":
+          return (
+            <Button
+              variant="ghost"
+              color="danger"
+              isLoading={isPending}
+              isDisabled={isPending}
+              onClick={() => postCancelSubscription()}
+            >
+              Cancel
+            </Button>
+          );
         default:
           return cellValue;
       }
     },
-    []
+    [postCancelSubscription, isPending]
   );
 
   return (
@@ -195,11 +230,27 @@ function SubscriptionDetails() {
         selectionMode="none"
         isLoading={isLoading}
         fetchStatus={fetchStatus}
-        emptyContent="No subscriptions"
+        emptyContent={
+          <div>
+            <p>No subscriptions</p>
+            <Button
+              className="mt-2"
+              size="sm"
+              onClick={() => setOpen(true)}
+              color="primary"
+            >
+              <span className="text-white">Choose Plan</span>
+            </Button>
+          </div>
+        }
         noTopContent
+        classNames={{
+          wrapper: "h-[240px]",
+        }}
         // hasMore={hasNextPage}
         // fetchMore={fetchNextPagnFn}
       />
+      <SubscriptionPlanModal open={open} handleClose={handleClose} />
     </>
   );
 }
@@ -225,6 +276,7 @@ export default function Settings() {
     useForm<SettingsFormValues>({
       resolver,
     });
+  const mounted = useMounted();
 
   const { mutate: postUpdateUser, isPending } = useUpdateUser();
   const [fileObj, setFileObj] = useState<File | null>(null);
@@ -356,11 +408,39 @@ export default function Settings() {
         </div>
       </form>
       <Divider className="my-5" />
-      <SubscriptionDetails />
+      {mounted && <SubscriptionDetails />}
       <Divider className="my-5" />
       <RefillCreditForm />
-      <Divider className="my-5" />
-      <SubscriptionPlans />
     </main>
+  );
+}
+
+interface SubscriptionPlanModalProps {
+  open: boolean;
+  handleClose: () => void;
+}
+function SubscriptionPlanModal(props: SubscriptionPlanModalProps) {
+  const { open, handleClose } = props;
+  return (
+    <UiModal
+      keepMounted={false}
+      isOpen={open}
+      onClose={handleClose}
+      isDismissable={false}
+      isKeyboardDismissDisabled={true}
+      classNames={{
+        wrapper: "bg-black bg-opacity-50",
+        base: "!max-w-[900px] !w-[90vw]",
+      }}
+    >
+      <ModalContent>
+        <ModalHeader>
+          <h2>Subscription Plans</h2>
+        </ModalHeader>
+        <ModalBody>
+          <SubscriptionPlans />
+        </ModalBody>
+      </ModalContent>
+    </UiModal>
   );
 }

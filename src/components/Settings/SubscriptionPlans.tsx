@@ -1,11 +1,11 @@
 import { useCreatePayment, useGetProducts } from "@/api/payment";
-import { Button, Divider, Spinner } from "@nextui-org/react";
-import { useEffect } from "react";
+import { Button, Divider, Progress, Spinner } from "@nextui-org/react";
+import { useEffect, useRef } from "react";
 import { MdArrowRight } from "react-icons/md";
 import { RiFolderAddFill } from "react-icons/ri";
 
 export default function SubscriptionPlans() {
-  const { data: product, isFetching } = useGetProducts();
+  const { data: product, isFetching, isLoading } = useGetProducts();
 
   const {
     mutate: postRefillCredit,
@@ -14,7 +14,10 @@ export default function SubscriptionPlans() {
     data,
   } = useCreatePayment();
 
+  const selectedPriceRef = useRef<string | null>(null);
+
   const startSubscription = (price_id: string) => {
+    selectedPriceRef.current = price_id;
     postRefillCredit({ mode: "subscription", price_id });
   };
 
@@ -25,7 +28,7 @@ export default function SubscriptionPlans() {
   }, [isSuccess, data]);
   return (
     <div className="flex items-center justify-center gap-14 py-14">
-      {isFetching && <Spinner size="lg" label="Fetching Products" />}
+      {isLoading && <Spinner size="lg" label="Fetching plans" />}
       {product &&
         product.prices.map((price, ind) => (
           <div
@@ -70,6 +73,8 @@ export default function SubscriptionPlans() {
               size="md"
               className="text-sm flex items-center justify-center gap-2 w-full mt-7"
               onClick={() => startSubscription(price.id)}
+              isLoading={isPending && selectedPriceRef.current === price.id}
+              isDisabled={isPending}
             >
               <span>Get Started</span>
               <MdArrowRight className="text-lg" />
@@ -145,25 +150,28 @@ export default function SubscriptionPlans() {
           <MdArrowRight className="text-lg" />
         </Button>
       </div> */}
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 w-[280px]">
-        <div className="flex flex-col items-center justify-center">
-          <h2 className="text-3xl font-bold">Enterprise</h2>
-          <p className="text-xl font-medium">Custom Plan</p>
+      {product && (
+        <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 w-[280px]">
+          <div className="flex flex-col items-center justify-center">
+            <h2 className="text-3xl font-bold">Enterprise</h2>
+            <p className="text-xl font-medium">Custom Plan</p>
+          </div>
+          <Divider className="my-7 w-[80%] mx-auto" />
+          <div className="flex flex-col gap-4 px-3 text-xs text-center mx-auto max-w-[170px]">
+            <p>Want a customized design plan for your company?</p>
+            <p>We are ready to server</p>
+          </div>
+          <Button
+            color="primary"
+            size="md"
+            className="text-sm flex items-center justify-center gap-2 w-full mt-7"
+            isDisabled
+          >
+            <span>Get Started</span>
+            <MdArrowRight className="text-lg" />
+          </Button>
         </div>
-        <Divider className="my-7 w-[80%] mx-auto" />
-        <div className="flex flex-col gap-4 px-3 text-xs text-center mx-auto max-w-[170px]">
-          <p>Want a customized design plan for your company?</p>
-          <p>We are ready to server</p>
-        </div>
-        <Button
-          color="primary"
-          size="md"
-          className="text-sm flex items-center justify-center gap-2 w-full mt-7"
-        >
-          <span>Get Started</span>
-          <MdArrowRight className="text-lg" />
-        </Button>
-      </div>
+      )}
     </div>
   );
 }

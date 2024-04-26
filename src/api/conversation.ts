@@ -1292,27 +1292,38 @@ export const useQueryUserBusiness = () => {
 interface UseGetVariantProps {
   ad_id?: string;
   id?: string;
+  post_id?: string;
   enabled?: boolean;
+}
+
+interface AdVariantWithIdentifiers extends IAdVariant {
+  AdCreative: {
+    messageId: string;
+    conversationId: string;
+    id: string;
+  };
 }
 
 export const useGetVariant = ({
   ad_id,
   id,
+  post_id,
   enabled = true,
 }: UseGetVariantProps) => {
   const fetchVariant = async ({ queryKey }: QueryFunctionContext) => {
-    const [, id, ad_id] = queryKey;
+    const [, id, ad_id, post_id] = queryKey;
     const response = await axios.get(ROUTES.VARIANT.GET, {
       params: {
         id: id,
         ad_id: ad_id,
+        post_id: post_id,
       },
     });
     return response.data.data;
   };
-  return useQuery<IAdVariant>({
-    queryKey: API_QUERIES.GET_VARIANT(id, ad_id),
+  return useQuery<AdVariantWithIdentifiers>({
+    queryKey: API_QUERIES.GET_VARIANT(id, ad_id, post_id),
     queryFn: fetchVariant,
-    enabled: enabled && (!!ad_id || !!id),
+    enabled: enabled && (!!ad_id || !!id || !!post_id),
   });
 };
