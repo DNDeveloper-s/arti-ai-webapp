@@ -30,6 +30,8 @@ import SelectWithAutoComplete, {
 import { SelectAdAccountFormControl } from "../ArtiBot/MessageItems/Deploy/Ad/components/SelectAdAccount";
 import { Platform, useUser } from "@/context/UserContext";
 import { compact, omit } from "lodash";
+import { AiOutlineQuestionCircle } from "react-icons/ai";
+import LableWithTooltip from "../shared/renderers/LabelWithTooltip";
 
 interface RegisterBusinessFormValues {
   name: string;
@@ -83,14 +85,6 @@ export default function BusinessForm(props: BusinessFormProps) {
   const resolver = useYupValidationResolver(validationSchema);
   const methods = useForm<RegisterBusinessFormValues>({
     resolver,
-    // defaultValues: {
-    //   name: "",
-    //   category: "",
-    //   position: "",
-    //   website: "",
-    //   location: [],
-    //   details: "",
-    // },
   });
   const {
     facebookPages,
@@ -294,7 +288,7 @@ export default function BusinessForm(props: BusinessFormProps) {
                 classNames={{
                   label: "!text-gray-500",
                 }}
-                label="Details"
+                label="More details about your business"
                 variant="flat"
                 {...myRegister("details")}
                 value={watch("details")}
@@ -317,10 +311,16 @@ export default function BusinessForm(props: BusinessFormProps) {
               )}
               <Divider className="my-3" />
               <div className="flex flex-col gap-4">
-                <div className="w-full flex flex-col">
-                  <p className="text-tiny text-gray-500 mb-2">
-                    Social Media Post Settings
-                  </p>
+                <div className="w-full flex flex-col gap-3">
+                  <LableWithTooltip
+                    label="Social Media Settings"
+                    content="How often do you want to make social media post"
+                    color="default"
+                    placement="bottom"
+                    classNames={{
+                      label: "text-tiny text-gray-500",
+                    }}
+                  />
                   <SelectWithAutoComplete
                     items={frequencies}
                     label="Post Frequency"
@@ -337,9 +337,10 @@ export default function BusinessForm(props: BusinessFormProps) {
                     label: "text-tiny text-gray-500",
                   }}
                   size="sm"
+                  value="reminder"
                 >
                   <Radio value="reminder">Remind via Email</Radio>
-                  <Radio value="automatically_post">
+                  <Radio value="automatically_post" disabled isDisabled>
                     Automatically Create Post & Remind (Debit Credits)
                   </Radio>
                 </RadioGroup>

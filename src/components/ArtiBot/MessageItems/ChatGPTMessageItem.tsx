@@ -31,6 +31,8 @@ import { framerItem } from "@/config/framer-motion";
 import useMounted from "@/hooks/useMounted";
 import MarkdownRenderer from "@/components/ArtiBot/MarkdownRenderer";
 import { Mock } from "@/constants/servicesData";
+import { useBusiness } from "@/context/BusinessContext";
+import Element from "@/components/shared/renderers/Element";
 
 interface ChatGPTMessageItemProps {
   messageItem: ChatGPTMessageObj;
@@ -217,40 +219,47 @@ export const ChatGPTMessageWelcomeMessage = ({
   type = ConversationType.AD_CREATIVE,
 }) => {
   const [showCopyAnimation, setShowCopyAnimation] = useState(false);
+  const { business } = useBusiness();
 
   const message = useMemo(() => {
     return randomMessageLengthForShimmer[randomIndex()];
   }, []);
+
+  const key =
+    type === ConversationType.AD_CREATIVE ? "ad_creative" : "post_creative";
+
   return (
-    <motion.div variants={framerItem()} className={"w-full"}>
-      <div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
-        <Image
-          className="rounded-lg mr-[0.3em]"
-          width={45}
-          height={45}
-          src={botData.image}
-          alt=""
-        />
-        <div className="ml-[0.8em] flex-1">
-          <div className="flex items-start">
-            <p className="whitespace-pre-wrap text-[15px] leading-[1.8] text-primaryText opacity-60 flex-1">
-              {welcomeMessage[type]}
-            </p>
-            <div className="opacity-0 pointer-events-none w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
-              {!showCopyAnimation ? (
-                <IoIosCopy className="cursor-pointer justify-self-end text-primary" />
-              ) : (
-                <Lottie
-                  className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
-                  animationData={tickAnimation}
-                  loop={false}
-                />
-              )}
+    <Element content={business?.conversation_starter?.[key]}>
+      <motion.div variants={framerItem()} className={"w-full"}>
+        <div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
+          <Image
+            className="rounded-lg mr-[0.3em]"
+            width={45}
+            height={45}
+            src={botData.image}
+            alt=""
+          />
+          <div className="ml-[0.8em] flex-1">
+            <div className="flex items-start">
+              <p className="whitespace-pre-wrap text-[15px] leading-[1.8] text-primaryText opacity-60 flex-1">
+                {business?.conversation_starter?.[key]}
+              </p>
+              <div className="opacity-0 pointer-events-none w-[1.85em] h-[1.85em] mx-[1em] flex items-center justify-center relative">
+                {!showCopyAnimation ? (
+                  <IoIosCopy className="cursor-pointer justify-self-end text-primary" />
+                ) : (
+                  <Lottie
+                    className="absolute top-1/2 left-1/2 w-20 h-20 transform -translate-x-1/2 -translate-y-1/2"
+                    animationData={tickAnimation}
+                    loop={false}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </Element>
   );
 };
 

@@ -128,14 +128,14 @@ export default function MessageContainer() {
           </div>
         ) : (
           <>
-            {hasPreviousPage && (
+            {/* {hasPreviousPage && (
               <div
                 ref={firstRef}
                 className="w-full max-w-[900px] mx-auto px-3 flex justify-center items-center my-3"
               >
                 <Spinner />
               </div>
-            )}
+            )} */}
             {/*<ChatGPTMessageCreatingAd/>*/}
             {/* {isGeneratingAd && <ChatGPTMessageCreatingAd />} */}
             {/* <div className="text-white whitespace-pre-wrap">{msg}</div> */}

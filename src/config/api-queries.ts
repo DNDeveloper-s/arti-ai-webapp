@@ -7,6 +7,10 @@ const API_QUERIES = {
     id?: string | null,
     timeRange?: string | null
   ) => ["get-leads", accessToken, type, id, timeRange],
+  GET_ESTIMATED_REACH: (
+    adsetId?: string | null,
+    accessToken?: string | null
+  ) => ["get-estimated-reach", adsetId, accessToken],
   GET_SUBSCRIPTIONS: ["get-subscriptions"],
   GET_CREDIT_BALANCE: ["get-credit-balance"],
   GET_USER_BUSINESSES: ["get-user-businesses"],

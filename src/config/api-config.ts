@@ -143,6 +143,8 @@ export const ROUTES = {
   AD: {
     GET_IDENTIFIERS: (adId: string) =>
       apiUrl(`/marketing/ad_entities/${adId}/identifiers`),
+    GET_ESTIMATED_REACH: (adsetId: string) =>
+      apiUrl(`/marketing/adsets/${adsetId}/delivery_estimates`),
   },
   LOCATION: {
     ZIPCODE: apiUrl("/location/zipcode"),

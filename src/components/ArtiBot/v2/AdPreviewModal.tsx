@@ -15,6 +15,7 @@ import {
   previewOptions,
 } from "../MessageItems/Deploy/Ad/components/Ads/Create/CreateAd";
 import Link from "next/link";
+import useMounted from "@/hooks/useMounted";
 
 interface AdPreviewModalProps {
   open: boolean;
@@ -31,6 +32,7 @@ const AdPreviewModal: FC<AdPreviewModalProps> = ({
   const [previewOptionValue, setPreviewOptionValue] = React.useState<string>(
     previewOptions[0].uid
   );
+  const mounted = useMounted();
 
   const previewOptionEl = previewOptions.find(
     (option) => option.uid === previewOptionValue
@@ -43,7 +45,9 @@ const AdPreviewModal: FC<AdPreviewModalProps> = ({
       isKeyboardDismissDisabled={true}
       isOpen={open}
       portalContainer={
-        document.getElementById("contextmenuportal") as HTMLElement
+        mounted
+          ? (document.getElementById("contextmenuportal") as HTMLElement)
+          : undefined
       }
       classNames={{
         base: "!max-w-[600px] !max-h-[90vh] !w-full",

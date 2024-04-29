@@ -63,11 +63,13 @@ export type GetConversationInifiniteResponse = InfiniteConversation[];
 
 export const useGetConversationInfinite = (
   cursorId?: string | null,
+  include_cursor: boolean = false,
   enabled: boolean = true
 ) => {
   const LIMIT = 4;
   const { pushConversationsToState } = useConversation();
   const { business } = useBusiness();
+  const qc = useQueryClient();
 
   const fetchConversations = async (
     pageParam: any,
@@ -78,10 +80,13 @@ export const useGetConversationInfinite = (
     if (!businessId) {
       throw new Error("Business ID is required");
     }
+
+    const state = qc.getQueryState(queryKey);
+
     const response = await axios.get(ROUTES.CONVERSATION.QUERY_INFINITE, {
       params: {
         cursor_id: pageParam?.cursorId,
-        include_cursor: pageParam?.include_cursor,
+        include_cursor: state?.isInvalidated || pageParam?.include_cursor,
         limit: LIMIT * (direction === "forward" ? 1 : -1),
         business_id: businessId,
       },
@@ -549,10 +554,6 @@ export const useSaveMessages = () => {
   return useMutation({
     mutationFn: saveMessage,
     onSettled: (data, error, variables) => {
-      console.log(
-        "API_QUERIES.GET_MESSAGES(variables.conversationId) 0 ",
-        API_QUERIES.GET_MESSAGES(variables.conversationId)
-      );
       queryClient.invalidateQueries({
         queryKey: API_QUERIES.GET_MESSAGES(variables.conversationId),
       });
@@ -1272,6 +1273,10 @@ export interface IBusinessResponse {
   details?: string;
   summary?: string;
   social_pages?: SocialPageObject[];
+  conversation_starter: {
+    ad_creative: string,
+    post_creative: string
+  };
 }
 type GetQueryBusinessResponse = IBusinessResponse[];
 export const useQueryUserBusiness = () => {

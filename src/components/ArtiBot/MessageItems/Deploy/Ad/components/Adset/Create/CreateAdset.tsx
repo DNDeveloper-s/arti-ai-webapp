@@ -1,3 +1,5 @@
+"use client";
+
 import {
   GenericLocationObject,
   ICreateAdset,
@@ -10,12 +12,21 @@ import {
   Autocomplete,
   AutocompleteItem,
   Button,
+  Checkbox,
   Input,
   Switch,
   Tooltip,
 } from "@nextui-org/react";
 import { DatePicker } from "antd";
-import React, { Key, useContext, useEffect, useMemo, useRef } from "react";
+import React, {
+  Key,
+  use,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { object, string, mixed, number } from "yup";
 import SelectCountries from "./SelectCountries";
@@ -38,8 +49,10 @@ import { tooltips } from "@/constants/adCampaignData/tooltips";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { Tooltip as TooltipAntd } from "antd";
 import LableWithTooltip from "@/components/shared/renderers/LabelWithTooltip";
-import { DateRangePickerControl } from "@/components/shared/renderers/DateRangePicker";
-import { SelectPlatformControl } from "./SelectPlatform";
+
+import CanvasJs from "@canvasjs/react-charts";
+import { useGetEstimatedReach } from "@/api/admanager";
+const CanvasJSChart = CanvasJs.CanvasJSChart;
 
 {
   /* <option value="">None</option>
@@ -460,7 +473,12 @@ export default function CreateAdset({
   const resolver = useYupValidationResolver(validationSchema);
   const methods = useForm<CreateAdsetFormValues>({
     resolver,
-    defaultValues: { status: "PAUSED" },
+    defaultValues: {
+      status: "PAUSED",
+      gender: "0",
+      min_age: "18",
+      max_age: "65+",
+    },
   });
   const {
     handleSubmit,
@@ -475,6 +493,8 @@ export default function CreateAdset({
   const campaigns = useMemo(() => {
     return campaignPages?.pages.map((page) => page.data).flat() || [];
   }, [campaignPages]);
+
+  const [startAdImmediately, setStartAdImmediately] = useState(true);
 
   const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
 
@@ -531,7 +551,60 @@ export default function CreateAdset({
   const genderValue = watch("gender");
   const conversionLocationValue = watch("destination_type");
 
-  console.log("campaignValue - ", campaignValue, campaigns);
+  const options = useMemo(() => {
+    return {
+      theme: "dark1",
+      animationEnabled: true,
+      title: {
+        // text: "Monthly Sales - 2017"
+      },
+      axisX: {
+        valueFormatString: "DD",
+      },
+      axisY: {
+        gridThickness: 0,
+        // title: "Sales (in USD)",
+      },
+      data: [
+        {
+          yValueFormatString: "##.##",
+          xValueFormatString: "DD",
+          type: "spline",
+          dataPoints: [
+            { x: new Date(), y: 0 },
+            {
+              x: new Date(new Date().setDate(new Date().getDate() + 1)),
+              y: 135682777.5364,
+            },
+            {
+              x: new Date(new Date().setDate(new Date().getDate() + 2)),
+              y: 316370228.10785,
+            },
+            {
+              x: new Date(new Date().setDate(new Date().getDate() + 3)),
+              y: 354705372.88271,
+            },
+            {
+              x: new Date(new Date().setDate(new Date().getDate() + 4)),
+              y: 390539792.97843,
+            },
+            {
+              x: new Date(new Date().setDate(new Date().getDate() + 5)),
+              y: 394960519.16748,
+            },
+            {
+              x: new Date(new Date().setDate(new Date().getDate() + 6)),
+              y: 396272488.8327,
+            },
+            {
+              x: new Date(new Date().setDate(new Date().getDate() + 7)),
+              y: 396930169.77107,
+            },
+          ],
+        },
+      ],
+    };
+  }, []);
 
   const immutableFields = useMemo((): Partial<
     Record<keyof CreateAdsetFormValues, boolean>
@@ -627,9 +700,9 @@ export default function CreateAdset({
       ...formData,
       billing_event: "IMPRESSIONS",
       targeting: {
-        device_platforms: ["mobile"],
-        facebook_positions: ["feed"],
-        publisher_platforms: ["facebook", "audience_network", "instagram"],
+        // device_platforms: ["mobile"],
+        // facebook_positions: ["feed"],
+        // publisher_platforms: ["facebook", "audience_network", "instagram"],
         geo_locations: {
           ...existingGeoLocationData,
           // countries: data.countries?.map((c) => c.uid) ?? [],
@@ -638,13 +711,13 @@ export default function CreateAdset({
           ...(formGeoLocationData ?? {}),
         },
         flexible_spec: formDemographics(),
-        user_os: ["android", "ios"],
+        // user_os: ["android", "ios"],
       },
       destination_type: conversionLocationValue,
       promoted_object: promotedObject,
       bid_strategy: "LOWEST_COST_WITHOUT_CAP",
       daily_budget: +data.daily_budget,
-      publisher_platforms: ["facebook", "instagram"],
+      // publisher_platforms: ["facebook", "instagram"],
     };
 
     if (data.start_time) {
@@ -942,65 +1015,79 @@ export default function CreateAdset({
               // errorMessage={formState.errors.description?.message}
             />
           </Tooltip>
-          <div className="flex gap-3 items-start">
-            <Tooltip
-              placement="top-end"
-              showArrow={true}
-              offset={5}
-              content={tooltips.adset.start_time}
+          <div className="w-full">
+            <Checkbox
+              size="md"
+              isSelected={startAdImmediately}
+              onValueChange={(value) => {
+                setStartAdImmediately(value);
+              }}
+              classNames={{ label: "text-small" }}
             >
-              <div className="flex-1">
-                <label
-                  htmlFor=""
-                  className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
-                >
-                  Start Time
-                </label>
-                <DatePicker
-                  format={"DD/MM/YYYY hh:mm a"}
-                  className="!h-[40px] !w-full"
-                  showTime
-                  variant="filled"
-                  value={startTimeValue}
-                  onChange={handleDateChange("start_time")}
-                />
-                <Element
-                  type="p"
-                  className="text-small text-danger mt-1"
-                  content={formState.errors.start_time?.message}
-                />
-              </div>
-            </Tooltip>
-            <Tooltip
-              placement="top-end"
-              showArrow={true}
-              offset={5}
-              content={tooltips.adset.end_time}
-            >
-              <div className="flex-1">
-                <label
-                  htmlFor=""
-                  className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
-                >
-                  End Time
-                </label>
-                <DatePicker
-                  format={"DD/MM/YYYY hh:mm a"}
-                  className="!h-[40px] !w-full"
-                  showTime
-                  variant="filled"
-                  value={endTimeValue}
-                  onChange={handleDateChange("end_time")}
-                  minDate={startTimeValue}
-                />
-                <Element
-                  type="p"
-                  className="text-small text-danger mt-1"
-                  content={formState.errors.end_time?.message}
-                />
-              </div>
-            </Tooltip>
+              Start the ad immediately
+            </Checkbox>
           </div>
+          {!startAdImmediately && (
+            <div className="flex gap-3 items-start">
+              <Tooltip
+                placement="top-end"
+                showArrow={true}
+                offset={5}
+                content={tooltips.adset.start_time}
+              >
+                <div className="flex-1">
+                  <label
+                    htmlFor=""
+                    className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
+                  >
+                    Start Time
+                  </label>
+                  <DatePicker
+                    format={"DD/MM/YYYY hh:mm a"}
+                    className="!h-[40px] !w-full"
+                    showTime
+                    variant="filled"
+                    value={startTimeValue}
+                    onChange={handleDateChange("start_time")}
+                  />
+                  <Element
+                    type="p"
+                    className="text-small text-danger mt-1"
+                    content={formState.errors.start_time?.message}
+                  />
+                </div>
+              </Tooltip>
+              <Tooltip
+                placement="top-end"
+                showArrow={true}
+                offset={5}
+                content={tooltips.adset.end_time}
+              >
+                <div className="flex-1">
+                  <label
+                    htmlFor=""
+                    className=" ml-1 !text-gray-500 text-small block transform scale-85 origin-top-left"
+                  >
+                    End Time
+                  </label>
+                  <DatePicker
+                    format={"DD/MM/YYYY hh:mm a"}
+                    className="!h-[40px] !w-full"
+                    showTime
+                    variant="filled"
+                    value={endTimeValue}
+                    onChange={handleDateChange("end_time")}
+                    minDate={startTimeValue}
+                  />
+                  <Element
+                    type="p"
+                    className="text-small text-danger mt-1"
+                    content={formState.errors.end_time?.message}
+                  />
+                </div>
+              </Tooltip>
+            </div>
+          )}
           <div className="flex gap-3 items-start">
             <div className="flex-1">
               <Tooltip
@@ -1142,6 +1229,17 @@ export default function CreateAdset({
         </div>
         <div className="flex flex-col gap-4 flex-1 space-between">
           <div className="flex flex-col gap-4 flex-1">
+            <div>
+              <h2 className="text-xs text-gray-500 mb-2">
+                Daily Reach Estimates
+              </h2>
+              <div>
+                <CanvasJSChart
+                  options={options}
+                  containerProps={{ height: "100px" }}
+                />
+              </div>
+            </div>
             <Tooltip
               placement="top-end"
               showArrow={true}
@@ -1164,7 +1262,10 @@ export default function CreateAdset({
                 errorMessage={formState.errors.gender?.message}
               >
                 {GENDERS.map((gender) => (
-                  <AutocompleteItem key={gender.uid} textValue={gender.name}>
+                  <AutocompleteItem
+                    key={gender.numericUid}
+                    textValue={gender.name}
+                  >
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {gender.name}
@@ -1173,19 +1274,6 @@ export default function CreateAdset({
                 ))}
               </Autocomplete>
             </Tooltip>
-            {/* <SelectCountries
-            value={countryValue}
-            onChange={(value: string, option: any) => {
-              setValue("countries", option);
-            }}
-          />
-          <SelectZipCodes
-            value={zipCodeValue}
-            onChange={(value: string, option: any) => {
-              setValue("zip_codes", option);
-            }}
-          /> */}
-            <SelectPlatformControl mode="multiple" />
             <SelectLocations
               value={locationValue}
               onChange={(value: string, option: any) => {
@@ -1281,36 +1369,38 @@ export default function CreateAdset({
             </Switch>
           </div>
           <div className="w-full flex items-center justify-between gap-4 mb-2">
-            <Button
-              isLoading={createModeRef.current === "create" && isPending}
-              type="submit"
-              color="primary"
-              className="flex-1"
-              onClick={() => {
-                createModeRef.current = "create";
-              }}
-              isDisabled={isPending}
-            >
-              <span>
-                {getSubmitText(
-                  storeFormState,
-                  createModeRef.current === "create" && isPending,
-                  "Adset"
-                )}
-              </span>
-            </Button>
+            {storeFormState.mode === "edit" && (
+              <Button
+                isLoading={createModeRef.current === "create" && isPending}
+                type="submit"
+                color="primary"
+                className="flex-1"
+                onClick={() => {
+                  createModeRef.current = "create";
+                }}
+                isDisabled={isPending}
+              >
+                <span>
+                  {getSubmitText(
+                    storeFormState,
+                    createModeRef.current === "create" && isPending,
+                    "Adset"
+                  )}
+                </span>
+              </Button>
+            )}
             {storeFormState.mode === "create" && (
               <Button
                 isLoading={createModeRef.current === "continue" && isPending}
                 type="submit"
-                color="default"
+                color="primary"
                 className="flex-1"
                 onClick={() => {
                   createModeRef.current = "continue";
                 }}
                 isDisabled={isPending}
               >
-                <span>Save & Create Ad</span>
+                <span>Continue</span>
               </Button>
             )}
           </div>

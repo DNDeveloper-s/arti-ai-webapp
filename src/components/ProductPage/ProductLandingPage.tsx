@@ -108,11 +108,11 @@ export default function ProductLandingPage() {
       <main>
         {/*<Logo />*/}
         <Hero />
-        {isMounted && (isSmallScreen || isPortrait) ? (
+        {/* {isMounted && (isSmallScreen || isPortrait) ? (
           <Services_Sm />
         ) : (
           <Services />
-        )}
+        )} */}
         {isSmallScreen && <ServiceIntroduction />}
         <Numbers />
         <CaseStudies />

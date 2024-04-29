@@ -18,9 +18,11 @@ import CreateAd from "./components/Ads/Create/CreateAd";
 import { useGetAdCreativeAutoComplete } from "@/api/conversation";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import ErrorComponent from "@/components/shared/error/ErrorComponent";
+import useMounted from "@/hooks/useMounted";
 
 export default function CreateAdManagerModal() {
   const { formState, meta, setFormState } = useCampaignStore();
+  const mounted = useMounted();
 
   // Fetching the AutoComplete
   const { data: autoCompleteFields, isFetching } = useGetAdCreativeAutoComplete(
@@ -41,7 +43,9 @@ export default function CreateAdManagerModal() {
       isKeyboardDismissDisabled={true}
       isOpen={formState.open}
       portalContainer={
-        document.getElementById("contextmenuportal") as HTMLElement
+        mounted
+          ? (document.getElementById("contextmenuportal") as HTMLElement)
+          : undefined
       }
       classNames={{
         base:

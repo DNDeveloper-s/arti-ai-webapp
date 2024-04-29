@@ -127,7 +127,7 @@ export const EmptySection: FC<EmptySectionProps> = (props) => {
     <div className="relative w-full">
       <div
         style={{
-          zIndex: 2000,
+          zIndex: 20,
           backdropFilter: "blur(3px)",
           background: "rgba(0,0,0,0.6)",
           ...(props.style ?? {}),

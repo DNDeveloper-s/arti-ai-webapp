@@ -247,38 +247,40 @@ export default function CreateCampaign({
       {/* Buttons for submitting the form */}
       <div className="w-full flex items-center justify-between gap-4 mb-2">
         {/* Button for submitting and creating campaign */}
-        <Button
-          isLoading={createModeRef.current === "create" && isPending}
-          type="submit"
-          color="primary"
-          className="flex-1"
-          onClick={() => {
-            createModeRef.current = "create";
-          }}
-          isDisabled={isPending}
-        >
-          <span>
-            {/* Determine button text based on mode and pending status */}
-            {getSubmitText(
-              storeFormState,
-              createModeRef.current === "create" && isPending,
-              "Campaign"
-            )}
-          </span>
-        </Button>
+        {storeFormState.mode === "edit" && (
+          <Button
+            isLoading={createModeRef.current === "create" && isPending}
+            type="submit"
+            color="primary"
+            className="flex-1"
+            onClick={() => {
+              createModeRef.current = "create";
+            }}
+            isDisabled={isPending}
+          >
+            <span>
+              {/* Determine button text based on mode and pending status */}
+              {getSubmitText(
+                storeFormState,
+                createModeRef.current === "create" && isPending,
+                "Campaign"
+              )}
+            </span>
+          </Button>
+        )}
         {/* Button for submitting and creating adset */}
         {storeFormState.mode === "create" && (
           <Button
             isLoading={createModeRef.current === "continue" && isPending}
             type="submit"
-            color="default"
+            color="primary"
             className="flex-1"
             onClick={() => {
               createModeRef.current = "continue";
             }}
             isDisabled={isPending}
           >
-            <span>Save & Create Adset</span>
+            <span>Continue</span>
           </Button>
         )}
       </div>

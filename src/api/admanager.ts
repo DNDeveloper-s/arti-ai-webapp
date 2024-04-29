@@ -256,3 +256,35 @@ export const useGetAdIdentifiers = ({
     enabled: enabled && !!ad_id,
   });
 };
+
+interface UseGetEstimatedReachOptions {
+  adsetId: string;
+  enabled?: boolean;
+}
+
+export const useGetEstimatedReach = ({
+  adsetId,
+  enabled = true,
+}: UseGetEstimatedReachOptions) => {
+  const { accessToken } = useCredentials();
+  const getEstimatedReach = async ({ queryKey }: QueryFunctionContext) => {
+    const [, adsetId, accessToken] = queryKey;
+    if (!adsetId || !accessToken) {
+      throw new Error("AdsetId and AccessToken are required");
+    }
+    const response = await axios.get(
+      ROUTES.AD.GET_ESTIMATED_REACH(adsetId as string),
+      {
+        params: {
+          access_token: accessToken,
+        },
+      }
+    );
+    return response.data.data;
+  };
+  return useQuery({
+    queryKey: API_QUERIES.GET_ESTIMATED_REACH(adsetId, accessToken),
+    queryFn: getEstimatedReach,
+    enabled: enabled && !!adsetId,
+  });
+};
