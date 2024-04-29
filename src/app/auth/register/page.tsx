@@ -111,7 +111,7 @@ export default function Auth() {
   async function handleRegister(
     formValues: FormField<REGISTER_FIELD_NAME>[],
     e: FormEvent,
-    reset
+    reset: () => void
   ) {
     try {
       const response = await axios.post("/api/auth/register", {
@@ -135,14 +135,21 @@ export default function Auth() {
       // await postNewUser(formValues);
       if (response.data.ok) reset();
 
-      await signIn("credentials", {
+      const res = await signIn("credentials", {
         ...formValues,
-        callbackUrl: "/",
-        redirect: true,
+        callbackUrl: "/business/register",
+        redirect: false,
       });
-    } catch (e) {}
 
-    return response.data.ok;
+      if (res?.error) {
+        setSnackBarData({
+          message: "Something went wrong!",
+          status: "error",
+        });
+      } else {
+        router.push("/business/register");
+      }
+    } catch (e) {}
   }
 
   return (

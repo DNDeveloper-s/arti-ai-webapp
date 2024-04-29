@@ -27,7 +27,7 @@ import axios from "axios";
 import ObjectID from "bson-objectid";
 import { compact, omit } from "lodash";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useCredentials } from "./user";
+import { GenericLocationObject, useCredentials } from "./user";
 import {
   IAd,
   IFacebookAdInsight,
@@ -1010,6 +1010,7 @@ interface AdSetAutoComplete {
     age?: AutoCompleteValue;
     gender?: AutoCompleteValue;
     fb_detailed_targeting?: AutoCompleteFBTargeting[];
+    fb_location_targeting?: GenericLocationObject[];
     detailed_targeting?: {
       interests?: string[];
     };
@@ -1274,8 +1275,8 @@ export interface IBusinessResponse {
   summary?: string;
   social_pages?: SocialPageObject[];
   conversation_starter: {
-    ad_creative: string,
-    post_creative: string
+    ad_creative: string;
+    post_creative: string;
   };
 }
 type GetQueryBusinessResponse = IBusinessResponse[];

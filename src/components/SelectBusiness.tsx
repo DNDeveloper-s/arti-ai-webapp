@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { Key, useEffect } from "react";
 import { useBusiness } from "@/context/BusinessContext";
 import { MdEdit } from "react-icons/md";
+import { Button } from "@nextui-org/react";
+import Link from "next/link";
+import CTAButton from "./CTAButton";
 
 export default function SelectBusiness() {
   const { data, isFetching } = useQueryUserBusiness();
@@ -18,6 +21,16 @@ export default function SelectBusiness() {
     e.stopPropagation();
     router.push("/business/" + business?.id + "/edit");
   };
+
+  if (data?.length === 0) {
+    return (
+      <Link href={"/business/register"} prefetch={true}>
+        <CTAButton className="py-1.5 rounded-lg text-sm">
+          <span>Create Business</span>
+        </CTAButton>
+      </Link>
+    );
+  }
 
   return (
     <SelectWithAutoComplete

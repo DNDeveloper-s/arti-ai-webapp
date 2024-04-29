@@ -21,6 +21,7 @@ import {
 import { IConversation } from "@/interfaces/IConversation";
 import useCampaignStore from "@/store/campaign";
 import { set } from "lodash";
+import useSessionToken from "@/hooks/useSessionToken";
 
 type IBusinessState = IBusinessResponse | undefined | null;
 
@@ -118,17 +119,17 @@ const useBusinessContext = (initState: IBusinessState) => {
   const { data } = useQueryUserBusiness();
   const { setSelectAdAccount } = useCampaignStore();
   const selectedBusinessIdRef = useRef<string | null>(null);
+  const token = useSessionToken();
 
   useEffect(() => {
+    if (!token) return;
     if (!selectedBusinessIdRef.current && data) {
       const localStorageBusinessId = localStorage.getItem("business_id");
       const _business = data.find((b) => b.id === localStorageBusinessId);
       const businessToSelect = _business ?? data[0];
-      console.log(
-        "businessToSelect 0",
-        businessToSelect,
-        selectedBusinessIdRef.current
-      );
+
+      if (!businessToSelect) return;
+
       setBusiness(businessToSelect);
       selectedBusinessIdRef.current = businessToSelect.id;
       localStorage.setItem("business_id", selectedBusinessIdRef.current);
@@ -148,6 +149,7 @@ const useBusinessContext = (initState: IBusinessState) => {
         businessToSelect,
         selectedBusinessIdRef.current
       );
+      if (!businessToSelect) return;
       setBusiness(businessToSelect);
       selectedBusinessIdRef.current = businessToSelect.id;
       localStorage.setItem("business_id", selectedBusinessIdRef.current);
@@ -156,7 +158,7 @@ const useBusinessContext = (initState: IBusinessState) => {
       );
       setSelectAdAccount(adAccountProvider?.provider_id);
     }
-  }, [data, setSelectAdAccount]);
+  }, [data, setSelectAdAccount, token]);
 
   // Set the AdAccount ID when the business is set
   useEffect(() => {

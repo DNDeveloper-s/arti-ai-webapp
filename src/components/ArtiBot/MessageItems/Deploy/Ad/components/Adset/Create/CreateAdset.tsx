@@ -879,6 +879,32 @@ export default function CreateAdset({
       }));
       setValue("demographics", demographicValue);
     }
+
+    const locations = autoCompleteFields.default_fields.fb_location_targeting;
+    if (locations) {
+      const locationValue = locations.map((location) => {
+        const locationArr = compact([
+          location.name,
+          location.primary_city,
+          location.region,
+          location.country_name,
+          location.country_code,
+        ]);
+        return {
+          ...location,
+          value: location.key + "-" + location.type,
+          label: (
+            <div className="flex items-center justify-between gap-3 px-1">
+              <span>{locationArr.join(", ")}</span>
+            </div>
+          ),
+          name: location.name,
+          uid: location.key,
+          id: location.key,
+        };
+      });
+      setValue("locations", locationValue);
+    }
   }, [autoCompleteFields, setValue, storeFormState.mode]);
 
   function handleDateChange(name: "start_time" | "end_time") {
@@ -1289,9 +1315,6 @@ export default function CreateAdset({
               <SelectInterests
                 value={demographicsValue}
                 onChange={(value: string, option: any) => {
-                  console.log("demographicsValue - ", demographicsValue);
-                  console.log("value - ", value);
-                  console.log("option - ", option);
                   setValue("demographics", option);
                 }}
               />
