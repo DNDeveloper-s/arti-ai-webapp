@@ -36,6 +36,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "*.fbcdn.net",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "api.artiai.org",
         port: "",
         pathname: "/**",

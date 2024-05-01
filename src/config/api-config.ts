@@ -73,6 +73,8 @@ export const ROUTES = {
     QUERY_VARIANTS: apiUrl("/conversations/variants"),
     GET_MESSAGES: (conversationId: string) =>
       apiUrl(`/conversations/${conversationId}/messages`),
+    POSTS: (conversationId: string) =>
+      apiUrl(`/conversations/${conversationId}/posts`),
   },
   ADCREATIVE: {
     QUERY: (limit?: number, page?: number, sortBy?: "asc" | "desc") =>
@@ -117,6 +119,8 @@ export const ROUTES = {
       apiUrl(`/social/pages/facebook/${page_id}`),
     POSTS: (platform: "facebook" | "instagram") =>
       apiUrl(`/social/posts/${platform}`),
+    POST: (postId: string, platform: "facebook" | "instagram") =>
+      apiUrl(`/social/posts/${platform}/${postId}`),
   },
   ADS: {
     CAMPAIGNS: apiUrl("/marketing/campaigns"),

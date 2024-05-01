@@ -15,7 +15,9 @@ import {
 } from "@/api/conversation";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import { random, sortBy } from "lodash";
-import ImageTemp from "@/components/shared/renderers/ImageTemp";
+import ImageTemp, {
+  AppDefaultImage,
+} from "@/components/shared/renderers/ImageTemp";
 import useInView from "@/hooks/useInView";
 
 export function NoImage({
@@ -79,7 +81,7 @@ export const CardStackImages: FC<CardStackImagesProps> = ({ images }) => {
               "absolute transform translate-x-[5px] translate-y-[5px] overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-600"
             }
           >
-            <ImageTemp
+            <AppDefaultImage
               width={100}
               height={100}
               className={"w-full h-full object-cover rounded"}
@@ -102,7 +104,7 @@ export const CardStackImages: FC<CardStackImagesProps> = ({ images }) => {
               "absolute overflow-hidden top-0 left-0 w-full h-full rounded border border-gray-100"
             }
           >
-            <ImageTemp
+            <AppDefaultImage
               width={100}
               height={100}
               className={"w-full h-full object-cover rounded"}

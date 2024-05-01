@@ -30,6 +30,15 @@ const API_QUERIES = {
     page_access_token?: string | null,
     period?: "week"
   ) => ["get-social-post", page_id, page_access_token, period],
+  GET_SOCIAL_POST_BY_ID: (
+    post_id?: string | null,
+    page_access_token?: string | null,
+    platform?: string | null
+  ) => ["get-social-post-by-id", post_id, page_access_token, platform],
+  QUERY_SOCIAL_POSTS: (
+    conversation_id?: string | null,
+    page_access_token?: string | null
+  ) => ["query-social-posts", conversation_id, page_access_token],
   GET_AD_IDENTIFIERS: (ad_id?: string | null) => ["get-ad-identifiers", ad_id],
   GET_CAMPAIGN: (
     access_token?: string | null,
@@ -193,10 +202,10 @@ const API_QUERIES = {
   ],
   SEND_MESSAGE: ["send-message"],
   UPDATE_ME: ["update-me"],
-  GET_INFINITE_CONVERSATIONS: (businessId?: string | null) => [
-    "get-infinite-conversations",
-    businessId,
-  ],
+  GET_INFINITE_CONVERSATIONS: (
+    businessId?: string | null,
+    group_by?: string | null
+  ) => ["get-infinite-conversations", businessId, group_by],
 };
 
 export default API_QUERIES;

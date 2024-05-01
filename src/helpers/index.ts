@@ -151,6 +151,11 @@ export const getCampaignPageUrl = (campaignId?: string) => {
   return `/artibot?campaign_id=${campaignId}`;
 };
 
+export const getSocialPageUrl = (conversationId?: string) => {
+  if (!conversationId) return "/artibot/create";
+  return `/artibot?social_conversation_id=${conversationId}`;
+};
+
 export const isProduction = process.env.NODE_ENV === "production";
 
 export const getNextImageProxyUrl = (url: string, useProd?: boolean) => {

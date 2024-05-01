@@ -53,7 +53,10 @@ export const useGetInifiniteCampaigns = (
   ) => {
     const [, accountId, accessToken, get_insights] = queryKey;
 
-    const paginationKey = pageParam.initial
+    if (!accountId || !accessToken)
+      throw new Error("Account Id and Access Token are required");
+
+    const paginationKey = pageParam?.initial
       ? "campaign_ids"
       : direction === "forward"
         ? "after"
@@ -84,15 +87,16 @@ export const useGetInifiniteCampaigns = (
       accessToken,
       props?.get_insights
     ),
+    enabled: !!accountId && !!accessToken,
     queryFn: ({ pageParam, queryKey, direction }: any) =>
       fetchCampaigns(pageParam, queryKey, direction),
     initialPageParam: { id: props?.campaign_id, initial: true },
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.data.length === 0) return undefined;
+      if (!lastPage || lastPage.data.length === 0) return undefined;
       return { id: lastPage.paging.cursors.after, initial: false };
     },
     getPreviousPageParam: (firstPage, allPages) => {
-      if (firstPage.data.length === 0) return undefined;
+      if (!firstPage || firstPage.data.length === 0) return undefined;
       return { id: firstPage.paging.cursors.before, initial: false };
     },
   });

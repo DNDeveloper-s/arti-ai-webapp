@@ -49,11 +49,6 @@ interface RegisterBusinessFormValues {
   ad_account_id: string;
 }
 
-const frequencies = [
-  { uid: "daily", name: "Daily" },
-  { uid: "weekly", name: "Weekly" },
-  { uid: "monthly", name: "Monthly" },
-];
 
 const validationSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
@@ -309,42 +304,7 @@ export default function BusinessForm(props: BusinessFormProps) {
                   <SelectInstagramPageFormControl name="instagram_page_id" />
                 </>
               )}
-              <Divider className="my-3" />
-              <div className="flex flex-col gap-4">
-                <div className="w-full flex flex-col gap-3">
-                  <LableWithTooltip
-                    label="Social Media Settings"
-                    content="How often do you want to make social media post"
-                    color="default"
-                    placement="bottom"
-                    classNames={{
-                      label: "text-tiny text-gray-500",
-                    }}
-                  />
-                  <SelectWithAutoComplete
-                    items={frequencies}
-                    label="Post Frequency"
-                    noControl={false}
-                    name="post_frequency"
-                    className="w-full"
-                  />
-                </div>
-                <RadioGroup
-                  label="Select the Post Creation Method"
-                  orientation="horizontal"
-                  className="w-full"
-                  classNames={{
-                    label: "text-tiny text-gray-500",
-                  }}
-                  size="sm"
-                  value="reminder"
-                >
-                  <Radio value="reminder">Remind via Email</Radio>
-                  <Radio value="automatically_post" disabled isDisabled>
-                    Automatically Create Post & Remind (Debit Credits)
-                  </Radio>
-                </RadioGroup>
-              </div>
+
               <div className="flex-1"></div>
               <Divider className="my-3" />
               <div className="w-full flex items-center gap-5">

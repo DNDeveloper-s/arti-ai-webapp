@@ -5,6 +5,7 @@ import Dashboard from "@/components/Dashboard/Dashboard";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import ProductLandingPage from "@/components/ProductPage/ProductLandingPage";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   // const {data, status} = useSession();
@@ -15,7 +16,7 @@ export default async function Home() {
 
   if (!session) jsx = <ProductLandingPage />;
 
-  if (session) jsx = <Dashboard />;
+  if (session) redirect("/artibot");
 
   return jsx;
 }

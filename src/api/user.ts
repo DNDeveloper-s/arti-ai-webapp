@@ -690,12 +690,12 @@ export function useGetCampaigns(props?: UseGetCampaignsProps) {
       fetchCampaigns(pageParam, queryKey),
     initialPageParam: undefined,
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.data.length === 0 || lastPage.data.length < LIMIT)
+      if (lastPage?.data.length === 0 || lastPage?.data.length < LIMIT)
         return undefined;
       return lastPage.paging.cursors.after;
     },
     getPreviousPageParam: (firstPage, allPages) => {
-      if (firstPage.data.length === 0 || firstPage.data.length < LIMIT)
+      if (firstPage?.data.length === 0 || firstPage?.data.length < LIMIT)
         return undefined;
       return firstPage.paging.cursors.before;
     },
@@ -762,12 +762,12 @@ export function useGetAdSets({
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.data.length === 0 || lastPage.data.length < LIMIT)
         return undefined;
-      return lastPage.paging.cursors.after;
+      return lastPage.paging?.cursors.after;
     },
     getPreviousPageParam: (firstPage, allPages) => {
       if (firstPage.data.length === 0 || firstPage.data.length < LIMIT)
         return undefined;
-      return firstPage.paging.cursors.before;
+      return firstPage.paging?.cursors.before;
     },
     retry(failureCount, error) {
       if (error instanceof Error && error instanceof AxiosError) {
@@ -886,12 +886,12 @@ export function useGetAds({
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.data.length === 0 || lastPage.data.length < LIMIT)
         return undefined;
-      return lastPage.paging.cursors.after;
+      return lastPage.paging?.cursors.after;
     },
     getPreviousPageParam: (firstPage, allPages) => {
       if (firstPage.data.length === 0 || firstPage.data.length < LIMIT)
         return undefined;
-      return firstPage.paging.cursors.before;
+      return firstPage.paging?.cursors.before;
     },
     retry(failureCount, error) {
       if (error instanceof Error && error instanceof AxiosError) {

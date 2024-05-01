@@ -47,6 +47,7 @@ export default function Conversation({
   const queryConversationId = searchParams.get("conversation_id");
 
   const campaignId = searchParams.get("campaign_id");
+  const socialConversationId = searchParams.get("social_conversation_id");
 
   const { data, isFetching, ...props } = useGetCampaignInsights({
     campaignId,
@@ -101,15 +102,10 @@ export default function Conversation({
     campaignId,
   ]);
 
-  if (!conversationId && !campaignId) {
-    console.log(
-      "Redirection - ",
-      searchParams.get("conversation_id"),
-      searchParams.get("campaign_id")
-    );
-    return null;
-    // return redirect("/artibot/create");
-  }
+  // if (!conversationId && !campaignId && !socialConversationId) {
+  // return null;
+  // return redirect("/artibot/create");
+  // }
 
   return (
     <main>

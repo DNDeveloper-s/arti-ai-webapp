@@ -26,6 +26,7 @@ import AdCreativeSection from "./AdCreativeSection";
 import ConversationSection from "./ConversationSection";
 import CampaignSection from "./CampaignSection";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
+import SocialPostSection from "./SocialPostSection";
 
 interface LoadMoreButtonProps {
   doInfiniteScroll?: boolean;
@@ -94,7 +95,7 @@ export const PaginatedList: FC<PaginatedListProps> = ({
 }) => {
   return (
     <>
-      {children && !noPrevMore && (
+      {children && !noPrevMore && handlePrevMore && (
         <LoadMoreButton
           handleLoadMore={handlePrevMore}
           loading={props.loading}
@@ -116,7 +117,11 @@ export const PaginatedList: FC<PaginatedListProps> = ({
 
 interface LeftPaneProps {}
 
-export type LeftPaneSection = "conversation" | "ad_creative" | "campaign";
+export type LeftPaneSection =
+  | "conversation"
+  | "ad_creative"
+  | "campaign"
+  | "social_post";
 
 export interface LeftPaneSectionBaseProps {
   onSectionActive?: (section: LeftPaneSection) => void;
@@ -171,6 +176,11 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
         <CampaignSection
           onSectionActive={handleSection}
           isActive={activeSection === "campaign"}
+        />
+        <hr className="border-gray-700" />
+        <SocialPostSection
+          onSectionActive={handleSection}
+          isActive={activeSection === "social_post"}
         />
       </div>
     </div>

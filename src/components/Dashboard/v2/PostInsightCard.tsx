@@ -15,7 +15,7 @@ import { FaHandshakeSimple } from "react-icons/fa6";
 import { IoWallet } from "react-icons/io5";
 import { TbBulbFilled } from "react-icons/tb";
 
-function extractPostInsights(insight: FacebookPost) {
+export function extractPostInsights(insight: FacebookPost) {
   return {
     likes: insight.likes?.data.length ?? 0,
     comments: insight.comments?.data.length ?? 0,

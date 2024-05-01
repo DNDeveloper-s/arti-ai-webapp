@@ -11,6 +11,8 @@ import SwitchStatus from "@/components/ArtiBot/MessageItems/Deploy/Ad/components
 import Navbar from "@/components/Settings/Navbar";
 import SubscriptionPlans from "@/components/Settings/SubscriptionPlans";
 import Snackbar from "@/components/Snackbar";
+import LableWithTooltip from "@/components/shared/renderers/LabelWithTooltip";
+import SelectWithAutoComplete from "@/components/shared/renderers/SelectWithAutoComplete";
 import UiModal from "@/components/shared/renderers/UiModal";
 import UiTable from "@/components/shared/renderers/UiTable";
 import { botData, dummyUser } from "@/constants/images";
@@ -27,9 +29,10 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
+  RadioGroup,
   Switch,
 } from "@nextui-org/react";
-import { Modal } from "antd";
+import { Modal, Radio } from "antd";
 import dayjs from "dayjs";
 import {
   Key,
@@ -39,7 +42,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { MdDone, MdEmail } from "react-icons/md";
 
 import { string, object, boolean, number } from "yup";
@@ -262,6 +265,12 @@ const validationSchema = object({
   should_send_weekly_insights_email: boolean(),
 });
 
+const frequencies = [
+  { uid: "daily", name: "Daily" },
+  { uid: "weekly", name: "Weekly" },
+  { uid: "monthly", name: "Monthly" },
+];
+
 interface SettingsFormValues {
   firstName: string;
   lastName: string;
@@ -272,10 +281,10 @@ interface SettingsFormValues {
 export default function Settings() {
   const { state } = useUser();
   const resolver = useYupValidationResolver(validationSchema);
-  const { handleSubmit, register, setValue, watch } =
-    useForm<SettingsFormValues>({
-      resolver,
-    });
+  const methods = useForm<SettingsFormValues>({
+    resolver,
+  });
+  const { handleSubmit, register, setValue, watch } = methods;
   const mounted = useMounted();
 
   const { mutate: postUpdateUser, isPending } = useUpdateUser();
@@ -314,101 +323,143 @@ export default function Settings() {
   return (
     <main className={"w-full max-w-[900px] mx-auto"}>
       <Navbar />
-      <form
-        onSubmit={handleSubmit(saveSettings)}
-        className="max-w-[700px] mx-auto mt-10"
-      >
-        <div className="flex flex-col items-center justify-center">
-          <Avatar
-            classNames={{
-              base: "w-24 h-24",
-            }}
-            src={blobUrl ?? state.data?.image ?? dummyUser.image.src}
-          />
-          <label
-            htmlFor="change-avatar"
-            className="mt-1 text-xs text-primary cursor-pointer"
-          >
-            <input
-              type="file"
-              hidden
-              id="change-avatar"
-              className="w-full h-full"
-              onChange={(e) => {
-                e.target.files && setFileObj(e.target.files[0]);
+      <FormProvider {...methods}>
+        <form
+          onSubmit={handleSubmit(saveSettings)}
+          className="max-w-[700px] mx-auto mt-10"
+        >
+          <div className="flex flex-col items-center justify-center">
+            <Avatar
+              classNames={{
+                base: "w-24 h-24",
               }}
+              src={blobUrl ?? state.data?.image ?? dummyUser.image.src}
             />
-            Change Avatar
-          </label>
-        </div>
-        <Divider className="my-5" />
-        <div className="flex gap-4">
-          <Input
-            size="md"
-            variant="bordered"
-            label="First Name"
-            {...register("firstName")}
-            value={firstNameValue}
-          />
-          <Input
-            {...register("lastName")}
-            size="md"
-            variant="bordered"
-            label="Last Name"
-            value={lastNameValue}
-          />
-        </div>
-        <div className="my-4">
-          <Input
-            value={state.data?.email ?? ""}
-            isDisabled
-            size="md"
-            variant="bordered"
-            label="Email"
-            startContent={<MdEmail style={{ height: "18px" }} />}
-            endContent={
-              // <IoWarningOutline
-              //   style={{ height: "18px" }}
-              //   className="text-danger"
-              // />
-              <MdDone style={{ height: "18px" }} className="text-success" />
-            }
-          />
-          {/* <span className="text-xs text-danger">
+            <label
+              htmlFor="change-avatar"
+              className="mt-1 text-xs text-primary cursor-pointer"
+            >
+              <input
+                type="file"
+                hidden
+                id="change-avatar"
+                className="w-full h-full"
+                onChange={(e) => {
+                  e.target.files && setFileObj(e.target.files[0]);
+                }}
+              />
+              Change Avatar
+            </label>
+          </div>
+          <Divider className="my-5" />
+          <div className="flex gap-4">
+            <Input
+              size="md"
+              variant="bordered"
+              label="First Name"
+              {...register("firstName")}
+              value={firstNameValue}
+            />
+            <Input
+              {...register("lastName")}
+              size="md"
+              variant="bordered"
+              label="Last Name"
+              value={lastNameValue}
+            />
+          </div>
+          <div className="my-4">
+            <Input
+              value={state.data?.email ?? ""}
+              isDisabled
+              size="md"
+              variant="bordered"
+              label="Email"
+              startContent={<MdEmail style={{ height: "18px" }} />}
+              endContent={
+                // <IoWarningOutline
+                //   style={{ height: "18px" }}
+                //   className="text-danger"
+                // />
+                <MdDone style={{ height: "18px" }} className="text-success" />
+              }
+            />
+            {/* <span className="text-xs text-danger">
             Email not verified. Click to{" "}
             <span className="underline text-primary">Send Link</span>
           </span> */}
-          {/* <span className="text-xs text-success">Email is verified</span> */}
-        </div>
-        <div>
-          <Checkbox
-            size="md"
-            classNames={{ label: "text-small" }}
-            checked={shouldValue}
-            onValueChange={(value) => {
-              setValue("should_send_weekly_insights_email", value);
-            }}
-          >
-            Receive Weekly Insights Email
-          </Checkbox>
-        </div>
-        <div className="my-4 flex justify-end gap-4">
-          <Button color="default" size="md" className="text-sm" variant="flat">
-            Discard Changes
-          </Button>
-          <Button
-            isLoading={isPending}
-            type="submit"
-            color="primary"
-            size="md"
-            className="text-sm"
-          >
-            Save
-          </Button>
-        </div>
-      </form>
+            {/* <span className="text-xs text-success">Email is verified</span> */}
+          </div>
+          <div>
+            <Checkbox
+              size="md"
+              classNames={{ label: "text-small" }}
+              checked={shouldValue}
+              onValueChange={(value) => {
+                setValue("should_send_weekly_insights_email", value);
+              }}
+            >
+              Receive Weekly Insights Email
+            </Checkbox>
+          </div>
+          <div className="flex flex-col gap-4 mt-5">
+            <div className="w-full flex flex-col gap-3">
+              <LableWithTooltip
+                label="Social Media Settings"
+                content="How often do you want to make social media post"
+                color="default"
+                placement="bottom"
+                classNames={{
+                  label: "text-tiny text-gray-500",
+                }}
+              />
+              <SelectWithAutoComplete
+                items={frequencies}
+                label="Post Frequency"
+                noControl={false}
+                name="post_frequency"
+                className="w-full"
+              />
+            </div>
+            <RadioGroup
+              label="Select the Post Creation Method"
+              orientation="horizontal"
+              className="w-full"
+              classNames={{
+                label: "text-tiny text-gray-500",
+              }}
+              size="sm"
+              value="reminder"
+            >
+              <Radio value="reminder">Remind via Email</Radio>
+              <Radio value="automatically_post" disabled isDisabled={true}>
+                Automatically Create Post & Remind (Debit Credits)
+              </Radio>
+            </RadioGroup>
+          </div>
+          <div className="my-4 flex justify-end gap-4">
+            <Button
+              color="default"
+              size="md"
+              className="text-sm"
+              variant="flat"
+            >
+              Discard Changes
+            </Button>
+            <Button
+              isLoading={isPending}
+              type="submit"
+              color="primary"
+              size="md"
+              className="text-sm"
+            >
+              Save
+            </Button>
+          </div>
+        </form>
+      </FormProvider>
       <Divider className="my-5" />
-      {mounted && <SubscriptionDetails />}
+      {/* {mounted && <SubscriptionDetails />} */}
       <Divider className="my-5" />
       <RefillCreditForm />
     </main>

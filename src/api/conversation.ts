@@ -59,12 +59,86 @@ export interface InfiniteConversation {
   businessId: string;
 }
 
-export type GetConversationInifiniteResponse = InfiniteConversation[];
+const sampleGroupByPosts = {
+  id: "661225f4123038d55eecbcef",
+  conversation_type: "social_media_post",
+  project_name: "New Convo",
+  lastAdCreativeCreatedAt: "2024-04-07T05:50:10.374Z",
+  businessId: "6617bf388e224e3215f60cdc",
+  userId: "6544be2bf17aa96df1673fef",
+  createdAt: "2024-04-07T04:50:03.799Z",
+  updatedAt: "2024-04-07T05:50:10.374Z",
+  Post: [
+    {
+      id: "6620f1bf1f93508975ebf27f",
+      postId: "820762918047031_744443924540896",
+      pageId: "820762918047031",
+      provider: "facebook",
+      conversationId: "661225f4123038d55eecbcef",
+      variantId: "661234141856edc0717b8b5e",
+      adCreativeId: "661234131856edc0717b8b5c",
+      userId: "6544be2bf17aa96df1673fef",
+      createdAt: "2024-04-18T10:11:11.191Z",
+    },
+    {
+      id: "6628ee695288da0759f46a65",
+      postId: "820762918047031_747911267527495",
+      pageId: "820762918047031",
+      provider: "facebook",
+      conversationId: "661225f4123038d55eecbcef",
+      variantId: "661234141856edc0717b8b5d",
+      adCreativeId: "661234131856edc0717b8b5c",
+      userId: "6544be2bf17aa96df1673fef",
+      createdAt: "2024-04-24T11:35:05.085Z",
+    },
+  ],
+};
 
-export const useGetConversationInfinite = (
+export interface SocialPost {
+  id: string;
+  postId: string;
+  pageId: string;
+  provider: string;
+  conversationId: string;
+  variantId: string;
+  adCreativeId: string;
+  userId: string;
+  createdAt: string;
+  Variant: {
+    imageUrl: string;
+    adCreativeId: string;
+    text: string;
+    oneLiner: string;
+  };
+}
+
+export interface ConversationGroupByPost {
+  id: string;
+  conversation_type: ConversationType;
+  project_name: string;
+  lastAdCreativeCreatedAt: string;
+  businessId: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  Post: SocialPost[];
+}
+
+type ConversationGroupByNone = InfiniteConversation;
+
+interface GetConversationInifiniteBase {
+  posts: ConversationGroupByPost[];
+  none: ConversationGroupByNone[];
+}
+
+export type GetConversationInifiniteResponse<T extends "posts" | "none"> =
+  GetConversationInifiniteBase[T];
+
+export const useGetConversationInfinite = <T extends "posts" | "none" = "none">(
   cursorId?: string | null,
   include_cursor: boolean = false,
-  enabled: boolean = true
+  enabled: boolean = true,
+  group_by?: T
 ) => {
   const LIMIT = 4;
   const { pushConversationsToState } = useConversation();
@@ -76,7 +150,7 @@ export const useGetConversationInfinite = (
     queryKey: QueryKey,
     direction: "forward" | "backward" = "forward"
   ) => {
-    const [, businessId] = queryKey;
+    const [, businessId, group_by] = queryKey;
     if (!businessId) {
       throw new Error("Business ID is required");
     }
@@ -89,16 +163,18 @@ export const useGetConversationInfinite = (
         include_cursor: state?.isInvalidated || pageParam?.include_cursor,
         limit: LIMIT * (direction === "forward" ? 1 : -1),
         business_id: businessId,
+        group_by,
       },
     });
 
-    pushConversationsToState(response.data.data ?? []);
+    if (group_by !== "posts")
+      pushConversationsToState(response.data.data ?? []);
 
     return response.data.data;
   };
 
-  return useInfiniteQuery<GetConversationInifiniteResponse>({
-    queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id),
+  return useInfiniteQuery<GetConversationInifiniteResponse<T>>({
+    queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id, group_by),
     queryFn: ({ pageParam, queryKey, direction, meta }: any) =>
       fetchConversations(pageParam, queryKey, direction),
     meta: {},

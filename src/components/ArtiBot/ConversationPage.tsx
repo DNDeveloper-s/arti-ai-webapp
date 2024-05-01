@@ -38,6 +38,9 @@ import CampaignPage from "./v2/CampaignPage";
 import CreditCounter from "../CreditCounter";
 import { TimeRangeContextProvider } from "@/context/TimeRangeContext";
 import SelectWithAutoComplete from "../shared/renderers/SelectWithAutoComplete";
+import SelectBusiness from "../SelectBusiness";
+import SocialPostPage from "./v2/SocialPostPage";
+import { IoMdSettings } from "react-icons/io";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -187,6 +190,9 @@ export default function ArtiBotPage({
   const campaignId = search.get("campaign_id");
   const shouldShowCampaign = !!campaignId;
 
+  const socialConversationId = search.get("social_conversation_id");
+  const shouldShowSocialPage = !!socialConversationId;
+
   const useOld = localStorage.getItem("use_old") === "true";
 
   const adCreative = useMemo(() => {
@@ -248,7 +254,9 @@ export default function ArtiBotPage({
 
   useEffect(() => {
     setIsConversationCollapsible(
-      search.get("ad_creative") === "expand" || !!search.get("campaign_id")
+      search.get("ad_creative") === "expand" ||
+        !!search.get("campaign_id") ||
+        !!search.get("social_conversation_id")
     );
   }, [search]);
 
@@ -260,7 +268,7 @@ export default function ArtiBotPage({
         }}
         items={dropdownItems}
       /> */}
-      <SelectWithAutoComplete
+      {/* <SelectWithAutoComplete
         noControl
         items={autoCompleteDropdownItems}
         label="Select Mode"
@@ -275,7 +283,8 @@ export default function ArtiBotPage({
         classNames={{
           base: "max-w-[250px]",
         }}
-      />
+      /> */}
+      <SelectBusiness />
       <div className="opacity-0 pointer-events-none">
         <CreditCounter />
       </div>
@@ -284,7 +293,13 @@ export default function ArtiBotPage({
         <h3 className="text-lg">Arti AI</h3>
       </Link>
       <ArtiAiDropdown items={dropdownItems} hidden={true} />
-      <div>
+      <div className="flex items-center gap-4">
+        <Link href="/settings">
+          <IoMdSettings
+            className="cursor-pointer text-primary"
+            style={{ fontSize: "24px" }}
+          />
+        </Link>
         <CreditCounter />
       </div>
     </div>
@@ -361,6 +376,20 @@ export default function ArtiBotPage({
               <TimeRangeContextProvider>
                 <CampaignPage campaignId={campaignId} />
               </TimeRangeContextProvider>
+            </div>
+          </div>
+        )}
+        {shouldShowSocialPage && (
+          <div
+            className={
+              "transition-none w-full overflow-hidden " +
+              (isConversationCollapsible ? "h-full flex-1 " : "h-[0]")
+            }
+          >
+            <div
+              className={"w-full max-w-[1920px] mx-auto h-full overflow-hidden"}
+            >
+              <SocialPostPage conversationId={socialConversationId} />
             </div>
           </div>
         )}
