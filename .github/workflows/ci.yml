@@ -1,0 +1,21 @@
+name: Test Arti AI Web App
+on:
+  push:
+    branches:
+      - main
+      - stage-dev
+  pull_request:
+    branches:
+      - main
+      - stage-dev
+jobs:
+  unit-test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps: 
+      -uses: actions/checkout@v2
+      -uses: actions/setup-node@v1
+        with:
+          node-version: '18'
+      -run: npm install
+      -run: npm run test

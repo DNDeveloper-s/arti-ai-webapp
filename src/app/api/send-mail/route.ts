@@ -38,10 +38,6 @@ export async function POST(req: Request) {
 						<td>${formValues.company}</td>
 					</tr>
 					<tr>
-						<td>Profession: </td>
-						<td>${formValues.profession}</td>
-					</tr>
-					<tr>
 						<td>Budget: </td>
 						<td>${formValues.budget}</td>
 					</tr>

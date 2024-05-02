@@ -52,6 +52,8 @@ export default function Contact() {
   async function handleSubmit() {
     // initGTM();
 
+    console.log("errors - ", errors);
+
     setShowError(true);
     if (errors && Object.keys(errors).length > 0) return;
 
@@ -66,14 +68,25 @@ export default function Contact() {
     setIsSubmitting(true);
     setShowError(false);
 
-    const response = await axios.post("/api/send-mail", { values });
+    try {
+      const response = await axios.post("/api/send-mail", {
+        values,
+      });
 
-    setIsSubmitting(false);
-    reset();
-    setSnackBarData({
-      message: response.data.message,
-      status: response.data.ok ? "success" : "error",
-    });
+      setIsSubmitting(false);
+      reset();
+      console.log("response - ", response);
+      setSnackBarData({
+        message: response.data.message,
+        status: response.data.ok ? "success" : "error",
+      });
+    } catch (e: any) {
+      console.log("e - ", e);
+      setSnackBarData({
+        message: e.message ?? "Something went wrong, Please try again later.",
+        status: "error",
+      });
+    }
   }
   // <div data-groupid={"landing-section"} data-section="bg_attachment" className="w-screen h-[60vh] min-h-[500px]" style={{
   // 	backgroundImage: 'url(/assets/images/bg_image1.png)',
@@ -112,13 +125,18 @@ export default function Contact() {
             {contactData.formFields.map((formField) => {
               return (
                 <div key={formField.name} className="mb-3">
-                  <label className="text-sm text-secondaryText" htmlFor="">
+                  <label
+                    className="text-sm text-secondaryText"
+                    htmlFor=""
+                    data-testid={formField.label}
+                  >
                     {formField.label} <span className="text-red-600">*</span>
                   </label>
                   <formField.Input
                     hasError={Boolean(showError && errors[formField.name])}
                     value={values[formField.name]}
                     onChange={(e) => onChange(formField.name, e.target.value)}
+                    data-testid={formField.name + "-input"}
                   />
                 </div>
               );
@@ -126,8 +144,9 @@ export default function Contact() {
             <button
               id={"contact-submit-id"}
               onClick={handleSubmit}
-              disabled={errors && Object.keys(errors).length > 0}
+              disabled={errors && Object.keys(errors).length > 0 ? true : false}
               className="disabled:opacity-30 h-14 cta-button w-full flex items-center justify-center rounded-xl"
+              data-testid={"submit-contact-button"}
             >
               {isSubmitting ? <Loader /> : <span>Submit</span>}
             </button>

@@ -53,6 +53,7 @@ export default function Snackbar() {
           className={props.container.className}
           style={{ zIndex: 100000 }}
           role="alert"
+          data-testid="snackbar-container"
         >
           {snackBarData.status !== "progress" ? (
             <svg
@@ -73,8 +74,14 @@ export default function Snackbar() {
               className="flex-shrink-0 inline w-4 h-4 mr-3"
             />
           )}
-          <span className="sr-only capitalize">{snackBarData.status}</span>
-          <div>{snackBarData.message}</div>
+          <span
+            data-testid={"snackbar-status"}
+            data-status={snackBarData.status}
+            className="sr-only capitalize"
+          >
+            {snackBarData.status}
+          </span>
+          <div data-testid="snackbar-message">{snackBarData.message}</div>
         </motion.div>
       </AnimatePresence>
     )
