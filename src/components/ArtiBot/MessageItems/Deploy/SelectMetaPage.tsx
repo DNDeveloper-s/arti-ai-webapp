@@ -96,6 +96,7 @@ export const SelectMetaPageFormControl = ({
         uid: page.id,
         name: page.name,
       }))}
+      data-testid="select-meta-page-control"
     />
   );
 };
@@ -118,6 +119,7 @@ export const SelectInstagramPageFormControl = ({
         uid: page.id,
         name: page.name,
       }))}
+      data-testid="select-instagram-page-control"
     />
   );
 };

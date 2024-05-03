@@ -99,6 +99,9 @@ const config: Config = {
   moduleNameMapper: {
     // ...
     "^@/components/(.*)$": "<rootDir>/components/$1",
+    "^@/context/(.*)$": "<rootDir>/context/$1",
+    "^@/interfaces/(.*)$": "<rootDir>/interfaces/$1",
+    "^@/api/(.*)$": "<rootDir>/src/api/$1",
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader

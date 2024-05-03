@@ -51,7 +51,10 @@ export default function ConnectProviderModal(props: ConnectProviderModalProps) {
   };
 
   return (
-    <div className={props.classNames?.base ?? ""}>
+    <div
+      className={props.classNames?.base ?? ""}
+      data-testid="connect-facebook-button"
+    >
       <FacebookLogin
         appId={"683754897094286"}
         fields="name,email,picture"
@@ -64,7 +67,6 @@ export default function ConnectProviderModal(props: ConnectProviderModalProps) {
             className="w-full text-white border-2 border-blue-500 bg-blue-600"
             isLoading={isPending}
             onClick={renderProps.onClick}
-            data-testid="connect-facebook-button"
           >
             <AiFillFacebook className="text-lg" />
             Connect Facebook
