@@ -78,6 +78,7 @@ export const SelectAdAccountFormControl = ({
       isDisabled={isFetching}
       placeholder={isFetching ? "Fetching Ad Accounts" : "Select Ad Account"}
       name={name}
+      data-testid="select-ad-account-control"
     />
   );
 };

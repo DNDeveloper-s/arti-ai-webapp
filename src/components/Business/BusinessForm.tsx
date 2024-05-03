@@ -51,7 +51,7 @@ interface RegisterBusinessFormValues {
 
 const validationSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
-  category: yup.string().required("Category is required"),
+  category: yup.string(),
   position: yup.string().required("Position is required"),
   website: yup.string().url().optional(),
   location: yup.array().of(
@@ -134,6 +134,7 @@ export default function BusinessForm(props: BusinessFormProps) {
   );
 
   const registerBusiness = (data: RegisterBusinessFormValues) => {
+    console.log("data - ", data);
     if (isPending) return;
 
     const dataToSend = omit(data, [
@@ -169,6 +170,16 @@ export default function BusinessForm(props: BusinessFormProps) {
         type: SocialPageType.FACEBOOK_AD_ACCOUNT,
       })) ?? ([] as SocialPageObject[])
     ).find((c) => c.provider_id === data.ad_account_id);
+
+    console.log("dataToSend - ", {
+      ...data,
+      location: [],
+      social_pages: compact([
+        instagramProvider,
+        facebookProvider,
+        accountProviders,
+      ]),
+    });
 
     if (isEditMode && props.business_id) {
       postUpdateBusiness({
@@ -221,6 +232,12 @@ export default function BusinessForm(props: BusinessFormProps) {
     router.prefetch("/");
   }, [router]);
 
+  function handleError(e) {
+    console.log("e ", e);
+  }
+
+  console.log("isPending - ", isPending);
+
   return (
     <div className="w-screen h-screen bg-secondaryBackground flex items-center justify-center">
       <div className="w-[90vw] bg-black max-w-[900px] pt-2 pb-8 p-7 h-auto max-h-[90vh] overflow-auto">
@@ -241,7 +258,10 @@ export default function BusinessForm(props: BusinessFormProps) {
         <FormProvider {...methods}>
           <form
             action=""
-            onSubmit={handleSubmit(registerBusiness)}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(registerBusiness, handleError)(e);
+            }}
             className="flex gap-4"
           >
             <div className="flex flex-1 flex-shrink-0 flex-col gap-4">
@@ -317,6 +337,7 @@ export default function BusinessForm(props: BusinessFormProps) {
                   isLoading={isPending}
                   type="submit"
                   color="primary"
+                  disabled={isPending}
                   isDisabled={isPending}
                   data-testid="submit-business-button"
                 >
