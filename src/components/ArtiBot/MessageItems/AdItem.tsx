@@ -41,6 +41,8 @@ import { useSearchParams } from "next/navigation";
 import { ConversationType } from "@/interfaces/IConversation";
 import { DeployAdInsightsCard } from "./Insights/DeployAdInsightsCard";
 import useInView from "@/hooks/useInView";
+import { compact } from "lodash";
+import DeployPostCardView from "./DeployedPostCard";
 
 export function blobToBase64(blob: Blob) {
   return new Promise((resolve, _) => {
@@ -345,45 +347,6 @@ export function ConversationAdVariantWithPostInsights({
     return getConversationById(conversationId);
   }, [conversationId, getConversationById]);
 
-  const { facebookProvider } = useGetUserProviders();
-
-  const {
-    data: pageData,
-    refetch: getFacebookPage,
-    isLoading: isPageLoading,
-    isFetching: isPageFetching,
-    isPaused,
-  } = useGetFacebookPage({
-    accessToken: facebookProvider?.access_token ?? undefined,
-    pageId:
-      variant?.posts && variant.posts[0] ? variant.posts[0].pageId : undefined,
-    isInView,
-  });
-
-  const page = FacebookPage.getPage(pageData);
-
-  const {
-    data: postData,
-    pending: isPostPending,
-    fetching: isPostFetching,
-    isEnabled,
-    // refetch: getVariantPost,
-    // isLoading: isPostLoading,
-    // isFetching: isPostFetching,
-  } = useGetVariantPosts({
-    accessToken: page?.page_access_token ?? undefined,
-    postIds: variant?.posts ? variant.posts.map((c) => c.postId) : undefined,
-    isInView,
-  });
-
-  console.log(
-    "useGetVariantPosts - ",
-    page,
-    pageData,
-    variant,
-    facebookProvider
-  );
-
   async function handleDownload() {
     setDownloading(true);
     const zip = new JSZip();
@@ -393,7 +356,7 @@ export function ConversationAdVariantWithPostInsights({
     );
 
     const img = zip.folder("images");
-    if (img) {
+    if (img && variant.images) {
       for (let i = 0; i < variant.images.length; i++) {
         const image = variant.images[i];
         const dataUrl = await fetchImage(image.url);
@@ -578,13 +541,13 @@ export function ConversationAdVariantWithPostInsights({
             </div>
           )}
         </div>
-        {isEnabled && (
+        {/* {isEnabled && (
           <DeployedPostCard
             isPending={isPostPending}
             isFetching={isPostFetching}
             posts={postData}
           />
-        )}
+        )} */}
       </div>
     </>
   );
@@ -617,7 +580,9 @@ export default function AdItem({
   const adset = state.adset.findOneBy("adCreativeId", adCreative.id ?? "");
   const { data, isLoading, isSuccess } = useGetAdSet({
     adsetId: adset?.adsetId,
-    enabled: isInView,
+    enabled:
+      isInView &&
+      currentConversation?.conversation_type === ConversationType.AD_CREATIVE,
   });
 
   if (!adCreative || !currentConversation) return null;
@@ -680,6 +645,11 @@ export default function AdItem({
           ))}
       </div>
       <DeployAdInsightsCard isFetching={isLoading} adset={data} />
+      <DeployPostCardView
+        isPending={isPostPending}
+        isFetching={isPostFetching}
+        posts={postData}
+      />
     </div>
   );
 }

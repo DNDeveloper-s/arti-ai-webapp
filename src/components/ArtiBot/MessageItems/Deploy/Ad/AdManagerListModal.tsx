@@ -27,8 +27,6 @@ function DeployAdModalContent(props: DeployAdModalContentProps) {
     adCreativeId: meta.selectedVariant?.adCreativeId,
   });
 
-  console.log("data - ", data, meta.selectedVariant);
-
   return (
     <ModalContent>
       {(onClose) => (

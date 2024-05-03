@@ -54,6 +54,7 @@ export interface IAdVariantClient {
   campaignObjective: string;
   confidence: string;
   imageDescription: string;
+  posts: never;
   imageUrl: string;
   oneLiner: string;
   rationale: string;

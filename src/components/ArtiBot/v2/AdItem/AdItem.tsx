@@ -11,8 +11,15 @@ import ClientAdVariant from "../ClientState/ClientAdVariant";
 import { DeployAdInsightsCard } from "../../MessageItems/Insights/DeployAdInsightsCard";
 import useInView from "@/hooks/useInView";
 import { useConversation } from "@/context/ConversationContext";
-import { useGetAdSet } from "@/api/user";
+import {
+  useGetAdSet,
+  useGetFacebookPage,
+  useGetUserProviders,
+  useGetVariantPosts,
+} from "@/api/user";
 import { ConversationAdVariantWithPostInsights } from "../../MessageItems/AdItem";
+import DeployPostCardView from "../../MessageItems/DeployedPostCard";
+import { compact } from "lodash";
 
 interface AdItemPropsWithClient {
   messageItem: ClientMessageItem;
@@ -41,13 +48,52 @@ export default function AdItem({
   const adset = state.adset.findOneBy("adCreativeId", adCreative?.id ?? "");
   const { data, isLoading, isSuccess } = useGetAdSet({
     adsetId: adset?.adsetId,
-    enabled: isInView,
+    enabled:
+      isInView &&
+      conversation?.conversation_type === ConversationType.AD_CREATIVE,
   });
 
-  const isAdCreativeInState = state.adCreative.findOneBy(
-    "id",
-    messageItem.adCreatives?.[0]?.id ?? ""
-  );
+  const { facebookProvider } = useGetUserProviders();
+
+  const pageId = adCreative?.variants?.[0]?.posts?.[0]?.pageId;
+
+  const {
+    data: pageData,
+    refetch: getFacebookPage,
+    isLoading: isPageLoading,
+    isFetching: isPageFetching,
+    isPaused,
+  } = useGetFacebookPage({
+    accessToken: facebookProvider?.access_token ?? undefined,
+    pageId: pageId,
+    isInView: isInView && !!pageId,
+  });
+
+  const postIds = useMemo(() => {
+    return compact(
+      adCreative?.variants
+        ?.map((variant) => variant.posts?.map((c) => c.postId))
+        .flat()
+    );
+  }, [adCreative?.variants]);
+
+  const {
+    data: postData,
+    pending: isPostPending,
+    fetching: isPostFetching,
+    isEnabled,
+    // refetch: getVariantPost,
+    // isLoading: isPostLoading,
+    // isFetching: isPostFetching,
+  } = useGetVariantPosts({
+    accessToken: pageData?.page_access_token ?? undefined,
+    postIds: postIds,
+    isInView:
+      isInView &&
+      conversation?.conversation_type === ConversationType.SOCIAL_MEDIA_POST,
+  });
+
+  console.log("postData - ", postData, adCreative?.variants, postIds);
 
   //   if (!adCreative || !currentConversation) return null;
   if (!adCreative || !conversation) return null;
@@ -125,6 +171,11 @@ export default function AdItem({
         )}
       </div>
       <DeployAdInsightsCard isFetching={isLoading} adset={data} />
+      <DeployPostCardView
+        isPending={isPostPending}
+        isFetching={isPostFetching}
+        posts={postData}
+      />
     </div>
   );
 }

@@ -25,8 +25,6 @@ export default function CampaignSection(props: CampaignSectionProps) {
     campaign_id: campaignId,
   });
 
-  console.log("data - ", data);
-
   const campaigns = useMemo(
     () => data?.pages.map((page) => page.data).flat() || [],
     [data]

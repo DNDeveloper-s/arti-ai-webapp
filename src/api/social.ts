@@ -248,6 +248,7 @@ export const useQueryPostById = ({
       {
         params: {
           access_token: page_access_token,
+          get_insights: true,
         },
       }
     );

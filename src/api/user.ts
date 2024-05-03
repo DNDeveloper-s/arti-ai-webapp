@@ -492,23 +492,32 @@ export function useGetVariantPost({
 export function useGetVariantPosts({
   accessToken,
   postIds,
+  platform = "facebook",
   isInView = true,
 }: {
   accessToken?: string;
   postIds?: string[];
+  platform?: "facebook" | "instagram";
   isInView?: boolean;
 }) {
   const getVariantPost = useCallback(
     async ({ queryKey }: QueryFunctionContext) => {
-      const [, accessToken, postId] = queryKey;
+      const [, postId, accessToken, platform] = queryKey;
       if (!accessToken) throw new Error("Access token is required");
       if (!postId || typeof postId !== "string")
         throw new Error("Post id is required and should be string only");
-      const response = await axios.get(ROUTES.SOCIAL.FACEBOOK_POST(postId), {
-        params: {
-          access_token: accessToken,
-        },
-      });
+      const response = await axios.get(
+        ROUTES.SOCIAL.POST(
+          postId as string,
+          platform as "facebook" | "instagram"
+        ),
+        {
+          params: {
+            access_token: accessToken,
+            get_insights: true,
+          },
+        }
+      );
       return response.data.data;
     },
     []
@@ -521,19 +530,21 @@ export function useGetVariantPosts({
   //   staleTime: 1000 * 60 * 2,
   // });
 
-  console.log("postIds - ", postIds, isInView, accessToken);
-
   return useQueries({
     queries:
       postIds?.map((postId) => ({
-        queryKey: API_QUERIES.GET_FACEBOOK_POST(accessToken, postId),
+        queryKey: API_QUERIES.GET_SOCIAL_POST_BY_ID(
+          postId,
+          accessToken,
+          platform
+        ),
         queryFn: getVariantPost,
         enabled: isInView && !!accessToken && !!postId,
         staleTime: 1000 * 60 * 5,
       })) ?? [],
     combine: (results) => {
       return {
-        data: results.map((r) => r.data),
+        data: results.map((r) => r.data).filter((r) => r !== undefined),
         pending: results.some((r) => r.isPending),
         fetching: results.some((r) => r.isFetching),
         isEnabled: results.length > 0,

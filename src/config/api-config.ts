@@ -5,8 +5,8 @@ export const apiConfig = {
   // process.env.NODE_ENV === "production"
   // ? "https://api.artiai.org"
   // : "http://localhost:8081",
-  baseUrl: "https://api.artiai.org",
-  // baseUrl: "http://localhost:8081",
+  // baseUrl: "https://api.artiai.org",
+  baseUrl: "http://localhost:8081",
   version: "/v1",
 };
 
@@ -42,6 +42,7 @@ export const ROUTES = {
   UTIL: {
     TEXT_TO_IMAGE: apiUrl("/utils/text-to-image"),
     UPLOAD_IMAGE: apiUrl("/utils/image/upload"),
+    LOGS: apiUrl("/utils/logs"),
   },
   BUSINESS: {
     ME: apiUrl("/users/me/business"),

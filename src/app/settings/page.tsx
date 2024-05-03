@@ -295,7 +295,6 @@ export default function Settings() {
   const lastNameValue = watch("lastName");
 
   const saveSettings = (data: SettingsFormValues) => {
-    console.log("data - ", data);
     postUpdateUser({
       imageBlob: fileObj,
       first_name: data.firstName,

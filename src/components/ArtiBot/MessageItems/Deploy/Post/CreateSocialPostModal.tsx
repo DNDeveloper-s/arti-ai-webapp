@@ -105,8 +105,6 @@ function CreateSocialPostModalContent(
   }, [selectedVariant, setValue]);
 
   const onSubmit: SubmitHandler<CreatePostFormValues> = async (data) => {
-    console.log("data - ", data, selectedVariant, pagesData);
-
     const currentPage = pagesData?.find((page) => page.id === data.pageId);
 
     if (!conversationId) {

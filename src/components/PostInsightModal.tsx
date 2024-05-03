@@ -266,4 +266,4 @@ export default function PostInsightModal({
       {post_id && <PostInsightModalContent postId={post_id} />}
     </UiModal>
   );
-}
+} 

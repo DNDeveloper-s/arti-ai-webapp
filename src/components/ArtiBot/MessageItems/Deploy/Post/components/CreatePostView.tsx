@@ -107,7 +107,6 @@ export default function CreatePostView({
   }, [selectedVariant.text, setValue]);
 
   const onSubmit: SubmitHandler<CreatePostFormValues> = async (data) => {
-    console.log("data - ", data);
     setLoading(true);
     setSnackBarData({
       status: "info",

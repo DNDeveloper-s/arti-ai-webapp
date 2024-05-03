@@ -42,7 +42,7 @@ interface UseGetInifiniteCampaignsProps {
 export const useGetInifiniteCampaigns = (
   props?: UseGetInifiniteCampaignsProps
 ) => {
-  const LIMIT = 4;
+  const LIMIT = 10;
   const { accessToken, accountId } = useCredentials();
   //   const { pushCampaignsToState } = useCampaign();
 

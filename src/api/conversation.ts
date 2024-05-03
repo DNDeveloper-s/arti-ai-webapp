@@ -140,7 +140,7 @@ export const useGetConversationInfinite = <T extends "posts" | "none" = "none">(
   enabled: boolean = true,
   group_by?: T
 ) => {
-  const LIMIT = 4;
+  const LIMIT = 10;
   const { pushConversationsToState } = useConversation();
   const { business } = useBusiness();
   const qc = useQueryClient();
@@ -212,7 +212,7 @@ export type GetVariantsByConversationResponse = VariantsByConversation[];
 export const useGetVariantsByConversation = (skip: number = 0) => {
   const { pushVariantsToState } = useConversation();
   const { business } = useBusiness();
-  const LIMIT = 4;
+  const LIMIT = 10;
   const fetchVariants = async (skip: number, queryKey: QueryKey) => {
     const [, businessId] = queryKey;
     const response = await axios.get(ROUTES.CONVERSATION.QUERY_VARIANTS, {

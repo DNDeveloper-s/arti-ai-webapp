@@ -39,7 +39,6 @@ interface AdCreativeListItemProps {
   adCreative: IAdCreativeNew;
   containerClassName?: string;
 }
-
 const AdCreativeListItem: FC<AdCreativeListItemProps> = ({
   conversationId,
   variants,
@@ -75,5 +74,4 @@ const AdCreativeListItem: FC<AdCreativeListItemProps> = ({
     </Link>
   );
 };
-
 export default AdCreativeListItem;

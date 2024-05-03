@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { getServerSession } from "next-auth/next";
-import LandingPage from "../src/components/ProductPage/ProductLandingPage";
+import LandingPage from "@/components/ProductPage/ProductLandingPage";
 import Contact from "@/components/ProductPage/Contact";
 import SnackbarContextProvider, {
   ISnackbarData,

@@ -7,6 +7,8 @@ import {
   ValidConversationTypes,
 } from "@/interfaces/IConversation";
 import { useBusiness } from "@/context/BusinessContext";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import { ErrorMasterComponent } from "./shared/error/ErrorComponent";
 
 export default function ConversationPage() {
   const searchParams = useSearchParams();
@@ -22,6 +24,10 @@ export default function ConversationPage() {
   }
 
   return (
-    <Conversation type={(conversationType as ConversationType) ?? undefined} />
+    <ErrorBoundary errorComponent={ErrorMasterComponent}>
+      <Conversation
+        type={(conversationType as ConversationType) ?? undefined}
+      />
+    </ErrorBoundary>
   );
 }

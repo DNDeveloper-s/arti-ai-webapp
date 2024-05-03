@@ -50,10 +50,6 @@ export default function Contact() {
   }
 
   async function handleSubmit() {
-    // initGTM();
-
-    console.log("errors - ", errors);
-
     setShowError(true);
     if (errors && Object.keys(errors).length > 0) return;
 
@@ -75,7 +71,6 @@ export default function Contact() {
 
       setIsSubmitting(false);
       reset();
-      console.log("response - ", response);
       setSnackBarData({
         message: response.data.message,
         status: response.data.ok ? "success" : "error",

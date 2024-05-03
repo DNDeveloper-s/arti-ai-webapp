@@ -43,9 +43,9 @@ interface PostCardProps {
   handleClick: (postId: string) => void;
   post: ConversationPost;
 }
-function PostCard(props: PostCardProps) {
+export function PostCard(props: PostCardProps) {
   return (
-    <div className="flex flex-col w-[200px] gap-2">
+    <div className="flex flex-col w-[200px] gap-2 flex-shrink-0">
       <div className="w-full aspect-square overflow-hidden bg-gray-400 bg-opacity-20 rounded-md flex items-center justify-center">
         <AppDefaultImage
           className="w-full h-full object-cover"

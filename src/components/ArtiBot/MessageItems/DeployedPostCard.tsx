@@ -5,13 +5,15 @@ import Element from "@/components/shared/renderers/Element";
 import { IFacebookPostDetailsResponse } from "@/interfaces/ISocial";
 import { FacebookPost } from "@/services/Facebook";
 import Image from "next/image";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { AiFillLike } from "react-icons/ai";
 import { FaRegComment } from "react-icons/fa";
 import { PiShareFat } from "react-icons/pi";
 import Slider, { Settings } from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import PostInsightModal from "@/components/PostInsightModal";
+import { PostCard } from "../v2/SocialPostPage";
 
 interface DeployedPostInsightProps {
   label: string;
@@ -101,6 +103,8 @@ export default function DeployPostCardView({
   isPending,
   isFetching,
 }: DeployedPostCardViewProps) {
+  const [openInsightModal, setOpenInsightModal] = useState(false);
+  const [postId, setPostId] = useState<string | undefined>(undefined);
   const isOnePostAvailable = posts.some((c) => c !== undefined);
   const noPostAvailable = posts.every((c) => c === undefined);
   const settings = useMemo((): Settings => {
@@ -125,9 +129,11 @@ export default function DeployPostCardView({
     );
   }
 
+  console.log("postInsightModal - ", openInsightModal, postId);
+
   return (
-    <div className="flex flex-col items-center gap-2 mt-3">
-      <div className="flex w-full items-center py-3 px-6 justify-between">
+    <div className="flex flex-col items-center gap-2 mt-1">
+      <div className="flex w-full items-center py-1 pl-3 justify-between">
         <h2>Live Posts Insights</h2>
         {isFetching && (
           <div className="text-xs flex items-center gap-2 text-gray-400">
@@ -136,20 +142,30 @@ export default function DeployPostCardView({
           </div>
         )}
       </div>
-      <div className="p-2 flex flex-col gap-2 w-[350px]">
-        {posts.length > 1 && (
-          <Slider {...settings}>
-            {posts.map((post: IFacebookPostDetailsResponse) => {
-              return (
-                <DeployedPostCard key={post?.details.id} postInfo={post} />
-              );
-            })}
-          </Slider>
-        )}
-        {posts.length === 1 && (
+      <div className="p-2 flex gap-4 w-full overflow-auto">
+        {posts.map((post: any) => {
+          return (
+            // <DeployedPostCard key={post?.details.id} postInfo={post} />
+            <PostCard
+              handleClick={(postId: string) => {
+                setOpenInsightModal(true);
+                setPostId(postId);
+              }}
+              key={post?.details.id}
+              post={{ data: post.details } as any}
+            />
+          );
+        })}
+        {/* {posts.length > 1 && <Slider {...settings}></Slider>} */}
+        {/* {posts.length === 1 && (
           <DeployedPostCard key={posts[0]?.details.id} postInfo={posts[0]} />
-        )}
+        )} */}
       </div>
+      <PostInsightModal
+        open={openInsightModal}
+        handleClose={() => setOpenInsightModal(false)}
+        post_id={postId}
+      />
     </div>
   );
 }
