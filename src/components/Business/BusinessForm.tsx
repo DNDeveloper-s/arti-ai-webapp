@@ -49,7 +49,6 @@ interface RegisterBusinessFormValues {
   ad_account_id: string;
 }
 
-
 const validationSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
   category: yup.string().required("Category is required"),
@@ -254,12 +253,14 @@ export default function BusinessForm(props: BusinessFormProps) {
                 variant="flat"
                 {...myRegister("name")}
                 value={watch("name")}
+                data-testid="name"
               />
               <SelectWithAutoComplete
                 plural="Categories"
                 label="Category"
                 items={CATEGORY_ITEMS}
                 name="category"
+                data-testid="category"
               />
               <Input
                 classNames={{
@@ -269,6 +270,7 @@ export default function BusinessForm(props: BusinessFormProps) {
                 variant="flat"
                 {...myRegister("position")}
                 value={watch("position")}
+                data-testid="position"
               />
               <Input
                 classNames={{
@@ -278,6 +280,7 @@ export default function BusinessForm(props: BusinessFormProps) {
                 variant="flat"
                 {...myRegister("website")}
                 value={watch("website")}
+                data-testid="website"
               />
               <Input
                 classNames={{
@@ -287,6 +290,7 @@ export default function BusinessForm(props: BusinessFormProps) {
                 variant="flat"
                 {...myRegister("details")}
                 value={watch("details")}
+                data-testid="details"
               />
               {!isFetchingProviders &&
                 (hasNoAccount ? (
@@ -314,6 +318,7 @@ export default function BusinessForm(props: BusinessFormProps) {
                   type="submit"
                   color="primary"
                   isDisabled={isPending}
+                  data-testid="submit-business-button"
                 >
                   <span>{isEditMode ? "Update" : "Register"}</span>
                 </Button>

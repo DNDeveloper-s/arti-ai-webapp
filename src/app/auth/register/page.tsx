@@ -149,7 +149,12 @@ export default function Auth() {
       } else {
         router.push("/business/register");
       }
-    } catch (e) {}
+    } catch (e: any) {
+      setSnackBarData({
+        message: e.message ?? "Something went wrong!",
+        status: "error",
+      });
+    }
   }
 
   return (

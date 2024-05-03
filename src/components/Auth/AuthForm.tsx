@@ -133,6 +133,7 @@ const AuthForm: FC<AuthFormProps> = (props) => {
                         onChange={(e) =>
                           onInputChange(formField.name, e.target.value)
                         }
+                        data-testid={formField.name}
                         className={
                           "w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-lg text-md py-2 px-3 transition-all " +
                           (false ? "border-opacity-100" : "")
@@ -155,6 +156,7 @@ const AuthForm: FC<AuthFormProps> = (props) => {
                   onChange={(e) =>
                     onInputChange(formField.name, e.target.value)
                   }
+                  data-testid={formField.name}
                   className={
                     "w-full mt-1 bg-secondaryText bg-opacity-25 outline-none border-2 border-opacity-0 border-red-600 rounded-lg text-md py-2 px-3 transition-all " +
                     (false ? "border-opacity-100" : "")
@@ -167,6 +169,7 @@ const AuthForm: FC<AuthFormProps> = (props) => {
             disabled={!isFormValid()}
             type="submit"
             className="disabled:opacity-10 w-full mt-6 flex items-center h-12 justify-center bg-primary outline-none border-2 border-opacity-0 border-red-600 rounded-lg text-md py-2 px-3 transition-all"
+            data-testid={props.submitButtonLabel}
           >
             {isSubmitting ? (
               <Loader style={{ scale: 0.7 }} />

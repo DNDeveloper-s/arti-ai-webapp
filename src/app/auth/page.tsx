@@ -3,6 +3,7 @@ import React, {
   FormEvent,
   HTMLInputTypeAttribute,
   useContext,
+  useEffect,
   useState,
 } from "react";
 import Logo from "@/components/Logo";
@@ -101,7 +102,7 @@ export default function Auth() {
     // 		status: 'error'
     // 	})
     // 	return false;
-    // }
+    // }setSnackBarData
     // //
     // // // Else, make the call to the backend with all the form fields
     // // await postNewUser(formValues);
@@ -109,25 +110,27 @@ export default function Auth() {
   }
 
   return (
-    <AuthForm
-      formFields={formFields}
-      formHeading={"Sign In to Arti AI"}
-      initValues={initValues}
-      submitButtonLabel={"Sign In"}
-      googleLabel={"Sign In with Google"}
-      facebookLabel={"Sign In with Facebook"}
-      handleFormSubmit={handleSignIn}
-      snackBarData={snackBarData}
-      successMessage={"Signed in successfully!"}
-      showSignUpButton
-      leftSwitch={{
-        label: "Sign Up",
-        to: "/auth/register",
-      }}
-      rightSwitch={{
-        label: "Forgot Password?",
-        to: "#",
-      }}
-    />
+    <>
+      <AuthForm
+        formFields={formFields}
+        formHeading={"Sign In to Arti AI"}
+        initValues={initValues}
+        submitButtonLabel={"Sign In"}
+        googleLabel={"Sign In with Google"}
+        facebookLabel={"Sign In with Facebook"}
+        handleFormSubmit={handleSignIn}
+        snackBarData={snackBarData}
+        successMessage={"Signed in successfully!"}
+        showSignUpButton
+        leftSwitch={{
+          label: "Sign Up",
+          to: "/auth/register",
+        }}
+        rightSwitch={{
+          label: "Forgot Password?",
+          to: "#",
+        }}
+      />
+    </>
   );
 }

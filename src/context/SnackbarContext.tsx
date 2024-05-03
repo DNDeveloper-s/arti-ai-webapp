@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, FC, useState } from "react";
+import React, { createContext, FC, useEffect, useState } from "react";
 
 export interface ISnackbarData {
   status: "warning" | "error" | "success" | "info" | "progress";

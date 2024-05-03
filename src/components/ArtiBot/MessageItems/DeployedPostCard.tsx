@@ -152,7 +152,7 @@ export default function DeployPostCardView({
                 setPostId(postId);
               }}
               key={post?.details.id}
-              post={{ data: post.details } as any}
+              post={{ data: post.details, postId: post?.details.id }}
             />
           );
         })}

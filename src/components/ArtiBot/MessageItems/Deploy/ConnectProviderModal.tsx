@@ -64,6 +64,7 @@ export default function ConnectProviderModal(props: ConnectProviderModalProps) {
             className="w-full text-white border-2 border-blue-500 bg-blue-600"
             isLoading={isPending}
             onClick={renderProps.onClick}
+            data-testid="connect-facebook-button"
           >
             <AiFillFacebook className="text-lg" />
             Connect Facebook

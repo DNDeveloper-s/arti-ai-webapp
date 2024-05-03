@@ -64,8 +64,6 @@ function SelectWithAutoCompleteComponent({
 
   const value = props.name ? methods.watch(props.name) : "";
 
-  console.log(props.name + " - " + value);
-
   let localProps = {};
   if (!noControl) {
     localProps = {

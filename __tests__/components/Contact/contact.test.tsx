@@ -53,7 +53,10 @@ jest.mock("axios", () => ({
   }),
 }));
 
-const hasSnackbar = (status: ISnackbarData["status"], message: string) => {
+export const hasSnackbar = (
+  status: ISnackbarData["status"],
+  message: string
+) => {
   const snackbarEl = screen.getByTestId("snackbar-container");
   expect(snackbarEl).toBeInTheDocument();
 

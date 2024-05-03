@@ -41,7 +41,7 @@ interface PostCardProps {
    * @returns
    */
   handleClick: (postId: string) => void;
-  post: ConversationPost;
+  post: Pick<ConversationPost, "postId" | "data">;
 }
 export function PostCard(props: PostCardProps) {
   return (
