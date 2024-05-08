@@ -5,8 +5,8 @@ export const apiConfig = {
   // process.env.NODE_ENV === "production"
   // ? "https://api.artiai.org"
   // : "http://localhost:8081",
-  baseUrl: "https://api.artiai.org",
-  // baseUrl: "http://localhost:8081",
+  // baseUrl: "https://api.artiai.org",
+  baseUrl: "http://localhost:8081",
   version: "/v1",
 };
 
@@ -167,5 +167,9 @@ export const ROUTES = {
     ),
     CREDIT_BALANCE: apiUrl(`/users/me/balance`),
     SUBSCRIPTIONS: apiUrl(`/users/me/subscriptions`),
+    SEND_EMAIL_VERIFICATION_REQUEST: apiUrl(
+      `/users/me/send_email_verification_request`
+    ),
+    VALIDATE_VERIFICATION_CODE: apiUrl(`/users/me/validate_verification_code`),
   },
 };

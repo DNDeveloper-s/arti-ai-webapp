@@ -51,7 +51,10 @@ export default function MessagesShimmer({
   conversationType,
 }: MessagesShimmerProps) {
   return (
-    <div className="animate-pulse">
+    <div
+      className="animate-pulse"
+      data-testid={"conversation-messages-shimmer"}
+    >
       <MessageItemShimmer
         content={welcomeMessage[conversationType]}
         role={ChatGPTRole.ASSISTANT}

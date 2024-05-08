@@ -140,6 +140,10 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile, ...rest }) {
+      console.log("user - ", user);
+      console.log("account - ", account);
+      console.log("profile - ", profile);
+      console.log("rest - ", rest);
       try {
         if (profile?.name) {
           // Split the "name" field into "first_name" and "last_name"

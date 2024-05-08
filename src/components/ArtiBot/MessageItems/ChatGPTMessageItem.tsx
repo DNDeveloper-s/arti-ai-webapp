@@ -231,7 +231,11 @@ export const ChatGPTMessageWelcomeMessage = ({
   return (
     <Element content={business?.conversation_starter?.[key]}>
       <motion.div variants={framerItem()} className={"w-full"}>
-        <div className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto">
+        <div
+          className="flex items-start px-[1em] py-[0.9em] w-full max-w-[950px] mx-auto"
+          data-testid="conversation-message-item"
+          data-messagetype="welcome-message"
+        >
           <Image
             className="rounded-lg mr-[0.3em]"
             width={45}

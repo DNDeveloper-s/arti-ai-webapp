@@ -28,6 +28,7 @@ import useMounted from "@/hooks/useMounted";
 import Numbers from "@/components/LandingPage/Numbers";
 import CaseStudies from "@/components/LandingPage/CaseStudies";
 import ServiceIntroduction from "./ServiceIntroduction";
+import WhyUsNew from "../LandingPage/WhyUsNew";
 
 function calculateScrollDepth() {
   const scrollHeight = document.documentElement.scrollHeight;
@@ -118,7 +119,7 @@ export default function ProductLandingPage() {
         <CaseStudies />
         <Testimonials />
         {/*<BgAttachment />*/}
-        <div
+        {/* <div
           data-groupid={"landing-section"}
           data-section="arti_bot"
           id="arti-bot"
@@ -136,7 +137,7 @@ export default function ProductLandingPage() {
               containerClassName="rounded-xl"
             />
           </div>
-        </div>
+        </div> */}
         <WhyUs focusedSection={focusedSection} />
         <Contact />
         {showTryButton && <TryForFreeButton label={"Join Waitlist"} />}

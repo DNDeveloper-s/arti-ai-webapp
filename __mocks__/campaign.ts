@@ -1,0 +1,93 @@
+export const useGetCampaigns = () => ({
+  data: [
+    {
+      name: "Legends Unleashed Campaign",
+      status: "PAUSED",
+      objective: "OUTCOME_AWARENESS",
+      effective_status: "PAUSED",
+      account_id: "1973859872683407",
+      id: "120208919788480084",
+    },
+    {
+      name: "Kabaddi Event Promotion",
+      status: "PAUSED",
+      objective: "OUTCOME_AWARENESS",
+      effective_status: "PAUSED",
+      account_id: "1973859872683407",
+      id: "120208458675620084",
+    },
+    {
+      name: "Big April Festival Book Sale Campaign",
+      status: "ACTIVE",
+      objective: "OUTCOME_LEADS",
+      effective_status: "ACTIVE",
+      account_id: "1973859872683407",
+      id: "120208419998230084",
+    },
+    {
+      name: "Dynamic Chef Trio Campaign",
+      status: "PAUSED",
+      objective: "OUTCOME_AWARENESS",
+      effective_status: "PAUSED",
+      account_id: "1973859872683407",
+      id: "120208379487750084",
+    },
+    {
+      name: "Awareness Campaign New",
+      status: "ACTIVE",
+      objective: "OUTCOME_AWARENESS",
+      effective_status: "ACTIVE",
+      account_id: "1973859872683407",
+      id: "120208186792940084",
+    },
+    {
+      name: "Traffic Campaign",
+      status: "ACTIVE",
+      objective: "OUTCOME_TRAFFIC",
+      effective_status: "ACTIVE",
+      account_id: "1973859872683407",
+      id: "120208186727520084",
+    },
+    {
+      name: "Awareness Campaign",
+      status: "ACTIVE",
+      objective: "OUTCOME_AWARENESS",
+      effective_status: "ACTIVE",
+      account_id: "1973859872683407",
+      id: "120208186609380084",
+    },
+    {
+      name: "Leads Campaign",
+      status: "ACTIVE",
+      objective: "OUTCOME_LEADS",
+      effective_status: "ACTIVE",
+      account_id: "1973859872683407",
+      id: "120208186287490084",
+    },
+    {
+      name: "New Campaign March",
+      status: "PAUSED",
+      objective: "OUTCOME_LEADS",
+      effective_status: "PAUSED",
+      account_id: "1973859872683407",
+      id: "120207842911360084",
+    },
+    {
+      name: "My New Campaign March",
+      status: "PAUSED",
+      objective: "OUTCOME_APP_PROMOTION",
+      effective_status: "PAUSED",
+      account_id: "1973859872683407",
+      id: "120207835650910084",
+    },
+  ],
+  paging: {
+    cursors: {
+      before:
+        "QVFIUklSajRWVVAtT0htQ1J4RmxTbC1sWmtaTC1MUW1mX09SSW5wczQzNXVRX1dLb2VoOWhRbk5YdEhZAaFMzWXJiNmptQlBoZA25YWmM3dUw0NWZABZAmR4TUtn",
+      after:
+        "QVFIUlVhc0g2cjk1QkFEbnpQbDRqMjFQeXd5R0swaENDNUgyR3lWTFZAvWEdyemFqWFBZAQ0NLV3kwMV9PMkkzMlZAHQVZA1Yk94NVJwRGhTLUFSdG92VGZA1WDRB",
+    },
+    next: "https://graph.facebook.com/v19.0/act_1973859872683407/campaigns?access_token=EAAJKrtHx2ZB8BOZCx7ReiHZBxWFaxvrN3qnlhySqr3i02EzNC2grSANHUrsrEw0oUdoTopZCRn3sCJqkkCewXgfc06WhwGap2jrFfGE3NJFLuAKez6wfagEQaICZCV0pxXu9ZCoqXNZC4VjvlMjF1Xm0vCFgJApQCfZCYEuV1kcSBfspVHElWQeZAoP2ZA&fields=name,status,objective,effective_status,account_id,insights%7Bimpressions,reach,spend,clicks,conversions,unique_clicks,ctr,actions,cpm,action_values,account_currency,campaign_id%7D&limit=10&after=QVFIUlVhc0g2cjk1QkFEbnpQbDRqMjFQeXd5R0swaENDNUgyR3lWTFZAvWEdyemFqWFBZAQ0NLV3kwMV9PMkkzMlZAHQVZA1Yk94NVJwRGhTLUFSdG92VGZA1WDRB",
+  },
+});

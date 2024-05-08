@@ -16,7 +16,7 @@ import { useContext, useRef, useState } from "react";
 import FacebookAdVariant from "../../FacebookAdVariant";
 import { EditFacebookAdVariant } from "../../EditAdVariant/EditAdVariant";
 import { MdDownload, MdOutlineModeEdit } from "react-icons/md";
-import DeployButton from "../../MessageItems/DeployButton";
+import DeployButton from "@/components/ArtiBot/MessageItems/DeployButton";
 import Loader from "@/components/Loader";
 import { dataUrlToBase64, fetchImage } from "../../MessageItems/AdItem";
 // @ts-ignore

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import WavingHand from "@/assets/images/waving-hand.webp";
 import { motion } from "framer-motion";
 import { framerContainer } from "@/config/framer-motion";
-import { useGetMessages } from "@/api/conversation";
+import { useGetMessages } from "@/api/conversation-new";
 import { useSearchParams } from "next/navigation";
 import MessageItem from "./MessageItem";
 import { Spinner } from "@nextui-org/react";
@@ -30,12 +30,13 @@ export default function MessageContainer() {
   const conversationId = conversation?.id;
   const queryMessageId = searchParams.get("message_id");
 
-  const { data, hasNextPage, hasPreviousPage, isLoading, ...props } =
-    useGetMessages({
-      conversationId: conversationId ?? null,
-      enabled: true,
-      initialPageParam: queryMessageId,
-    });
+  const object = useGetMessages({
+    conversationId: conversationId ?? null,
+    enabled: true,
+    initialPageParam: queryMessageId,
+  });
+
+  const { data, hasNextPage, hasPreviousPage, isLoading, ...props } = object;
 
   const { ref: firstRef, isInView: isFirstInView } = useInView();
 

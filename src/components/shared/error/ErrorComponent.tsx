@@ -28,6 +28,7 @@ export const ErrorMasterComponent = (props: ErrorComponentProps) => {
   const { mutate: postCreateLog } = useCreateLog();
 
   useEffect(() => {
+    console.log("props.error - ", props.error);
     const logData = {
       userAgent: window.navigator.userAgent,
       origin: window.location.origin,

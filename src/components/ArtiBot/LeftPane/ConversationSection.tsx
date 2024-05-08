@@ -1,4 +1,4 @@
-import { useGetConversationInfinite } from "@/api/conversation";
+import { useGetConversationInfinite } from "@/api/conversation-new";
 import ConversationListItem, {
   ConversationListItemShimmer,
 } from "./ConversationListItem";
@@ -16,6 +16,8 @@ interface ConversationSectionProps extends LeftPaneSectionBaseProps {}
 
 export default function ConversationSection(props: ConversationSectionProps) {
   const { queryConversationId } = useCurrentConversation();
+  const object = useGetConversationInfinite(queryConversationId);
+
   const {
     data,
     isLoading,
@@ -24,7 +26,8 @@ export default function ConversationSection(props: ConversationSectionProps) {
     isFetchingNextPage,
     isSuccess,
     ...queryProps
-  } = useGetConversationInfinite(queryConversationId);
+  } = object;
+
   const conversations = data?.pages.map((page) => page).flat() || [];
 
   const router = useRouter();
@@ -44,15 +47,16 @@ export default function ConversationSection(props: ConversationSectionProps) {
   }, [pathname, searchParams.size]);
 
   useEffect(() => {
+    console.log("isFetching - ", isFetching, firstConversationId, ref.current);
     if (
-      isSuccess &&
+      !isFetching &&
       ref.current.pathname &&
       ref.current.size === 0 &&
       firstConversationId
     ) {
       router.push("/artibot?conversation_id=" + firstConversationId);
     }
-  }, [isSuccess, firstConversationId, router]);
+  }, [isFetching, firstConversationId, router]);
 
   // useEffect(() => {
   //   if (pathname === "/artibot" && searchParams.size === 0 && dataRef.current) {
@@ -68,7 +72,7 @@ export default function ConversationSection(props: ConversationSectionProps) {
       }
     >
       <div className="px-4 text-sm font-bold text-gray-400 flex items-center justify-between">
-        <h3>Conversations</h3>
+        <h3 data-testid="conversations-list-header">Conversations</h3>
         {!props.isActive && !noData && (
           <div
             className="cursor-pointer"

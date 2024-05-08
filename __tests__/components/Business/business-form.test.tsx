@@ -17,6 +17,7 @@ import { AiFillFacebook } from "react-icons/ai";
 import { useGetUserProviders } from "@/api/user";
 import { act } from "react-dom/test-utils";
 import { useRegisterBusiness } from "@/api/conversation";
+import { renderHook } from "@testing-library/react-hooks";
 
 const mockConfig = {
   renderComponent: () =>
@@ -178,6 +179,8 @@ describe("BusinessForm Component", () => {
     const { unmount: _unmount } = mockConfig.renderComponent();
     unmount = _unmount;
 
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+
     nameInput = screen.getByTestId(mockConfig.testIds.nameInput);
     categoryInput = screen.getByTestId(mockConfig.testIds.categoryInput);
     positionInput = screen.getByTestId(mockConfig.testIds.positionInput);
@@ -213,9 +216,14 @@ describe("BusinessForm Component", () => {
 
   it("handles user input correctly", () => {
     // Simulate user input for each form field
-    act(() => {
-      // fireEvent.input(nameInput, { target: { value: "Test Business" } });
-      userEvent.type(nameInput, "Test Business");
+    // act(() => {
+    // fireEvent.change(nameInput, { target: { value: "Test Business" } });
+    // userEvent.type(nameInput, "Test Business");
+    // });
+    fireEvent.input(screen.getByRole("textbox", { name: /name/i }), {
+      target: {
+        value: "Test Business",
+      },
     });
 
     // Add similar events for other form fields
@@ -256,14 +264,14 @@ describe("BusinessForm Component", () => {
 
     mockConfig.renderComponent();
 
-    act(() => {
-      fireEvent.change(nameInput, { target: { value: "Test Business" } });
-      fireEvent.input(categoryInput, { target: { value: "Fitness" } });
-      fireEvent.change(positionInput, { target: { value: "Test Position" } });
-      fireEvent.change(websiteInput, { target: { value: "https://test.com" } });
-      fireEvent.change(detailsInput, { target: { value: "Test Details" } });
-      fireEvent.click(submitButton);
-    });
+    // act(() => {
+    fireEvent.change(nameInput, { target: { value: "Test Business" } });
+    fireEvent.input(categoryInput, { target: { value: "Fitness" } });
+    fireEvent.change(positionInput, { target: { value: "Test Position" } });
+    fireEvent.change(websiteInput, { target: { value: "https://test.com" } });
+    fireEvent.change(detailsInput, { target: { value: "Test Details" } });
+    fireEvent.click(submitButton);
+    // });
     mockRegisterBusiness = jest.fn();
     (useRegisterBusiness as jest.Mock).mockReturnValue({
       mutate: mockRegisterBusiness,
@@ -284,16 +292,16 @@ describe("BusinessForm Component", () => {
     });
   });
 
-  //   it("displays validation errors for invalid data", () => {
-  //     render(<BusinessForm />);
-  //     // Fill in invalid data in form fields
-  //     // Trigger form validation
-  //     const submitButton = screen.getByText("Register");
-  //     fireEvent.click(submitButton);
-  //     // Assert that validation errors are displayed for invalid fields
-  //     expect(screen.getByText("Name is required")).toBeInTheDocument();
-  //     // Add similar assertions for other validation errors
-  //   });
+  // it("displays validation errors for invalid data", () => {
+  //   render(<BusinessForm />);
+  //   // Fill in invalid data in form fields
+  //   // Trigger form validation
+  //   const submitButton = screen.getByText("Register");
+  //   fireEvent.click(submitButton);
+  //   // Assert that validation errors are displayed for invalid fields
+  //   expect(screen.getByText("Name is required")).toBeInTheDocument();
+  //   // Add similar assertions for other validation errors
+  // });
 
   //   it("renders conditional components based on form state", () => {
   //     render(<BusinessForm />);

@@ -22,6 +22,7 @@ import {
   FeedBackKeyProperty,
   IAdCreative,
   IAdCreativeNew,
+  IAdCreativeWithVariants,
 } from "@/interfaces/IAdCreative";
 import {
   ChatGPTMessageObj,
@@ -30,9 +31,28 @@ import {
 } from "@/interfaces/IArtiBot";
 import { useSession } from "next-auth/react";
 import ObjectId from "bson-objectid";
-import { InfiniteConversation } from "@/api/conversation";
 import { QueryClient } from "@tanstack/react-query";
 import API_QUERIES from "@/config/api-queries";
+
+interface InfiniteConversation {
+  id: string;
+  messages: {
+    id: string;
+    content: string;
+    role: string;
+    conversationId: string;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  adCreatives: IAdCreativeWithVariants[];
+  conversation_type: ConversationType;
+  project_name: string;
+  lastAdCreativeCreatedAt: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  businessId: string;
+}
 
 interface IConversationData {}
 
@@ -84,7 +104,10 @@ interface ConversationAction {
 //   list: T[];
 // }
 
-class StateRecord<T extends { id: string }, R extends (keyof T)[] = ["id"]> {
+export class StateRecord<
+  T extends { id: string },
+  R extends (keyof T)[] = ["id"],
+> {
   readonly map: Record<T["id"], T>;
   readonly list: T[];
 
