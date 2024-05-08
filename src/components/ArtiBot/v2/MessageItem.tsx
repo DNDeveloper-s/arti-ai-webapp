@@ -101,6 +101,12 @@ export default function MessageItem(props: MessageItemProps) {
         // animate={{height: 'auto', opacity: 1}}
         // transition={{type: 'spring', damping: 15, duration: .15}}
         className={"w-full overflow-hidden"}
+        data-testid={"conversation-message-item"}
+        data-messagetype={
+          messageItem.adCreatives && messageItem.adCreatives.length > 0
+            ? "ad_creative"
+            : "text_message"
+        }
       >
         <div
           className={

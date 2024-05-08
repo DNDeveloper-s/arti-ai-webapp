@@ -27,7 +27,7 @@ import uploadImage from "@/services/uploadImage";
 import JSZip from "jszip";
 // @ts-ignore
 import { saveAs } from "file-saver";
-import DeployButton from "./DeployButton";
+import DeployButton from "@/components/ArtiBot/MessageItems/DeployButton";
 import {
   useGetAdSet,
   useGetFacebookPage,

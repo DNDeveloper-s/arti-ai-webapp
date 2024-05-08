@@ -98,9 +98,9 @@ const config: Config = {
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
     // ...
-    "^@/components/(.*)$": "<rootDir>/components/$1",
-    "^@/context/(.*)$": "<rootDir>/context/$1",
-    "^@/interfaces/(.*)$": "<rootDir>/interfaces/$1",
+    "^@/components/(.*)$": "<rootDir>/src/components/$1",
+    "^@/context/(.*)$": "<rootDir>/src/context/$1",
+    "^@/interfaces/(.*)$": "<rootDir>/src/interfaces/$1",
     "^@/api/(.*)$": "<rootDir>/src/api/$1",
   },
 

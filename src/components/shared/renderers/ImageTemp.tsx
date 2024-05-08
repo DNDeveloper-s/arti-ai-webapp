@@ -108,7 +108,6 @@ export const AppDefaultImage = ({
       {...props}
       width={+(props.width ?? 600)}
       height={+(props.height ?? 600)}
-      placeholder={"blur"}
       src={src}
     />
   );

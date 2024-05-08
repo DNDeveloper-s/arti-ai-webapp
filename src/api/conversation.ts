@@ -1228,7 +1228,7 @@ export interface RegisterBusinessVariables {
     locality: string;
   }[];
   details: string;
-  social_pages: SocialPageObject[];
+  social_pages?: SocialPageObject[];
 }
 
 export const useRegisterBusiness = (
@@ -1240,7 +1240,7 @@ export const useRegisterBusiness = (
 
   const registerBusiness = async (data: RegisterBusinessVariables) => {
     const response = await axios.post(ROUTES.BUSINESS.ME, data);
-    return response.data;
+    return response.data.data;
   };
 
   return useMutation({
@@ -1256,6 +1256,9 @@ export const useRegisterBusiness = (
         message: "Business registered successfully",
         status: "success",
       });
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_USER_BUSINESSES,
+      });
       onSuccess && onSuccess(data, variables, ...rest);
     },
     onError: (error, variables, ...rest) => {
@@ -1269,12 +1272,18 @@ export const useRegisterBusiness = (
   });
 };
 
-export interface UpdateBusinessVariables extends RegisterBusinessVariables {
+export interface UpdateBusinessVariables
+  extends Partial<RegisterBusinessVariables> {
   id: string;
 }
 
 export const useUpdateBusiness = (
-  props: UseMutationOptions<any, Error, UpdateBusinessVariables, any> = {}
+  props: UseMutationOptions<
+    IBusinessResponse,
+    Error,
+    UpdateBusinessVariables,
+    any
+  > = {}
 ) => {
   const { onError, onSuccess, onSettled, ...options } = props;
   const queryClient = useQueryClient();
@@ -1290,7 +1299,7 @@ export const useUpdateBusiness = (
     return response.data;
   };
 
-  return useMutation({
+  return useMutation<IBusinessResponse, Error, UpdateBusinessVariables>({
     mutationFn: updateBusiness,
     onSettled: (data, error, variables, ...rest) => {
       queryClient.invalidateQueries({

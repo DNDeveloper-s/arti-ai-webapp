@@ -1,4 +1,4 @@
-import { ClientMessageItem, InfiniteMessage } from "@/api/conversation";
+import { ClientMessageItem, InfiniteMessage } from "@/api/conversation-new";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
 import {
   IAdCreativeWithVariants,
@@ -92,8 +92,6 @@ export default function AdItem({
       isInView &&
       conversation?.conversation_type === ConversationType.SOCIAL_MEDIA_POST,
   });
-
-  console.log("postData - ", postData, adCreative?.variants, postIds);
 
   //   if (!adCreative || !currentConversation) return null;
   if (!adCreative || !conversation) return null;

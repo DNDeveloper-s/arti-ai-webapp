@@ -221,9 +221,11 @@ const ConversationListItem: FC<ConversationListItemProps> = ({
       key={conversation.id}
       className={
         "flex gap-4 mx-2 items-start px-4 py-3 text-gray-300 cursor-pointer hover:bg-gray-900 rounded overflow-hidden transition-all text-sm leading-6 " +
-        (isActive ? "bg-gray-900 " : "bg-gray-950 ") +
+        (isActive ? "active bg-gray-900 " : "bg-gray-950 ") +
         (containerClassName ?? "")
       }
+      data-testid={"conversation-list-item"}
+      data-conversation={conversation.id}
     >
       <CardStackImages key={conversation.id} images={images} />
       <div className={"flex-shrink-0 flex flex-col justify-center gap-1"}>

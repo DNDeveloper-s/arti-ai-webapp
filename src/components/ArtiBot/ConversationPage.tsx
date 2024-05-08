@@ -21,7 +21,7 @@ import ChatGPTMessageItem from "@/components/ArtiBot/MessageItems/ChatGPTMessage
 import { ChatGPTRole } from "@/interfaces/IArtiBot";
 import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
 import { Tooltip } from "react-tooltip";
-import LeftPane from "./LeftPane/LeftPane";
+import LeftPane from "@/components/ArtiBot/LeftPane/LeftPane";
 import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
@@ -41,6 +41,11 @@ import SelectWithAutoComplete from "../shared/renderers/SelectWithAutoComplete";
 import SelectBusiness from "../SelectBusiness";
 import SocialPostPage from "./v2/SocialPostPage";
 import { IoMdSettings } from "react-icons/io";
+import Lottie from "lottie-react";
+import createChatLottie from "@/assets/lottie/start-chat.json";
+import { Button } from "@nextui-org/react";
+import { BiSolidEdit } from "react-icons/bi";
+import { HiMiniChatBubbleLeftRight } from "react-icons/hi2";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -185,13 +190,14 @@ export default function ArtiBotPage({
     useState<boolean>(false);
   const [selectedMode, setSelectedMode] = useState(ArtiAiDropdownItems.Chat);
   const search = useSearchParams();
-  const { conversation: _currentConversation } = useCurrentConversation();
 
   const campaignId = search.get("campaign_id");
   const shouldShowCampaign = !!campaignId;
 
   const socialConversationId = search.get("social_conversation_id");
   const shouldShowSocialPage = !!socialConversationId;
+
+  const conversationId = search.get("conversation_id");
 
   const useOld = localStorage.getItem("use_old") === "true";
 
@@ -322,21 +328,37 @@ export default function ArtiBotPage({
             (isConversationCollapsible ? "h-[0] " : "h-full flex-1 ")
           }
         >
-          <div className={"w-full mx-auto h-full overflow-hidden"}>
-            {useOld ? (
-              <ArtiBot
-                hideHeader={true}
-                toggleCollapse={toggleCollapse}
-                collapsed={false}
-                conversation={conversation}
-                adCreatives={adCreatives}
-                setAdCreatives={setAdCreatives}
+          {conversationId ? (
+            <>
+              <div className={"w-full mx-auto h-full overflow-hidden"}>
+                <ArtiBotV2 hideHeader={true} />
+              </div>
+              {!isConversationCollapsible && <CreateAdManagerModal />}
+            </>
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center">
+              <Lottie
+                className={"w-[60%] h-[60%] opacity-30 mt-[-50px]"}
+                animationData={createChatLottie}
+                loop={true}
               />
-            ) : (
-              <ArtiBotV2 hideHeader={true} />
-            )}
-          </div>
-          {!isConversationCollapsible && <CreateAdManagerModal />}
+              <p className="text-small text-center mt-[-50px] text-gray-500 leading-normal mb-3 tracking-normal max-w-[600px]">
+                Begin your first conversation with our chatbot to craft
+                compelling ad creatives and engaging social media posts.
+                Let&apos;s elevate your digital presence together!
+              </p>
+              <Link
+                href={"/artibot/create"}
+                className="block w-full my-3"
+                prefetch={true}
+              >
+                <button className="mx-auto py-2 px-4 flex gap-2 text-sm items-center breathing-button-primary bg-primary rounded">
+                  <HiMiniChatBubbleLeftRight className="text-base" />
+                  <span>Start Chat</span>
+                </button>
+              </Link>
+            </div>
+          )}
         </div>
         {!shouldShowCampaign && adCreative && (
           <>

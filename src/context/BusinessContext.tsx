@@ -10,7 +10,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   IBusinessResponse,
   SocialPageObject,
@@ -121,6 +121,8 @@ const useBusinessContext = (initState: IBusinessState) => {
   const selectedBusinessIdRef = useRef<string | null>(null);
   const token = useSessionToken();
 
+  const router = useRouter();
+
   useEffect(() => {
     if (!token) return;
     if (!selectedBusinessIdRef.current && data) {
@@ -163,6 +165,8 @@ const useBusinessContext = (initState: IBusinessState) => {
   // Set the AdAccount ID when the business is set
   useEffect(() => {
     if (business) {
+      // console.log('Resetting the route for switched business')
+      // router.push('artibot')
       const adAccountProvider = business.social_pages?.find(
         (c) => c.type === SocialPageType.FACEBOOK_AD_ACCOUNT
       );

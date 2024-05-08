@@ -17,6 +17,7 @@ import GoogleSignInButton from "@/components/Auth/GoogleSigninButton";
 import AuthForm from "@/components/Auth/AuthForm";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useSendEmailVerificationRequest } from "@/api/auth";
 
 interface FormFieldObject<T> {
   id: string;
@@ -47,6 +48,7 @@ export default function Auth() {
   const router = useRouter();
   const [snackBarData, setSnackBarData] =
     useContext(SnackbarContext).snackBarData;
+  const { mutate } = useSendEmailVerificationRequest();
 
   const formFields: FormField<REGISTER_FIELD_NAME>[] = [
     [
@@ -147,6 +149,11 @@ export default function Auth() {
           status: "error",
         });
       } else {
+        mutate({
+          // @ts-ignore
+          email: formValues.email,
+          type: "verifyEmail",
+        });
         router.push("/business/register");
       }
     } catch (e: any) {

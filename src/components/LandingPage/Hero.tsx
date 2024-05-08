@@ -14,6 +14,8 @@ import type { RenderPhotoProps } from "react-photo-album";
 import PhotoAlbum from "react-photo-album";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import { grantConsent, initMetaPixel, logPageView } from "@/utils/meta-pixel";
+import { Button } from "@nextui-org/react";
 
 const breakpoints = [1080, 640, 384, 256, 128, 96, 64, 48];
 
@@ -212,6 +214,43 @@ function NextJsImage({
   );
 }
 
+function CookieConsent() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("cookie-consent") === "true") return;
+    setShow(true);
+  }, []);
+
+  return (
+    <div
+      className={`fixed bottom-6 left-6 max-w-[500px] bg-black rounded p-5 z-[500] ${
+        show ? "block" : "hidden"
+      }`}
+    >
+      <h2 className="text-lg font-medium mb-2">Cookie Consent</h2>
+      <p className="text-sm mb-3">
+        Our website uses cookies to ensure you get the best experience. By
+        clicking &quot;Accept All Cookies&quot;, you agree to the storing of
+        cookies on your device to enhance site navigation, analyze site usage,
+        and assist in our marketing efforts.
+      </p>
+      <Button
+        onClick={() => {
+          localStorage.setItem("cookie-consent", "true");
+          setShow(false);
+          grantConsent();
+        }}
+        size="sm"
+        className="rounded"
+        color="primary"
+      >
+        <span>Accept All Cookies</span>
+      </Button>
+    </div>
+  );
+}
+
 export default function Hero() {
   const { scrollY } = useScroll();
   const [opacity, setOpacity] = useState(1);
@@ -220,6 +259,8 @@ export default function Hero() {
 
   useEffect(() => {
     initGTM();
+    initMetaPixel();
+    logPageView();
   }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -230,72 +271,76 @@ export default function Hero() {
   });
 
   return (
-    <div
-      id={"#home"}
-      data-groupid="landing-section"
-      data-section="hero"
-      className="relative text-primaryText h-screen flex items-center justify-center flex-col mt-0 md:mt-0"
-    >
-      <div className="absolute w-full h-full top-0 left-0 flex flex-col justify-center gap-[1.2em] items-center hero-image-container overflow-hidden">
-        <div className="w-full h-full">
-          <PhotoAlbum
-            layout="rows"
-            photos={photos}
-            renderPhoto={NextJsImage}
-            defaultContainerWidth={1200}
-            sizes={{ size: "calc(100vw - 240px)" }}
-          />
+    <>
+      <div
+        id={"#home"}
+        data-groupid="landing-section"
+        data-section="hero"
+        className="relative text-primaryText h-screen flex items-center justify-center flex-col mt-0 md:mt-0"
+      >
+        <div className="absolute w-full h-full top-0 left-0 flex flex-col justify-center gap-[1.2em] items-center hero-image-container overflow-hidden">
+          <div className="w-full h-full">
+            <PhotoAlbum
+              layout="rows"
+              photos={photos}
+              renderPhoto={NextJsImage}
+              defaultContainerWidth={1200}
+              sizes={{ size: "calc(100vw - 240px)" }}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col justify-center items-center h-auto bg-transparent backdrop-blur-[2px] px-4 z-10">
+          <Logo width={60} height={60} />
+          <p className="text-2xl md:text-3xl font-medium text-white font-giasyr">
+            Arti AI
+          </p>
+          <h2 className="text-3xl md:text-5xl max-w-3xl text-center leading-9 md:leading-tight">
+            Transforms your Marketing Game
+          </h2>
+          <h2 className="text-3xl md:text-5xl max-w-3xl text-center leading-9 md:leading-tight">
+            <span className="text-white font-medium">Create - </span>
+            <Typist
+              startDelay={0}
+              cursor={<span style={{ color: "white" }}>|</span>}
+              typingDelay={100}
+              loop={true}
+              key={typistKey}
+              onTypingDone={() => setTypistKey((c) => (c >= 3 ? 1 : c + 1))}
+            >
+              {[
+                { text: "Personalized Ads", color: colors.primary },
+                { text: "Product Strategies", color: colors.primary },
+                { text: "Engaging Content", color: colors.primary },
+              ].map(({ text: word, color }) => [
+                <span
+                  key={word}
+                  style={{ color }}
+                  className={"font-medium " + word}
+                >
+                  {word}
+                </span>,
+                <Typist.Delay key={word} ms={2000} />,
+                <Typist.Backspace key={word} count={word.length} />,
+              ])}
+            </Typist>
+          </h2>
+          <h2 className="text-xl md:text-5xl max-w-3xl text-center leading-9 md:leading-tight">
+            Every Dollar Spent, Amplified.
+          </h2>
+          <div className="text-md my-2 md:my-4 opacity-70 flex items-center gap-1.5">
+            <span>Maximize Impact Across</span> <FaFacebookF />
+            <div className="w-1 h-1 bg-gray-600 rounded-full" />
+            <FaInstagram /> <div className="w-1 h-1 bg-gray-600 rounded-full" />
+            <FaTiktok />
+            <div className="w-1 h-1 bg-gray-600 rounded-full" />
+            <MdEmail className="text-base" />.
+          </div>
+          <CTAButton onClick={() => router.push("#contact")} className="my-4">
+            <span>Join the Waitlist Today</span>
+          </CTAButton>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center h-auto bg-transparent backdrop-blur-[2px] px-4 z-10">
-        <Logo width={60} height={60} />
-        <p className="text-2xl md:text-3xl font-medium text-white font-giasyr">
-          Arti AI
-        </p>
-        <h2 className="text-3xl md:text-5xl max-w-3xl text-center leading-9 md:leading-tight">
-          {/*<span className="text-primary font-medium">Crafting, Running, and Refining</span>*/}
-          <Typist
-            startDelay={0}
-            cursor={<span style={{ color: "white" }}>|</span>}
-            typingDelay={100}
-            loop={true}
-            key={typistKey}
-            onTypingDone={() => setTypistKey((c) => (c >= 3 ? 1 : c + 1))}
-          >
-            {[
-              { text: "Elevate", color: colors.primary },
-              { text: "Engage", color: colors.primary },
-              { text: "Excel", color: colors.primary },
-            ].map(({ text: word, color }) => [
-              <span
-                key={word}
-                style={{ color }}
-                className={"font-medium " + word}
-              >
-                {word}
-              </span>,
-              <Typist.Delay key={word} ms={2000} />,
-              <Typist.Backspace key={word} count={word.length} />,
-            ])}
-          </Typist>
-        </h2>
-        <h2 className="text-3xl md:text-5xl max-w-3xl text-center leading-9 md:leading-tight">
-          Transform Your Social Media Game.
-          <br />
-          Every Dollar Spent, Amplified.
-        </h2>
-        <div className="text-md my-2 md:my-4 opacity-70 flex items-center gap-1.5">
-          <span>Maximize Impact Across</span> <FaFacebookF />
-          <div className="w-1 h-1 bg-gray-600 rounded-full" />
-          <FaInstagram /> <div className="w-1 h-1 bg-gray-600 rounded-full" />
-          <FaTiktok />
-          <div className="w-1 h-1 bg-gray-600 rounded-full" />
-          <MdEmail clasName="text-base" />.
-        </div>
-        <CTAButton onClick={() => router.push("#contact")} className="my-4">
-          <span>Join the Waitlist Today</span>
-        </CTAButton>
-      </div>
-    </div>
+      <CookieConsent />
+    </>
   );
 }

@@ -1,10 +1,13 @@
 "use client";
 
 import { ConversationPost, useQueryPostsByConversationId } from "@/api/social";
+import { useCredentials, useGetFacebookPage } from "@/api/user";
 import PostInsightModal from "@/components/PostInsightModal";
 import { AppDefaultImage } from "@/components/shared/renderers/ImageTemp";
-import { Button } from "@nextui-org/react";
+import { useBusiness } from "@/context/BusinessContext";
+import { Button, Skeleton } from "@nextui-org/react";
 import dayjs from "dayjs";
+import Image from "next/image";
 import { use, useState } from "react";
 import { LuLink } from "react-icons/lu";
 
@@ -103,8 +106,41 @@ export default function SocialPostPage(props: SocialPostPageProps) {
   const hasNoPosts = !waiting && !posts.length;
   const hasPosts = !waiting && !!posts.length;
 
+  const { businessMap } = useBusiness();
+  const { accessToken } = useCredentials();
+  const { data, isFetching: isFetchingPage } = useGetFacebookPage({
+    accessToken,
+    pageId: businessMap.getFacebookPage()?.provider_id,
+    isInView: true,
+  });
+
   return (
     <div className="p-10">
+      <div className="flex w-full justify-end items-center mb-3">
+        {isFetchingPage ? (
+          <div className="flex items-center gap-4">
+            <div>
+              <Skeleton className="flex rounded w-10 h-10" />
+            </div>
+            <div className="w-full flex flex-col gap-2">
+              <Skeleton className="h-8 w-20 rounded" />
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded overflow-hidden">
+              <AppDefaultImage
+                alt=""
+                src={data?.picture as string}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="text-medium">
+              <h3>{data?.name}</h3>
+            </div>
+          </div>
+        )}
+      </div>
       <div className="mb-3">
         <h3>Posts and reels</h3>
       </div>

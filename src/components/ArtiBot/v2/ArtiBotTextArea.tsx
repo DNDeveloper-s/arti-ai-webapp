@@ -51,26 +51,6 @@ export default function ArtiBotTextArea(props: ArtiBotTextAreaProps) {
     });
   }
 
-  useEffect(() => {
-    console.log("messages - ", messageRecord);
-  }, [messageRecord]);
-
-  // useEffect(() => {
-  //   console.log("Testing isDone - ", isDone);
-  // }, [isDone]);
-
-  // useEffect(() => {
-  //   console.log("Testing isPending - ", isPending);
-  // }, [isPending]);
-
-  // useEffect(() => {
-  //   console.log("Testing isError - ", isError);
-  // }, [isError]);
-
-  // useEffect(() => {
-  //   console.log("Testing data - ", data);
-  // }, [data]);
-
   return (
     <div
       className="flex w-full max-w-[900px] mx-auto h-[4.5rem] relative items-end pb-2 px-3 bg-secondaryBackground"

@@ -218,14 +218,18 @@ export const DeployAdInsightsCard = (props: DeployAdInsightsCardProps) => {
   return (
     <>
       {props.isFetching && (
-        <div className="w-full flex gap-2 items-center justify-center text-xs">
+        <div
+          className="w-full flex gap-2 items-center justify-center text-xs"
+          data-testid={"fetching-ad-insights-spinner"}
+        >
           <Spinner label="Fetching Ad Insights" />
         </div>
       )}
       {props.adset && (
-        <div className="w-full">
+        <div className="w-full" data-testid={"deploy-ad-insights-card"}>
           <Collapse
             className="w-full bg-gray-800"
+            rootClassName="ad-insights-collapse"
             onChange={onChange}
             items={adsetItems}
             expandIcon={({ isActive }) => (

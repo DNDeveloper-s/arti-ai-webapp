@@ -26,7 +26,7 @@ import AdCreativeSection from "./AdCreativeSection";
 import ConversationSection from "./ConversationSection";
 import CampaignSection from "./CampaignSection";
 import { useCurrentConversation } from "@/context/CurrentConversationContext";
-import SocialPostSection from "./SocialPostSection";
+import SocialPostSection from "@/components/ArtiBot/LeftPane/SocialPostSection";
 
 interface LoadMoreButtonProps {
   doInfiniteScroll?: boolean;
@@ -143,9 +143,9 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
     <div className="flex flex-col w-[250px] h-full overflow-hidden">
       <div
         className="w-full flex items-center cursor-pointer px-4 py-6"
-        onClick={() => router.push("/")}
+        // onClick={() => router.push("/")}
       >
-        <MdArrowBackIos style={{ fontSize: "21px" }} />
+        {/* <MdArrowBackIos style={{ fontSize: "21px" }} /> */}
         <span className="ml-0.5 -mb-0.5 text-white text-opacity-60">
           Dashboard
         </span>

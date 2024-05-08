@@ -9,13 +9,20 @@ import Link from "next/link";
 import CTAButton from "./CTAButton";
 
 export default function SelectBusiness() {
-  const { data, isFetching } = useQueryUserBusiness();
+  const { data, isFetching, isSuccess, isFetched } = useQueryUserBusiness();
   const router = useRouter();
   const { business, setBusiness } = useBusiness();
 
   useEffect(() => {
     router.prefetch("/business/register");
   }, [router]);
+
+  useEffect(() => {
+    console.log("isFetching, data - ", isFetching, data);
+    if (!isFetching) {
+      if (!data || data.length === 0) return router.push("/business/register");
+    }
+  }, [isFetching, data, router]);
 
   const handleEdit = (e: React.MouseEvent<SVGElement, MouseEvent>) => {
     e.stopPropagation();
