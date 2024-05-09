@@ -109,7 +109,6 @@ export default function ProductLandingPage() {
       <main>
         {/*<Logo />*/}
         <Hero />
-        <WhyUsNew />
         {isMounted && (isSmallScreen || isPortrait) ? (
           <Services_Sm />
         ) : (
@@ -139,7 +138,7 @@ export default function ProductLandingPage() {
             />
           </div>
         </div> */}
-        {/* <WhyUs focusedSection={focusedSection} /> */}
+        <WhyUs focusedSection={focusedSection} />
         <Contact />
         {showTryButton && <TryForFreeButton label={"Join Waitlist"} />}
         <Footer />
