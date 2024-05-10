@@ -43,6 +43,7 @@ import { RedirectType, redirect } from "next/navigation";
 import { LinkData } from "@/components/ArtiBot/MessageItems/Deploy/Ad/components/Ads/Create/CreateAd";
 import { ICampaignInfinite } from "./admanager";
 import { TimeRange, prepareTimeRange } from "./conversation";
+import { useTimeRange } from "@/context/TimeRangeContext";
 
 function getAxiosResponseError(error: any) {
   if (error instanceof Error && error instanceof AxiosError) {
@@ -985,6 +986,8 @@ export const useUpdateCampaign = () => {
   const [, setSnackBarData] = useContext(SnackbarContext).snackBarData;
 
   const { accessToken, accountId } = useCredentials();
+  const { timeRange } = useTimeRange();
+  const parsedTimeRange = prepareTimeRange(timeRange);
 
   const updateCampaign = async ({
     campaignId,
@@ -1025,6 +1028,14 @@ export const useUpdateCampaign = () => {
     onSettled: (data, error, variables) => {
       queryClient.invalidateQueries({
         queryKey: API_QUERIES.GET_CAMPAIGNS(accessToken, accountId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: API_QUERIES.GET_CAMPAIGN(
+          accessToken,
+          variables.campaignId,
+          parsedTimeRange,
+          true
+        ),
       });
     },
     onError: (error, variables) => {

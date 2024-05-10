@@ -13,7 +13,15 @@ import useSessionToken from "@/hooks/useSessionToken";
 import { ConversationType } from "@/interfaces/IConversation";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import React, { FC, ReactNode, useCallback, useEffect, useState } from "react";
+import React, {
+  FC,
+  ReactNode,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import { BiSolidEdit } from "react-icons/bi";
 import { MdArrowBackIos } from "react-icons/md";
 import ConversationListItem from "@/components/ArtiBot/LeftPane/ConversationListItem";
@@ -128,9 +136,11 @@ export interface LeftPaneSectionBaseProps {
   isActive: boolean;
 }
 
-const LeftPane: FC<LeftPaneProps> = (props) => {
+const LeftPane = (props: LeftPaneProps, ref: any) => {
   const router = useRouter();
   const { conversation } = useCurrentConversation();
+  const newConversationRef = React.useRef<HTMLButtonElement>(null);
+  const leftPaneSectionsRef = React.useRef<HTMLDivElement>(null);
 
   const [activeSection, setActiveSection] =
     useState<LeftPaneSection>("conversation");
@@ -138,6 +148,15 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
   function handleSection(section: LeftPaneSection) {
     setActiveSection(section);
   }
+
+  useImperativeHandle(ref, () => ({
+    get newConversationButton() {
+      return newConversationRef.current;
+    },
+    get leftPaneSectionContainer() {
+      return leftPaneSectionsRef.current;
+    },
+  }));
 
   return (
     <div className="flex flex-col w-[250px] h-full overflow-hidden">
@@ -156,13 +175,19 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
         className="block w-full my-3"
         prefetch={true}
       >
-        <button className="mx-auto py-2 px-4 flex gap-2 text-sm items-center breathing-button-primary bg-primary rounded">
+        <button
+          ref={newConversationRef}
+          className="mx-auto py-2 px-4 flex gap-2 text-sm items-center breathing-button-primary bg-primary rounded"
+        >
           <BiSolidEdit />
           <span>New Conversation</span>
         </button>
       </Link>
       <hr className="border-gray-700" />
-      <div className={"relative overflow-hidden w-full flex flex-col"}>
+      <div
+        className={"relative overflow-hidden w-full flex flex-col"}
+        ref={leftPaneSectionsRef}
+      >
         <ConversationSection
           onSectionActive={handleSection}
           isActive={activeSection === "conversation"}
@@ -187,4 +212,4 @@ const LeftPane: FC<LeftPaneProps> = (props) => {
   );
 };
 
-export default LeftPane;
+export default forwardRef(LeftPane);

@@ -46,6 +46,7 @@ import createChatLottie from "@/assets/lottie/start-chat.json";
 import { Button } from "@nextui-org/react";
 import { BiSolidEdit } from "react-icons/bi";
 import { HiMiniChatBubbleLeftRight } from "react-icons/hi2";
+import { Tour, TourProps } from "antd";
 
 export interface CollapsedComponentProps {
   content: string;
@@ -176,6 +177,8 @@ export function ArtiAiDropdown({
   );
 }
 
+const placements: any[] = ["bottom", "right", "right", "center", "bottomLeft"];
+
 export default function ArtiBotPage({
   conversation,
 }: {
@@ -191,6 +194,13 @@ export default function ArtiBotPage({
   const [selectedMode, setSelectedMode] = useState(ArtiAiDropdownItems.Chat);
   const search = useSearchParams();
 
+  const leftPaneRef = useRef(null);
+  const selectBusinessRef = useRef(null);
+  const creditCounterRef = useRef(null);
+  const chatBoxAreaRef = useRef(null);
+  const [startTour, setStartTour] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+
   const campaignId = search.get("campaign_id");
   const shouldShowCampaign = !!campaignId;
 
@@ -199,7 +209,7 @@ export default function ArtiBotPage({
 
   const conversationId = search.get("conversation_id");
 
-  const useOld = localStorage.getItem("use_old") === "true";
+  useEffect(() => {}, []);
 
   const adCreative = useMemo(() => {
     // Merge all the variants into one adCreative object within one conversation
@@ -226,6 +236,48 @@ export default function ArtiBotPage({
     if (!adCreative) return setIsConversationCollapsible(false);
     setIsConversationCollapsible((c) => !c);
   }
+
+  const steps: TourProps["steps"] = useMemo(
+    () => [
+      {
+        title: "Business Details",
+        description:
+          "Add details of your business and you can add multiple businesses",
+        target: () => selectBusinessRef.current,
+        placememt: "bottom",
+      },
+      {
+        title: "Start Conversation",
+        description:
+          "Chat with our AI to create eye-catching social media posts and ads.",
+        // @ts-ignore
+        target: () => leftPaneRef.current?.newConversationButton,
+        placememt: "right",
+      },
+      {
+        title: "Sections",
+        description:
+          "In this area, you will be able to see all the sections like past conversations, ad creatives, campaigns and social media posts.",
+        // @ts-ignore
+        target: () => leftPaneRef.current?.leftPaneSectionContainer,
+        placememt: "right",
+      },
+      {
+        title: "Text Chat Area",
+        description:
+          "All the social media posts and ad creatives will be generated here once you chat with AI.",
+        target: () => chatBoxAreaRef.current,
+        placememt: "center",
+      },
+      {
+        title: "Remaining Credits",
+        description: "You will see your remaining credits here.",
+        target: () => creditCounterRef.current,
+        placement: "bottomLeft",
+      },
+    ],
+    [leftPaneRef, chatBoxAreaRef, creditCounterRef, selectBusinessRef]
+  );
 
   const dropdownItems: ArtiAiDropdownItem[] = useMemo(
     () => [
@@ -266,6 +318,15 @@ export default function ArtiBotPage({
     );
   }, [search]);
 
+  const handleClose = () => {
+    setStartTour(false);
+    window.localStorage.setItem("tour_completed", "true");
+  };
+  const handleOpen = () => {
+    const isTourDone = window.localStorage.getItem("tour_completed") === "true";
+    !isTourDone && setStartTour(true);
+  };
+
   const headerContent = (
     <div className="z-30 flex justify-between h-16 py-2 px-6 box-border items-center bg-secondaryBackground shadow-[0px_1px_1px_0px_#000]">
       {/* <ArtiAiDropdown
@@ -290,7 +351,9 @@ export default function ArtiBotPage({
           base: "max-w-[250px]",
         }}
       /> */}
-      <SelectBusiness />
+      <div ref={selectBusinessRef}>
+        <SelectBusiness handleOpen={handleOpen} />
+      </div>
       <div className="opacity-0 pointer-events-none">
         <CreditCounter />
       </div>
@@ -306,7 +369,9 @@ export default function ArtiBotPage({
             style={{ fontSize: "24px" }}
           />
         </Link>
-        <CreditCounter />
+        <div ref={creditCounterRef}>
+          <CreditCounter />
+        </div>
       </div>
     </div>
   );
@@ -314,7 +379,7 @@ export default function ArtiBotPage({
   return (
     <div className="w-full h-full overflow-hidden flex">
       <div>
-        <LeftPane />
+        <LeftPane ref={leftPaneRef} />
       </div>
       <div
         className={
@@ -327,6 +392,7 @@ export default function ArtiBotPage({
             "transition-none w-full overflow-hidden relative " +
             (isConversationCollapsible ? "h-[0] " : "h-full flex-1 ")
           }
+          ref={chatBoxAreaRef}
         >
           {conversationId ? (
             <>
@@ -417,6 +483,17 @@ export default function ArtiBotPage({
         )}
         <Tooltip id="edit-ad-variant-tooltip" />
       </div>
+      <Tour
+        open={startTour}
+        onClose={handleClose}
+        onFinish={handleClose}
+        steps={steps}
+        onChange={setTourStep}
+        placement={placements[tourStep]}
+        mask={{
+          color: "rgba(0,0,0,0.85)",
+        }}
+      />
     </div>
   );
 

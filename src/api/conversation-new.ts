@@ -11,6 +11,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import axios from "axios";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 export interface ClientMessageItem {
   content: string;
@@ -94,6 +96,14 @@ export const useGetConversationInfinite = <T extends "posts" | "none" = "none">(
   const { pushConversationsToState } = useConversation();
   const { business } = useBusiness();
   const qc = useQueryClient();
+  const searchParams = useSearchParams();
+  let queryConversationId: any = null;
+  const initialLoad = useRef(true);
+
+  if (initialLoad.current) {
+    queryConversationId = searchParams.get("conversation_id");
+    initialLoad.current = false;
+  }
 
   const fetchConversations = async (
     pageParam: any,
@@ -104,7 +114,6 @@ export const useGetConversationInfinite = <T extends "posts" | "none" = "none">(
     if (!businessId) {
       throw new Error("Business ID is required");
     }
-
     const state = qc.getQueryState(queryKey);
 
     const response = await axios.get(ROUTES.CONVERSATION.QUERY_INFINITE, {
@@ -128,7 +137,7 @@ export const useGetConversationInfinite = <T extends "posts" | "none" = "none">(
     queryFn: ({ pageParam, queryKey, direction, meta }: any) =>
       fetchConversations(pageParam, queryKey, direction),
     meta: {},
-    initialPageParam: { cursorId, include_cursor: true },
+    initialPageParam: { cursorId: queryConversationId, include_cursor: true },
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.length === 0 || lastPage.length < LIMIT) return undefined;
       return {

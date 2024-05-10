@@ -17,7 +17,7 @@ import {
   Switch,
   Tooltip,
 } from "@nextui-org/react";
-import { Key, useEffect, useRef } from "react";
+import { Key, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { object, string } from "yup";
 import { getSubmitText } from "../../../CreateAdManagerModal";
@@ -97,6 +97,15 @@ export default function CreateCampaign({
     setSelected,
     meta,
   } = useCampaignStore();
+
+  const immutableFields = useMemo((): Partial<
+    Record<keyof CreateCampaignFormValues, boolean>
+  > => {
+    if (storeFormState.mode !== "edit") return {};
+    return {
+      objective: true,
+    };
+  }, [storeFormState.mode]);
 
   // Watch form values
   const objectiveValue = watch("objective");
@@ -208,6 +217,7 @@ export default function CreateCampaign({
               label: "!text-gray-500",
             },
           }}
+          isDisabled={immutableFields["objective"]}
           label="Social Media Page"
           placeholder={"Select Objective"}
           onSelectionChange={(key: Key) => {

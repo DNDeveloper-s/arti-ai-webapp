@@ -36,28 +36,33 @@ interface Switch {
 
 interface AuthFormProps<T = string> {
   snackBarData: SnackbarData;
-  handleFormSubmit: (formValues: any, e: FormEvent) => Promise<boolean>;
+  handleFormSubmit: (
+    formValues: FormField<T>[],
+    e: FormEvent,
+    reset: () => void
+  ) => Promise<void>;
   formFields: FormField<T>[];
   formHeading: string;
   submitButtonLabel: string;
-  googleLabel: string;
-  facebookLabel: string;
+  googleLabel?: string;
+  facebookLabel?: string;
   initValues: Record<string, string>;
   successMessage: string;
   leftSwitch?: Switch;
   rightSwitch?: Switch;
   showSignInToButton?: boolean;
   showSignUpButton?: boolean;
+  isSubmitting?: boolean;
 }
 
-const AuthForm: FC<AuthFormProps> = (props) => {
+function AuthForm<T extends string>(props: AuthFormProps<T>) {
   const [snackBarData, setSnackBarData] =
     useContext(SnackbarContext).snackBarData;
   const [formValues, setFormValues] = useState<AuthFormProps["initValues"]>(
     props.initValues
   );
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { formFields } = props;
+  // const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { isSubmitting, formFields } = props;
 
   const isRequiredValid = (val: string) =>
     val !== null && val !== undefined && val.trim().length !== 0;
@@ -86,7 +91,7 @@ const AuthForm: FC<AuthFormProps> = (props) => {
     if (!isFormValid()) return;
 
     // Show something to the UI that the background process is in progress
-    setIsSubmitting(true);
+    // setIsSubmitting(true);
 
     const isSuccess = await props.handleFormSubmit(formValues, e, reset);
 
@@ -97,7 +102,7 @@ const AuthForm: FC<AuthFormProps> = (props) => {
     // 		status: 'success'
     // 	})
     // }
-    setIsSubmitting(false);
+    // setIsSubmitting(false);
   }
 
   function onInputChange(name: string, value: string) {
@@ -196,12 +201,14 @@ const AuthForm: FC<AuthFormProps> = (props) => {
                 Sign Up
               </Link>
             </span>
-            <Link
-              href={props.rightSwitch.to}
-              className="text-white text-opacity-60"
-            >
-              {props.rightSwitch.label}
-            </Link>
+            {props.rightSwitch && (
+              <Link
+                href={props.rightSwitch.to}
+                className="text-white text-opacity-60"
+              >
+                {props.rightSwitch.label}
+              </Link>
+            )}
           </div>
         )}
         {/*{(props.leftSwitch || props.rightSwitch) && <div className="w-full max-w-[900px] mx-auto text-sm px-3 flex justify-between items-center my-8">*/}
@@ -221,6 +228,6 @@ const AuthForm: FC<AuthFormProps> = (props) => {
       </div>
     </div>
   );
-};
+}
 
 export default AuthForm;

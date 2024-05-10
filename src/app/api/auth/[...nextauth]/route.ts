@@ -140,10 +140,7 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile, ...rest }) {
-      console.log("user - ", user);
-      console.log("account - ", account);
-      console.log("profile - ", profile);
-      console.log("rest - ", rest);
+      console.log("user from sign in - ", JSON.stringify(user));
       try {
         if (profile?.name) {
           // Split the "name" field into "first_name" and "last_name"
@@ -205,6 +202,7 @@ export const authOptions: AuthOptions = {
             await prisma.user.update({
               where: { email: user.email },
               data: {
+                emailVerified: new Date().toISOString(),
                 accounts: {
                   connect: {
                     provider_providerAccountId: {
@@ -222,6 +220,7 @@ export const authOptions: AuthOptions = {
                 email: user.email,
                 first_name,
                 last_name,
+                emailVerified: new Date().toISOString(),
                 // Other user properties
               },
             });
@@ -246,9 +245,18 @@ export const authOptions: AuthOptions = {
       } catch (e) {
         console.log(JSON.stringify(e));
       }
+      if (!user?.emailVerified) {
+        throw new Error("not_verified", {
+          cause: {
+            message: "Email not verified",
+            code: "not_verified",
+            data: user,
+          },
+        });
+      }
       return true;
     },
-    async redirect({ url, baseUrl }) {
+    async redirect({ url, baseUrl, ...rest }) {
       return baseUrl;
     },
     async session({ session, user, token }) {

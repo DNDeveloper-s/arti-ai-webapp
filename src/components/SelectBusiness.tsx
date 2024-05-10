@@ -8,7 +8,11 @@ import { Button } from "@nextui-org/react";
 import Link from "next/link";
 import CTAButton from "./CTAButton";
 
-export default function SelectBusiness() {
+export default function SelectBusiness({
+  handleOpen,
+}: {
+  handleOpen?: () => void;
+}) {
   const { data, isFetching, isSuccess, isFetched } = useQueryUserBusiness();
   const router = useRouter();
   const { business, setBusiness } = useBusiness();
@@ -16,6 +20,10 @@ export default function SelectBusiness() {
   useEffect(() => {
     router.prefetch("/business/register");
   }, [router]);
+
+  useEffect(() => {
+    isSuccess && handleOpen && handleOpen();
+  }, [isSuccess, handleOpen]);
 
   useEffect(() => {
     console.log("isFetching, data - ", isFetching, data);
@@ -54,7 +62,10 @@ export default function SelectBusiness() {
       }}
       onSelectionChange={(key: Key) => {
         const businessObj = data?.find((business) => business.id === key);
-        businessObj && setBusiness(businessObj);
+        router.replace("/artibot");
+        setTimeout(() => {
+          businessObj && setBusiness(businessObj);
+        }, 200);
       }}
       endContent={
         <MdEdit className="text-xl cursor-pointer" onClick={handleEdit} />

@@ -32,7 +32,7 @@ import {
   RadioGroup,
   Switch,
 } from "@nextui-org/react";
-import { Modal, Radio } from "antd";
+import { Modal, Radio, Tooltip } from "antd";
 import dayjs from "dayjs";
 import {
   Key,
@@ -43,6 +43,7 @@ import {
   useState,
 } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { MdDone, MdEmail } from "react-icons/md";
 
 import { string, object, boolean, number } from "yup";
@@ -289,6 +290,7 @@ export default function Settings() {
 
   const { mutate: postUpdateUser, isPending } = useUpdateUser();
   const [fileObj, setFileObj] = useState<File | null>(null);
+  const [showSocialMediaSettings, setShowSocialMediaSettings] = useState(false);
 
   const shouldValue = watch("should_send_weekly_insights_email");
   const firstNameValue = watch("firstName");
@@ -389,53 +391,77 @@ export default function Settings() {
           </span> */}
             {/* <span className="text-xs text-success">Email is verified</span> */}
           </div>
-          <div>
-            <Checkbox
-              size="md"
-              classNames={{ label: "text-small" }}
-              checked={shouldValue}
-              onValueChange={(value) => {
-                setValue("should_send_weekly_insights_email", value);
-              }}
-            >
-              Receive Weekly Insights Email
-            </Checkbox>
+          <div className="flex items-center justify-between my-2">
+            <div className="flex items-center gap-4">
+              <Checkbox
+                size="md"
+                classNames={{ label: "text-small" }}
+                checked={showSocialMediaSettings}
+                onValueChange={(value) => {
+                  setShowSocialMediaSettings(value);
+                }}
+              >
+                Receive Frequent Social Media Posts
+              </Checkbox>
+              <Tooltip
+                placement={"top"}
+                title={
+                  "We can help remind you or automatically generate social media post to keep engaging your audience on your social media page"
+                }
+              >
+                <AiOutlineQuestionCircle className={"cursor-pointer "} />
+              </Tooltip>
+            </div>
+            <div>
+              <Checkbox
+                size="md"
+                classNames={{ label: "text-small" }}
+                checked={shouldValue}
+                onValueChange={(value) => {
+                  setValue("should_send_weekly_insights_email", value);
+                }}
+              >
+                Receive Weekly Insights Email
+              </Checkbox>
+            </div>
           </div>
-          <div className="flex flex-col gap-4 mt-5">
-            <div className="w-full flex flex-col gap-3">
-              <LableWithTooltip
-                label="Social Media Settings"
-                content="How often do you want to make social media post"
-                color="default"
-                placement="bottom"
+          {showSocialMediaSettings && (
+            <div className="flex flex-col gap-4 mt-5">
+              <div className="w-full flex flex-col gap-3">
+                <LableWithTooltip
+                  label="Social Media Settings"
+                  content="How often do you want to make social media post"
+                  color="default"
+                  placement="bottom"
+                  classNames={{
+                    label: "text-tiny text-gray-500",
+                  }}
+                />
+                <SelectWithAutoComplete
+                  items={frequencies}
+                  label="Post Frequency"
+                  noControl={false}
+                  name="post_frequency"
+                  className="w-full"
+                />
+              </div>
+              <RadioGroup
+                label="Select the Post Creation Method"
+                orientation="horizontal"
+                className="w-full"
                 classNames={{
                   label: "text-tiny text-gray-500",
                 }}
-              />
-              <SelectWithAutoComplete
-                items={frequencies}
-                label="Post Frequency"
-                noControl={false}
-                name="post_frequency"
-                className="w-full"
-              />
+                size="sm"
+                value="reminder"
+              >
+                <Radio value="reminder">Remind via Email</Radio>
+                <Radio value="automatically_post" disabled isDisabled={true}>
+                  Automatically Create Post & Remind (Debit Credits)
+                </Radio>
+              </RadioGroup>
             </div>
-            <RadioGroup
-              label="Select the Post Creation Method"
-              orientation="horizontal"
-              className="w-full"
-              classNames={{
-                label: "text-tiny text-gray-500",
-              }}
-              size="sm"
-              value="reminder"
-            >
-              <Radio value="reminder">Remind via Email</Radio>
-              <Radio value="automatically_post" disabled isDisabled={true}>
-                Automatically Create Post & Remind (Debit Credits)
-              </Radio>
-            </RadioGroup>
-          </div>
+          )}
           <div className="my-4 flex justify-end gap-4">
             <Button
               color="default"
@@ -458,7 +484,7 @@ export default function Settings() {
         </form>
       </FormProvider>
       <Divider className="my-5" />
-      {/* {mounted && <SubscriptionDetails />} */}
+      {mounted && <SubscriptionDetails />}
       <Divider className="my-5" />
       <RefillCreditForm />
     </main>

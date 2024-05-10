@@ -16,6 +16,13 @@ interface ConversationSectionProps extends LeftPaneSectionBaseProps {}
 
 export default function ConversationSection(props: ConversationSectionProps) {
   const { queryConversationId } = useCurrentConversation();
+  const searchParams = useSearchParams();
+  // const queryConversationId1 = searchParams.get("conversation_id");
+  // console.log(
+  //   "queryConversationId - ",
+  //   queryConversationId,
+  //   queryConversationId1
+  // );
   const object = useGetConversationInfinite(queryConversationId);
 
   const {
@@ -35,7 +42,6 @@ export default function ConversationSection(props: ConversationSectionProps) {
 
   const noData = !conversations.length && !isLoading;
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const ref = useRef<any>(null);
 
@@ -47,7 +53,7 @@ export default function ConversationSection(props: ConversationSectionProps) {
   }, [pathname, searchParams.size]);
 
   useEffect(() => {
-    console.log("isFetching - ", isFetching, firstConversationId, ref.current);
+    // console.log("isFetching - ", isFetching, firstConversationId, ref.current);
     if (
       !isFetching &&
       ref.current.pathname &&

@@ -17,6 +17,11 @@ import Snackbar from "@/components/Snackbar";
 import GoogleSignInButton from "@/components/Auth/GoogleSigninButton";
 import AuthForm from "@/components/Auth/AuthForm";
 import { useRouter } from "next/navigation";
+import {
+  useSendEmailVerificationRequest,
+  useValidateVerificationCode,
+} from "@/api/auth";
+import { VerifyEmailScreen } from "./register/page";
 
 interface FormFieldObject<T> {
   id: string;
@@ -43,6 +48,7 @@ export default function Auth() {
   const [snackBarData, setSnackBarData] =
     useContext(SnackbarContext).snackBarData;
   const router = useRouter();
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
 
   const formFields: FormField<AUTH_FIELD_NAME>[] = [
     {
@@ -72,20 +78,93 @@ export default function Auth() {
   // 	}
   // }
 
-  async function handleSignIn(
-    formValues: FormValues,
-    e: FormEvent
-  ): Promise<boolean> {
+  const [sentCodeCount, setSentCodeCount] = useState(0);
+  const { mutate, isSuccess, isPending } = useSendEmailVerificationRequest();
+  const [stepCount, setStepCount] = useState(0);
+  const [formValues, setFormValues] = useState<any>(null);
+  const { mutate: postValidateCode, isPending: isVerifying } =
+    useValidateVerificationCode({
+      onSuccess: async () => {
+        try {
+          setSnackBarData({
+            message: "Preparing dashboard...",
+            status: "progress",
+          });
+
+          const res = await signIn("credentials", {
+            ...formValues,
+            redirect: false,
+          });
+
+          if (res?.error) {
+            setSnackBarData({
+              message: "Something went wrong!",
+              status: "error",
+            });
+          } else {
+            setSnackBarData(null);
+            router.push("/business/register");
+          }
+        } catch (e: any) {
+          setSnackBarData({
+            message: e.message ?? "Something went wrong!",
+            status: "error",
+          });
+        }
+      },
+      onError: (e) => {
+        setSnackBarData({
+          message: e.message ?? "Invalid code",
+          status: "error",
+        });
+      },
+    });
+
+  useEffect(() => {
+    if (isSuccess) {
+      setSentCodeCount((prev) => prev + 1);
+      setShowEmailVerification(true);
+    }
+  }, [isSuccess]);
+
+  const handleResendCode = async () => {
+    formValues.email &&
+      mutate({
+        email: formValues.email,
+        type: "verifyEmail",
+      });
+  };
+
+  const handleVerify = async (code: string) => {
+    // router.push("/business/register");
+    postValidateCode({ code });
+  };
+
+  async function handleSignIn(_formValues: FormValues, e: FormEvent) {
     // Check for the email if it already registered or not
     // const doesExist = await isEmailAlreadyRegistered(formValues.email);
     // console.log('doesExist - ', doesExist);
+    setFormValues(_formValues);
     const res = await signIn("credentials", {
-      ...formValues,
+      ..._formValues,
       callbackUrl: "/",
       redirect: false,
     });
 
+    console.log("res from line 88 - ", res);
+
     if (res?.error) {
+      if (res.error === "not_verified") {
+        setSnackBarData({
+          message: "Sending the code to your email to verify...",
+          status: "progress",
+        });
+        return mutate({
+          // @ts-ignore
+          email: _formValues.email,
+          type: "verifyEmail",
+        });
+      }
       setSnackBarData({
         message: "Email/password combination is incorrect",
         status: "error",
@@ -93,44 +172,39 @@ export default function Auth() {
     } else {
       router.push("/");
     }
-
-    //
-    // // If it is already registered, show them the message
-    // if(!isSuccess) {
-    // 	setSnackBarData({
-    // 		message: 'Credentials are incorrect. Please try again!',
-    // 		status: 'error'
-    // 	})
-    // 	return false;
-    // }setSnackBarData
-    // //
-    // // // Else, make the call to the backend with all the form fields
-    // // await postNewUser(formValues);
-    // return true;
   }
 
-  return (
-    <>
-      <AuthForm
-        formFields={formFields}
-        formHeading={"Sign In to Arti AI"}
-        initValues={initValues}
-        submitButtonLabel={"Sign In"}
-        googleLabel={"Sign In with Google"}
-        facebookLabel={"Sign In with Facebook"}
-        handleFormSubmit={handleSignIn}
-        snackBarData={snackBarData}
-        successMessage={"Signed in successfully!"}
-        showSignUpButton
-        leftSwitch={{
-          label: "Sign Up",
-          to: "/auth/register",
-        }}
-        rightSwitch={{
-          label: "Forgot Password?",
-          to: "#",
-        }}
-      />
-    </>
+  return !showEmailVerification ? (
+    <AuthForm
+      formFields={formFields}
+      formHeading={"Sign In to Arti AI"}
+      initValues={initValues}
+      submitButtonLabel={"Sign In"}
+      googleLabel={"Sign In with Google"}
+      facebookLabel={"Sign In with Facebook"}
+      handleFormSubmit={handleSignIn}
+      snackBarData={snackBarData}
+      successMessage={"Signed in successfully!"}
+      showSignUpButton
+      leftSwitch={{
+        label: "Sign Up",
+        to: "/auth/register",
+      }}
+      rightSwitch={{
+        label: "Forgot Password?",
+        to: "#",
+      }}
+      isSubmitting={isPending}
+    />
+  ) : (
+    <VerifyEmailScreen
+      key={sentCodeCount}
+      email={formValues.email}
+      handleResendCode={handleResendCode}
+      handleChangeEmail={() => setStepCount(0)}
+      handleVerify={handleVerify}
+      isVerifying={isVerifying}
+      isResending={isPending}
+    />
   );
 }

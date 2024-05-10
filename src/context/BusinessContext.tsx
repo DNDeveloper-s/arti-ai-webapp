@@ -121,8 +121,6 @@ const useBusinessContext = (initState: IBusinessState) => {
   const selectedBusinessIdRef = useRef<string | null>(null);
   const token = useSessionToken();
 
-  const router = useRouter();
-
   useEffect(() => {
     if (!token) return;
     if (!selectedBusinessIdRef.current && data) {
@@ -146,11 +144,6 @@ const useBusinessContext = (initState: IBusinessState) => {
         (b) => b.id === selectedBusinessIdRef.current
       );
       const businessToSelect = _business ?? data[0];
-      console.log(
-        "businessToSelect 1",
-        businessToSelect,
-        selectedBusinessIdRef.current
-      );
       if (!businessToSelect) return;
       setBusiness(businessToSelect);
       selectedBusinessIdRef.current = businessToSelect.id;

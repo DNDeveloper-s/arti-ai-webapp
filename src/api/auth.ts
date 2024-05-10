@@ -82,17 +82,19 @@ export const useValidateVerificationCode = (
       onSettled && onSettled(data, error, variables, ...rest);
     },
     onSuccess: (data, variables, ...rest) => {
-      setSnackbarData({
-        message: "Email verified successfully",
-        status: "success",
-      });
+      !onSuccess &&
+        setSnackbarData({
+          message: "Email verified successfully",
+          status: "success",
+        });
       onSuccess && onSuccess(data, variables, ...rest);
     },
     onError: (error, variables, ...rest) => {
-      setSnackbarData({
-        message: error?.message ?? "Error in verifying the emal",
-        status: "error",
-      });
+      !onError &&
+        setSnackbarData({
+          message: error?.message ?? "Error in verifying the emal",
+          status: "error",
+        });
       onError && onError(error, variables, ...rest);
     },
     ...options,

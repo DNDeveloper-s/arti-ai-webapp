@@ -29,6 +29,7 @@ import Numbers from "@/components/LandingPage/Numbers";
 import CaseStudies from "@/components/LandingPage/CaseStudies";
 import ServiceIntroduction from "./ServiceIntroduction";
 import WhyUsNew from "../LandingPage/WhyUsNew";
+import WhatCanYouDo from "../LandingPage/WhatCanYouDo";
 
 function calculateScrollDepth() {
   const scrollHeight = document.documentElement.scrollHeight;
@@ -102,6 +103,17 @@ export default function ProductLandingPage() {
     };
   }, [clientId]);
 
+  useEffect(() => {
+    const handleEvent = (event: any) => {
+      console.log("event - ", event);
+    };
+    window.addEventListener("storage", handleEvent);
+
+    return () => {
+      window.removeEventListener("storage", handleEvent);
+    };
+  }, []);
+
   return (
     <>
       <ScreenLoader />
@@ -109,6 +121,7 @@ export default function ProductLandingPage() {
       <main>
         {/*<Logo />*/}
         <Hero />
+        <WhyUsNew />
         {isMounted && (isSmallScreen || isPortrait) ? (
           <Services_Sm />
         ) : (
@@ -116,6 +129,7 @@ export default function ProductLandingPage() {
         )}
         {isSmallScreen && <ServiceIntroduction />}
         <Numbers />
+        <WhatCanYouDo />
         <CaseStudies />
         <Testimonials />
         {/*<BgAttachment />*/}
@@ -138,7 +152,7 @@ export default function ProductLandingPage() {
             />
           </div>
         </div> */}
-        <WhyUs focusedSection={focusedSection} />
+        {/* <WhyUs focusedSection={focusedSection} /> */}
         <Contact />
         {showTryButton && <TryForFreeButton label={"Join Waitlist"} />}
         <Footer />

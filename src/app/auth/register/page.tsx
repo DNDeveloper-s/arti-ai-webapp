@@ -3,6 +3,7 @@ import React, {
   FormEvent,
   HTMLInputTypeAttribute,
   useContext,
+  useEffect,
   useState,
 } from "react";
 import Logo from "@/components/Logo";
@@ -17,7 +18,91 @@ import GoogleSignInButton from "@/components/Auth/GoogleSigninButton";
 import AuthForm from "@/components/Auth/AuthForm";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useSendEmailVerificationRequest } from "@/api/auth";
+import {
+  useSendEmailVerificationRequest,
+  useValidateVerificationCode,
+} from "@/api/auth";
+import Lottie from "lottie-react";
+import { Button } from "@nextui-org/react";
+import OtpInput from "react-otp-input";
+import verifyEmailAnimation from "@/assets/lottie/verify-email.json";
+
+interface VerifyEmailScreenProps {
+  email: string | null;
+  handleResendCode: () => void;
+  handleChangeEmail: () => void;
+  handleVerify: (code: string) => void;
+  isVerifying: boolean;
+  isResending: boolean;
+}
+export const VerifyEmailScreen = (props: VerifyEmailScreenProps) => {
+  const [otp, setOtp] = useState("");
+  const isOtpValid = otp.length === 6;
+  return (
+    <div className="w-screen h-screen flex items-center justify-center bg-black">
+      <div className="w-screen max-w-[300px]">
+        <div className="flex flex-col items-center justify-center">
+          <Logo asLink width={50} height={50} />
+          <h1 className="text-xl font-diatype mt-3 mb-4">Verify your email</h1>
+        </div>
+        <div className="flex items-center justify-center">
+          <Lottie
+            className={"w-64 h-64"}
+            animationData={verifyEmailAnimation}
+          />
+        </div>
+        <div className="text-sm text-center flex flex-col gap-1">
+          <p className="text-white text-opacity-50">
+            Please Enter the 6 Digit Code sent to
+          </p>
+          <p>{props.email}</p>
+        </div>
+        <div className="flex items-center justify-center my-5">
+          <OtpInput
+            value={otp}
+            onChange={setOtp}
+            numInputs={6}
+            shouldAutoFocus
+            renderSeparator={<span className="opacity-0">--</span>}
+            renderInput={(props) => (
+              <input
+                {...props}
+                className="h-10 !w-10 border-b border-gray-700 focus-visible:border-primary focus-visible:outline-none"
+              />
+            )}
+          />
+        </div>
+        <div>
+          <Button
+            className="w-full text-primary text-sm inline-block hover:underline bg-transparent"
+            onClick={props.handleResendCode}
+            variant="flat"
+            color="primary"
+            isLoading={props.isResending}
+          >
+            Resend Code
+          </Button>
+          <Button
+            color="primary"
+            className="w-full mt-7"
+            onClick={() => props.handleVerify(otp)}
+            isDisabled={!isOtpValid}
+            disabled={!isOtpValid}
+            isLoading={props.isVerifying}
+          >
+            Verify
+          </Button>
+          <button
+            className="w-full text-primary mt-5 text-sm inline-block hover:underline"
+            onClick={props.handleChangeEmail}
+          >
+            Change Email
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface FormFieldObject<T> {
   id: string;
@@ -48,7 +133,48 @@ export default function Auth() {
   const router = useRouter();
   const [snackBarData, setSnackBarData] =
     useContext(SnackbarContext).snackBarData;
-  const { mutate } = useSendEmailVerificationRequest();
+  const [sentCodeCount, setSentCodeCount] = useState(0);
+  const { mutate, isSuccess, isPending } = useSendEmailVerificationRequest();
+  const [stepCount, setStepCount] = useState(0);
+  const [formValues, setFormValues] = useState<any>(null);
+  const { mutate: postValidateCode, isPending: isVerifying } =
+    useValidateVerificationCode({
+      onSuccess: async () => {
+        try {
+          setSnackBarData({
+            message: "Preparing dashboard...",
+            status: "progress",
+          });
+
+          const res = await signIn("credentials", {
+            ...formValues,
+            callbackUrl: "/business/register",
+            redirect: false,
+          });
+
+          if (res?.error) {
+            setSnackBarData({
+              message: "Something went wrong!",
+              status: "error",
+            });
+          } else {
+            setSnackBarData(null);
+            router.push("/business/register");
+          }
+        } catch (e: any) {
+          setSnackBarData({
+            message: e.message ?? "Something went wrong!",
+            status: "error",
+          });
+        }
+      },
+      onError: (e) => {
+        setSnackBarData({
+          message: e.message ?? "Invalid code",
+          status: "error",
+        });
+      },
+    });
 
   const formFields: FormField<REGISTER_FIELD_NAME>[] = [
     [
@@ -78,85 +204,22 @@ export default function Auth() {
     },
   ];
 
-  async function isEmailAlreadyRegistered(email: string) {
-    const usersString = localStorage.getItem("users");
-    await wait(2000);
-    if (!usersString) return false;
-    try {
-      const users = JSON.parse(usersString);
-      if (!(users instanceof Array)) return false;
-      return users.some((c) => c.email === email);
-    } catch (e) {
-      return false;
-    }
-  }
-
-  async function postNewUser(formValues: FormValues) {
-    const usersString = localStorage.getItem("users");
-    let users = [];
-    try {
-      if (usersString) {
-        const _users = JSON.parse(usersString);
-        if (!(_users instanceof Array)) users = [];
-        else users = _users;
-      }
-    } catch (e) {
-      users = [];
-    }
-
-    users.push(formValues);
-    localStorage.setItem("users", JSON.stringify(users));
-    await wait(2000);
-    return true;
-  }
-
-  async function handleRegister(
+  async function sendEmailVerificationCode(
     formValues: FormField<REGISTER_FIELD_NAME>[],
     e: FormEvent,
     reset: () => void
   ) {
     try {
-      const response = await axios.post("/api/auth/register", {
+      setFormValues(formValues);
+      await axios.post("/api/auth/register", {
         values: formValues,
       });
-
-      // Check for the email if it already registered or not
-      // const doesExist = await isEmailAlreadyRegistered(formValues.email);
-      // console.log('doesExist - ', doesExist);
-      //
-      // // If it is already registered, show them the message
-      // if(doesExist) {
-      // 	setSnackBarData({
-      // 		message: 'Email is already registered with us. Try logging in.',
-      // 		status: 'error'
-      // 	})
-      // 	return false;
-      // }
-      //
-      // // Else, make the call to the backend with all the form fields
-      // await postNewUser(formValues);
-      if (response.data.ok) reset();
-
-      const res = await signIn("credentials", {
-        ...formValues,
-        callbackUrl: "/business/register",
-        redirect: false,
+      mutate({
+        // @ts-ignore
+        email: formValues.email,
+        type: "verifyEmail",
       });
-
-      if (res?.error) {
-        setSnackBarData({
-          message: "Something went wrong!",
-          status: "error",
-        });
-      } else {
-        mutate({
-          // @ts-ignore
-          email: formValues.email,
-          type: "verifyEmail",
-        });
-        router.push("/business/register");
-      }
-    } catch (e: any) {
+    } catch (e) {
       setSnackBarData({
         message: e.message ?? "Something went wrong!",
         status: "error",
@@ -164,17 +227,48 @@ export default function Auth() {
     }
   }
 
-  return (
+  useEffect(() => {
+    if (isSuccess) {
+      setSentCodeCount((prev) => prev + 1);
+      setStepCount(1);
+    }
+  }, [isSuccess]);
+
+  const handleResendCode = async () => {
+    formValues.email &&
+      mutate({
+        email: formValues.email,
+        type: "verifyEmail",
+      });
+  };
+
+  const handleVerify = async (code: string) => {
+    // router.push("/business/register");
+    postValidateCode({ code });
+  };
+
+  return stepCount === 0 ? (
     <AuthForm<REGISTER_FIELD_NAME>
       formFields={formFields}
       formHeading={"Sign Up to Arti AI"}
       initValues={initValues}
-      submitButtonLabel={"Sign Up"}
+      submitButtonLabel={"Continue"}
       googleLabel={"Sign Up with Google"}
-      handleFormSubmit={handleRegister}
+      handleFormSubmit={sendEmailVerificationCode}
       snackBarData={snackBarData}
       successMessage={"Registered successfully!"}
       showSignInToButton={true}
+      isSubmitting={isPending}
+    />
+  ) : (
+    <VerifyEmailScreen
+      key={sentCodeCount}
+      email={formValues.email}
+      handleResendCode={handleResendCode}
+      handleChangeEmail={() => setStepCount(0)}
+      handleVerify={handleVerify}
+      isVerifying={isVerifying}
+      isResending={isPending}
     />
   );
 }

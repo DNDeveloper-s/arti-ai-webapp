@@ -17,6 +17,7 @@ import {
 } from "@/interfaces/IUser";
 import { useSession } from "next-auth/react";
 import { useGetMe } from "@/api/user";
+import { useQueryClient } from "@tanstack/react-query";
 
 export enum SupportedPlatform {
   facebook = "facebook",
@@ -151,6 +152,7 @@ const useUserContext = (initState: IUserState) => {
   const session = useSession();
   const { data: userData, isSuccess, isError } = useGetMe();
   // const {} = useGetFacebookPro;
+  const qc = useQueryClient();
 
   useEffect(() => {
     if (!isError) return;
@@ -194,8 +196,10 @@ const useUserContext = (initState: IUserState) => {
           data: null,
         },
       });
+    } else {
+      qc.resetQueries();
     }
-  }, [session]);
+  }, [session, qc]);
 
   const setFacebookAccessToken = useCallback(
     (userAccessToken: IUserData["facebook"]["userAccessToken"]) => {
@@ -332,7 +336,7 @@ export async function linkAccount(
   });
 
   try {
-    const response = await axios.post(ROUTES.USERS.LINK_ACCOUNT(data.userId), {
+    const response = await axios.post(ROUTES.USERS.LINK_ACCOUNT, {
       account: data,
     });
 
