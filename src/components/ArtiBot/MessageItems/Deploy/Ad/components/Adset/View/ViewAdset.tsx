@@ -44,6 +44,7 @@ import {
 import { SnackbarContext } from "@/context/SnackbarContext";
 import SwitchStatus from "../../SwitchStatus";
 import { getResultsFromInsights } from "../../Ads/View/ViewAds";
+import { wait } from "@/helpers";
 
 const columns = [
   { name: "OFF/ON", uid: "status" },
@@ -114,6 +115,57 @@ export default function ViewAdset() {
   useEffect(() => {
     setShowProgress(isUpdating);
   }, [isUpdating, setShowProgress]);
+
+  const editAdset = (adsetId: string) => {
+    try {
+      const currentAdset = adsets?.find(
+        (adset: IAdSet) => adset.id === adsetId
+      );
+
+      if (!currentAdset) {
+        throw new Error("Please select a single adset to edit");
+      }
+
+      setFormState({
+        tab: CampaignTab.ADSETS,
+        open: true,
+        mode: "edit",
+        rawData: currentAdset,
+      });
+    } catch (e: any) {
+      setSnackBarData({
+        status: "error",
+        message: e.message,
+      });
+    }
+  };
+
+  function handleAddClick() {
+    setFormState({
+      open: true,
+      tab: CampaignTab.ADSETS,
+      mode: "create",
+    });
+  }
+
+  function handleEditClick() {
+    try {
+      const currentAdsetId =
+        selected.adsets instanceof Set &&
+        (selected.adsets.values().next().value as string);
+
+      if (!currentAdsetId) {
+        throw new Error("Please select a single adset to edit");
+      }
+
+      editAdset(currentAdsetId);
+    } catch (e: any) {
+      setSnackBarData({
+        status: "error",
+        message: e.message,
+      });
+    }
+  }
 
   const renderCell = useCallback(
     (adset: any, columnKey: Key) => {
@@ -192,9 +244,41 @@ export default function ViewAdset() {
                   </Button>
                 </DropdownTrigger>
                 <DropdownMenu>
-                  <DropdownItem>View</DropdownItem>
-                  <DropdownItem>Edit</DropdownItem>
-                  <DropdownItem>Delete</DropdownItem>
+                  <DropdownItem
+                    onClick={() => {
+                      // queryClient.invalidateQueries({
+                      //   queryKey: API_QUERIES.GET_CAMPAIGNS(
+                      //     accessToken,
+                      //     accountId
+                      //   ),
+                      // });
+                      editAdset(adset.id);
+                    }}
+                  >
+                    View
+                  </DropdownItem>
+                  <DropdownItem
+                    onClick={() => {
+                      editAdset(adset.id);
+                    }}
+                  >
+                    Edit
+                  </DropdownItem>
+                  <DropdownItem
+                    onClick={async () => {
+                      setSnackBarData({
+                        message: "Deleting the ad...",
+                        status: "progress",
+                      });
+                      await wait(2000);
+                      setSnackBarData({
+                        message: "Error in deleting the ad!",
+                        status: "error",
+                      });
+                    }}
+                  >
+                    Delete
+                  </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             </div>
@@ -205,42 +289,6 @@ export default function ViewAdset() {
     },
     [viewAdsByAdset, handleToggle]
   );
-
-  function handleAddClick() {
-    setFormState({
-      open: true,
-      tab: CampaignTab.ADSETS,
-      mode: "create",
-    });
-  }
-
-  function handleEditClick() {
-    try {
-      const currentAdsetId =
-        selected.adsets instanceof Set &&
-        (selected.adsets.values().next().value as string);
-
-      const currentAdset = adsets?.find(
-        (adset: IAdSet) => adset.id === currentAdsetId
-      );
-
-      if (!currentAdset) {
-        throw new Error("Please select a single adset to edit");
-      }
-
-      setFormState({
-        tab: CampaignTab.ADSETS,
-        open: true,
-        mode: "edit",
-        rawData: currentAdset,
-      });
-    } catch (e: any) {
-      setSnackBarData({
-        status: "error",
-        message: e.message,
-      });
-    }
-  }
 
   return (
     <UiTable

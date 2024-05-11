@@ -75,6 +75,16 @@ export default function ProductLandingPage() {
               client_identifier: clientId,
             });
 
+            logEvent({
+              event: GTM_EVENT.ELEMENT_VISIBLE,
+              event_category: "Engagement",
+              event_label: "Element Visible",
+              value: sectionIndex,
+              client_identifier: clientId,
+              timeSpent: 24,
+              tag_id: "element_visible",
+            });
+
             sectionLoggedRef.current.set(sectionIndex, true);
           }
           // Log your event or perform any other action here

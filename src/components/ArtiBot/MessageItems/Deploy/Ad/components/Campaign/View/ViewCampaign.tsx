@@ -42,6 +42,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import API_QUERIES from "@/config/api-queries";
 import SwitchStatus from "../../SwitchStatus";
 import { ICampaignInfinite, useGetInifiniteCampaigns } from "@/api/admanager";
+import { wait } from "@/helpers";
 
 const delay = (delay: number) =>
   new Promise((res) => {
@@ -119,6 +120,53 @@ export default function ViewCampaign(
     [postUpdateCampaign]
   );
 
+  function handleAddClick() {
+    setFormState({ tab: CampaignTab.CAMPAIGNS, open: true, mode: "create" });
+  }
+
+  function editCampaign(campaignId: string) {
+    try {
+      const currentCampaign = campaigns?.find(
+        (campaign: ICampaignInfinite) => campaign.id === campaignId
+      );
+
+      if (!currentCampaign) {
+        throw new Error("Please select a single campaign to edit");
+      }
+
+      setFormState({
+        tab: CampaignTab.CAMPAIGNS,
+        open: true,
+        mode: "edit",
+        rawData: currentCampaign,
+      });
+    } catch (e: any) {
+      setSnackBarData({
+        status: "error",
+        message: e.message,
+      });
+    }
+  }
+
+  function handleEditClick() {
+    try {
+      const currentCampaignId =
+        selected.campaigns instanceof Set &&
+        (selected.campaigns.values().next().value as string);
+
+      if (!currentCampaignId) {
+        throw new Error("Please select a single campaign to edit");
+      }
+
+      editCampaign(currentCampaignId);
+    } catch (e: any) {
+      setSnackBarData({
+        status: "error",
+        message: e.message,
+      });
+    }
+  }
+
   const renderCell = useCallback(
     (campaign: IAdCampaign, columnKey: Key) => {
       const cellValue = campaign[columnKey as keyof IAdCampaign];
@@ -179,12 +227,33 @@ export default function ViewCampaign(
                           accountId
                         ),
                       });
+                      editCampaign(campaign.id);
                     }}
                   >
                     View
                   </DropdownItem>
-                  <DropdownItem>Edit</DropdownItem>
-                  <DropdownItem>Delete</DropdownItem>
+                  <DropdownItem
+                    onClick={() => {
+                      editCampaign(campaign.id);
+                    }}
+                  >
+                    Edit
+                  </DropdownItem>
+                  <DropdownItem
+                    onClick={async () => {
+                      setSnackBarData({
+                        message: "Deleting the campaign...",
+                        status: "progress",
+                      });
+                      await wait(2000);
+                      setSnackBarData({
+                        message: "Error in deleting the campaign!",
+                        status: "error",
+                      });
+                    }}
+                  >
+                    Delete
+                  </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             </div>
@@ -195,38 +264,6 @@ export default function ViewCampaign(
     },
     [viewAdsetsByCampaign, handleToggle, queryClient, accessToken, accountId]
   );
-
-  function handleAddClick() {
-    setFormState({ tab: CampaignTab.CAMPAIGNS, open: true, mode: "create" });
-  }
-
-  function handleEditClick() {
-    try {
-      const currentCampaignId =
-        selected.campaigns instanceof Set &&
-        (selected.campaigns.values().next().value as string);
-
-      const currentCampaign = campaigns?.find(
-        (campaign: ICampaignInfinite) => campaign.id === currentCampaignId
-      );
-
-      if (!currentCampaign) {
-        throw new Error("Please select a single campaign to edit");
-      }
-
-      setFormState({
-        tab: CampaignTab.CAMPAIGNS,
-        open: true,
-        mode: "edit",
-        rawData: currentCampaign,
-      });
-    } catch (e: any) {
-      setSnackBarData({
-        status: "error",
-        message: e.message,
-      });
-    }
-  }
 
   return (
     <UiTable<IAdCampaign>

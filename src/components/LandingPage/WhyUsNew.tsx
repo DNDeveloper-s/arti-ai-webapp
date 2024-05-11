@@ -17,6 +17,77 @@ const videosUrl = [
   "/videos/deploy.mp4",
 ];
 
+const whyUsNewData = [
+  {
+    id: 1,
+    title: "Ad Creation",
+    description:
+      "Captivate your audience with visually stunning and compelling ads tailored to your brand and target audience.",
+    children: (
+      <video
+        className={"w-[260px] md:w-[320px] h-[260px] md:h-[320px]"}
+        src="/videos/ad-creation.mp4"
+        controls={false}
+        autoPlay={true}
+        loop={true}
+        muted={true}
+      ></video>
+    ),
+  },
+  {
+    id: 2,
+    title: "Marketing Funnel Optimization",
+    description:
+      "Streamline your customer journey with a well-defined and optimized marketing funnel, from awareness to conversion.",
+    children: (
+      <Lottie
+        className={"w-[230px] md:w-[300px] h-[230px] md:h-[300px]"}
+        animationData={funnelAnim}
+        loop={true}
+      />
+    ),
+  },
+  {
+    id: 3,
+    title: "Brand Voice Development",
+    description:
+      "Define and refine your brand voice to create a consistent and authentic brand experience that resonates with your audience.",
+    children: (
+      <Lottie
+        className={"w-[230px] md:w-[300px] h-[230px] md:h-[300px]"}
+        animationData={adDeploymentAnim}
+        loop={true}
+      />
+    ),
+  },
+  {
+    id: 4,
+    title: "Omni-Platform Connectivity",
+    description:
+      "Seamlessly connect with all major platforms, including Meta, TikTok, and email marketing, to maximize your reach and impact.",
+    children: (
+      <Lottie
+        className={"w-[230px] md:w-[300px] h-[230px] md:h-[300px]"}
+        animationData={socialPlatformsAnim}
+        loop={true}
+      />
+    ),
+  },
+  {
+    id: 5,
+    title: "Chat with AI",
+    description:
+      "Elevate your business with Arti, your AI-driven powerhouse for enhancing social media presence and innovative marketing.",
+    children: (
+      <Lottie
+        className={"w-[230px] md:w-[300px] h-[230px] md:h-[300px]"}
+        animationData={startChatAnim}
+        loop={true}
+      />
+    ),
+  },
+];
+
 export default function WhyUsNew() {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -28,149 +99,43 @@ export default function WhyUsNew() {
     <div
       id="why-us"
       data-groupid="landing-section"
-      className="landing-page-section py-20 !pb-0 md:py-40 flex gap-6 flex-col md:flex-row"
+      className="landing-page-section py-20 pb-40 !md:pb-0 md:py-40"
     >
-      <div className="flex-1 w-full flex flex-col items-start gap-6">
-        <div className="flex w-full justify-between gap-8">
-          <div
-            className={
-              "flex-1 flex flex-col justify-center gap-2 py-4 pl-7 cursor-pointer "
-            }
-          >
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                {/* <HiMiniMegaphone className="text-[38px]" /> */}
-                <h2 className="text-[38px] font-semibold">Ad Creation</h2>
+      <div className="block text-center">
+        <h3 className="landing-page-grad-title inline-block pl-0">Why Us</h3>
+      </div>
+      <div className="flex gap-6 flex-col md:flex-row">
+        <div className="flex-1 w-full flex flex-col items-start gap-28 md:gap-16">
+          {whyUsNewData.map((data, index) => (
+            <div
+              key={data.id}
+              className={
+                "flex w-full justify-between gap-5 md:gap-8 " +
+                (index % 2 === 0
+                  ? "flex-col md:flex-row"
+                  : " flex-col md:flex-row-reverse")
+              }
+            >
+              <div className="flex justify-center">{data.children}</div>
+              <div
+                className={
+                  "flex-1 flex flex-col justify-center gap-2 py-4 pl-7 cursor-pointer items-center " +
+                  (index % 2 === 0 ? "md:items-end" : "md:items-start ")
+                }
+              >
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <h2 className="text-[32px] md:text-[38px] font-semibold max-w-[450px]">
+                      {data.title}
+                    </h2>
+                  </div>
+                  <p className="text-[14px] md:text-[17px] text-gray-400 tracking-wide leading-normal max-w-[400px]">
+                    {data.description}
+                  </p>
+                </div>
               </div>
-              <p className="text-[17px] text-gray-400 tracking-wide leading-normal max-w-[400px]">
-                Captivate your audience with visually stunning and compelling
-                ads tailored to your brand and target audience.
-              </p>
             </div>
-          </div>
-          <div>
-            <video
-              className={"w-[380px] h-[380px]"}
-              src="/videos/ad-creation.mp4"
-              controls={false}
-              autoPlay={true}
-              loop={true}
-              muted={true}
-            ></video>
-            {/* <Lottie
-              className={"w-[380px] h-[380px]"}
-              animationData={socialAnim}
-              loop={true}
-            /> */}
-          </div>
-        </div>
-        <div className="flex w-full justify-between gap-8">
-          <div>
-            <Lottie
-              className={"w-[300px] h-[300px]"}
-              animationData={funnelAnim}
-              loop={true}
-            />
-          </div>
-          <div
-            className={
-              "flex-1 flex flex-col justify-center items-end py-4 pl-7 cursor-pointer "
-            }
-          >
-            <div>
-              <div className="flex items-start gap-2 mb-4">
-                {/* <FaFunnelDollar className="text-[38px] mt-2.5" /> */}
-                <h2 className="text-[38px] font-semibold leading-tight max-w-[450px]">
-                  Marketing Funnel Optimization
-                </h2>
-              </div>
-              <p className="text-[17px] text-gray-400 tracking-wide leading-normal max-w-[400px]">
-                Streamline your customer journey with a well-defined and
-                optimized marketing funnel, from awareness to conversion.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex w-full justify-between gap-8">
-          <div
-            className={
-              "flex-1 flex flex-col justify-center items-start py-4 pl-7 cursor-pointer "
-            }
-          >
-            <div>
-              <div className="flex items-start gap-2 mb-4">
-                {/* <FaFunnelDollar className="text-[38px] mt-2.5" /> */}
-                <h2 className="text-[38px] font-semibold leading-tight max-w-[450px]">
-                  Brand Voice Development
-                </h2>
-              </div>
-              <p className="text-[17px] text-gray-400 tracking-wide leading-normal max-w-[400px]">
-                Define and refine your brand voice to create a consistent and
-                authentic brand experience that resonates with your audience.
-              </p>
-            </div>
-          </div>
-          <div>
-            <Lottie
-              className={"w-[380px] h-[380px]"}
-              animationData={adDeploymentAnim}
-              loop={true}
-            />
-          </div>
-        </div>
-        <div className="flex w-full justify-between gap-8">
-          <div>
-            <Lottie
-              className={"w-[380px] h-[380px]"}
-              animationData={socialPlatformsAnim}
-              loop={true}
-            />
-          </div>
-          <div
-            className={
-              "flex-1 flex flex-col justify-center items-end py-4 pl-7 cursor-pointer "
-            }
-          >
-            <div>
-              <div className="flex items-start gap-2 mb-4">
-                {/* <FaFunnelDollar className="text-[38px] mt-2.5" /> */}
-                <h2 className="text-[38px] font-semibold leading-tight max-w-[450px]">
-                  Omni-Platform Connectivity
-                </h2>
-              </div>
-              <p className="text-[17px] text-gray-400 tracking-wide leading-normal max-w-[400px]">
-                Seamlessly connect with all major platforms, including Meta,
-                TikTok, and email marketing, to maximize your reach and impact.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex w-full justify-between gap-8">
-          <div
-            className={
-              "flex-1 flex flex-col justify-center items-start py-4 pl-7 cursor-pointer "
-            }
-          >
-            <div>
-              <div className="flex items-start gap-2 mb-4">
-                {/* <FaFunnelDollar className="text-[38px] mt-2.5" /> */}
-                <h2 className="text-[38px] font-semibold leading-tight max-w-[450px]">
-                  Chat with AI
-                </h2>
-              </div>
-              <p className="text-[17px] text-gray-400 tracking-wide leading-normal max-w-[400px]">
-                Elevate your business with Arti, your AI-driven powerhouse for
-                enhancing social media presence and innovative marketing.
-              </p>
-            </div>
-          </div>
-          <div>
-            <Lottie
-              className={"w-[380px] h-[380px]"}
-              animationData={startChatAnim}
-              loop={true}
-            />
-          </div>
+          ))}
         </div>
       </div>
     </div>

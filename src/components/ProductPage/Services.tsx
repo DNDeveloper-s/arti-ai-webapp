@@ -900,7 +900,7 @@ export default function Services() {
 
   return (
     <div
-      className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] lg:gap-10 xl:gap-20 mt-40"
+      className="landing-page-section relative grid grid-cols-1 md:grid-cols-[1fr_1fr] lg:gap-10 xl:gap-20 mt-20"
       id={"services"}
     >
       <div>

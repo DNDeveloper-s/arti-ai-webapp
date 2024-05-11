@@ -11,11 +11,16 @@ export const navbarData = {
     },
     {
       id: "2",
+      href: "/#why-us",
+      label: "Why Us",
+    },
+    {
+      id: "3",
       href: "/#services",
       label: "Services",
     },
     {
-      id: "3",
+      id: "4",
       href: "/#case-studies",
       label: "Case Studies",
       children: [
@@ -37,16 +42,6 @@ export const navbarData = {
           label: <NavDropdownItem label={"AnT Street Wear"} info="Fashion" />,
         },
       ],
-    },
-    {
-      id: "4",
-      href: "/#arti-bot",
-      label: "Arti Chat",
-    },
-    {
-      id: "5",
-      href: "/#why-us",
-      label: "Why Us",
     },
   ],
   cta: {

@@ -17,12 +17,12 @@ export default function WhatCanYouDo() {
         backgroundAttachment: "fixed",
       }}
     >
-      <div className="w-[90vw] max-w-[1100px] mx-auto py-0 flex gap-8 justify-between">
+      <div className="w-[90vw] max-w-[1100px] mx-auto md:py-0 flex md:flex-row flex-col-reverse gap-8 py-4 justify-between">
         <div className="flex-1 flex flex-col justify-center items-start">
-          <h2 className="mb-7 text-[40px] font-gilroyRegular">
+          <h2 className="mb-4 md:mb-7 text-[25px] md:text-[40px] font-gilroyRegular">
             What can I do with Arti AI:
           </h2>
-          <p className="font-gilroyBold text-[50px] text-white ">
+          <p className="font-gilroyBold text-[35px] md:text-[50px] text-white ">
             <Typist
               startDelay={0}
               cursor={
@@ -47,7 +47,10 @@ export default function WhatCanYouDo() {
               ].map(({ text: word, color }) => [
                 <span
                   key={word}
-                  className={"font-gilroyBold text-[50px] text-white " + word}
+                  className={
+                    "font-gilroyBold text-[35px] md:text-[50px] text-white " +
+                    word
+                  }
                 >
                   {word}
                 </span>,
@@ -59,7 +62,9 @@ export default function WhatCanYouDo() {
         </div>
         <div>
           <Lottie
-            className={"w-[380px] h-[380px]"}
+            className={
+              "w-[240px] h-[240px] md:w-[380px] md:h-[380px] mx-auto md:mx-0"
+            }
             animationData={whatCanYouDoAnim}
             loop={true}
           />
