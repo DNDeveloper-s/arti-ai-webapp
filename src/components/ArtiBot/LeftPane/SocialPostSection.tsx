@@ -205,10 +205,10 @@ export default function SocialPostSection(props: SocialPostSectionProps) {
 
   const noData = !posts.length && !isLoading;
 
-  const [useStatic, setUseStatic] = useState(false);
+  const [useStatic, setUseStatic] = useState(true);
 
   useEffect(() => {
-    setUseStatic(window.localStorage.getItem("use-static-posts") === "true");
+    // setUseStatic(window.localStorage.getItem("use-static-posts") === "false");
   }, []);
 
   return (
