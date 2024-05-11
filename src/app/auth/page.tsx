@@ -79,6 +79,7 @@ export default function Auth() {
   // }
 
   const [sentCodeCount, setSentCodeCount] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { mutate, isSuccess, isPending } = useSendEmailVerificationRequest();
   const [stepCount, setStepCount] = useState(0);
   const [formValues, setFormValues] = useState<any>(null);
@@ -144,6 +145,7 @@ export default function Auth() {
     // Check for the email if it already registered or not
     // const doesExist = await isEmailAlreadyRegistered(formValues.email);
     // console.log('doesExist - ', doesExist);
+    setIsSubmitting(true);
     setFormValues(_formValues);
     const res = await signIn("credentials", {
       ..._formValues,
@@ -172,7 +174,10 @@ export default function Auth() {
     } else {
       router.push("/");
     }
+    setIsSubmitting(false);
   }
+
+  const isLoading = isSubmitting || isPending;
 
   return !showEmailVerification ? (
     <AuthForm
@@ -194,7 +199,7 @@ export default function Auth() {
         label: "Forgot Password?",
         to: "#",
       }}
-      isSubmitting={isPending}
+      isSubmitting={isLoading}
     />
   ) : (
     <VerifyEmailScreen

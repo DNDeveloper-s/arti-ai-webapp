@@ -116,7 +116,7 @@ export default function SocialPostPage(props: SocialPostPageProps) {
 
   return (
     <div className="p-10">
-      <div className="flex w-full justify-end items-center mb-3">
+      <div className="flex w-full justify-start items-center mb-3">
         {isFetchingPage ? (
           <div className="flex items-center gap-4">
             <div>

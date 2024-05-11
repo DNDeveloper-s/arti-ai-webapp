@@ -1,7 +1,9 @@
 "use client";
 
 import { useValidateVerificationCode } from "@/api/auth";
+import { ErrorMasterComponent } from "@/components/shared/error/ErrorComponent";
 import { SnackbarContext } from "@/context/SnackbarContext";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useContext, useEffect } from "react";
 
@@ -33,8 +35,10 @@ function VerifyToken() {
 
 export default function VerifyTokenPage() {
   return (
-    <Suspense>
-      <VerifyToken />
-    </Suspense>
+    <ErrorBoundary errorComponent={ErrorMasterComponent}>
+      <Suspense>
+        <VerifyToken />
+      </Suspense>
+    </ErrorBoundary>
   );
 }

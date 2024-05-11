@@ -716,7 +716,7 @@ export default function CreateAdset({
       destination_type: conversionLocationValue,
       promoted_object: promotedObject,
       bid_strategy: "LOWEST_COST_WITHOUT_CAP",
-      daily_budget: +data.daily_budget,
+      daily_budget: +data.daily_budget * 100,
       // publisher_platforms: ["facebook", "instagram"],
     };
 

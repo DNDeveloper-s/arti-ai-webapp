@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import { CardStackImages } from "@/components/ArtiBot/LeftPane/ConversationListItem";
 import { ConversationGroupByPost, TimeRange } from "@/api/conversation";
 import useInView from "@/hooks/useInView";
@@ -10,6 +10,7 @@ import ImageTemp, {
   AppDefaultImage,
 } from "@/components/shared/renderers/ImageTemp";
 import { getSocialPageUrl } from "@/helpers";
+import { random } from "lodash";
 
 export const PostInsightShimmer = () => {
   return (
@@ -63,6 +64,8 @@ export const defaultTimeRange: TimeRange = [
   dayjs(),
 ];
 
+
+
 const SocialPostListItem: FC<SocialPostItemProps> = ({
   conversation,
   containerClassName,
@@ -70,6 +73,7 @@ const SocialPostListItem: FC<SocialPostItemProps> = ({
 }) => {
   const router = useRouter();
   const { ref, isInView } = useInView();
+  const [useStatic, setUseStatic] = useState(false);
 
   const latestPost = conversation.Post[0];
 

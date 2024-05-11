@@ -142,7 +142,7 @@ export const useGetConversationInfinite = <T extends "posts" | "none" = "none">(
 ) => {
   const LIMIT = 10;
   const { pushConversationsToState } = useConversation();
-  const { business } = useBusiness();
+  const { businessId } = useBusiness();
   const qc = useQueryClient();
 
   const fetchConversations = async (
@@ -174,7 +174,7 @@ export const useGetConversationInfinite = <T extends "posts" | "none" = "none">(
   };
 
   return useInfiniteQuery<GetConversationInifiniteResponse<T>>({
-    queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id, group_by),
+    queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(businessId, group_by),
     queryFn: ({ pageParam, queryKey, direction, meta }: any) =>
       fetchConversations(pageParam, queryKey, direction),
     meta: {},
@@ -211,7 +211,7 @@ export type GetVariantsByConversationResponse = VariantsByConversation[];
 
 export const useGetVariantsByConversation = (skip: number = 0) => {
   const { pushVariantsToState } = useConversation();
-  const { business } = useBusiness();
+  const { businessId } = useBusiness();
   const LIMIT = 10;
   const fetchVariants = async (skip: number, queryKey: QueryKey) => {
     const [, businessId] = queryKey;
@@ -235,7 +235,7 @@ export const useGetVariantsByConversation = (skip: number = 0) => {
   };
 
   return useInfiniteQuery<GetVariantsByConversationResponse>({
-    queryKey: API_QUERIES.VARIANTS_BY_CONVERSATION(business?.id),
+    queryKey: API_QUERIES.VARIANTS_BY_CONVERSATION(businessId),
     queryFn: ({ pageParam, queryKey }: any) =>
       fetchVariants(pageParam, queryKey),
     initialPageParam: skip,
@@ -243,7 +243,7 @@ export const useGetVariantsByConversation = (skip: number = 0) => {
       if (lastPage.length === 0 || lastPage.length < LIMIT) return undefined;
       return allPages.length * LIMIT;
     },
-    enabled: !!business,
+    enabled: !!businessId,
   });
 };
 

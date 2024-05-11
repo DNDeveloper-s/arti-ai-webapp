@@ -94,7 +94,7 @@ export const useGetConversationInfinite = <T extends "posts" | "none" = "none">(
 ) => {
   const LIMIT = 10;
   const { pushConversationsToState } = useConversation();
-  const { business } = useBusiness();
+  const { businessId } = useBusiness();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
   let queryConversationId: any = null;
@@ -133,7 +133,7 @@ export const useGetConversationInfinite = <T extends "posts" | "none" = "none">(
   };
 
   return useInfiniteQuery<GetConversationInifiniteResponse<T>>({
-    queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(business?.id, group_by),
+    queryKey: API_QUERIES.GET_INFINITE_CONVERSATIONS(businessId, group_by),
     queryFn: ({ pageParam, queryKey, direction, meta }: any) =>
       fetchConversations(pageParam, queryKey, direction),
     meta: {},

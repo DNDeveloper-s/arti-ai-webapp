@@ -174,7 +174,23 @@ const useBusinessContext = (initState: IBusinessState) => {
     return new Business(_business);
   }, [business, data]);
 
-  return { businessMap, business, setBusiness, state, dispatch };
+  const [businessId, setBusinessId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const localBusinessId = window.localStorage.getItem("business_id");
+    if (localBusinessId) {
+      setBusinessId(localBusinessId);
+    }
+  }, []);
+
+  return {
+    businessMap,
+    business,
+    setBusiness,
+    state,
+    dispatch,
+    businessId: business?.id ?? businessId,
+  };
 };
 
 type UseBusinessContextType = ReturnType<typeof useBusinessContext>;
@@ -185,6 +201,7 @@ export const BusinessContext = createContext<UseBusinessContextType>({
   state: initBusinessState,
   dispatch: () => {},
   businessMap: new Business(),
+  businessId: undefined,
 });
 
 const BusinessContextProvider: FC<{ children: React.ReactElement }> = ({
@@ -205,6 +222,7 @@ type UseBusinessHookType = {
   business: IBusinessState;
   businessMap: Business;
   setBusiness: (business: IBusinessState) => void;
+  businessId: string;
 };
 
 function useBusiness(): UseBusinessHookType {

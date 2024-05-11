@@ -125,14 +125,19 @@ export default function AdItem({
       {/* <Markdown source={str} options={{html: true}} /> */}
       <div>
         <p className="text-white text-opacity-50 font-diatype text-[0.85em] leading-[1.75em] my-[0.4em]">
-          Congratulations! We have successfully generated the ad for you. To
-          explore different ad variants and make the best choice, simply
-          navigate to the right pane and switch between tabs.
+          {conversation?.conversation_type ===
+          ConversationType.SOCIAL_MEDIA_POST
+            ? "Congratulations! Your social media post is all set! Feel free to customize it by editing the text and image to align with your brand's preferences."
+            : "Congratulations! Your ad is ready to go! Feel free to explore and customize it to match your brand's unique style. You can edit both the text and image to perfectly reflect your brand identity."}
         </p>
       </div>
       <div className="mt-[1em]">
         <span className="font-semibold text-primary text-[1.1em]">
-          Ad Summary
+          {conversation?.conversation_type ===
+          ConversationType.SOCIAL_MEDIA_POST
+            ? "Post"
+            : "Ad"}{" "}
+          Summary
         </span>
         <p className="text-white text-opacity-80 font-diatype text-[0.9em] leading-[1.75em] my-[0.55em]">
           {adCreative.summary}
