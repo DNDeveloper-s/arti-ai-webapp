@@ -45,6 +45,7 @@ import { SnackbarContext } from "@/context/SnackbarContext";
 import SwitchStatus from "../../SwitchStatus";
 import { getResultsFromInsights } from "../../Ads/View/ViewAds";
 import { wait } from "@/helpers";
+import { useDeleteAdset } from "@/api/admanager";
 
 const columns = [
   { name: "OFF/ON", uid: "status" },
@@ -89,6 +90,7 @@ export default function ViewAdset() {
   }, [isFetching, fetchNextPage, isFetchingNextPage]);
 
   const { mutate: postUpdateAdset, isPending: isUpdating } = useUpdateAdset();
+  const { mutate: postDeleteAdset } = useDeleteAdset();
 
   const handleToggle = useCallback(
     (id: string, status: ADMANAGER_STATUS_TYPE) => {
@@ -116,29 +118,32 @@ export default function ViewAdset() {
     setShowProgress(isUpdating);
   }, [isUpdating, setShowProgress]);
 
-  const editAdset = (adsetId: string) => {
-    try {
-      const currentAdset = adsets?.find(
-        (adset: IAdSet) => adset.id === adsetId
-      );
+  const editAdset = useCallback(
+    (adsetId: string) => {
+      try {
+        const currentAdset = adsets?.find(
+          (adset: IAdSet) => adset.id === adsetId
+        );
 
-      if (!currentAdset) {
-        throw new Error("Please select a single adset to edit");
+        if (!currentAdset) {
+          throw new Error("Please select a single adset to edit");
+        }
+
+        setFormState({
+          tab: CampaignTab.ADSETS,
+          open: true,
+          mode: "edit",
+          rawData: currentAdset,
+        });
+      } catch (e: any) {
+        setSnackBarData({
+          status: "error",
+          message: e.message,
+        });
       }
-
-      setFormState({
-        tab: CampaignTab.ADSETS,
-        open: true,
-        mode: "edit",
-        rawData: currentAdset,
-      });
-    } catch (e: any) {
-      setSnackBarData({
-        status: "error",
-        message: e.message,
-      });
-    }
-  };
+    },
+    [adsets, setFormState, setSnackBarData]
+  );
 
   function handleAddClick() {
     setFormState({
@@ -266,15 +271,7 @@ export default function ViewAdset() {
                   </DropdownItem>
                   <DropdownItem
                     onClick={async () => {
-                      setSnackBarData({
-                        message: "Deleting the ad...",
-                        status: "progress",
-                      });
-                      await wait(2000);
-                      setSnackBarData({
-                        message: "Error in deleting the ad!",
-                        status: "error",
-                      });
+                      postDeleteAdset(adset.id);
                     }}
                   >
                     Delete
@@ -287,7 +284,7 @@ export default function ViewAdset() {
           return cellValue;
       }
     },
-    [viewAdsByAdset, handleToggle]
+    [viewAdsByAdset, handleToggle, editAdset, postDeleteAdset]
   );
 
   return (

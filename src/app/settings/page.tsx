@@ -143,7 +143,7 @@ function SubscriptionDetails() {
   const handleClose = () => setOpen(false);
 
   const subscriptions = useMemo(() => {
-    return [subscription];
+    return subscription ? [subscription] : [];
   }, [subscription]);
 
   const renderCell = useCallback(
@@ -230,7 +230,7 @@ function SubscriptionDetails() {
         columns={columns}
         renderCell={renderCell}
         totalItems={subscriptions ?? []}
-        pronoun="ad"
+        pronoun="subscription"
         // selectedKeys={selected.ads}
         // setSelectedKeys={setSelected(CampaignTab.ADS)}
         selectionMode="none"
@@ -253,8 +253,8 @@ function SubscriptionDetails() {
         classNames={{
           wrapper: "h-[240px]",
         }}
-        // hasMore={hasNextPage}
-        // fetchMore={fetchNextPagnFn}
+        // hasMore={false}
+        // fetchMore={() => {}}
       />
       <SubscriptionPlanModal open={open} handleClose={handleClose} />
     </>

@@ -2,6 +2,7 @@ import { AD_MANAGER_ITEM, ROUTES } from "@/config/api-config";
 import API_QUERIES from "@/config/api-queries";
 import { IFacebookAdInsight, Paging } from "@/interfaces/ISocial";
 import {
+  Query,
   QueryFunctionContext,
   QueryKey,
   UseInfiniteQueryOptions,
@@ -9,6 +10,7 @@ import {
   useInfiniteQuery,
   useMutation,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
 import axios from "axios";
 import { useCredentials } from "./user";
@@ -290,5 +292,172 @@ export const useGetEstimatedReach = ({
     queryKey: API_QUERIES.GET_ESTIMATED_REACH(adsetId, accessToken),
     queryFn: getEstimatedReach,
     enabled: enabled && !!adsetId,
+  });
+};
+
+export const useDeleteCampaign = () => {
+  const { accessToken, accountId } = useCredentials();
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+  const qc = useQueryClient();
+  const { timeRange } = useTimeRange();
+
+  const parsedTimeRange = prepareTimeRange(timeRange);
+
+  const deleteCampaign = async (campaign_id: string) => {
+    if (!campaign_id) {
+      throw new Error("Campaign Id is required");
+    }
+    setSnackbarData({
+      message: "Deleting Campaign...",
+      status: "progress",
+    });
+    const response = await axios.delete(ROUTES.CAMPAIGN.DELETE(campaign_id), {
+      params: {
+        access_token: accessToken,
+      },
+    });
+    return response.data;
+  };
+  return useMutation({
+    mutationFn: deleteCampaign,
+    onError: (error) => {
+      setSnackbarData({
+        message: error?.message ?? "Error in deleting Campaign",
+        status: "error",
+      });
+    },
+    onSuccess: () => {
+      setSnackbarData({
+        message: "Campaign Deleted Successfully",
+        status: "success",
+      });
+      qc.invalidateQueries({
+        queryKey: API_QUERIES.GET_INFINITE_CAMPAIGNS(accountId, accessToken),
+      });
+      qc.invalidateQueries({
+        queryKey: API_QUERIES.GET_INFINITE_CAMPAIGNS(
+          accountId,
+          accessToken,
+          true
+        ),
+      });
+
+      qc.invalidateQueries({
+        queryKey: API_QUERIES.GET_INFINITE_CAMPAIGNS(
+          accountId,
+          accessToken,
+          false
+        ),
+      });
+
+      qc.invalidateQueries({
+        queryKey: API_QUERIES.GET_INFINITE_CAMPAIGNS(
+          accountId,
+          accessToken,
+          false,
+          parsedTimeRange
+        ),
+      });
+      qc.invalidateQueries({
+        queryKey: API_QUERIES.GET_INFINITE_CAMPAIGNS(
+          accountId,
+          accessToken,
+          true,
+          parsedTimeRange
+        ),
+      });
+    },
+  });
+};
+
+export const useDeleteAdset = () => {
+  const { accessToken, accountId } = useCredentials();
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+  const qc = useQueryClient();
+
+  const deleteAdset = async (adset_id: string) => {
+    if (!adset_id) {
+      throw new Error("Adset Id is required");
+    }
+    setSnackbarData({
+      message: "Deleting Adset...",
+      status: "progress",
+    });
+    const response = await axios.delete(ROUTES.ADSET.DELETE(adset_id), {
+      params: {
+        access_token: accessToken,
+      },
+    });
+    return response.data;
+  };
+  return useMutation({
+    mutationFn: deleteAdset,
+    onError: (error) => {
+      setSnackbarData({
+        message: error?.message ?? "Error in deleting Adset",
+        status: "error",
+      });
+    },
+    onSuccess: () => {
+      setSnackbarData({
+        message: "Adset Deleted Successfully",
+        status: "success",
+      });
+      qc.invalidateQueries({
+        predicate: (query: Query) => {
+          const cond =
+            query.queryKey[0] === API_QUERIES.GET_ADSETS()[0] &&
+            query.queryKey[1] === accessToken &&
+            query.queryKey[2] === accountId;
+          return !!cond;
+        },
+      });
+    },
+  });
+};
+
+export const useDeleteAd = () => {
+  const { accessToken, accountId } = useCredentials();
+  const [, setSnackbarData] = useContext(SnackbarContext).snackBarData;
+  const qc = useQueryClient();
+
+  const deleteAd = async (ad_id: string) => {
+    if (!ad_id) {
+      throw new Error("Ad Id is required");
+    }
+    setSnackbarData({
+      message: "Deleting Ad...",
+      status: "progress",
+    });
+    const response = await axios.delete(ROUTES.AD.DELETE(ad_id), {
+      params: {
+        access_token: accessToken,
+      },
+    });
+    return response.data;
+  };
+  return useMutation({
+    mutationFn: deleteAd,
+    onError: (error) => {
+      setSnackbarData({
+        message: error?.message ?? "Error in deleting Ad",
+        status: "error",
+      });
+    },
+    onSuccess: () => {
+      setSnackbarData({
+        message: "Ad Deleted Successfully",
+        status: "success",
+      });
+      qc.invalidateQueries({
+        predicate: (query: Query) => {
+          const cond =
+            query.queryKey[0] === API_QUERIES.GET_ADS()[0] &&
+            query.queryKey[1] === accessToken &&
+            query.queryKey[2] === accountId;
+          return !!cond;
+        },
+      });
+    },
   });
 };

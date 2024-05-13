@@ -30,6 +30,7 @@ import CaseStudies from "@/components/LandingPage/CaseStudies";
 import ServiceIntroduction from "./ServiceIntroduction";
 import WhyUsNew from "../LandingPage/WhyUsNew";
 import WhatCanYouDo from "../LandingPage/WhatCanYouDo";
+import FeatureRecord from "./FeatureRecord";
 
 function calculateScrollDepth() {
   const scrollHeight = document.documentElement.scrollHeight;
@@ -131,6 +132,7 @@ export default function ProductLandingPage() {
       <main>
         {/*<Logo />*/}
         <Hero />
+        <FeatureRecord />
         <WhyUsNew />
         {isMounted && (isSmallScreen || isPortrait) ? (
           <Services_Sm />

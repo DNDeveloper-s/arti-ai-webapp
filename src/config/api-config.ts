@@ -52,8 +52,13 @@ export const ROUTES = {
     LEADS: (type: AD_MANAGER_ITEM, id: string) =>
       apiUrl(`/marketing/${type}/${id}/leads`),
   },
+  ADSET: {
+    DELETE: (adsetId: string) => apiUrl(`/marketing/adsets/${adsetId}`),
+  },
   CAMPAIGN: {
     QUERY_INFINITE: apiUrl("/marketing/campaigns"),
+    DELETE: (campaignId: string) =>
+      apiUrl(`/marketing/campaigns/${campaignId}`),
   },
   PAYMENT: {
     CHECKOUT: apiUrl("/payments/checkout"),
@@ -150,6 +155,7 @@ export const ROUTES = {
       apiUrl(`/marketing/ad_entities/${adId}/identifiers`),
     GET_ESTIMATED_REACH: (adsetId: string) =>
       apiUrl(`/marketing/adsets/${adsetId}/delivery_estimates`),
+    DELETE: (adId: string) => apiUrl(`/marketing/ad_entities/${adId}`),
   },
   LOCATION: {
     ZIPCODE: apiUrl("/location/zipcode"),

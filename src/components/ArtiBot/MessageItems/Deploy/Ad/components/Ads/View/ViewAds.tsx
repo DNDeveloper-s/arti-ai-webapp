@@ -45,6 +45,7 @@ import {
 import { SnackbarContext } from "@/context/SnackbarContext";
 import SwitchStatus from "../../SwitchStatus";
 import { wait } from "@/helpers";
+import { useDeleteAd } from "@/api/admanager";
 
 const columns = [
   { name: "OFF/ON", uid: "status" },
@@ -128,6 +129,7 @@ export default function ViewAds() {
   );
 
   const { mutate: postUpdateAd, isPending: isUpdating } = useUpdateAd();
+  const { mutate: postDeleteAd } = useDeleteAd();
 
   const handleToggle = useCallback(
     (id: string, status: ADMANAGER_STATUS_TYPE, ad: IAd) => {
@@ -170,27 +172,30 @@ export default function ViewAds() {
   //   const [isLoading, setLoadingState] = useState(true);
   //   const [errorMessage, setErrorMessage] = useState("");
 
-  const editAd = (adId: string) => {
-    try {
-      const currentAd = ads?.find((ad: IAd) => ad.id === adId);
+  const editAd = useCallback(
+    (adId: string) => {
+      try {
+        const currentAd = ads?.find((ad: IAd) => ad.id === adId);
 
-      if (!currentAd) {
-        throw new Error("Please select a single ad to edit");
+        if (!currentAd) {
+          throw new Error("Please select a single ad to edit");
+        }
+
+        setFormState({
+          tab: CampaignTab.ADS,
+          open: true,
+          mode: "edit",
+          rawData: currentAd,
+        });
+      } catch (e: any) {
+        setSnackBarData({
+          status: "error",
+          message: e.message,
+        });
       }
-
-      setFormState({
-        tab: CampaignTab.ADS,
-        open: true,
-        mode: "edit",
-        rawData: currentAd,
-      });
-    } catch (e: any) {
-      setSnackBarData({
-        status: "error",
-        message: e.message,
-      });
-    }
-  };
+    },
+    [ads, setFormState, setSnackBarData]
+  );
 
   function handleAddClick() {
     setFormState({
@@ -277,29 +282,6 @@ export default function ViewAds() {
               )}
             </div>
           );
-        case "preview_shareable_link":
-          return (
-            <Snippet
-              hideSymbol
-              color="default"
-              size="sm"
-              classNames={{
-                copyButton: "!w-[24px] !w-[24px] !min-w-[unset] !min-h-[unset]",
-                content: "!font-diatype",
-              }}
-            >
-              {cellValue}
-            </Snippet>
-          );
-        case "objective":
-          return (
-            <div className="flex flex-col">
-              {/* <p className="text-bold text-small capitalize">{cellValue}</p> */}
-              <p className="text-bold text-tiny capitalize text-default-500">
-                {ad.objective}
-              </p>
-            </div>
-          );
         case "status":
           return (
             <SwitchStatus
@@ -341,15 +323,7 @@ export default function ViewAds() {
                   </DropdownItem>
                   <DropdownItem
                     onClick={async () => {
-                      setSnackBarData({
-                        message: "Deleting the adset...",
-                        status: "progress",
-                      });
-                      await wait(2000);
-                      setSnackBarData({
-                        message: "Error in deleting the adset!",
-                        status: "error",
-                      });
+                      postDeleteAd(ad.id);
                     }}
                   >
                     Delete
@@ -362,7 +336,7 @@ export default function ViewAds() {
           return cellValue;
       }
     },
-    [handleToggle]
+    [editAd, handleToggle, postDeleteAd]
   );
 
   return (
