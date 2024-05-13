@@ -159,6 +159,7 @@ export default function Auth() {
             });
           } else {
             setSnackBarData(null);
+            console.log("Line 107: Routing to business register");
             router.push("/business/register");
           }
         } catch (e: any) {

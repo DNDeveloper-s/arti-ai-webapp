@@ -3,7 +3,7 @@
 import ArtiBot from "@/components/ArtiBot/ArtiBot";
 import { dummy } from "@/constants/dummy";
 import React, { useEffect } from "react";
-import { redirect, useParams, useSearchParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { ConversationType, IConversation } from "@/interfaces/IConversation";
 import {
   createConversation,
@@ -18,6 +18,7 @@ import { red } from "tailwindcss/colors";
 import { CurrentConversationContextProvider } from "@/context/CurrentConversationContext";
 import { ClientMessageContextProvider } from "@/context/ClientMessageContext";
 import { useGetCampaignInsights, useGetConversation } from "@/api/conversation";
+import { useIsRestoring } from "@tanstack/react-query";
 
 // Fetch the conversation from the database
 // If the conversation doesn't exist, create a new conversation
@@ -42,6 +43,7 @@ export default function Conversation({
 }) {
   const { state, dispatch } = useConversation();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const projectName = searchParams.get("project_name");
   const token = useSessionToken();
   const queryConversationId = searchParams.get("conversation_id");
@@ -55,6 +57,7 @@ export default function Conversation({
 
   const { data: accounts } = useGetUserProviders();
   const { setAccounts } = useUser();
+  const isRestoring = useIsRestoring();
 
   const conversationId = data?.conversation_id ?? queryConversationId;
   const { data: serverConversation, isLoading } =
@@ -76,10 +79,11 @@ export default function Conversation({
   }, [dispatch, token, conversationId]);
 
   useEffect(() => {
-    if (isLoading || !dispatch || !conversationId || campaignId) return;
+    if (isLoading || !dispatch || isRestoring || !conversationId || campaignId)
+      return;
 
-    if (!clientConversation) {
-      if (!projectName) return redirect("/artibot/create");
+    if (!conversation) {
+      if (!projectName) return router.push("/artibot/create");
       const newConversation: IConversation = {
         id: Array.isArray(conversationId) ? conversationId[0] : conversationId,
         messages: [],
@@ -95,11 +99,13 @@ export default function Conversation({
   }, [
     dispatch,
     isLoading,
-    clientConversation,
+    conversation,
     conversationId,
     type,
+    isRestoring,
     projectName,
     campaignId,
+    router,
   ]);
 
   // if (!conversationId && !campaignId && !socialConversationId) {

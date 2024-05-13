@@ -7,6 +7,7 @@ import { MdEdit } from "react-icons/md";
 import { Button } from "@nextui-org/react";
 import Link from "next/link";
 import CTAButton from "./CTAButton";
+import { useIsRestoring } from "@tanstack/react-query";
 
 export default function SelectBusiness({
   handleOpen,
@@ -16,6 +17,7 @@ export default function SelectBusiness({
   const { data, isFetching, isSuccess, isFetched } = useQueryUserBusiness();
   const router = useRouter();
   const { business, setBusiness } = useBusiness();
+  const isRestoring = useIsRestoring();
 
   useEffect(() => {
     router.prefetch("/business/register");
@@ -27,10 +29,10 @@ export default function SelectBusiness({
 
   useEffect(() => {
     console.log("isFetching, data - ", isFetching, data);
-    if (!isFetching) {
+    if (!isFetching && !isRestoring) {
       if (!data || data.length === 0) return router.push("/business/register");
     }
-  }, [isFetching, data, router]);
+  }, [isFetching, isRestoring, data, router]);
 
   const handleEdit = (e: React.MouseEvent<SVGElement, MouseEvent>) => {
     e.stopPropagation();

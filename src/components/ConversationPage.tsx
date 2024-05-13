@@ -20,6 +20,7 @@ export default function ConversationPage() {
   );
 
   if (conversationType && !isValidType) {
+    console.log("Line 23: Redirecting to /artibot/create");
     return redirect("/artibot/create", RedirectType.replace);
   }
 
